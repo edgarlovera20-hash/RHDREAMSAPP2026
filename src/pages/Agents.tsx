@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Bot, Plus, Search, BrainCircuit, Activity, Zap, MessageSquare, Briefcase, FileText, CheckCircle2, XCircle, Settings2, Code, Users, Download, Filter, Send } from 'lucide-react';
+import { Bot, Plus, Search, BrainCircuit, Activity, Zap, MessageSquare, Briefcase, FileText, CheckCircle2, XCircle, Settings2, Code, Users, Download, Filter, Send, Copy, Loader2, Sparkles } from 'lucide-react';
 import { MOCK_AGENTS, MOCK_PREBUILT_TEMPLATES, AGENT_LOGS } from '@/data/mockData';
 import { AgentConfigModal } from '@/components/AgentConfigModal';
 
@@ -20,6 +20,8 @@ export function Agents() {
   const [activeChatAgent, setActiveChatAgent] = useState<typeof MOCK_AGENTS[0] | null>(null);
   const [chatMessages, setChatMessages] = useState<{role: 'user' | 'agent', text: string}[]>([]);
   const [currentMessage, setCurrentMessage] = useState('');
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -91,26 +93,52 @@ export function Agents() {
     setAgents(agents.map(a => a.id === id ? { ...a, status: a.status === 'Active' ? 'Draft' : 'Active' } : a));
   };
 
-  const handleSendMessage = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!currentMessage.trim() || !activeChatAgent) return;
-    
-    const newMsg = { role: 'user' as const, text: currentMessage };
-    setChatMessages([...chatMessages, newMsg]);
-    setCurrentMessage('');
-
-    // Simulate agent response
+  const handleCopyText = (text: string, index: number) => {
+    navigator.clipboard.writeText(text);
+    setCopiedIndex(index);
     setTimeout(() => {
-      setChatMessages(prev => [...prev, { 
-        role: 'agent', 
-        text: `Consultando base de conocimientos para ${activeChatAgent.name}... He recibido tu mensaje: "${newMsg.text}". (Respuesta simulada)` 
-      }]);
-    }, 1000);
+      setCopiedIndex(null);
+    }, 2000);
+  };
+
+  const handleSendMessage = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!currentMessage.trim() || !activeChatAgent || isGenerating) return;
+    
+    const userText = currentMessage.trim();
+    const newMsg = { role: 'user' as const, text: userText };
+    setChatMessages(prev => [...prev, newMsg]);
+    setCurrentMessage('');
+    setIsGenerating(true);
+
+    try {
+      const res = await fetch('/api/gemini/agent/reply', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          agentName: activeChatAgent.name,
+          systemPrompt: activeChatAgent.systemPrompt || '',
+          conversationHistory: chatMessages,
+          userPrompt: userText
+        })
+      });
+      const data = await res.json();
+      if (data && data.reply) {
+        setChatMessages(prev => [...prev, { role: 'agent', text: data.reply }]);
+      } else {
+        setChatMessages(prev => [...prev, { role: 'agent', text: "Lo siento, ha ocurrido un problema al procesar la respuesta del agente virtual." }]);
+      }
+    } catch (err) {
+      console.error("Error communicating with agent:", err);
+      setChatMessages(prev => [...prev, { role: 'agent', text: "Ocurrió un error al intentar comunicar con el agente virtual." }]);
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   const openChat = (agent: typeof MOCK_AGENTS[0]) => {
     setActiveChatAgent(agent);
-    setChatMessages([{ role: 'agent', text: `Hola, soy ${agent.name}. Estoy configurado como ${agent.role}. ¿En qué te puedo ayudar hoy?` }]);
+    setChatMessages([{ role: 'agent', text: `Hola, soy ${agent.name}. Estoy configurado como ${agent.role}. ¿En qué te puedo ayudar hoy? Explicame qué necesitas redactar, auditar o diseñar y me pondré a trabajar de inmediato.` }]);
   };
 
   return (
@@ -478,14 +506,37 @@ export function Agents() {
             </div>
             
             {/* Chat messages */}
-            <div className="flex-1 p-4 overflow-y-auto space-y-4 styled-scrollbar">
+            <div className="flex-1 p-4 overflow-y-auto space-y-4 styled-scrollbar bg-slate-950/20">
               {chatMessages.map((msg, idx) => (
-                <div key={idx} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                  <div className={`max-w-[80%] rounded-2xl px-4 py-2.5 text-sm ${msg.role === 'user' ? 'bg-cyan-600 text-white rounded-br-none' : 'bg-slate-800 text-slate-200 border border-slate-700 rounded-bl-none'}`}>
-                    {msg.text}
+                <div key={idx} className={`flex flex-col ${msg.role === 'user' ? 'items-end' : 'items-start'} group/msg`}>
+                  <div className="flex items-start gap-2 max-w-[85%]">
+                    <div className={`rounded-2xl px-4 py-3 text-sm whitespace-pre-wrap leading-relaxed font-sans ${msg.role === 'user' ? 'bg-cyan-600 text-white rounded-br-none shadow-[0_4px_12px_rgba(6,182,212,0.15)]' : 'bg-slate-800 text-slate-100 border border-slate-700/60 rounded-bl-none shadow-lg'}`}>
+                      {msg.text}
+                    </div>
+                    {msg.role === 'agent' && (
+                      <button
+                        onClick={() => handleCopyText(msg.text, idx)}
+                        className="mt-1 p-1.5 rounded-lg bg-slate-800 border border-slate-700 hover:border-slate-600 text-slate-400 hover:text-cyan-400 transition-all opacity-0 group-hover/msg:opacity-100 self-start shrink-0"
+                        title="Copiar texto al portapapeles"
+                      >
+                        {copiedIndex === idx ? (
+                          <span className="text-[10px] text-emerald-400 font-bold px-1 uppercase tracking-wider">¡Listo!</span>
+                        ) : (
+                          <Copy className="w-3.5 h-3.5" />
+                        )}
+                      </button>
+                    )}
                   </div>
                 </div>
               ))}
+              {isGenerating && (
+                <div className="flex justify-start">
+                  <div className="flex items-center gap-3 bg-slate-800/40 border border-slate-700/40 rounded-2xl px-4 py-3 text-xs md:text-sm text-slate-400 shadow-md">
+                    <Loader2 className="w-4 h-4 text-cyan-400 animate-spin" />
+                    <span className="animate-pulse">El agente virtual de Heavenly Dreams está pensando y redactando...</span>
+                  </div>
+                </div>
+              )}
               <div ref={messagesEndRef} />
             </div>
 
@@ -496,15 +547,20 @@ export function Agents() {
                   type="text"
                   value={currentMessage}
                   onChange={(e) => setCurrentMessage(e.target.value)}
-                  placeholder="Escribe un mensaje al agente..."
-                  className="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-cyan-500 transition-colors"
+                  disabled={isGenerating}
+                  placeholder={isGenerating ? "Espera a que el agente termine..." : "Escribe un prompt laboral o propuesta de anuncio para evaluar..."}
+                  className="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-cyan-500 transition-colors disabled:opacity-50"
                 />
                 <button
                   type="submit"
-                  disabled={!currentMessage.trim()}
-                  className="bg-cyan-500 hover:bg-cyan-600 disabled:bg-slate-700 disabled:text-slate-500 text-slate-900 p-2.5 rounded-xl transition-colors flex items-center justify-center"
+                  disabled={!currentMessage.trim() || isGenerating}
+                  className="bg-cyan-500 hover:bg-cyan-600 disabled:bg-slate-700 disabled:text-slate-500 text-slate-900 p-2.5 rounded-xl transition-colors flex items-center justify-center shrink-0"
                 >
-                  <Send className="w-5 h-5" />
+                  {isGenerating ? (
+                    <Loader2 className="w-5 h-5 animate-spin text-slate-600" />
+                  ) : (
+                    <Send className="w-5 h-5" />
+                  )}
                 </button>
               </form>
             </div>

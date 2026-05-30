@@ -2,5 +2,5 @@
   "name": "RHDreams",
   "description": "Recruitment focused CRM for managing candidates, job offers, and stages.",
   "requestFramePermissions": [],
-  "majorCapabilities": []
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

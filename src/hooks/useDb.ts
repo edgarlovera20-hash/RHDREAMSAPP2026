@@ -10,7 +10,7 @@ import {
   query,
   orderBy
 } from "firebase/firestore";
-import { db, auth } from "@/lib/firebase";
+import { db, auth, handleFirestoreError, OperationType } from "@/lib/firebase";
 import {
   Candidate,
   Job,
@@ -39,6 +39,8 @@ export function useDb() {
         list.push({ id: doc.id, ...doc.data() } as Candidate);
       });
       setCandidates(list);
+    }, (error) => {
+      handleFirestoreError(error, OperationType.LIST, "candidates");
     });
 
     const unsubJobs = onSnapshot(collection(db, "jobs"), (snapshot) => {
@@ -47,6 +49,8 @@ export function useDb() {
         list.push({ id: doc.id, ...doc.data() } as Job);
       });
       setJobs(list);
+    }, (error) => {
+      handleFirestoreError(error, OperationType.LIST, "jobs");
     });
 
     const unsubAppointments = onSnapshot(collection(db, "appointments"), (snapshot) => {
@@ -55,6 +59,8 @@ export function useDb() {
         list.push({ id: doc.id, ...doc.data() } as Appointment);
       });
       setAppointments(list);
+    }, (error) => {
+      handleFirestoreError(error, OperationType.LIST, "appointments");
     });
 
     const unsubMessages = onSnapshot(collection(db, "messages"), (snapshot) => {
@@ -65,6 +71,8 @@ export function useDb() {
       // Sort messages ascending by time for chat timelines
       list.sort((a, b) => a.createdAt - b.createdAt);
       setMessages(list);
+    }, (error) => {
+      handleFirestoreError(error, OperationType.LIST, "messages");
     });
 
     const unsubAutomations = onSnapshot(collection(db, "automations"), (snapshot) => {
@@ -73,6 +81,8 @@ export function useDb() {
         list.push({ id: doc.id, ...doc.data() } as Automation);
       });
       setAutomations(list);
+    }, (error) => {
+      handleFirestoreError(error, OperationType.LIST, "automations");
     });
 
     const unsubNotifications = onSnapshot(collection(db, "notifications"), (snapshot) => {
@@ -83,6 +93,8 @@ export function useDb() {
       list.sort((a, b) => b.createdAt - a.createdAt);
       setNotifications(list);
       setLoading(false);
+    }, (error) => {
+      handleFirestoreError(error, OperationType.LIST, "notifications");
     });
 
     const unsubAgents = onSnapshot(collection(db, "agents"), (snapshot) => {
@@ -91,6 +103,8 @@ export function useDb() {
         list.push({ id: doc.id, ...doc.data() } as Agent);
       });
       setAgents(list);
+    }, (error) => {
+      handleFirestoreError(error, OperationType.LIST, "agents");
     });
 
     return () => {

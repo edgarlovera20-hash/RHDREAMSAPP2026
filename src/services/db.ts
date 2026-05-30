@@ -13,7 +13,7 @@ import {
   serverTimestamp,
   addDoc
 } from "firebase/firestore";
-import { db, auth } from "@/lib/firebase";
+import { db, auth, handleFirestoreError, OperationType } from "@/lib/firebase";
 
 export interface Candidate {
   id: string;
@@ -369,63 +369,147 @@ const INITIAL_AGENTS: Agent[] = [
 // Seed databases if empty
 export async function seedDatabaseIfEmpty() {
   try {
-    const candSnapshot = await getDocs(collection(db, "candidates"));
+    let candSnapshot;
+    try {
+      candSnapshot = await getDocs(collection(db, "candidates"));
+    } catch (e) {
+      handleFirestoreError(e, OperationType.GET, "candidates");
+      return;
+    }
+
     if (candSnapshot.empty) {
       console.log("Seeding candidates...");
       for (const cand of INITIAL_CANDIDATES) {
-        await setDoc(doc(db, "candidates", cand.id), cand);
+        try {
+          await setDoc(doc(db, "candidates", cand.id), cand);
+        } catch (e) {
+          handleFirestoreError(e, OperationType.WRITE, "candidates");
+        }
       }
     }
-    const jobSnapshot = await getDocs(collection(db, "jobs"));
+
+    let jobSnapshot;
+    try {
+      jobSnapshot = await getDocs(collection(db, "jobs"));
+    } catch (e) {
+      handleFirestoreError(e, OperationType.GET, "jobs");
+      return;
+    }
+
     if (jobSnapshot.empty) {
       console.log("Seeding jobs...");
       for (const j of INITIAL_JOBS) {
-        await setDoc(doc(db, "jobs", j.id), j);
+        try {
+          await setDoc(doc(db, "jobs", j.id), j);
+        } catch (e) {
+          handleFirestoreError(e, OperationType.WRITE, "jobs");
+        }
       }
     }
-    const apptSnapshot = await getDocs(collection(db, "appointments"));
+
+    let apptSnapshot;
+    try {
+      apptSnapshot = await getDocs(collection(db, "appointments"));
+    } catch (e) {
+      handleFirestoreError(e, OperationType.GET, "appointments");
+      return;
+    }
+
     if (apptSnapshot.empty) {
       console.log("Seeding appointments...");
       for (const a of INITIAL_APPOINTMENTS) {
-        await setDoc(doc(db, "appointments", a.id), a);
+        try {
+          await setDoc(doc(db, "appointments", a.id), a);
+        } catch (e) {
+          handleFirestoreError(e, OperationType.WRITE, "appointments");
+        }
       }
     }
-    const msgSnapshot = await getDocs(collection(db, "messages"));
+
+    let msgSnapshot;
+    try {
+      msgSnapshot = await getDocs(collection(db, "messages"));
+    } catch (e) {
+      handleFirestoreError(e, OperationType.GET, "messages");
+      return;
+    }
+
     if (msgSnapshot.empty) {
       console.log("Seeding messages...");
       for (const m of INITIAL_MESSAGES) {
-        await setDoc(doc(db, "messages", m.id), m);
+        try {
+          await setDoc(doc(db, "messages", m.id), m);
+        } catch (e) {
+          handleFirestoreError(e, OperationType.WRITE, "messages");
+        }
       }
     }
-    const autoSnapshot = await getDocs(collection(db, "automations"));
+
+    let autoSnapshot;
+    try {
+      autoSnapshot = await getDocs(collection(db, "automations"));
+    } catch (e) {
+      handleFirestoreError(e, OperationType.GET, "automations");
+      return;
+    }
+
     if (autoSnapshot.empty) {
       console.log("Seeding automations...");
       for (const a of INITIAL_AUTOMATIONS) {
-        await setDoc(doc(db, "automations", a.id), a);
+        try {
+          await setDoc(doc(db, "automations", a.id), a);
+        } catch (e) {
+          handleFirestoreError(e, OperationType.WRITE, "automations");
+        }
       }
     }
-    const notSnapshot = await getDocs(collection(db, "notifications"));
+
+    let notSnapshot;
+    try {
+      notSnapshot = await getDocs(collection(db, "notifications"));
+    } catch (e) {
+      handleFirestoreError(e, OperationType.GET, "notifications");
+      return;
+    }
+
     if (notSnapshot.empty) {
       console.log("Seeding notifications...");
       for (const n of INITIAL_NOTIFICATIONS) {
-        await setDoc(doc(db, "notifications", n.id), n);
+        try {
+          await setDoc(doc(db, "notifications", n.id), n);
+        } catch (e) {
+          handleFirestoreError(e, OperationType.WRITE, "notifications");
+        }
       }
     }
-    const agentSnapshot = await getDocs(collection(db, "agents"));
+
+    let agentSnapshot;
+    try {
+      agentSnapshot = await getDocs(collection(db, "agents"));
+    } catch (e) {
+      handleFirestoreError(e, OperationType.GET, "agents");
+      return;
+    }
+
     if (agentSnapshot.empty) {
       console.log("Seeding agents...");
       for (const ag of INITIAL_AGENTS) {
         const docRef = ag.id === "agent-1" || ag.id === "agent-2" ? ag.id : doc(collection(db, "agents")).id;
         const currentUserId = auth.currentUser?.uid || "shared";
-        await setDoc(doc(db, "agents", docRef), {
-          ...ag,
-          id: docRef,
-          userId: currentUserId
-        });
+        try {
+          await setDoc(doc(db, "agents", docRef), {
+            ...ag,
+            id: docRef,
+            userId: currentUserId
+          });
+        } catch (e) {
+          handleFirestoreError(e, OperationType.WRITE, "agents");
+        }
       }
     }
     console.log("Database seeded successfully!");
   } catch (error) {
     console.error("Error seeding database: ", error);
+    throw error;
   }
 }
