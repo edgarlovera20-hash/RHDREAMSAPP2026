@@ -7,6 +7,7 @@ import { Bot } from 'lucide-react';
 interface AuthContextType {
   user: User | null;
   loading: boolean;
+  accessToken: string | null;
   signInWithGoogle: () => Promise<void>;
   signInAsGuest: () => Promise<void>;
   logout: () => Promise<void>;
@@ -17,6 +18,7 @@ const AuthContext = createContext<AuthContextType>({} as AuthContextType);
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [mockUser, setMockUser] = useState<any>(null);
+  const [accessToken, setAccessToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -25,6 +27,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const unsubscribe = auth.onAuthStateChanged((firebaseUser) => {
       if (firebaseUser) {
         setMockUser(null);
+      } else {
+        setAccessToken(null);
       }
       setUser(firebaseUser);
       setLoading(false);
@@ -38,11 +42,26 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     provider.setCustomParameters({
       prompt: 'select_account'
     });
+    
+    // Add Scopes for requested services
+    provider.addScope('https://www.googleapis.com/auth/spreadsheets');
+    provider.addScope('https://www.googleapis.com/auth/calendar');
+    provider.addScope('https://www.googleapis.com/auth/gmail.send');
+    provider.addScope('https://www.googleapis.com/auth/gmail.readonly');
+    provider.addScope('https://www.googleapis.com/auth/forms.responses.readonly');
+    provider.addScope('https://www.googleapis.com/auth/drive.readonly');
+    provider.addScope('https://www.googleapis.com/auth/keep');
+
     try {
-      await signInWithPopup(auth, provider);
+      const result = await signInWithPopup(auth, provider);
+      const credential = GoogleAuthProvider.credentialFromResult(result);
+      if (credential?.accessToken) {
+        setAccessToken(credential.accessToken);
+        setErrorMsg(null);
+      }
     } catch (error: any) {
       console.error('Error signing in with Google', error);
-      setErrorMsg(error.message || 'Error al iniciar sesión. Comprueba tu conexión a internet o intenta abrir la aplicación en una pestaña nueva si tienes bloqueadores de anuncios.');
+      setErrorMsg(error.message || 'Error al iniciar sesión con Google.');
     }
   };
 
@@ -151,7 +170,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }
 
   return (
-    <AuthContext.Provider value={{ user: activeUser, loading, signInWithGoogle, signInAsGuest, logout }}>
+    <AuthContext.Provider value={{ user: activeUser, loading, accessToken, signInWithGoogle, signInAsGuest, logout }}>
       {children}
     </AuthContext.Provider>
   );

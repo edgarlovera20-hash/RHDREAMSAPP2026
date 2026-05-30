@@ -8,6 +8,7 @@ import { Settings } from '@/pages/Settings';
 import { Reports } from '@/pages/Reports';
 import { Agents } from '@/pages/Agents';
 import { WhatsAppAccounts } from '@/pages/WhatsAppAccounts';
+import { WorkspaceHub } from '@/pages/WorkspaceHub';
 import { NotificationProvider } from '@/contexts/NotificationContext';
 import { AuthProvider } from '@/contexts/AuthContext';
 
@@ -24,6 +25,7 @@ export default function App() {
               <Route path="/messages" element={<Messages />} />
               <Route path="/agents" element={<Agents />} />
               <Route path="/whatsapp" element={<WhatsAppAccounts />} />
+              <Route path="/workspace" element={<WorkspaceHub />} />
               <Route path="/reports" element={<Reports />} />
               <Route path="/settings" element={<Settings />} />
             </Route>

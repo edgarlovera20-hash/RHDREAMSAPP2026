@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, Outlet, useLocation } from "react-router-dom";
 import { 
-  Menu, X, LayoutDashboard, Users, Briefcase, Settings, PieChart, Building, Zap, ChevronRight, Home, Sun, Moon, Smartphone, MessageSquare, PanelLeftClose, PanelLeftOpen
+  Menu, X, LayoutDashboard, Users, Briefcase, Settings, PieChart, Building, Zap, ChevronRight, Home, Sun, Moon, Smartphone, MessageSquare, PanelLeftClose, PanelLeftOpen, Cloud
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { NetworkBackground } from "./NetworkBackground";
@@ -14,6 +14,7 @@ const PATH_MAP: Record<string, string> = {
   "/messages": "Mensajes",
   "/agents": "Agentes AI",
   "/whatsapp": "Canales de Chat",
+  "/workspace": "Google Workspace",
   "/reports": "Reportes",
   "/settings": "Configuración",
 };
@@ -25,6 +26,7 @@ const NAV_ITEMS = [
   { name: "Mensajes", path: "/messages", icon: MessageSquare },
   { name: "Agentes AI", path: "/agents", icon: Zap },
   { name: "Canales de Chat", path: "/whatsapp", icon: Smartphone },
+  { name: "Google Workspace", path: "/workspace", icon: Cloud },
   { name: "Reportes", path: "/reports", icon: PieChart },
   { name: "Configuración", path: "/settings", icon: Settings },
 ];
