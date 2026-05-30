@@ -1,0 +1,49 @@
+{
+  "entities": {
+    "Agent": {
+      "title": "Agent",
+      "description": "An AI agent for specific tasks.",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "role": { "type": "string" },
+        "status": { "type": "string", "enum": ["Active", "Draft"] },
+        "description": { "type": "string" },
+        "channels": { "type": "array", "items": { "type": "string" } },
+        "memory": { "type": "string" },
+        "conversations": { "type": "number" },
+        "successRate": { "type": "string" },
+        "avatarColor": { "type": "string" },
+        "userId": { "type": "string" },
+        "createdAt": { "type": "number" },
+        "basePrompt": { "type": "string" }
+      },
+      "required": ["name", "role", "status", "userId", "createdAt"]
+    },
+    "AgentKnowledge": {
+      "title": "Agent Knowledge",
+      "description": "Learning materials, text, or templates for an agent.",
+      "type": "object",
+      "properties": {
+        "type": { "type": "string", "enum": ["text", "template", "file"] },
+        "title": { "type": "string" },
+        "content": { "type": "string" },
+        "fileUrl": { "type": "string" },
+        "agentId": { "type": "string" },
+        "userId": { "type": "string" },
+        "createdAt": { "type": "number" }
+      },
+      "required": ["type", "title", "content", "agentId", "userId", "createdAt"]
+    }
+  },
+  "firestore": {
+    "agents": {
+      "schema": { "$ref": "#/entities/Agent" },
+      "description": "Stores user-created AI agents."
+    },
+    "agents/{agentId}/knowledge": {
+      "schema": { "$ref": "#/entities/AgentKnowledge" },
+      "description": "Stores knowledge resources for a specific agent."
+    }
+  }
+}

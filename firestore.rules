@@ -1,0 +1,97 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isSignedIn() { return request.auth != null; }
+    function isValidId(id) { return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$'); }
+    function incoming() { return request.resource.data; }
+    function existing() { return resource.data; }
+
+    function isValidAgent(data) {
+      return data.keys().hasAll(['name', 'role', 'status', 'userId', 'createdAt'])
+        && data.name is string && data.name.size() > 0 && data.name.size() <= 100
+        && data.role is string && data.role.size() > 0 && data.role.size() <= 100
+        && data.status is string && data.status in ['Active', 'Draft']
+        && data.userId == request.auth.uid
+        && data.createdAt is timestamp
+        // Optional fields
+        && ( ('description' in data) ? (data.description is string && data.description.size() <= 1000) : true )
+        && ( ('avatarColor' in data) ? (data.avatarColor is string && data.avatarColor.size() <= 50) : true )
+        && ( ('basePrompt' in data) ? (data.basePrompt is string && data.basePrompt.size() <= 5000) : true )
+        && ( ('memory' in data) ? (data.memory is string && data.memory.size() <= 50) : true )
+        && ( ('successRate' in data) ? (data.successRate is string && data.successRate.size() <= 50) : true )
+        && ( ('conversations' in data) ? (data.conversations is number) : true )
+        && ( ('channels' in data) ? (data.channels is list && data.channels.size() <= 10) : true );
+    }
+
+    // Rules for agents
+    match /agents/{agentId} {
+      allow get: if isSignedIn() && isValidId(agentId) && existing().userId == request.auth.uid;
+      allow list: if isSignedIn() && existing().userId == request.auth.uid;
+      
+      allow create: if isSignedIn() 
+        && isValidId(agentId) 
+        && isValidAgent(incoming()) 
+        && incoming().createdAt == request.time
+        && incoming().keys().size() <= 12;
+
+      allow update: if isSignedIn() 
+        && isValidId(agentId) 
+        && existing().userId == request.auth.uid 
+        && isValidAgent(incoming()) 
+        && incoming().userId == existing().userId
+        && incoming().createdAt == existing().createdAt
+        && (
+          incoming().diff(existing()).affectedKeys().hasOnly(['name', 'role', 'status', 'description', 'channels', 'memory', 'conversations', 'successRate', 'avatarColor', 'basePrompt'])
+        );
+
+      allow delete: if isSignedIn() && isValidId(agentId) && existing().userId == request.auth.uid;
+
+
+      function isValidKnowledge(data) {
+        return data.keys().hasAll(['type', 'title', 'content', 'agentId', 'userId', 'createdAt'])
+          && data.type is string && data.type in ['text', 'template', 'file']
+          && data.title is string && data.title.size() > 0 && data.title.size() <= 200
+          && data.content is string && data.content.size() <= 100000 // Large text
+          && data.agentId == agentId
+          && data.userId == request.auth.uid
+          && data.createdAt is timestamp
+          && ( ('fileUrl' in data) ? (data.fileUrl is string && data.fileUrl.size() <= 500) : true );
+      }
+
+      // Subcollection for agent knowledge
+      match /knowledge/{knowledgeId} {
+        allow get: if isSignedIn() && isValidId(knowledgeId) && isValidId(agentId) && existing().userId == request.auth.uid;
+        allow list: if isSignedIn() && isValidId(agentId) && existing().userId == request.auth.uid;
+
+        allow create: if isSignedIn()
+          && isValidId(agentId)
+          && isValidId(knowledgeId)
+          && get(/databases/$(database)/documents/agents/$(agentId)).data.userId == request.auth.uid
+          && isValidKnowledge(incoming())
+          && incoming().createdAt == request.time
+          && incoming().keys().size() <= 7;
+
+        allow update: if isSignedIn()
+          && isValidId(agentId)
+          && isValidId(knowledgeId)
+          && existing().userId == request.auth.uid
+          && isValidKnowledge(incoming())
+          && incoming().userId == existing().userId
+          && incoming().createdAt == existing().createdAt
+          && incoming().agentId == existing().agentId
+          && (
+            incoming().diff(existing()).affectedKeys().hasOnly(['type', 'title', 'content', 'fileUrl'])
+          );
+
+        allow delete: if isSignedIn()
+          && isValidId(agentId)
+          && isValidId(knowledgeId)
+          && existing().userId == request.auth.uid;
+      }
+    }
+  }
+}
