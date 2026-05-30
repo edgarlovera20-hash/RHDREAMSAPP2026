@@ -8,6 +8,7 @@ import { Calendar, dateFnsLocalizer } from 'react-big-calendar';
 import { format, parse, startOfWeek, getDay } from 'date-fns';
 import { es } from 'date-fns/locale';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
+import { useDb } from "@/hooks/useDb";
 
 const locales = {
   'es': es,
@@ -48,6 +49,8 @@ const SourceIcon = ({ source }: { source: string }) => {
 };
 
 export function Candidates() {
+  const { candidates, appointments, addCandidate, updateCandidate, deleteCandidate, addMessage } = useDb();
+
   const [activeView, setActiveView] = useState<'list' | 'kanban' | 'calendar'>('kanban');
   const [selectedCandidate, setSelectedCandidate] = useState<any | null>(null);
   const [sortByRating, setSortByRating] = useState(false);
@@ -68,15 +71,15 @@ export function Candidates() {
 
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 8;
-  const uniqueSources = Array.from(new Set(MOCK_CANDIDATES.map(c => c.source)));
-  const uniqueLocations = Array.from(new Set(MOCK_CANDIDATES.map(c => c.location).filter(Boolean)));
+  const uniqueSources = Array.from(new Set(candidates.map(c => c.source)));
+  const uniqueLocations = Array.from(new Set(candidates.map(c => c.location).filter(Boolean)));
   const uniqueExperience = ['1 año', '2 años', '3 años', '4 años', '5 años', '6 años', '8 años'];
   const uniqueSalaryRanges = ['<$30k / año', '$30k - $50k / año', '$50k - $80k / año', '>$80k / año'];
   const uniquePools = ['Frontend', 'Backend', 'Design', 'Product'];
 
   const { triggerEvent } = useNotifications();
 
-  let displayedCandidates = [...MOCK_CANDIDATES];
+  let displayedCandidates = [...candidates];
   
   if (searchFilterTerm) {
     const term = searchFilterTerm.toLowerCase();
@@ -95,11 +98,7 @@ export function Candidates() {
     displayedCandidates = displayedCandidates.filter(c => selectedLocations.includes(c.location));
   }
   if (selectedExperience.length > 0) {
-    displayedCandidates = displayedCandidates.filter(c => selectedExperience.includes(c.experienceTime));
-  }
-  if (selectedSalary.length > 0) {
-    // Exact mapping for mock data is complex since mock data doesn't have salary, but we can fake it:
-    // It's just a mock UI, so filter randomly or ignore unless added to mock data
+    displayedCandidates = displayedCandidates.filter(c => selectedExperience.includes(c.experience));
   }
   if (selectedPools.length > 0) {
     displayedCandidates = displayedCandidates.filter(c => {
@@ -117,31 +116,34 @@ export function Candidates() {
   const totalPages = Math.ceil(displayedCandidates.length / itemsPerPage);
   const paginatedCandidates = displayedCandidates.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
-  // Parse events for Calendar
-  const calendarEvents = displayedCandidates
-    .filter(c => c.appointment)
-    .map(c => {
-      // Mock data dates look like "2026-05-10" and time "10:00 AM". Let's parse them simply.
-      // E.g. c.appointment.date + " " + c.appointment.time
-      const [year, month, day] = c.appointment.date.split('-').map(Number);
-      const [timeStr, ampm] = c.appointment.time.split(' ');
+  // Parse events for Calendar using Appointments table (Phase 6)
+  const calendarEvents = appointments.map(appt => {
+    const candidate = candidates.find(c => c.id === appt.candidateId);
+    if (!candidate) return null;
+
+    try {
+      const [year, month, day] = appt.date.split('-').map(Number);
+      const [timeStr, ampm] = appt.time.split(' ');
       const [hours, minutes] = timeStr.split(':').map(Number);
       let hour = hours;
-      if (ampm.toUpperCase() === 'PM' && hour < 12) hour += 12;
-      if (ampm.toUpperCase() === 'AM' && hour === 12) hour = 0;
+      if (ampm && ampm.toUpperCase() === 'PM' && hour < 12) hour += 12;
+      if (ampm && ampm.toUpperCase() === 'AM' && hour === 12) hour = 0;
       
       const start = new Date(year, month - 1, day, hour, minutes || 0);
-      const end = new Date(year, month - 1, day, hour + 1, minutes || 0); // 1 hour duration
+      const end = new Date(year, month - 1, day, hour + 1, minutes || 0);
       
       return {
-        id: c.id,
-        title: `Entrevista: ${c.name} - ${c.role}`,
+        id: appt.id,
+        title: `Entrevista: ${candidate.name} - ${candidate.role}`,
         start,
         end,
-        candidate: c,
-        status: c.appointment.status
+        candidate,
+        status: appt.status
       };
-    });
+    } catch (e) {
+      return null;
+    }
+  }).filter(Boolean);
 
   return (
     <div className="flex flex-col gap-6 h-full pb-8">
@@ -205,10 +207,25 @@ export function Candidates() {
             Importar/Sincronizar
           </button>
           <button 
-            onClick={() => {
+            onClick={async () => {
+              await addCandidate({
+                name: 'Julia Roberts',
+                email: 'julia.roberts@example.com',
+                phone: '+34 602 999 111',
+                role: 'Product Designer UI/UX',
+                stage: 'Nuevo',
+                source: 'LinkedIn',
+                rating: 5,
+                location: 'Madrid, ES',
+                pool: 'Design',
+                experience: '6 años',
+                salaryDemand: '$60k - $70k / año',
+                cvUrl: 'https://drive.google.com/open?id=julia_roberts_cv',
+                notes: 'Excelente candidata proactiva importada con precalificación instantánea.'
+              });
               triggerEvent('new_candidate', {
-                title: 'Nuevo candidato prometedor',
-                message: 'Julia Roberts acaba de aplicar a la vacante "UI/UX Designer".',
+                title: 'Nuevo candidato ingresado',
+                message: 'Julia Roberts ha sido registrada con éxito en el pipeline de Firestore.',
                 type: 'success'
               });
             }}
@@ -569,9 +586,34 @@ export function Candidates() {
                           <button onClick={(e) => { e.stopPropagation(); setContactCandidate(candidate); }} className="px-2 py-1 bg-cyan-500/10 text-cyan-400 hover:bg-cyan-500/20 rounded text-[10px] font-semibold transition-colors uppercase flex items-center gap-1">
                             <Send className="w-3 h-3" /> Contactar
                           </button>
-                          <button onClick={(e) => { e.stopPropagation(); }} className="p-1.5 bg-slate-700/30 text-slate-300 hover:bg-slate-600 hover:text-white rounded-md transition-colors" title="Cambiar Estado Manualmente">
-                            <MoreVertical className="w-3.5 h-3.5" />
-                          </button>
+                           <div className="relative group/menu shrink-0">
+                            <button onClick={(e) => { e.stopPropagation(); }} className="p-1.5 bg-slate-700/30 text-slate-300 hover:bg-slate-600 hover:text-white rounded-md transition-colors" title="Cambiar Estado Manualmente">
+                              <MoreVertical className="w-3.5 h-3.5" />
+                            </button>
+                            <div className="absolute right-0 bottom-full mb-1 w-48 bg-slate-900 border border-slate-700 rounded-lg shadow-2xl py-1 z-50 hidden group-hover/menu:block hover:block">
+                              {kanbanStages.map((stg) => (
+                                <button
+                                  key={stg}
+                                  onClick={async (e) => {
+                                    e.stopPropagation();
+                                    await updateCandidate(candidate.id, { stage: stg });
+                                    triggerEvent('sync', {
+                                      title: 'Estado Actualizado',
+                                      message: `${candidate.name} movido a la etapa "${stg}" con éxito.`,
+                                      type: 'info'
+                                    });
+                                  }}
+                                  className={cn(
+                                    "w-full text-left px-3 py-1.5 text-xs text-slate-300 hover:bg-cyan-500/10 hover:text-cyan-400 transition-colors flex items-center gap-1.5",
+                                    candidate.stage === stg && "text-cyan-400 font-bold bg-cyan-500/5"
+                                  )}
+                                >
+                                  {candidate.stage === stg && <Check className="w-3 h-3 text-cyan-400" />}
+                                  {stg}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
                         </div>
                       </div>
 
@@ -756,16 +798,16 @@ export function Candidates() {
                   </td>
                   <td className="px-6 py-4">
                     <div className="text-slate-300">{candidate.role}</div>
-                    <div className="text-[10px] text-slate-500 font-medium">{candidate.experienceTime} • {candidate.lastJob}</div>
+                    <div className="text-[10px] text-slate-500 font-medium">{candidate.experience || candidate.experienceTime || '6 años'} • {candidate.lastJob || 'Heavenly Dreams Aplicante'}</div>
                   </td>
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
-                      {candidate.whatsapp ? (
-                         <div className="flex items-center gap-1.5 text-emerald-400 text-xs">
+                      {(candidate.whatsapp || candidate.source?.toLowerCase().includes('whatsapp')) ? (
+                         <div className="flex items-center gap-1.5 text-emerald-400 text-xs font-mono">
                            <MessageCircle className="w-3.5 h-3.5" /> {candidate.phone}
                          </div>
                       ) : (
-                        <div className="flex items-center gap-1.5 text-slate-400 text-xs">
+                        <div className="flex items-center gap-1.5 text-slate-400 text-xs font-mono">
                           <Phone className="w-3.5 h-3.5" /> {candidate.phone}
                         </div>
                       )}
@@ -885,9 +927,17 @@ export function Candidates() {
                 Cancelar
               </button>
               <button 
-                onClick={() => {
+                onClick={async () => {
+                  await addMessage({
+                    candidateId: contactCandidate.id,
+                    channel: contactMethod,
+                    direction: 'outbound',
+                    body: contactMessage,
+                    sender: 'me',
+                    status: 'sent'
+                  });
                   triggerEvent('sync', {
-                    title: 'Mensaje Enviado',
+                    title: 'Mensaje Registrado',
                     message: `Mensaje enviado a ${contactCandidate.name.split(' ')[0]} por ${contactMethod === 'email' ? 'Email' : 'WhatsApp'} exitosamente.`,
                     type: 'success'
                   });

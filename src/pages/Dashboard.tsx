@@ -3,6 +3,7 @@ import { Users, UserPlus, Briefcase, Clock, Activity, Cpu, AlertCircle, X, Check
 import { Area, AreaChart, Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip as RechartsTooltip, XAxis, YAxis, PieChart, Pie, Cell, Line, ComposedChart } from "recharts";
 import { FUNNEL_DATA, PERFORMANCE_DATA, CANDIDATES_PER_JOB_DATA } from "@/data/mockData";
 import { useNotifications } from "@/contexts/NotificationContext";
+import { useDb } from "@/hooks/useDb";
 
 const COLORS = ['#0ea5e9', '#6366f1', '#8b5cf6', '#d946ef', '#f43f5e'];
 
@@ -17,8 +18,14 @@ const getAlertColors = (type: string) => {
 };
 
 export function Dashboard() {
+  const { candidates, jobs, appointments } = useDb();
   const { notifications, markAsRead } = useNotifications();
   const unreadAlerts = notifications.filter(n => !n.read).slice(0, 3); // Módulos de alerta en el dashboard
+
+  const totalCandidates = candidates.length;
+  const newApplications = candidates.filter(c => c.stage?.toLowerCase() === 'nuevo').length;
+  const activeJobs = jobs.filter(j => j.status === 'Active' || j.status === 'Draft').length;
+  const scheduledCount = appointments.filter(a => a.status === 'scheduled' || a.status === 'confirmed').length;
 
   return (
     <div className="flex flex-col gap-6 w-full min-h-full pb-8">
@@ -61,10 +68,10 @@ export function Dashboard() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {[
-          { title: "Total Candidatos", value: "246", subtitle: "+12% mes anterior", icon: Users, color: 'cyan' as const },
-          { title: "Nuevas Aplicaciones", value: "45", subtitle: "Últimos 7 días", icon: Activity, color: 'purple' as const },
-          { title: "Ofertas Activas", value: "2", subtitle: "45 candidatos por oferta", icon: Briefcase, color: 'emerald' as const },
-          { title: "Tiempo Contract", value: "19.5d", subtitle: "-3 días vs prom", icon: Clock, color: 'rose' as const },
+          { title: "Total Candidatos", value: String(totalCandidates), subtitle: "Sincronizado Firestore", icon: Users, color: 'cyan' as const },
+          { title: "Nuevas Aplicaciones", value: String(newApplications), subtitle: "En bandeja 'Nuevo'", icon: Activity, color: 'purple' as const },
+          { title: "Ofertas Activas", value: String(activeJobs), subtitle: "Vacantes reales cargadas", icon: Briefcase, color: 'emerald' as const },
+          { title: "Citas en Agenda", value: String(scheduledCount), subtitle: "Entrevistas agendadas", icon: Clock, color: 'rose' as const },
         ].map((stat, i) => {
           const Icon = stat.icon;
           const styles = {

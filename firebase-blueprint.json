@@ -34,6 +34,111 @@
         "createdAt": { "type": "number" }
       },
       "required": ["type", "title", "content", "agentId", "userId", "createdAt"]
+    },
+    "Candidate": {
+      "title": "Candidate",
+      "description": "A candidate applying for jobs.",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "email": { "type": "string" },
+        "phone": { "type": "string" },
+        "role": { "type": "string" },
+        "stage": { "type": "string" },
+        "source": { "type": "string" },
+        "rating": { "type": "number" },
+        "location": { "type": "string" },
+        "pool": { "type": "string" },
+        "experience": { "type": "string" },
+        "salaryDemand": { "type": "string" },
+        "cvUrl": { "type": "string" },
+        "notes": { "type": "string" },
+        "jobId": { "type": "string" },
+        "companyId": { "type": "string" },
+        "createdAt": { "type": "number" },
+        "updatedAt": { "type": "number" },
+        "assignedAgentId": { "type": "string" }
+      },
+      "required": ["name", "stage", "createdAt", "updatedAt"]
+    },
+    "Job": {
+      "title": "Job",
+      "description": "A job offer open for applications.",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "department": { "type": "string" },
+        "location": { "type": "string" },
+        "status": { "type": "string", "enum": ["Draft", "Active", "Closed", "Pausada"] },
+        "description": { "type": "string" },
+        "requirements": { "type": "array", "items": { "type": "string" } },
+        "salaryRange": { "type": "string" },
+        "sourceChannels": { "type": "array", "items": { "type": "string" } },
+        "companyId": { "type": "string" },
+        "createdAt": { "type": "number" },
+        "updatedAt": { "type": "number" }
+      },
+      "required": ["title", "status", "createdAt", "updatedAt"]
+    },
+    "Appointment": {
+      "title": "Appointment",
+      "description": "An interview or scheduling session with a candidate.",
+      "type": "object",
+      "properties": {
+        "candidateId": { "type": "string" },
+        "candidateName": { "type": "string" },
+        "jobId": { "type": "string" },
+        "companyId": { "type": "string" },
+        "date": { "type": "string" },
+        "time": { "type": "string" },
+        "status": { "type": "string", "enum": ["scheduled", "confirmed", "attended", "no_show", "rescheduled"] },
+        "calendarEventId": { "type": "string" },
+        "meetingLink": { "type": "string" },
+        "notes": { "type": "string" },
+        "createdAt": { "type": "number" }
+      },
+      "required": ["candidateId", "candidateName", "date", "time", "status", "createdAt"]
+    },
+    "Message": {
+      "title": "Message",
+      "description": "A communication message payload.",
+      "type": "object",
+      "properties": {
+        "candidateId": { "type": "string" },
+        "channel": { "type": "string", "enum": ["whatsapp", "email", "messenger", "instagram", "manual"] },
+        "direction": { "type": "string", "enum": ["inbound", "outbound"] },
+        "body": { "type": "string" },
+        "sender": { "type": "string" },
+        "status": { "type": "string", "enum": ["sent", "delivered", "read", "failed", "pending_approval"] },
+        "createdAt": { "type": "number" }
+      },
+      "required": ["candidateId", "channel", "direction", "body", "createdAt"]
+    },
+    "Automation": {
+      "title": "Automation",
+      "description": "Rules for automated recruitment pipeline triggers and actions.",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "trigger": { "type": "string" },
+        "active": { "type": "boolean" },
+        "actions": { "type": "array", "items": { "type": "string" } }
+      },
+      "required": ["name", "trigger", "active"]
+    },
+    "Notification": {
+      "title": "Notification",
+      "description": "An in-app notification context alert.",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "message": { "type": "string" },
+        "type": { "type": "string", "enum": ["success", "warning", "error", "info"] },
+        "read": { "type": "boolean" },
+        "candidateId": { "type": "string" },
+        "createdAt": { "type": "number" }
+      },
+      "required": ["title", "message", "type", "read", "createdAt"]
     }
   },
   "firestore": {
@@ -44,6 +149,30 @@
     "agents/{agentId}/knowledge": {
       "schema": { "$ref": "#/entities/AgentKnowledge" },
       "description": "Stores knowledge resources for a specific agent."
+    },
+    "candidates": {
+      "schema": { "$ref": "#/entities/Candidate" },
+      "description": "Stores recruitment candidates and status."
+    },
+    "jobs": {
+      "schema": { "$ref": "#/entities/Job" },
+      "description": "Stores job openings."
+    },
+    "appointments": {
+      "schema": { "$ref": "#/entities/Appointment" },
+      "description": "Stores candidate interview schedules."
+    },
+    "messages": {
+      "schema": { "$ref": "#/entities/Message" },
+      "description": "Stores communication channel payloads."
+    },
+    "automations": {
+      "schema": { "$ref": "#/entities/Automation" },
+      "description": "Stores automated tasks."
+    },
+    "notifications": {
+      "schema": { "$ref": "#/entities/Notification" },
+      "description": "Stores system notification alerts."
     }
   }
 }
