@@ -1,7 +1,7 @@
 import { useState } from "react";
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
-import { Shield, Users, Mail, Bell, Key, Plus, Trash2, Zap, Settings as SettingsIcon, MessageSquare, Video, Globe, Calendar, CheckCircle2, Lock, Smartphone, History, Edit3, Linkedin, X, Check } from "lucide-react";
+import { Shield, Users, Mail, Bell, Key, Plus, Trash2, Zap, Settings as SettingsIcon, MessageSquare, Video, Globe, Calendar, CheckCircle2, Lock, Smartphone, History, Edit3, Linkedin, X, Check, Facebook, Instagram } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useNotifications } from "@/contexts/NotificationContext";
 
@@ -29,6 +29,9 @@ const INTEGRATIONS = [
   { id: 'slack', name: 'Slack', category: 'Comunicación', description: 'Recibe notificaciones y menciona al equipo en canales de Slack.', icon: MessageSquare, connected: true },
   { id: 'zoom', name: 'Zoom', category: 'Videollamadas', description: 'Genera enlaces de videollamada automáticamente para entrevistas.', icon: Video, connected: false },
   { id: 'linkedin', name: 'LinkedIn Recruiter', category: 'Sourcing', description: 'Importa perfiles y sincroniza InMails con tus candidatos.', icon: Linkedin, connected: true },
+  { id: 'facebook', name: 'Facebook Lead Ads & Messenger', category: 'Sourcing & Chat', description: 'Atrae candidatos desde campañas de Facebook Ads y mantén conversaciones automatizadas por Messenger.', icon: Facebook, connected: true },
+  { id: 'instagram', name: 'Instagram Direct Message', category: 'Comunicación', description: 'Captura postulantes que comenten en tus publicaciones y automatiza respuestas personalizadas en tus DMs.', icon: Instagram, connected: false },
+  { id: 'tiktok', name: 'TikTok Instant Forms & Chat', category: 'Sourcing & Lead Gen', description: 'Sincroniza instantáneamente candidatos que se registren en tus anuncios de TikTok y asocia tu Agente AI.', icon: Video, connected: false },
 ];
 
 const EMAIL_TEMPLATES = [

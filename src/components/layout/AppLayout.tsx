@@ -13,7 +13,7 @@ const PATH_MAP: Record<string, string> = {
   "/jobs": "Ofertas de Empleo",
   "/messages": "Mensajes",
   "/agents": "Agentes AI",
-  "/whatsapp": "Cuentas WhatsApp",
+  "/whatsapp": "Canales de Chat",
   "/reports": "Reportes",
   "/settings": "Configuración",
 };
@@ -24,7 +24,7 @@ const NAV_ITEMS = [
   { name: "Ofertas de Empleo", path: "/jobs", icon: Briefcase },
   { name: "Mensajes", path: "/messages", icon: MessageSquare },
   { name: "Agentes AI", path: "/agents", icon: Zap },
-  { name: "Cuentas WhatsApp", path: "/whatsapp", icon: Smartphone },
+  { name: "Canales de Chat", path: "/whatsapp", icon: Smartphone },
   { name: "Reportes", path: "/reports", icon: PieChart },
   { name: "Configuración", path: "/settings", icon: Settings },
 ];
