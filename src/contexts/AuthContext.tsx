@@ -2,9 +2,7 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User, signInWithPopup, GoogleAuthProvider, signOut } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 import { NetworkBackground } from '@/components/layout/NetworkBackground';
-import { Crown, Telescope, ClipboardList, UserPlus, ArrowRight, Loader2, Sparkles } from 'lucide-react';
-import { motion } from 'motion/react';
-import { seedDatabaseIfEmpty } from '@/services/db';
+import { Sparkles } from 'lucide-react';
 
 interface AuthContextType {
   user: User | null;
@@ -19,27 +17,14 @@ const AuthContext = createContext<AuthContextType>({} as AuthContextType);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [mockUser, setMockUser] = useState<any>({
-    uid: 'demo_guest_user_admin',
-    email: 'admin@omnirecruit.ai',
-    displayName: 'Gerente / Admin',
-    emailVerified: true,
-    isAnonymous: true,
-    providerData: []
-  });
   const [accessToken, setAccessToken] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   useEffect(() => {
-    // Seed database if empty directly on startup
-    seedDatabaseIfEmpty();
     const unsubscribe = auth.onAuthStateChanged((firebaseUser) => {
-      if (firebaseUser) {
-        setMockUser(null);
-        seedDatabaseIfEmpty();
-      } else {
+      if (!firebaseUser) {
         setAccessToken(null);
       }
       setUser(firebaseUser);
@@ -54,15 +39,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     provider.setCustomParameters({
       prompt: 'select_account'
     });
-    
-    // Add Scopes for requested services
-    provider.addScope('https://www.googleapis.com/auth/spreadsheets');
-    provider.addScope('https://www.googleapis.com/auth/calendar');
-    provider.addScope('https://www.googleapis.com/auth/gmail.send');
-    provider.addScope('https://www.googleapis.com/auth/gmail.readonly');
-    provider.addScope('https://www.googleapis.com/auth/forms.responses.readonly');
-    provider.addScope('https://www.googleapis.com/auth/drive.readonly');
-    provider.addScope('https://www.googleapis.com/auth/keep');
 
     try {
       const result = await signInWithPopup(auth, provider);
@@ -93,43 +69,20 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         console.warn('Error updating profile display name, continuing...', updateErr);
       }
     } catch (error: any) {
-      console.warn('Firebase anonymous Auth failed/not enabled, falling back to mock guest session:', error);
-      const tempUser = {
-        uid: 'demo_guest_user_' + roleDisplayName.replace(/\s+/g, '_').toLowerCase(),
-        email: `${roleDisplayName.replace(/\s+/g, '.').toLowerCase()}@omnirecruit.ai`,
-        displayName: roleDisplayName,
-        emailVerified: true,
-        isAnonymous: true,
-        providerData: []
-      };
-      
-      try {
-        Object.defineProperty(auth, 'currentUser', {
-          get: () => tempUser,
-          configurable: true
-        });
-      } catch (e) {
-        console.error('Error defining mock currentUser', e);
-      }
-      
-      setMockUser(tempUser);
-      seedDatabaseIfEmpty();
+      console.error('Firebase anonymous Auth failed/not enabled:', error);
+      setErrorMsg(error.message || 'No se pudo iniciar sesión como invitado.');
+      throw error;
     }
   };
 
   const logout = async () => {
     try {
-      setMockUser(null);
-      try {
-        delete (auth as any).currentUser;
-      } catch (e) {}
+      setAccessToken(null);
       await signOut(auth);
     } catch (error) {
       console.error('Error signing out', error);
     }
   };
-
-  const activeUser = mockUser || user;
 
   if (loading) {
     return (
@@ -153,7 +106,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
 
   return (
-    <AuthContext.Provider value={{ user: activeUser, loading, accessToken, signInWithGoogle, signInAsGuest, logout }}>
+    <AuthContext.Provider value={{ user, loading, accessToken, signInWithGoogle, signInAsGuest, logout }}>
       {children}
     </AuthContext.Provider>
   );

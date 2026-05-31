@@ -1,6 +1,7 @@
-import { Building, Filter, LayoutDashboard, Users, PieChart, TrendingUp, Calendar, Zap } from "lucide-react";
+import { Building, Filter, LayoutDashboard, Users, PieChart, TrendingUp, Calendar, Zap, MapPin, Megaphone, Target } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { FUNNEL_DATA, PERFORMANCE_DATA, CANDIDATES_PER_JOB_DATA } from "@/data/mockData";
+import { useDb } from "@/hooks/useDb";
+import { CDMX_RECRUITMENT_PLAN, OFFICE_LOCATION } from "@/data/recruitmentPlan";
 import { 
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, 
   BarChart, Bar, Legend, LineChart, Line, ComposedChart, PieChart as RechartsPieChart, Pie, Cell 
@@ -9,27 +10,68 @@ import {
 const COLORS = ['#06b6d4', '#8b5cf6', '#10b981', '#f59e0b', '#f43f5e', '#64748b'];
 
 export function Reports() {
+  const { candidates, jobs } = useDb();
+  const hiredStages = ["Contratado", "En capacitación", "DDO y bienvenida"];
+  const totalCandidates = candidates.length;
+  const hiredCandidates = candidates.filter((candidate) => hiredStages.includes(candidate.stage));
+  const averageTimeToHire = hiredCandidates.length
+    ? Math.round(hiredCandidates.reduce((sum, candidate) => {
+        const createdAt = typeof candidate.createdAt === "number" ? candidate.createdAt : Number(candidate.createdAt || Date.now());
+        const updatedAt = typeof candidate.updatedAt === "number" ? candidate.updatedAt : Number(candidate.updatedAt || createdAt);
+        return sum + Math.max(0, Math.round((updatedAt - createdAt) / (24 * 60 * 60 * 1000)));
+      }, 0) / hiredCandidates.length)
+    : 0;
+  const conversionRate = totalCandidates > 0 ? Number(((hiredCandidates.length / totalCandidates) * 100).toFixed(1)) : 0;
+  const funnelData = ["Nuevo", "Contactado", "Cita agendada", "Confirmó asistencia", "Entrevista realizada", "Contratado"].map((stage) => ({
+    stage,
+    count: candidates.filter((candidate) => stage === "Contratado" ? hiredStages.includes(candidate.stage) : candidate.stage === stage).length,
+  }));
+  const performanceData = Array.from({ length: 6 }).map((_, index) => {
+    const date = new Date();
+    date.setMonth(date.getMonth() - (5 - index));
+    const month = date.toLocaleDateString("es-MX", { month: "short", year: "2-digit" });
+    const monthCandidates = candidates.filter((candidate) => {
+      const createdAt = new Date(typeof candidate.createdAt === "number" ? candidate.createdAt : Number(candidate.createdAt || 0));
+      return createdAt.getMonth() === date.getMonth() && createdAt.getFullYear() === date.getFullYear();
+    });
+    const monthHires = monthCandidates.filter((candidate) => hiredStages.includes(candidate.stage));
+    const tth = monthHires.length
+      ? Math.round(monthHires.reduce((sum, candidate) => {
+          const createdAt = typeof candidate.createdAt === "number" ? candidate.createdAt : Number(candidate.createdAt || Date.now());
+          const updatedAt = typeof candidate.updatedAt === "number" ? candidate.updatedAt : Number(candidate.updatedAt || createdAt);
+          return sum + Math.max(0, Math.round((updatedAt - createdAt) / (24 * 60 * 60 * 1000)));
+        }, 0) / monthHires.length)
+      : 0;
+
+    return { name: month, hires: monthHires.length, timeToHire: tth };
+  });
+  const sourceDistribution = Object.entries(candidates.reduce<Record<string, number>>((acc, candidate) => {
+    const source = candidate.source || "Sin fuente";
+    acc[source] = (acc[source] || 0) + 1;
+    return acc;
+  }, {})).map(([name, count]) => ({ name, count }));
+
   const handleExportCSV = () => {
     let csvContent = "data:text/csv;charset=utf-8,\uFEFF";
     
     // Funnel Data
     csvContent += "=== Embudo de Conversión ===\n";
     csvContent += "Fase,Cantidad\n";
-    FUNNEL_DATA.forEach(row => {
+    funnelData.forEach(row => {
       csvContent += `${row.stage},${row.count}\n`;
     });
     
     // Performance Data
     csvContent += "\n=== Rendimiento Histórico ===\n";
     csvContent += "Mes,Contrataciones,Time to Hire (días)\n";
-    PERFORMANCE_DATA.forEach(row => {
+    performanceData.forEach(row => {
       csvContent += `${row.name},${row.hires},${row.timeToHire}\n`;
     });
     
     // Candidates per job data
     csvContent += "\n=== Distribución por Oferta ===\n";
     csvContent += "Oferta,Candidatos\n";
-    CANDIDATES_PER_JOB_DATA.forEach(row => {
+    sourceDistribution.forEach(row => {
       csvContent += `"${row.name}",${row.count}\n`;
     });
 
@@ -66,15 +108,138 @@ export function Reports() {
         </div>
       </div>
 
+      <div className="glass-panel rounded-2xl border border-cyan-500/20 p-5 overflow-hidden relative">
+        <div className="absolute right-0 top-0 h-40 w-40 bg-cyan-500/10 blur-3xl pointer-events-none" />
+        <div className="relative z-10 grid gap-5 xl:grid-cols-[minmax(0,1.1fr)_minmax(320px,0.9fr)]">
+          <div>
+            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.18em] text-cyan-300">
+              <MapPin className="h-4 w-4" />
+              {OFFICE_LOCATION.name}
+            </div>
+            <h2 className="mt-2 text-xl font-bold text-white">{CDMX_RECRUITMENT_PLAN.title}</h2>
+            <p className="mt-2 text-sm leading-6 text-slate-300">{CDMX_RECRUITMENT_PLAN.summary}</p>
+            <div className="mt-4 rounded-xl border border-slate-700/70 bg-slate-950/40 p-4">
+              <p className="text-xs font-bold uppercase tracking-widest text-slate-500">Direccion de entrevistas</p>
+              <p className="mt-1 text-sm font-semibold text-white">{OFFICE_LOCATION.address}</p>
+              <p className="mt-1 text-xs leading-5 text-slate-400">{OFFICE_LOCATION.reference}</p>
+            </div>
+          </div>
+
+          <div className="grid gap-3 sm:grid-cols-2">
+            {CDMX_RECRUITMENT_PLAN.objectives.map((objective) => (
+              <div key={objective} className="rounded-xl border border-cyan-500/15 bg-cyan-500/5 p-3">
+                <Target className="h-4 w-4 text-cyan-300" />
+                <p className="mt-2 text-xs leading-5 text-slate-200">{objective}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+        <div className="glass-panel rounded-2xl border border-white/5 p-5 xl:col-span-2">
+          <h3 className="text-sm font-bold text-white mb-4 uppercase tracking-widest flex items-center gap-2">
+            <Building className="w-4 h-4 text-cyan-400" />
+            Zonas prioritarias y hallazgos
+          </h3>
+          <div className="grid gap-3 md:grid-cols-3">
+            {CDMX_RECRUITMENT_PLAN.priorityZones.map((item) => (
+              <div key={item.zone} className="rounded-xl border border-slate-700/70 bg-slate-950/35 p-4">
+                <p className="text-xs font-bold uppercase tracking-widest text-cyan-300">{item.zone}</p>
+                <p className="mt-2 text-sm font-semibold text-white">{item.areas}</p>
+                <p className="mt-2 text-xs leading-5 text-slate-400">{item.reason}</p>
+              </div>
+            ))}
+          </div>
+          <div className="mt-4 grid gap-2">
+            {CDMX_RECRUITMENT_PLAN.demographicInsights.map((insight) => (
+              <div key={insight} className="rounded-lg border border-slate-700/60 bg-slate-950/30 px-3 py-2 text-xs leading-5 text-slate-300">
+                {insight}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="glass-panel rounded-2xl border border-white/5 p-5">
+          <h3 className="text-sm font-bold text-white mb-4 uppercase tracking-widest flex items-center gap-2">
+            <Calendar className="w-4 h-4 text-emerald-400" />
+            Cadencia semanal
+          </h3>
+          <div className="space-y-2">
+            {CDMX_RECRUITMENT_PLAN.weeklyCadence.map((item) => (
+              <div key={item} className="rounded-lg border border-slate-700/60 bg-slate-950/30 px-3 py-2 text-xs leading-5 text-slate-300">
+                {item}
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+        <div className="glass-panel rounded-2xl border border-white/5 p-5">
+          <h3 className="text-sm font-bold text-white mb-4 uppercase tracking-widest flex items-center gap-2">
+            <Megaphone className="w-4 h-4 text-amber-400" />
+            Mensajes por vacante
+          </h3>
+          <div className="space-y-3">
+            {CDMX_RECRUITMENT_PLAN.candidatePersonas.map((persona) => (
+              <div key={persona.role} className="rounded-xl border border-slate-700/70 bg-slate-950/35 p-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <p className="text-sm font-bold text-white">{persona.role}</p>
+                    <p className="text-xs text-slate-500">{persona.persona}</p>
+                  </div>
+                  <span className="rounded-md border border-cyan-400/20 bg-cyan-500/10 px-2 py-1 text-[10px] font-bold text-cyan-200">
+                    {persona.channels.split(",")[0]}
+                  </span>
+                </div>
+                <p className="mt-3 text-xs leading-5 text-slate-300">{persona.message}</p>
+                <p className="mt-2 text-[11px] leading-5 text-slate-500">{persona.channels}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="glass-panel rounded-2xl border border-white/5 p-5">
+          <h3 className="text-sm font-bold text-white mb-4 uppercase tracking-widest flex items-center gap-2">
+            <Zap className="w-4 h-4 text-purple-400" />
+            Canales, embudo y metricas
+          </h3>
+          <div className="space-y-3">
+            {CDMX_RECRUITMENT_PLAN.channelStrategy.map((channel) => (
+              <div key={channel.channel} className="rounded-xl border border-slate-700/70 bg-slate-950/35 p-3">
+                <p className="text-xs font-bold text-white">{channel.channel}</p>
+                <p className="mt-1 text-[11px] leading-5 text-slate-400">{channel.use}</p>
+                <p className="mt-1 text-[11px] text-cyan-300">{channel.kpi}</p>
+              </div>
+            ))}
+          </div>
+          <div className="mt-4 grid gap-4 md:grid-cols-2">
+            <div>
+              <p className="mb-2 text-xs font-bold uppercase tracking-widest text-slate-500">Embudo</p>
+              <ol className="space-y-1 text-xs leading-5 text-slate-300">
+                {CDMX_RECRUITMENT_PLAN.funnel.map((step, index) => <li key={step}>{index + 1}. {step}</li>)}
+              </ol>
+            </div>
+            <div>
+              <p className="mb-2 text-xs font-bold uppercase tracking-widest text-slate-500">Metricas</p>
+              <ul className="space-y-1 text-xs leading-5 text-slate-300">
+                {CDMX_RECRUITMENT_PLAN.metrics.map((metric) => <li key={metric}>• {metric}</li>)}
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="glass-panel p-5 rounded-2xl relative overflow-hidden group">
           <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
             <Users className="w-12 h-12 text-cyan-400" />
           </div>
           <p className="text-xs text-slate-400 uppercase tracking-widest font-bold mb-1">Time to Hire (Promedio)</p>
-          <h3 className="text-3xl font-bold text-white mb-2">29 <span className="text-sm font-medium text-slate-500">días</span></h3>
-          <p className="text-xs text-emerald-400 flex items-center gap-1 font-medium">
-            <TrendingUp className="w-3 h-3" /> -12% vs mes anterior
+          <h3 className="text-3xl font-bold text-white mb-2">{averageTimeToHire} <span className="text-sm font-medium text-slate-500">días</span></h3>
+          <p className="text-xs text-slate-400 flex items-center gap-1 font-medium">
+            <TrendingUp className="w-3 h-3" /> Calculado con candidatos contratados
           </p>
         </div>
         <div className="glass-panel p-5 rounded-2xl relative overflow-hidden group">
@@ -82,9 +247,9 @@ export function Reports() {
             <Building className="w-12 h-12 text-purple-400" />
           </div>
           <p className="text-xs text-slate-400 uppercase tracking-widest font-bold mb-1">Candidatos Totales</p>
-          <h3 className="text-3xl font-bold text-white mb-2">219</h3>
-          <p className="text-xs text-emerald-400 flex items-center gap-1 font-medium">
-            <TrendingUp className="w-3 h-3" /> +5% vs mes anterior
+          <h3 className="text-3xl font-bold text-white mb-2">{totalCandidates}</h3>
+          <p className="text-xs text-slate-400 flex items-center gap-1 font-medium">
+            <TrendingUp className="w-3 h-3" /> Firestore en tiempo real
           </p>
         </div>
         <div className="glass-panel p-5 rounded-2xl relative overflow-hidden group">
@@ -92,9 +257,9 @@ export function Reports() {
             <Zap className="w-12 h-12 text-amber-400" />
           </div>
           <p className="text-xs text-slate-400 uppercase tracking-widest font-bold mb-1">Tasa de Conversión</p>
-          <h3 className="text-3xl font-bold text-white mb-2">1.5%</h3>
-          <p className="text-xs text-rose-400 flex items-center gap-1 font-medium">
-            <TrendingUp className="w-3 h-3 rotate-180" /> -0.2% vs mes anterior
+          <h3 className="text-3xl font-bold text-white mb-2">{conversionRate}%</h3>
+          <p className="text-xs text-slate-400 flex items-center gap-1 font-medium">
+            <TrendingUp className="w-3 h-3" /> Contratados / candidatos totales
           </p>
         </div>
       </div>
@@ -108,7 +273,7 @@ export function Reports() {
           </h3>
           <div className="h-[300px] w-full">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={FUNNEL_DATA} layout="vertical" margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+              <BarChart data={funnelData} layout="vertical" margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#334155" opacity={0.5} horizontal={false} />
                 <XAxis type="number" stroke="#94a3b8" fontSize={10} tickFormatter={(val) => `${val}`} />
                 <YAxis dataKey="stage" type="category" stroke="#94a3b8" fontSize={11} width={90} />
@@ -117,7 +282,7 @@ export function Reports() {
                   itemStyle={{ color: '#06b6d4' }}
                 />
                 <Bar dataKey="count" fill="#06b6d4" radius={[0, 4, 4, 0]} barSize={20}>
-                  {FUNNEL_DATA.map((entry, index) => (
+                  {funnelData.map((_entry, index) => (
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Bar>
@@ -134,7 +299,7 @@ export function Reports() {
           </h3>
           <div className="h-[300px] w-full">
             <ResponsiveContainer width="100%" height="100%">
-              <ComposedChart data={PERFORMANCE_DATA} margin={{ top: 5, right: 20, left: -20, bottom: 5 }}>
+              <ComposedChart data={performanceData} margin={{ top: 5, right: 20, left: -20, bottom: 5 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#334155" opacity={0.5} vertical={false} />
                 <XAxis dataKey="name" stroke="#94a3b8" fontSize={12} />
                 <YAxis yAxisId="left" stroke="#94a3b8" fontSize={12} orientation="left" />
@@ -158,7 +323,7 @@ export function Reports() {
           </h3>
           <div className="h-[300px] w-full flex itmes-center justify-center">
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={PERFORMANCE_DATA} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+              <AreaChart data={sourceDistribution} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
                 <defs>
                   <linearGradient id="colorHires" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor="#10b981" stopOpacity={0.3}/>
@@ -171,7 +336,7 @@ export function Reports() {
                 <RechartsTooltip 
                   contentStyle={{ backgroundColor: '#0f172a', borderColor: '#1e293b', borderRadius: '8px', color: '#f8fafc' }}
                 />
-                <Area type="monotone" dataKey="hires" stroke="#10b981" fillOpacity={1} fill="url(#colorHires)" />
+                <Area type="monotone" dataKey="count" stroke="#10b981" fillOpacity={1} fill="url(#colorHires)" />
               </AreaChart>
             </ResponsiveContainer>
           </div>

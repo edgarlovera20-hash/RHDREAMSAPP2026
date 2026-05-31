@@ -1,14 +1,16 @@
 import { useState } from "react";
-import { X, Mail, Phone, MapPin, Linkedin, Github, Globe, FileText, Download, Clock, ArrowRight, Star, Calendar as CalendarIcon, CheckCircle2, MessageSquare, Activity, Briefcase, Plus, Upload } from "lucide-react";
+import { X, Mail, Phone, MapPin, Linkedin, Github, Globe, FileText, Download, Clock, ArrowRight, Star, Calendar as CalendarIcon, CheckCircle2, MessageSquare, Activity, Briefcase, Plus, Upload, Save, Tag } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useNotifications } from "@/contexts/NotificationContext";
+import { deriveCandidateTags, inferVisitReason } from "@/utils/candidateTracking";
 
 interface CandidateProfileModalProps {
   candidate: any;
   onClose: () => void;
+  onUpdate?: (id: string, data: any) => Promise<void> | void;
 }
 
-export function CandidateProfileModal({ candidate, onClose }: CandidateProfileModalProps) {
+export function CandidateProfileModal({ candidate, onClose, onUpdate }: CandidateProfileModalProps) {
   const [rating, setRating] = useState(candidate.rating || 0);
   const [hoverRating, setHoverRating] = useState(0);
   const [showSchedule, setShowSchedule] = useState(false);
@@ -16,6 +18,10 @@ export function CandidateProfileModal({ candidate, onClose }: CandidateProfileMo
   const [scheduleDate, setScheduleDate] = useState("");
   const [scheduleTime, setScheduleTime] = useState("");
   const [activeTab, setActiveTab] = useState<'profile' | 'scorecard' | 'history' | 'offer'>('profile');
+  const [candidateTags, setCandidateTags] = useState<string[]>(deriveCandidateTags(candidate));
+  const [newTag, setNewTag] = useState("");
+  const [visitReason, setVisitReason] = useState(inferVisitReason(candidate));
+  const [isSavingMeta, setIsSavingMeta] = useState(false);
   
   const { triggerEvent } = useNotifications();
 
@@ -72,9 +78,44 @@ export function CandidateProfileModal({ candidate, onClose }: CandidateProfileMo
     setTimeout(() => setOfferSuccess(false), 3000);
   };
 
-  const handleRating = (val: number) => {
+  const handleRating = async (val: number) => {
     setRating(val);
-    candidate.rating = val; // Assuming mutable for mock demo
+    await onUpdate?.(candidate.id, { rating: val });
+  };
+
+  const handleAddTag = () => {
+    const normalizedTag = newTag.trim();
+    if (!normalizedTag) return;
+    if (candidateTags.some(tag => tag.toLowerCase() === normalizedTag.toLowerCase())) {
+      setNewTag("");
+      return;
+    }
+    setCandidateTags([...candidateTags, normalizedTag]);
+    setNewTag("");
+  };
+
+  const handleRemoveTag = (tagToRemove: string) => {
+    setCandidateTags(candidateTags.filter(tag => tag !== tagToRemove));
+  };
+
+  const handleSaveCandidateMeta = async () => {
+    setIsSavingMeta(true);
+    candidate.tags = candidateTags;
+    candidate.visitReason = visitReason;
+
+    try {
+      await onUpdate?.(candidate.id, {
+        tags: candidateTags,
+        visitReason
+      });
+      triggerEvent('sync', {
+        title: 'Etiquetas actualizadas',
+        message: `Motivo y etiquetas de ${candidate.name} guardados correctamente.`,
+        type: 'success'
+      });
+    } finally {
+      setIsSavingMeta(false);
+    }
   };
 
   const handleSchedule = (provider: 'google' | 'outlook') => {
@@ -217,6 +258,70 @@ export function CandidateProfileModal({ candidate, onClose }: CandidateProfileMo
                   </div>
                 </div>
               )}
+            </div>
+
+            <div className="h-px bg-white/5 my-6"></div>
+
+            <h3 className="text-xs uppercase tracking-widest font-bold text-cyan-500/80 mb-4">Etiquetas y motivo</h3>
+            <div className="space-y-3">
+              <div>
+                <label className="text-[10px] text-slate-500 uppercase font-semibold mb-1 block">Motivo de visita</label>
+                <textarea
+                  value={visitReason}
+                  onChange={(e) => setVisitReason(e.target.value)}
+                  placeholder="Ej. Viene a entrevista, DDO, bienvenida, uniforme..."
+                  className="w-full min-h-[72px] resize-none rounded-lg border border-white/10 bg-slate-950/40 px-3 py-2 text-sm text-slate-200 placeholder:text-slate-600 focus:border-cyan-500/50 focus:outline-none"
+                />
+              </div>
+
+              <div className="flex flex-wrap gap-1.5">
+                {candidateTags.length > 0 ? candidateTags.map((tag) => (
+                  <span key={tag} className="inline-flex items-center gap-1 rounded-md border border-cyan-500/20 bg-cyan-500/10 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-cyan-300">
+                    <Tag className="w-3 h-3" />
+                    {tag}
+                    <button
+                      onClick={() => handleRemoveTag(tag)}
+                      className="ml-0.5 rounded text-cyan-200/70 hover:text-white"
+                      title={`Quitar ${tag}`}
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </span>
+                )) : (
+                  <p className="text-xs text-slate-500 italic">Sin etiquetas todavía.</p>
+                )}
+              </div>
+
+              <div className="flex gap-2">
+                <input
+                  value={newTag}
+                  onChange={(e) => setNewTag(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      handleAddTag();
+                    }
+                  }}
+                  placeholder="Nueva etiqueta"
+                  className="min-w-0 flex-1 rounded-lg border border-white/10 bg-slate-950/40 px-3 py-2 text-xs text-slate-200 placeholder:text-slate-600 focus:border-cyan-500/50 focus:outline-none"
+                />
+                <button
+                  onClick={handleAddTag}
+                  className="rounded-lg border border-cyan-500/30 bg-cyan-500/10 px-3 text-cyan-300 hover:bg-cyan-500/20"
+                  title="Agregar etiqueta"
+                >
+                  <Plus className="w-4 h-4" />
+                </button>
+              </div>
+
+              <button
+                onClick={handleSaveCandidateMeta}
+                disabled={isSavingMeta}
+                className="w-full rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-3 py-2 text-xs font-bold uppercase tracking-widest text-emerald-300 transition-colors hover:bg-emerald-500/20 disabled:cursor-not-allowed disabled:opacity-60 flex items-center justify-center gap-2"
+              >
+                <Save className="w-3.5 h-3.5" />
+                {isSavingMeta ? "Guardando..." : "Guardar etiquetas"}
+              </button>
             </div>
 
             <div className="h-px bg-white/5 my-6"></div>

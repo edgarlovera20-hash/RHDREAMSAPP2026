@@ -1,11 +1,31 @@
 import { useState, useEffect } from "react";
 import { Link, Outlet, useLocation } from "react-router-dom";
 import { 
-  Menu, X, LayoutDashboard, Users, Briefcase, Settings, PieChart, Building, Zap, ChevronRight, Home, Sun, Moon, Smartphone, MessageSquare, PanelLeftClose, PanelLeftOpen, Cloud
+  Menu, X, LayoutDashboard, Users, Briefcase, Settings, PieChart, Zap, ChevronRight, Home, Sun, Moon, Smartphone, MessageSquare, PanelLeftClose, PanelLeftOpen, Cloud, GitBranch, ClipboardCheck
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { NetworkBackground } from "./NetworkBackground";
 import { NotificationsPopover } from "@/components/notifications/NotificationsPopover";
+import { useAuth } from "@/contexts/AuthContext";
+
+const BRAND_LOGO_PATH = "/assets/heavenly-dreams-logo-clean-cropped.png";
+
+function BrandLogoMark({ className }: { className?: string }) {
+  return (
+    <div
+      className={cn(
+        "relative flex shrink-0 items-center justify-center overflow-visible bg-transparent drop-shadow-[0_0_10px_rgba(34,211,238,0.35)]",
+        className
+      )}
+    >
+      <img
+        src={BRAND_LOGO_PATH}
+        alt="Heavenly Dreams"
+        className="h-full w-full object-contain"
+      />
+    </div>
+  );
+}
 
 const PATH_MAP: Record<string, string> = {
   "/": "Dashboard",
@@ -13,6 +33,8 @@ const PATH_MAP: Record<string, string> = {
   "/jobs": "Ofertas de Empleo",
   "/messages": "Mensajes",
   "/agents": "Agentes AI",
+  "/ai-workflows": "Flujos IA",
+  "/welcome-followup": "Bienvenidas",
   "/whatsapp": "Canales de Chat",
   "/workspace": "Google Workspace",
   "/reports": "Reportes",
@@ -25,6 +47,8 @@ const NAV_ITEMS = [
   { name: "Ofertas de Empleo", path: "/jobs", icon: Briefcase },
   { name: "Mensajes", path: "/messages", icon: MessageSquare },
   { name: "Agentes AI", path: "/agents", icon: Zap },
+  { name: "Flujos IA", path: "/ai-workflows", icon: GitBranch },
+  { name: "Bienvenidas", path: "/welcome-followup", icon: ClipboardCheck },
   { name: "Canales de Chat", path: "/whatsapp", icon: Smartphone },
   { name: "Google Workspace", path: "/workspace", icon: Cloud },
   { name: "Reportes", path: "/reports", icon: PieChart },
@@ -36,6 +60,15 @@ export function AppLayout() {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(true);
   const location = useLocation();
+  const { user } = useAuth();
+  const displayName = user?.displayName || user?.email || "Sin sesión";
+  const userLabel = user ? (user.isAnonymous ? "Invitado" : "Usuario") : "Sin autenticar";
+  const initials = displayName
+    .split(/\s|@/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase())
+    .join("") || "RH";
 
   useEffect(() => {
     // Check local storage or default to dark
@@ -65,11 +98,7 @@ export function AppLayout() {
       <div className="md:hidden flex items-center justify-between glass-panel p-3 shrink-0 m-2 rounded-xl relative z-40">
         <div className="flex flex-col">
           <div className="flex items-center gap-2 font-bold text-white text-lg tracking-tight">
-            <div className="w-8 h-8 relative flex items-center justify-center text-white">
-              <div className="absolute inset-0 bg-cyan-500 blur-sm opacity-50 rounded-lg"></div>
-              <div className="absolute inset-0 bg-cyan-500 rounded-lg"></div>
-              <Building className="w-4 h-4 relative z-10" />
-            </div>
+            <BrandLogoMark className="h-9 w-9" />
             <span>RH<span className="text-cyan-400">Dreams</span></span>
           </div>
         </div>
@@ -116,11 +145,7 @@ export function AppLayout() {
           </button>
 
           <div className={cn("flex items-center gap-3 font-bold text-white text-xl tracking-tight group cursor-pointer relative z-10", isCollapsed ? "justify-center mt-3" : "")}>
-            <div className="w-10 h-10 relative flex items-center justify-center text-white transition-transform group-hover:scale-105 duration-300 shrink-0">
-              <div className="absolute inset-0 bg-cyan-500 blur-md opacity-40 rounded-xl group-hover:opacity-70 transition-opacity"></div>
-              <div className="absolute inset-0 bg-cyan-500/20 border border-cyan-400/50 rounded-xl"></div>
-              <Building className="w-5 h-5 relative z-10 text-cyan-300" />
-            </div>
+            <BrandLogoMark className="h-11 w-11 transition-transform duration-300 group-hover:scale-105" />
             {!isCollapsed && (
               <div className="flex flex-col">
                 <span className="font-bold tracking-tighter text-2xl">RH<span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">Dreams</span></span>
@@ -161,7 +186,7 @@ export function AppLayout() {
                <div className="p-4 bg-slate-900/50 rounded-xl border border-white/5 relative overflow-hidden group">
                  <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/10 to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                  <p className="text-[10px] uppercase font-bold text-slate-500 mb-2 flex items-center gap-2 tracking-widest"><Zap className="w-3 h-3 text-amber-400" /> AI Insights</p>
-                 <p className="text-xs text-slate-400 leading-relaxed font-light">4 candidatos muestran alto potencial de fit cultural esta semana.</p>
+                 <p className="text-xs text-slate-400 leading-relaxed font-light">Conecta tus integraciones para activar insights con datos reales.</p>
                </div>
             </div>
           )}
@@ -170,12 +195,12 @@ export function AppLayout() {
         <div className={cn("p-4 border-t border-white/5 shrink-0 bg-black/10 flex items-center transition-all duration-300", isCollapsed ? "flex-col gap-4 justify-center" : "justify-between")}>
           <div className={cn("flex items-center gap-3 glass-panel p-2 rounded-xl group cursor-pointer hover:border-cyan-500/30 transition-colors", isCollapsed ? "justify-center w-full" : "flex-1 min-w-0")}>
             <div className="w-10 h-10 rounded-lg bg-slate-800 border border-slate-600 flex flex-shrink-0 items-center justify-center text-cyan-400 font-bold text-sm shadow-[0_0_10px_rgba(34,211,238,0.1)] group-hover:shadow-[0_0_15px_rgba(34,211,238,0.3)] transition-all">
-              AR
+              {initials}
             </div>
             {!isCollapsed && (
               <div className="flex flex-col min-w-0">
-                <span className="text-sm font-medium text-slate-200 group-hover:text-white transition-colors truncate">Alex Rivera</span>
-                <span className="text-[10px] text-cyan-500 uppercase tracking-widest mt-0.5 truncate">Superuser</span>
+                <span className="text-sm font-medium text-slate-200 group-hover:text-white transition-colors truncate">{displayName}</span>
+                <span className="text-[10px] text-cyan-500 uppercase tracking-widest mt-0.5 truncate">{userLabel}</span>
               </div>
             )}
           </div>

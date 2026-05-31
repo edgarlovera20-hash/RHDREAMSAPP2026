@@ -1,7 +1,7 @@
 import { useState } from "react";
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
-import { Shield, Users, Mail, Bell, Key, Plus, Trash2, Zap, Settings as SettingsIcon, MessageSquare, Video, Globe, Calendar, CheckCircle2, Lock, Smartphone, History, Edit3, Linkedin, X, Check, Facebook, Instagram } from "lucide-react";
+import { Shield, Users, Mail, Bell, BellRing, Key, Plus, Trash2, Zap, Settings as SettingsIcon, MessageSquare, Video, Globe, Calendar, CheckCircle2, Lock, Smartphone, History, Edit3, Linkedin, X, Check, Facebook, Instagram, Send } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useNotifications } from "@/contexts/NotificationContext";
 
@@ -11,11 +11,7 @@ const ROLES = [
   { id: 'interviewer', name: 'Entrevistador', description: 'Acceso solo lectura a candidatos asignados y puntuaciones.' },
 ];
 
-const MOCK_USERS = [
-  { id: 1, name: 'Carlos Admin', email: 'admin@talentflow.com', role: 'admin' },
-  { id: 2, name: 'Laura RRHH', email: 'hr@talentflow.com', role: 'hr_manager' },
-  { id: 3, name: 'Pedro Tech', email: 'techlead@talentflow.com', role: 'interviewer' },
-];
+const INITIAL_USERS: any[] = [];
 
 const AUTOMATIONS = [
   { id: 1, name: 'Email Confirmación Postulación', trigger: 'Recibir nueva postulación', action: 'Enviar plantilla "Gracias por aplicar"', active: true },
@@ -25,10 +21,14 @@ const AUTOMATIONS = [
 
 const INTEGRATIONS = [
   { id: 'google_workspace', name: 'Google Workspace', category: 'Productividad', description: 'Sincroniza Gmail y Google Calendar para agendar entrevistas.', icon: Globe, connected: true },
-  { id: 'whatsapp', name: 'WhatsApp Business', category: 'Comunicación', description: 'Envía mensajes directos y recordatorios por WhatsApp.', icon: MessageSquare, connected: false },
+  { id: 'indeed', name: 'Indeed Partner API', category: 'Bolsa de empleo', description: 'Sincroniza vacantes, postulaciones, candidatos y estados del proceso desde Indeed.', icon: MessageSquare, connected: false },
+  { id: 'computrabajo', name: 'Computrabajo', category: 'Bolsa de empleo', description: 'Importa candidatos por feed autorizado, CSV, email parser o webhook empresarial.', icon: Users, connected: false },
+  { id: 'whatsapp_personal', name: 'WhatsApp Normal', category: 'Comunicación asistida', description: 'Abre chats y registra conversaciones manuales con apoyo del agente IA.', icon: Smartphone, connected: false },
+  { id: 'facebook_ads', name: 'Facebook Recruitment Ads', category: 'Paid social', description: 'Analiza gasto, CPL, mejores horas y presupuesto de campañas de reclutamiento en Meta Ads.', icon: Facebook, connected: false },
   { id: 'slack', name: 'Slack', category: 'Comunicación', description: 'Recibe notificaciones y menciona al equipo en canales de Slack.', icon: MessageSquare, connected: true },
   { id: 'zoom', name: 'Zoom', category: 'Videollamadas', description: 'Genera enlaces de videollamada automáticamente para entrevistas.', icon: Video, connected: false },
   { id: 'linkedin', name: 'LinkedIn Recruiter', category: 'Sourcing', description: 'Importa perfiles y sincroniza InMails con tus candidatos.', icon: Linkedin, connected: true },
+  { id: 'canva', name: 'Canva Content Studio', category: 'Creatividad', description: 'Crea publicaciones, historias, reels y videos de reclutamiento desde briefs generados por tus agentes AI.', icon: Edit3, connected: true },
   { id: 'facebook', name: 'Facebook Lead Ads & Messenger', category: 'Sourcing & Chat', description: 'Atrae candidatos desde campañas de Facebook Ads y mantén conversaciones automatizadas por Messenger.', icon: Facebook, connected: true },
   { id: 'instagram', name: 'Instagram Direct Message', category: 'Comunicación', description: 'Captura postulantes que comenten en tus publicaciones y automatiza respuestas personalizadas en tus DMs.', icon: Instagram, connected: false },
   { id: 'tiktok', name: 'TikTok Instant Forms & Chat', category: 'Sourcing & Lead Gen', description: 'Sincroniza instantáneamente candidatos que se registren en tus anuncios de TikTok y asocia tu Agente AI.', icon: Video, connected: false },
@@ -41,11 +41,7 @@ const EMAIL_TEMPLATES = [
   { id: 4, name: 'Oferta Laboral', subject: '¡Tenemos una oferta para ti!', type: 'Manual', body: '<p>Felicidades {{candidate_name}}, te extendemos una oferta formal para unirte a nuestro equipo.</p>' },
 ];
 
-const SECURITY_LOGS = [
-  { id: 1, event: 'Inicio de sesión exitoso', user: 'Carlos Admin', time: 'Hace 5 min', ip: '192.168.1.104', type: 'login' },
-  { id: 2, event: 'Cambio de roles', user: 'Carlos Admin', time: 'Hace 2 horas', ip: '192.168.1.104', type: 'admin' },
-  { id: 3, event: 'Exportación de datos', user: 'Laura RRHH', time: 'Ayer', ip: '201.20.10.4', type: 'data' },
-];
+const SECURITY_LOGS: any[] = [];
 
 const SECURITY_ALERTS_PREFS = [
   { id: 'suspicious_login', label: 'Intentos de inicio de sesión sospechosos', enabled: true },
@@ -60,14 +56,22 @@ const CUSTOM_FIELDS = [
 export function Settings() {
   const [activeTab, setActiveTab] = useState('workflows');
   const [automations, setAutomations] = useState(AUTOMATIONS);
-  const { prefs: notificationPrefs, updatePref: toggleNotificationPref, triggerEvent } = useNotifications();
+  const {
+    prefs: notificationPrefs,
+    updatePref: toggleNotificationPref,
+    triggerEvent,
+    pushStatus,
+    pushError,
+    requestPushPermission,
+    sendTestPushNotification,
+  } = useNotifications();
   const [integrationsList, setIntegrationsList] = useState(INTEGRATIONS);
   const [securityAlerts, setSecurityAlerts] = useState(SECURITY_ALERTS_PREFS);
   const [templates, setTemplates] = useState(EMAIL_TEMPLATES);
   const [editingTemplate, setEditingTemplate] = useState<any>(null);
   const [customFields, setCustomFields] = useState(CUSTOM_FIELDS);
   const [newCustomField, setNewCustomField] = useState({ name: '', description: '' });
-  const [users, setUsers] = useState(MOCK_USERS);
+  const [users, setUsers] = useState(INITIAL_USERS);
   
   // Modals state
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
@@ -281,13 +285,65 @@ export function Settings() {
                   </button>
                 </div>
 
-                <div className="p-6">
+                <div className="p-6 space-y-5">
+                  <div className="rounded-xl border border-cyan-500/20 bg-cyan-500/5 p-4">
+                    <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                      <div className="flex items-start gap-3">
+                        <div className="rounded-xl border border-cyan-500/30 bg-cyan-500/10 p-2 text-cyan-300">
+                          <BellRing className="h-5 w-5" />
+                        </div>
+                        <div>
+                          <div className="flex flex-wrap items-center gap-2">
+                            <h3 className="text-sm font-semibold text-white">Push del navegador</h3>
+                            <span className={cn(
+                              "rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider",
+                              pushStatus === 'granted' && "border-emerald-500/30 bg-emerald-500/10 text-emerald-300",
+                              pushStatus === 'denied' && "border-rose-500/30 bg-rose-500/10 text-rose-300",
+                              pushStatus === 'default' && "border-amber-500/30 bg-amber-500/10 text-amber-300",
+                              pushStatus === 'unsupported' && "border-slate-600 bg-slate-800 text-slate-400"
+                            )}>
+                              {pushStatus === 'granted' ? 'Activas' : pushStatus === 'denied' ? 'Bloqueadas' : pushStatus === 'unsupported' ? 'No soportadas' : 'Sin permiso'}
+                            </span>
+                          </div>
+                          <p className="mt-1 text-xs leading-relaxed text-slate-400">
+                            Recibe avisos de citas, cambios de estado y alertas importantes aunque estés en otra pestaña.
+                          </p>
+                          {pushError && (
+                            <p className="mt-2 text-xs text-rose-300">{pushError}</p>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="flex flex-wrap gap-2">
+                        <button
+                          type="button"
+                          onClick={requestPushPermission}
+                          disabled={pushStatus === 'unsupported' || pushStatus === 'granted'}
+                          className="inline-flex items-center gap-2 rounded-lg border border-cyan-500/50 bg-cyan-600/20 px-4 py-2 text-xs font-bold uppercase tracking-wide text-cyan-50 transition-all hover:bg-cyan-600/40 disabled:cursor-not-allowed disabled:opacity-50"
+                        >
+                          <Bell className="h-4 w-4" />
+                          Activar Push
+                        </button>
+                        <button
+                          type="button"
+                          onClick={sendTestPushNotification}
+                          disabled={pushStatus !== 'granted'}
+                          className="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-slate-800/70 px-4 py-2 text-xs font-bold uppercase tracking-wide text-slate-200 transition-colors hover:border-cyan-500/40 hover:text-cyan-300 disabled:cursor-not-allowed disabled:opacity-50"
+                        >
+                          <Send className="h-4 w-4" />
+                          Probar
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
                   <div className="bg-slate-900/40 border border-white/5 rounded-xl overflow-hidden">
                     <table className="w-full text-left text-sm">
                       <thead>
                         <tr className="border-b border-white/5 bg-black/20 text-slate-400 uppercase tracking-widest text-[10px] font-bold">
                           <th className="p-4 font-semibold text-cyan-400/80">Tipo de Evento</th>
                           <th className="p-4 text-center font-semibold text-cyan-400/80 w-24">In-App</th>
+                          <th className="p-4 text-center font-semibold text-cyan-400/80 w-24">Push</th>
                           <th className="p-4 text-center font-semibold text-cyan-400/80 w-24">Email</th>
                         </tr>
                       </thead>
@@ -313,6 +369,24 @@ export function Settings() {
                                 <div className={cn(
                                   "absolute left-[2px] top-[2px] bg-white border-gray-300 border rounded-full h-4 w-4 transition-all",
                                   pref.inApp ? "translate-x-full border-white" : ""
+                                )}></div>
+                              </label>
+                            </td>
+                            <td className="p-4 text-center">
+                              <label className="relative inline-flex items-center cursor-pointer">
+                                <input
+                                  type="checkbox"
+                                  className="sr-only peer"
+                                  checked={pref.push}
+                                  onChange={() => toggleNotificationPref(pref.id, 'push')}
+                                />
+                                <div className={cn(
+                                  "w-9 h-5 rounded-full peer-focus:outline-none transition-all",
+                                  pref.push ? "bg-cyan-500 shadow-[0_0_10px_rgba(6,182,212,0.5)]" : "bg-slate-700"
+                                )}></div>
+                                <div className={cn(
+                                  "absolute left-[2px] top-[2px] bg-white border-gray-300 border rounded-full h-4 w-4 transition-all",
+                                  pref.push ? "translate-x-full border-white" : ""
                                 )}></div>
                               </label>
                             </td>

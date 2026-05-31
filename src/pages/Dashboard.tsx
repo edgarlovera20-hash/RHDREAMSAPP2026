@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Users, UserPlus, Briefcase, Clock, Activity, Cpu, AlertCircle, X, CheckCircle2, AlertTriangle, Info, Calendar, Filter } from "lucide-react";
 import { Area, AreaChart, Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip as RechartsTooltip, XAxis, YAxis, PieChart, Pie, Cell, Line, ComposedChart } from "recharts";
-import { FUNNEL_DATA, PERFORMANCE_DATA, CANDIDATES_PER_JOB_DATA, HISTORICAL_CANDIDATES } from "@/data/mockData";
 import { useNotifications } from "@/contexts/NotificationContext";
 import { useDb } from "@/hooks/useDb";
 import { cn } from "@/lib/utils";
@@ -34,10 +33,8 @@ export function Dashboard() {
     return new Date().toISOString().split("T")[0];
   });
 
-  // Merge live Firestore candidates with simulated historical log metrics for robust analytics UI
-  const allCandidates = [...candidates, ...HISTORICAL_CANDIDATES];
   const uniqueCandidatesMap = new Map();
-  allCandidates.forEach(c => {
+  candidates.forEach(c => {
     uniqueCandidatesMap.set(c.id, c);
   });
   const dedupedCandidates = Array.from(uniqueCandidatesMap.values());
@@ -62,6 +59,18 @@ export function Dashboard() {
     return apptDate >= start && apptDate <= end;
   });
   const scheduledCount = filteredAppointments.length > 0 ? filteredAppointments.length : appointments.filter(a => a.status === 'scheduled' || a.status === 'confirmed').length;
+  const calculateAverageTimeToHire = (candidateList: typeof filteredCandidates) => {
+    const hiredCandidates = candidateList.filter(c => ["Contratado", "En capacitación", "DDO y bienvenida"].includes(c.stage));
+    if (hiredCandidates.length === 0) return 0;
+
+    const totalDays = hiredCandidates.reduce((sum, candidate) => {
+      const createdAt = typeof candidate.createdAt === "number" ? candidate.createdAt : Number(candidate.createdAt || Date.now());
+      const updatedAt = typeof candidate.updatedAt === "number" ? candidate.updatedAt : Number(candidate.updatedAt || createdAt);
+      return sum + Math.max(0, Math.round((updatedAt - createdAt) / (24 * 60 * 60 * 1000)));
+    }, 0);
+
+    return Math.round(totalDays / hiredCandidates.length);
+  };
 
   // Compute Funnel Dataset Dynamically
   const computedFunnelData = (() => {
@@ -117,7 +126,7 @@ export function Dashboard() {
         });
         const hiresCount = dayCandidates.filter(c => ["Contratado", "En capacitación", "DDO y bienvenida"].includes(c.stage)).length;
         
-        const baseTth = hiresCount > 0 ? Math.round(15 + (i * 2) % 4 + Math.random() * 3) : 18;
+        const baseTth = calculateAverageTimeToHire(dayCandidates);
         
         result.push({
           name,
@@ -140,7 +149,7 @@ export function Dashboard() {
           return ct >= wStart && ct <= wEnd;
         });
         const hiresCount = weekCandidates.filter(c => ["Contratado", "En capacitación", "DDO y bienvenida"].includes(c.stage)).length;
-        const baseTth = hiresCount > 0 ? Math.round(17 + (i * 3) % 4 + Math.random() * 4) : 15;
+        const baseTth = calculateAverageTimeToHire(weekCandidates);
         
         result.push({
           name,
@@ -171,7 +180,7 @@ export function Dashboard() {
         return ct >= mStart && ct <= mEnd;
       });
       const hiresCount = monthCandidates.filter(c => ["Contratado", "En capacitación", "DDO y bienvenida"].includes(c.stage)).length;
-      const baseTth = hiresCount > 0 ? Math.round(20 - (currentMonth % 3) * 2 + Math.random() * 2) : 22 - (currentMonth % 3);
+      const baseTth = calculateAverageTimeToHire(monthCandidates);
       
       result.push({
         name,
@@ -186,21 +195,13 @@ export function Dashboard() {
       }
     }
     
-    return result.length > 0 ? result : [
-      { name: "Mar 26", hires: 4, timeToHire: 26 },
-      { name: "Abr 26", hires: 8, timeToHire: 22 },
-      { name: "May 26", hires: 14, timeToHire: 18 }
-    ];
+    return result;
   })();
 
   // Compute Job Pie Chart Dynamically
   const computedCandidatesPerJobData = (() => {
     if (jobs.length === 0) {
-      return [
-        { name: "Sr Frontend Developer", count: filteredCandidates.filter(c => c.role?.toLowerCase().includes("front")).length || 6 },
-        { name: "Backend Engineer (Node.js)", count: filteredCandidates.filter(c => c.role?.toLowerCase().includes("back")).length || 4 },
-        { name: "Product Designer UI/UX", count: filteredCandidates.filter(c => c.role?.toLowerCase().includes("design")).length || 2 }
-      ];
+      return [];
     }
 
     const distribution = jobs.map(job => {
@@ -210,14 +211,6 @@ export function Dashboard() {
         count
       };
     });
-
-    const totalCount = distribution.reduce((sum, item) => sum + item.count, 0);
-    if (totalCount === 0) {
-      return jobs.map((job, idx) => ({
-        name: job.title,
-        count: [5, 3, 2][idx % 3] || 1
-      }));
-    }
 
     return distribution;
   })();

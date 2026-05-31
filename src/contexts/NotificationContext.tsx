@@ -1,4 +1,10 @@
 import { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
+import {
+  BrowserPushStatus,
+  getBrowserPushStatus,
+  isBrowserPushSupported,
+  showBrowserNotification,
+} from '@/lib/pushNotifications';
 
 export type NotificationType = 'info' | 'success' | 'warning' | 'error';
 
@@ -19,15 +25,49 @@ export interface NotificationPref {
   description: string;
   email: boolean;
   inApp: boolean;
+  push: boolean;
 }
 
 const DEFAULT_PREFS: NotificationPref[] = [
-  { id: 'new_candidate', label: 'Nuevos candidatos', description: 'Notificar cuando un candidato aplique a una oferta.', email: true, inApp: true },
-  { id: 'interview_scheduled', label: 'Citas agendadas', description: 'Notificar cuando se agende o modifique una entrevista.', email: true, inApp: true },
-  { id: 'status_change', label: 'Cambios de estado', description: 'Notificar cuando un candidato cambie de fase en el embudo.', email: false, inApp: true },
-  { id: 'team_mention', label: 'Menciones del equipo', description: 'Notificar cuando te mencionen en notas o comentarios.', email: true, inApp: true },
-  { id: 'system_alerts', label: 'Alertas del sistema', description: 'Avisos importantes sobre suscripción o mantenimiento.', email: true, inApp: false },
+  { id: 'new_candidate', label: 'Nuevos candidatos', description: 'Notificar cuando un candidato aplique a una oferta.', email: true, inApp: true, push: false },
+  { id: 'interview_scheduled', label: 'Citas agendadas', description: 'Notificar cuando se agende o modifique una entrevista.', email: true, inApp: true, push: true },
+  { id: 'status_change', label: 'Cambios de estado', description: 'Notificar cuando un candidato cambie de fase en el embudo.', email: false, inApp: true, push: true },
+  { id: 'team_mention', label: 'Menciones del equipo', description: 'Notificar cuando te mencionen en notas o comentarios.', email: true, inApp: true, push: true },
+  { id: 'system_alerts', label: 'Alertas del sistema', description: 'Avisos importantes sobre suscripción o mantenimiento.', email: true, inApp: false, push: true },
+  { id: 'sync', label: 'Sincronizaciones', description: 'Avisos de importaciones, mensajes enviados y procesos conectados.', email: false, inApp: true, push: false },
+  { id: 'info', label: 'Avisos operativos', description: 'Recordatorios y acciones pendientes dentro del CRM.', email: false, inApp: true, push: false },
 ];
+
+const normalizePrefs = (storedPrefs?: Partial<NotificationPref>[]) => (
+  DEFAULT_PREFS.map(defaultPref => {
+    const storedPref = storedPrefs?.find(pref => pref.id === defaultPref.id);
+    return {
+      ...defaultPref,
+      ...storedPref,
+      email: storedPref?.email ?? defaultPref.email,
+      inApp: storedPref?.inApp ?? defaultPref.inApp,
+      push: storedPref?.push ?? defaultPref.push,
+    };
+  })
+);
+
+const toNotificationPayload = (eventId: string, data: any) => {
+  if (data && typeof data === 'object') {
+    return {
+      title: data.title || 'Nueva Notificación',
+      message: data.message || 'Una acción ocurrió en el sistema.',
+      type: data.type || 'info',
+      actionUrl: data.actionUrl,
+      actionLabel: data.actionLabel,
+    };
+  }
+
+  return {
+    title: eventId,
+    message: typeof data === 'string' ? data : 'Una acción ocurrió en el sistema.',
+    type: 'info' as NotificationType,
+  };
+};
 
 interface NotificationContextProps {
   notifications: AppNotification[];
@@ -40,47 +80,38 @@ interface NotificationContextProps {
   
   // Preferences
   prefs: NotificationPref[];
-  updatePref: (id: string, type: 'email' | 'inApp') => void;
+  updatePref: (id: string, type: 'email' | 'inApp' | 'push') => void;
+  pushStatus: BrowserPushStatus;
+  pushError: string | null;
+  requestPushPermission: () => Promise<BrowserPushStatus>;
+  sendTestPushNotification: () => Promise<boolean>;
   
-  // Event Trigger (Simulating backend integration)
+  // Event Trigger
   triggerEvent: (eventId: string, data: any) => void;
 }
 
 const NotificationContext = createContext<NotificationContextProps | undefined>(undefined);
 
-const initialNotifications: AppNotification[] = [
-  {
-    id: '1',
-    title: 'Nuevo candidato prometedor',
-    message: 'Sarah Connor ha aplicado para la posición de Senior Backend Engineer.',
-    type: 'success',
-    read: false,
-    createdAt: new Date(Date.now() - 1000 * 60 * 5),
-    actionUrl: '/candidates',
-    actionLabel: 'Ver candidato'
-  },
-  {
-    id: '2',
-    title: 'Entrevista programada',
-    message: 'Entrevista con Mike Ross a las 15:00 hrs.',
-    type: 'info',
-    read: false,
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 2),
-  }
-];
+const initialNotifications: AppNotification[] = [];
 
 export function NotificationProvider({ children }: { children: ReactNode }) {
   const [notifications, setNotifications] = useState<AppNotification[]>(initialNotifications);
   const [prefs, setPrefs] = useState<NotificationPref[]>(() => {
     const stored = localStorage.getItem('talentflow_notif_prefs');
-    return stored ? JSON.parse(stored) : DEFAULT_PREFS;
+    return stored ? normalizePrefs(JSON.parse(stored)) : DEFAULT_PREFS;
   });
+  const [pushStatus, setPushStatus] = useState<BrowserPushStatus>(() => getBrowserPushStatus());
+  const [pushError, setPushError] = useState<string | null>(null);
 
   useEffect(() => {
     localStorage.setItem('talentflow_notif_prefs', JSON.stringify(prefs));
   }, [prefs]);
 
-  const updatePref = useCallback((id: string, type: 'email' | 'inApp') => {
+  useEffect(() => {
+    setPushStatus(getBrowserPushStatus());
+  }, []);
+
+  const updatePref = useCallback((id: string, type: 'email' | 'inApp' | 'push') => {
     setPrefs(current => current.map(p => p.id === id ? { ...p, [type]: !p[type] } : p));
   }, []);
 
@@ -96,28 +127,97 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
     setNotifications(prev => [newNotification, ...prev]);
   }, []);
 
-  // Simulates integration: an event happens, and depending on prefs we dispatch in-app and/or email
+  const requestPushPermission = useCallback(async () => {
+    setPushError(null);
+
+    if (!isBrowserPushSupported()) {
+      setPushStatus('unsupported');
+      setPushError('Las notificaciones push requieren HTTPS o localhost y un navegador compatible.');
+      return 'unsupported' as BrowserPushStatus;
+    }
+
+    const permission = await Notification.requestPermission();
+    setPushStatus(permission);
+
+    if (permission === 'granted') {
+      addNotification({
+        title: 'Push activadas',
+        message: 'Las notificaciones del navegador ya están listas para citas, estados y alertas.',
+        type: 'success',
+      });
+    } else if (permission === 'denied') {
+      setPushError('El navegador bloqueó las notificaciones. Actívalas desde la configuración del sitio.');
+    }
+
+    return permission;
+  }, [addNotification]);
+
+  const sendTestPushNotification = useCallback(async () => {
+    setPushError(null);
+
+    if (getBrowserPushStatus() !== 'granted') {
+      setPushStatus(getBrowserPushStatus());
+      setPushError('Primero activa el permiso de notificaciones push.');
+      return false;
+    }
+
+    try {
+      const sent = await showBrowserNotification({
+        title: 'Prueba push de RHDreams',
+        message: 'Listo: recibirás avisos importantes aunque estés en otra pestaña.',
+        type: 'success',
+        actionUrl: '/reports',
+        tag: 'rhdreams-push-test',
+      });
+
+      if (sent) {
+        addNotification({
+          title: 'Prueba enviada',
+          message: 'Se lanzó una notificación push de prueba al navegador.',
+          type: 'success',
+        });
+      }
+
+      return sent;
+    } catch (error) {
+      setPushError(error instanceof Error ? error.message : 'No se pudo enviar la notificación push.');
+      return false;
+    }
+  }, [addNotification]);
+
+  // An event happens, and depending on prefs we dispatch in-app notifications.
   const triggerEvent = useCallback((eventId: string, data: any) => {
     const pref = prefs.find(p => p.id === eventId);
     if (!pref) return;
+    const payload = toNotificationPayload(eventId, data);
 
     if (pref.inApp) {
       addNotification({
-        title: data.title || 'Nueva Notificación',
-        message: data.message || 'Una acción ocurrió en el sistema.',
-        type: data.type || 'info',
+        title: payload.title,
+        message: payload.message,
+        type: payload.type,
+        actionUrl: payload.actionUrl,
+        actionLabel: payload.actionLabel,
+      });
+    }
+
+    if (pref.push && getBrowserPushStatus() === 'granted') {
+      showBrowserNotification({
+        title: payload.title,
+        message: payload.message,
+        type: payload.type,
+        actionUrl: payload.actionUrl,
+        tag: eventId,
+      }).catch(error => {
+        setPushError(error instanceof Error ? error.message : 'No se pudo enviar la notificación push.');
       });
     }
 
     if (pref.email) {
-      // Logic that sends email notification. Using console and an extra "toast" to simulate inbox delivery
-      console.log(`[SIMULATED EMAIL SENT] to Inbox. Event: ${eventId}, Data:`, data);
-      
-      // Give a distinct "email" visual indicator as a fallback alert in the UI for the demo
       addNotification({
-        title: '📧 Correo enviado a tu inbox',
-        message: `Asunto: ${data.title}`,
-        type: 'info',
+        title: 'Correo pendiente de configuración',
+        message: 'Conecta un proveedor de email transaccional para enviar esta notificación fuera de la app.',
+        type: 'warning',
       });
     }
   }, [prefs, addNotification]);
@@ -149,6 +249,10 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
       clearAll,
       prefs,
       updatePref,
+      pushStatus,
+      pushError,
+      requestPushPermission,
+      sendTestPushNotification,
       triggerEvent
     }}>
       {children}

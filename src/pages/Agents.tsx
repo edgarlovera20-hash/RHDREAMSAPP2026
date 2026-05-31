@@ -1,32 +1,109 @@
 import { useState, useRef, useEffect } from 'react';
-import { Bot, Plus, Search, BrainCircuit, Activity, Zap, MessageSquare, Briefcase, FileText, CheckCircle2, XCircle, Settings2, Code, Users, Download, Filter, Send, Copy, Loader2, Sparkles } from 'lucide-react';
-import { MOCK_AGENTS, MOCK_PREBUILT_TEMPLATES, AGENT_LOGS } from '@/data/mockData';
+import { Bot, Plus, Search, BrainCircuit, Activity, Zap, MessageSquare, Briefcase, FileText, CheckCircle2, XCircle, Settings2, Code, Users, Download, Filter, Send, Copy, Loader2, Sparkles, Video, Image as ImageIcon, ExternalLink, Mic, Volume2 } from 'lucide-react';
+import { EMPTY_AGENTS, EMPTY_AGENT_LOGS, EMPTY_AGENT_TEMPLATES } from '@/data/appDefaults';
+import { CANVA_TEMPLATE_CATEGORIES, CANVA_TEMPLATE_PACKS, type CanvaTemplatePack } from '@/data/canvaTemplateLibrary';
 import { AgentConfigModal } from '@/components/AgentConfigModal';
+import { apiUrl, readApiJson } from '@/lib/api';
+import { cn } from '@/lib/utils';
+
+const CANVA_FORMATS = [
+  { id: 'instagram_post', label: 'Post Instagram', size: '1080 x 1080', icon: ImageIcon },
+  { id: 'instagram_story', label: 'Story / Reel', size: '1080 x 1920', icon: Video },
+  { id: 'facebook_post', label: 'Post Facebook', size: '1200 x 630', icon: ImageIcon },
+  { id: 'linkedin_post', label: 'Post LinkedIn', size: '1200 x 627', icon: Briefcase },
+  { id: 'tiktok_video', label: 'Video TikTok', size: '1080 x 1920', icon: Video }
+];
+
+const DEFAULT_AGENT_PERSONALITY = `Eres un agente de reclutamiento de Heavenly Dreams.
+Hablas en español claro, cercano y profesional.
+Tu prioridad es ayudar al candidato, pedir solo los datos necesarios y escalar a una persona cuando falte información o el tema sea sensible.`;
+
+const buildAgentSystemPrompt = (agent: any) => {
+  return `
+Nombre del agente: ${agent.name}
+Rol principal: ${agent.role}
+Personalidad:
+${agent.personalityPrompt || agent.basePrompt || DEFAULT_AGENT_PERSONALITY}
+
+Tono: ${agent.tone || 'Cercano, profesional y directo.'}
+Estilo de respuesta: ${agent.responseStyle || 'Respuestas breves, útiles, con pasos claros y sin inventar información.'}
+Reglas de escalamiento: ${agent.escalationRules || 'Escala si el candidato pregunta por temas legales, pagos, quejas, datos que no estén confirmados o situaciones delicadas.'}
+
+Audio:
+- Si el candidato manda un audio y hay transcripción, responde usando la transcripción como mensaje original.
+- No digas que escuchaste el audio directamente; di que revisaste el mensaje/transcripción.
+- Si la transcripción no es clara, pide una confirmación breve.
+  `.trim();
+};
+
+const AGENTS_STORAGE_KEY = 'rhdreams_agents';
+
+const loadStoredAgents = () => {
+  try {
+    const stored = localStorage.getItem(AGENTS_STORAGE_KEY);
+    return stored ? JSON.parse(stored) : EMPTY_AGENTS;
+  } catch (_error) {
+    return EMPTY_AGENTS;
+  }
+};
 
 export function Agents() {
-  const [agents, setAgents] = useState(MOCK_AGENTS);
-  const [activeTab, setActiveTab] = useState<'agents' | 'templates' | 'memory'>('agents');
+  const [agents, setAgents] = useState<any[]>(loadStoredAgents);
+  const [activeTab, setActiveTab] = useState<'agents' | 'templates' | 'canva' | 'memory'>('agents');
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [newAgentName, setNewAgentName] = useState('');
   const [newAgentRole, setNewAgentRole] = useState('Sourcing');
+  const [newAgentPersonality, setNewAgentPersonality] = useState(DEFAULT_AGENT_PERSONALITY);
+  const [newAgentTone, setNewAgentTone] = useState('Cercano, profesional y directo');
+  const [newAgentTranscribeAudio, setNewAgentTranscribeAudio] = useState(true);
+  const [newAgentAudioAutoReply, setNewAgentAudioAutoReply] = useState(true);
   
-  const [agentToConfig, setAgentToConfig] = useState<typeof MOCK_AGENTS[0] | null>(null);
+  const [agentToConfig, setAgentToConfig] = useState<typeof EMPTY_AGENTS[0] | null>(null);
   
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [dirtyFields, setDirtyFields] = useState<{name?: boolean, role?: boolean}>({});
 
   // Chat state
-  const [activeChatAgent, setActiveChatAgent] = useState<typeof MOCK_AGENTS[0] | null>(null);
+  const [activeChatAgent, setActiveChatAgent] = useState<typeof EMPTY_AGENTS[0] | null>(null);
   const [chatMessages, setChatMessages] = useState<{role: 'user' | 'agent', text: string}[]>([]);
   const [currentMessage, setCurrentMessage] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [canvaFormat, setCanvaFormat] = useState('instagram_post');
+  const [canvaCampaign, setCanvaCampaign] = useState('');
+  const [canvaAudience, setCanvaAudience] = useState('');
+  const [canvaOffer, setCanvaOffer] = useState('');
+  const [canvaBrandTemplateId, setCanvaBrandTemplateId] = useState('');
+  const [canvaTemplateCategory, setCanvaTemplateCategory] = useState('Todas');
+  const [selectedCanvaTemplateId, setSelectedCanvaTemplateId] = useState(CANVA_TEMPLATE_PACKS[0].id);
+  const [canvaResult, setCanvaResult] = useState<any>(null);
+  const [isCreatingCanva, setIsCreatingCanva] = useState(false);
+
+  const selectedCanvaFormat = CANVA_FORMATS.find(format => format.id === canvaFormat) || CANVA_FORMATS[0];
+  const selectedCanvaTemplate = CANVA_TEMPLATE_PACKS.find(template => template.id === selectedCanvaTemplateId) || CANVA_TEMPLATE_PACKS[0];
+  const filteredCanvaTemplates = CANVA_TEMPLATE_PACKS.filter(template => canvaTemplateCategory === 'Todas' || template.category === canvaTemplateCategory);
+  const canvaBrief = `Campaña: ${canvaCampaign}
+Audiencia: ${canvaAudience}
+Oferta principal: ${canvaOffer}
+Formato: ${selectedCanvaFormat.label} (${selectedCanvaFormat.size})
+Plantilla sugerida: ${selectedCanvaTemplate.title}
+Buscar en Canva Templates: ${selectedCanvaTemplate.canvaSearchUrl}
+Objetivo creativo: atraer candidatos calificados y llevarlos a postularse.
+Dirección visual: ${selectedCanvaTemplate.visualDirection}
+Copy sugerido:
+- Hook: ${selectedCanvaTemplate.hook}
+- Beneficio: ${canvaOffer || selectedCanvaTemplate.defaultOffer}
+- CTA: ${selectedCanvaTemplate.cta}`;
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [chatMessages]);
+
+  useEffect(() => {
+    localStorage.setItem(AGENTS_STORAGE_KEY, JSON.stringify(agents));
+  }, [agents]);
 
   const getIcon = (name: string) => {
     switch (name) {
@@ -38,7 +115,7 @@ export function Agents() {
   };
 
   const getFilteredLogs = () => {
-    return AGENT_LOGS.filter(log => {
+    return EMPTY_AGENT_LOGS.filter(log => {
       if (startDate && log.date < startDate) return false;
       if (endDate && log.date > endDate) return false;
       return true;
@@ -79,13 +156,32 @@ export function Agents() {
       memory: '0 GB',
       conversations: 0,
       successRate: '-',
-      avatarColor: 'bg-indigo-500' // Generate a different color
+      avatarColor: 'bg-indigo-500',
+      basePrompt: newAgentPersonality,
+      systemPrompt: newAgentPersonality,
+      personalityPrompt: newAgentPersonality,
+      tone: newAgentTone,
+      responseStyle: 'Respuestas breves, humanas y accionables.',
+      escalationRules: 'Escalar a RH cuando falte información, haya quejas, salario no confirmado, datos sensibles o dudas legales.',
+      transcribeAudio: newAgentTranscribeAudio,
+      audioAutoReply: newAgentAudioAutoReply,
+      audioLanguage: 'es-MX',
     };
     
     setAgents([...agents, added]);
     setIsCreateModalOpen(false);
     setNewAgentName('');
+    setNewAgentPersonality(DEFAULT_AGENT_PERSONALITY);
+    setNewAgentTone('Cercano, profesional y directo');
+    setNewAgentTranscribeAudio(true);
+    setNewAgentAudioAutoReply(true);
     setActiveTab('agents');
+  };
+
+  const handleUpdateAgent = (agentId: string, patch: Record<string, any>) => {
+    setAgents(current => current.map(agent => agent.id === agentId ? { ...agent, ...patch } : agent));
+    setAgentToConfig(current => current?.id === agentId ? { ...current, ...patch } : current);
+    setActiveChatAgent(current => current?.id === agentId ? { ...current, ...patch } : current);
   };
 
   const toggleAgentStatus = (id: string, e: React.MouseEvent) => {
@@ -112,19 +208,23 @@ export function Agents() {
     setIsGenerating(true);
 
     try {
-      const res = await fetch('/api/gemini/agent/reply', {
+      const res = await fetch(apiUrl('/api/gemini/agent/reply'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           agentName: activeChatAgent.name,
-          systemPrompt: activeChatAgent.systemPrompt || '',
-          conversationHistory: chatMessages,
+          systemPrompt: buildAgentSystemPrompt(activeChatAgent),
+          conversationHistory: chatMessages.map(message => ({
+            sender: message.role === 'user' ? 'user' : 'me',
+            text: message.text
+          })),
           userPrompt: userText
         })
       });
-      const data = await res.json();
-      if (data && data.reply) {
-        setChatMessages(prev => [...prev, { role: 'agent', text: data.reply }]);
+      const data = await readApiJson(res);
+      const reply = data?.data?.reply || data?.reply;
+      if (reply) {
+        setChatMessages(prev => [...prev, { role: 'agent', text: reply }]);
       } else {
         setChatMessages(prev => [...prev, { role: 'agent', text: "Lo siento, ha ocurrido un problema al procesar la respuesta del agente virtual." }]);
       }
@@ -136,9 +236,43 @@ export function Agents() {
     }
   };
 
-  const openChat = (agent: typeof MOCK_AGENTS[0]) => {
+  const handleCreateCanvaDesign = async () => {
+    setIsCreatingCanva(true);
+    setCanvaResult(null);
+    try {
+      const res = await fetch(apiUrl('/api/integrations/canva/designs'), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: `${canvaCampaign} - ${selectedCanvaFormat.label}`,
+          format: canvaFormat,
+          brief: canvaBrief,
+          brandTemplateId: canvaBrandTemplateId.trim() || undefined,
+          templatePackId: selectedCanvaTemplate.id,
+          templateSearchUrl: selectedCanvaTemplate.canvaSearchUrl,
+          autofillData: canvaBrandTemplateId.trim() ? selectedCanvaTemplate.autofillData : undefined
+        })
+      });
+      const data = await readApiJson(res);
+      setCanvaResult(data.data || data);
+    } catch (err: any) {
+      setCanvaResult({ error: err.message || 'No se pudo conectar con Canva.' });
+    } finally {
+      setIsCreatingCanva(false);
+    }
+  };
+
+  const handleUseCanvaTemplate = (template: CanvaTemplatePack) => {
+    setSelectedCanvaTemplateId(template.id);
+    setCanvaFormat(template.format);
+    setCanvaCampaign(template.defaultCampaign);
+    setCanvaAudience(template.defaultAudience);
+    setCanvaOffer(template.defaultOffer);
+  };
+
+  const openChat = (agent: typeof EMPTY_AGENTS[0]) => {
     setActiveChatAgent(agent);
-    setChatMessages([{ role: 'agent', text: `Hola, soy ${agent.name}. Estoy configurado como ${agent.role}. ¿En qué te puedo ayudar hoy? Explicame qué necesitas redactar, auditar o diseñar y me pondré a trabajar de inmediato.` }]);
+    setChatMessages([{ role: 'agent', text: `Hola, soy ${agent.name}. Estoy configurado como ${agent.role} y responderé con este estilo: ${agent.tone || 'profesional y cercano'}. ${agent.transcribeAudio ? 'También puedo trabajar con audios transcritos.' : ''} ¿Qué necesitas que revise o responda?` }]);
   };
 
   return (
@@ -183,6 +317,17 @@ export function Agents() {
           }`}
         >
           Plantillas
+        </button>
+        <button
+          onClick={() => setActiveTab('canva')}
+          className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+            activeTab === 'canva' 
+              ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 shadow-[0_0_10px_rgba(34,211,238,0.1)]' 
+              : 'text-slate-400 hover:text-slate-200 hover:bg-white/5'
+          }`}
+        >
+          <Sparkles className="w-4 h-4" />
+          Canva Studio
         </button>
         <button
           onClick={() => setActiveTab('memory')}
@@ -239,6 +384,32 @@ export function Agents() {
                 <p className="text-sm text-slate-300 mb-6 leading-relaxed flex-1">
                   {agent.description}
                 </p>
+
+                <div className="mb-5 rounded-xl border border-slate-700/60 bg-slate-950/35 p-3">
+                  <div className="flex items-center justify-between gap-2">
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-cyan-300">Personalidad</p>
+                    <span className="text-[10px] text-slate-500">{agent.tone || 'Sin configurar'}</span>
+                  </div>
+                  <p className="mt-2 line-clamp-2 text-xs leading-5 text-slate-400">
+                    {agent.personalityPrompt || agent.basePrompt || 'Configura tono, límites y forma de responder de este agente.'}
+                  </p>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    <span className={cn(
+                      "inline-flex items-center gap-1 rounded-md border px-2 py-1 text-[10px] font-bold uppercase tracking-wider",
+                      agent.transcribeAudio === false ? "border-slate-700 bg-slate-800/60 text-slate-500" : "border-cyan-500/20 bg-cyan-500/10 text-cyan-300"
+                    )}>
+                      <Mic className="h-3 w-3" />
+                      {agent.transcribeAudio === false ? 'Audio off' : 'Transcribe audio'}
+                    </span>
+                    <span className={cn(
+                      "inline-flex items-center gap-1 rounded-md border px-2 py-1 text-[10px] font-bold uppercase tracking-wider",
+                      agent.audioAutoReply === false ? "border-amber-500/20 bg-amber-500/10 text-amber-300" : "border-emerald-500/20 bg-emerald-500/10 text-emerald-300"
+                    )}>
+                      <Volume2 className="h-3 w-3" />
+                      {agent.audioAutoReply === false ? 'Revisión humana' : 'Responde audio'}
+                    </span>
+                  </div>
+                </div>
                 
                 <div className="space-y-4">
                   <div>
@@ -269,10 +440,10 @@ export function Agents() {
                 </div>
                 
                 <div className="mt-6 flex gap-2 border-t border-slate-700/50 pt-4">
-                  <button onClick={() => openChat(agent)} className="flex-1 py-1.5 text-sm font-medium text-cyan-400 bg-cyan-400/10 hover:bg-cyan-400/20 rounded-lg transition-colors flex items-center justify-center gap-2">
+                  <button onClick={(e) => { e.stopPropagation(); openChat(agent); }} className="flex-1 py-1.5 text-sm font-medium text-cyan-400 bg-cyan-400/10 hover:bg-cyan-400/20 rounded-lg transition-colors flex items-center justify-center gap-2">
                     <MessageSquare className="w-4 h-4" /> Chatear
                   </button>
-                  <button onClick={() => setAgentToConfig(agent)} className="flex-1 py-1.5 text-sm font-medium text-slate-400 hover:text-white transition-colors flex items-center justify-center gap-2 border border-slate-700 hover:bg-white/5 rounded-lg">
+                  <button onClick={(e) => { e.stopPropagation(); setAgentToConfig(agent); }} className="flex-1 py-1.5 text-sm font-medium text-slate-400 hover:text-white transition-colors flex items-center justify-center gap-2 border border-slate-700 hover:bg-white/5 rounded-lg">
                     <Settings2 className="w-4 h-4" /> Config
                   </button>
                 </div>
@@ -284,7 +455,7 @@ export function Agents() {
         {/* Plantillas Tab */}
         {activeTab === 'templates' && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {MOCK_PREBUILT_TEMPLATES.map((tpl) => (
+            {EMPTY_AGENT_TEMPLATES.map((tpl) => (
               <div key={tpl.id} className="relative glass-panel p-6 rounded-2xl border border-slate-700/50 flex flex-col group overflow-hidden cursor-pointer hover:border-cyan-500/50 transition-colors">
                 <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
                    {getIcon(tpl.icon)}
@@ -299,6 +470,213 @@ export function Agents() {
                 </button>
               </div>
             ))}
+          </div>
+        )}
+
+        {/* Canva Studio Tab */}
+        {activeTab === 'canva' && (
+          <div className="grid grid-cols-1 xl:grid-cols-[1fr_360px] gap-6">
+            <div className="glass-panel border border-slate-700/50 rounded-2xl overflow-hidden">
+              <div className="p-5 border-b border-slate-700/50 bg-slate-900/70 flex items-center justify-between gap-4">
+                <div>
+                  <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+                    <Sparkles className="w-5 h-5 text-cyan-400" />
+                    Canva Content Studio
+                  </h3>
+                  <p className="text-sm text-slate-400 mt-1">Genera briefs para publicaciones, stories, reels y videos de reclutamiento.</p>
+                </div>
+                <span className="text-[10px] uppercase tracking-widest text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-1 rounded-md font-bold">
+                  Integrado
+                </span>
+              </div>
+
+              <div className="p-6 space-y-6">
+                <div>
+                  <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 mb-3">
+                    <div>
+                      <label className="text-xs text-slate-400 uppercase tracking-widest font-bold block">Canva Templates</label>
+                      <p className="text-sm text-slate-400 mt-1">Elige una base creativa y abre busquedas directas en Canva.</p>
+                    </div>
+                    <button type="button" onClick={() => window.open('https://www.canva.com/templates', '_blank')} className="border border-slate-700 hover:border-cyan-500/50 text-slate-300 hover:text-white px-4 py-2 rounded-xl flex items-center justify-center gap-2 transition-all text-sm">
+                      <ExternalLink className="w-4 h-4" />
+                      Ver templates
+                    </button>
+                  </div>
+
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    {CANVA_TEMPLATE_CATEGORIES.map(category => (
+                      <button
+                        key={category}
+                        type="button"
+                        onClick={() => setCanvaTemplateCategory(category)}
+                        className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all ${
+                          canvaTemplateCategory === category
+                            ? 'bg-cyan-500/15 border-cyan-500/40 text-cyan-300'
+                            : 'bg-slate-900/60 border-slate-700 text-slate-400 hover:text-slate-200 hover:border-slate-500'
+                        }`}
+                      >
+                        {category}
+                      </button>
+                    ))}
+                  </div>
+
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+                    {filteredCanvaTemplates.map(template => {
+                      const isSelected = selectedCanvaTemplate.id === template.id;
+                      return (
+                        <div
+                          key={template.id}
+                          className={`rounded-xl border p-4 bg-slate-950/40 transition-all ${
+                            isSelected
+                              ? 'border-cyan-500/50 shadow-[0_0_18px_rgba(34,211,238,0.10)]'
+                              : 'border-slate-700/70 hover:border-slate-500'
+                          }`}
+                        >
+                          <div className="flex items-start justify-between gap-3">
+                            <div>
+                              <span className="text-[10px] uppercase tracking-widest text-cyan-300 font-bold">{template.category}</span>
+                              <h4 className="text-sm font-semibold text-white mt-1">{template.title}</h4>
+                            </div>
+                            {isSelected && <CheckCircle2 className="w-4 h-4 text-cyan-400 shrink-0" />}
+                          </div>
+                          <p className="text-xs text-slate-400 leading-relaxed mt-2">{template.bestFor}</p>
+                          <div className="flex flex-wrap gap-2 mt-4">
+                            <button type="button" onClick={() => handleUseCanvaTemplate(template)} className="text-xs bg-cyan-500/10 text-cyan-300 border border-cyan-500/20 px-3 py-2 rounded-lg hover:bg-cyan-500/15 transition-colors">
+                              Usar plantilla
+                            </button>
+                            <button type="button" onClick={() => window.open(template.canvaSearchUrl, '_blank')} className="text-xs bg-slate-800 text-slate-300 border border-slate-700 px-3 py-2 rounded-lg flex items-center gap-1 hover:border-slate-500 transition-colors">
+                              <ExternalLink className="w-3.5 h-3.5" />
+                              Abrir en Canva
+                            </button>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <div>
+                  <label className="text-xs text-slate-400 uppercase tracking-widest font-bold mb-3 block">Formato creativo</label>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+                    {CANVA_FORMATS.map(format => {
+                      const FormatIcon = format.icon;
+                      const isSelected = canvaFormat === format.id;
+                      return (
+                        <button
+                          key={format.id}
+                          type="button"
+                          onClick={() => setCanvaFormat(format.id)}
+                          className={`text-left p-3 rounded-xl border transition-all ${
+                            isSelected
+                              ? 'border-cyan-500/60 bg-cyan-500/10 text-white shadow-[0_0_14px_rgba(34,211,238,0.12)]'
+                              : 'border-slate-700 bg-slate-900/50 text-slate-300 hover:border-slate-500'
+                          }`}
+                        >
+                          <FormatIcon className={`w-5 h-5 mb-2 ${isSelected ? 'text-cyan-400' : 'text-slate-500'}`} />
+                          <div className="text-sm font-semibold">{format.label}</div>
+                          <div className="text-[11px] text-slate-500 mt-1">{format.size}</div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-sm text-slate-300 mb-2 block">Campaña</label>
+                    <input value={canvaCampaign} onChange={(e) => setCanvaCampaign(e.target.value)} className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-cyan-500" />
+                  </div>
+                  <div>
+                    <label className="text-sm text-slate-300 mb-2 block">Audiencia</label>
+                    <input value={canvaAudience} onChange={(e) => setCanvaAudience(e.target.value)} className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-cyan-500" />
+                  </div>
+                  <div className="md:col-span-2">
+                    <label className="text-sm text-slate-300 mb-2 block">Oferta / mensaje principal</label>
+                    <textarea value={canvaOffer} onChange={(e) => setCanvaOffer(e.target.value)} className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-cyan-500 resize-none min-h-24" />
+                  </div>
+                  <div className="md:col-span-2">
+                    <label className="text-sm text-slate-300 mb-2 block">Brand Template ID de Canva</label>
+                    <input value={canvaBrandTemplateId} onChange={(e) => setCanvaBrandTemplateId(e.target.value)} placeholder="Opcional: usa Autofill si tu cuenta Canva Enterprise tiene una plantilla publicada" className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-cyan-500" />
+                  </div>
+                </div>
+
+                <div className="bg-slate-950/60 border border-slate-700/60 rounded-xl p-4">
+                  <div className="flex items-center justify-between gap-3 mb-3">
+                    <h4 className="text-sm font-semibold text-white">Brief listo para Canva</h4>
+                    <button type="button" onClick={() => navigator.clipboard.writeText(canvaBrief)} className="text-xs text-cyan-400 hover:text-cyan-300 flex items-center gap-1">
+                      <Copy className="w-3.5 h-3.5" />
+                      Copiar
+                    </button>
+                  </div>
+                  <pre className="text-xs text-slate-300 whitespace-pre-wrap leading-relaxed font-mono">{canvaBrief}</pre>
+                </div>
+
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <button type="button" onClick={handleCreateCanvaDesign} disabled={isCreatingCanva || !canvaCampaign.trim()} className="bg-cyan-500 hover:bg-cyan-600 disabled:bg-slate-700 disabled:text-slate-500 text-slate-900 font-semibold px-5 py-3 rounded-xl flex items-center justify-center gap-2 transition-all">
+                    {isCreatingCanva ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
+                    Crear en Canva
+                  </button>
+                  <button type="button" onClick={() => window.open(selectedCanvaTemplate.canvaSearchUrl, '_blank')} className="border border-slate-700 hover:border-cyan-500/50 text-slate-300 hover:text-white px-5 py-3 rounded-xl flex items-center justify-center gap-2 transition-all">
+                    <ExternalLink className="w-4 h-4" />
+                    Abrir plantilla
+                  </button>
+                </div>
+
+                {canvaResult && (
+                  <div className="border border-slate-700/60 rounded-xl p-4 bg-slate-900/70">
+                    {'error' in canvaResult ? (
+                      <p className="text-sm text-rose-300">{String(canvaResult.error)}</p>
+                    ) : (
+                      <div className="space-y-3">
+                        <div className="flex items-center gap-2 text-sm">
+                          <CheckCircle2 className={cn("w-4 h-4", canvaResult.ok === false ? "text-amber-400" : "text-emerald-400")} />
+                          <span className="text-slate-200">{canvaResult.ok === false ? canvaResult.message : 'Diseño enviado a Canva.'}</span>
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                          {canvaResult.response?.design?.urls?.edit_url && (
+                            <button type="button" onClick={() => window.open(canvaResult.response.design.urls.edit_url, '_blank')} className="text-xs bg-cyan-500/10 text-cyan-300 border border-cyan-500/20 px-3 py-2 rounded-lg flex items-center gap-1">
+                              <ExternalLink className="w-3.5 h-3.5" />
+                              Editar diseño
+                            </button>
+                          )}
+                          {canvaResult.response?.job?.url && (
+                            <button type="button" onClick={() => window.open(canvaResult.response.job.url, '_blank')} className="text-xs bg-cyan-500/10 text-cyan-300 border border-cyan-500/20 px-3 py-2 rounded-lg flex items-center gap-1">
+                              <ExternalLink className="w-3.5 h-3.5" />
+                              Ver autofill
+                            </button>
+                          )}
+                          {canvaResult.canvaUrl && (
+                            <button type="button" onClick={() => window.open(canvaResult.canvaUrl, '_blank')} className="text-xs bg-slate-800 text-slate-300 border border-slate-700 px-3 py-2 rounded-lg flex items-center gap-1">
+                              <ExternalLink className="w-3.5 h-3.5" />
+                              Ir a Canva
+                            </button>
+                          )}
+                        </div>
+                        <pre className="text-[11px] text-slate-400 bg-black/20 border border-white/5 rounded-lg p-3 overflow-auto max-h-44">{JSON.stringify(canvaResult, null, 2)}</pre>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="glass-panel border border-slate-700/50 rounded-2xl p-5 h-fit">
+              <h3 className="font-semibold text-white flex items-center gap-2">
+                <Zap className="w-4 h-4 text-cyan-400" />
+                Flujo conectado
+              </h3>
+              <div className="mt-5 space-y-4">
+                {['El agente genera copy y direccion visual', 'La app crea un lienzo Canva con medidas correctas', 'Canva devuelve enlace de edicion', 'El equipo publica en Instagram, TikTok, Facebook o LinkedIn'].map((step, index) => (
+                  <div key={step} className="flex gap-3">
+                    <div className="w-6 h-6 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-300 text-xs font-bold flex items-center justify-center shrink-0">{index + 1}</div>
+                    <p className="text-sm text-slate-300 leading-relaxed">{step}</p>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-6 pt-5 border-t border-slate-700/50">
+                <p className="text-xs text-slate-400 leading-relaxed">Para creacion real configura <span className="text-slate-200 font-mono">CANVA_ACCESS_TOKEN</span>. Para Autofill con plantillas de marca, Canva requiere permisos de Brand Template y acceso Enterprise.</p>
+              </div>
+            </div>
           </div>
         )}
 
@@ -434,7 +812,54 @@ export function Agents() {
                 <textarea 
                   className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition-all resize-none font-mono text-sm leading-relaxed h-28"
                   placeholder="Actúa como un reclutador tech amigable pero directo. Tu objetivo es encontrar desarrolladores frontend con React."
+                  value={newAgentPersonality}
+                  onChange={(e) => setNewAgentPersonality(e.target.value)}
                 />
+              </div>
+
+              <div>
+                <label className="text-sm text-slate-300 mb-2 block">Tono del agente</label>
+                <input
+                  type="text"
+                  value={newAgentTone}
+                  onChange={(e) => setNewAgentTone(e.target.value)}
+                  placeholder="Ej: cálido, ejecutivo, directo, empático"
+                  className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition-all"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <label className="rounded-xl border border-slate-700/60 bg-slate-800/50 p-4 cursor-pointer hover:border-cyan-500/40 transition-colors">
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="flex items-center gap-2 text-sm font-semibold text-slate-200">
+                      <Mic className="w-4 h-4 text-cyan-400" />
+                      Transcribir audios
+                    </span>
+                    <input
+                      type="checkbox"
+                      checked={newAgentTranscribeAudio}
+                      onChange={(e) => setNewAgentTranscribeAudio(e.target.checked)}
+                      className="rounded bg-slate-900 border-slate-600 text-cyan-500 focus:ring-cyan-500"
+                    />
+                  </div>
+                  <p className="mt-2 text-xs leading-5 text-slate-500">Convierte notas de voz entrantes en texto antes de responder.</p>
+                </label>
+
+                <label className="rounded-xl border border-slate-700/60 bg-slate-800/50 p-4 cursor-pointer hover:border-cyan-500/40 transition-colors">
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="flex items-center gap-2 text-sm font-semibold text-slate-200">
+                      <Volume2 className="w-4 h-4 text-emerald-400" />
+                      Responder audios
+                    </span>
+                    <input
+                      type="checkbox"
+                      checked={newAgentAudioAutoReply}
+                      onChange={(e) => setNewAgentAudioAutoReply(e.target.checked)}
+                      className="rounded bg-slate-900 border-slate-600 text-cyan-500 focus:ring-cyan-500"
+                    />
+                  </div>
+                  <p className="mt-2 text-xs leading-5 text-slate-500">Después de transcribir, el agente responde solo si está activado.</p>
+                </label>
               </div>
               
                <div>
@@ -568,7 +993,11 @@ export function Agents() {
         </div>
       )}
       {agentToConfig && (
-        <AgentConfigModal agent={agentToConfig} onClose={() => setAgentToConfig(null)} />
+        <AgentConfigModal
+          agent={agentToConfig}
+          onClose={() => setAgentToConfig(null)}
+          onSave={handleUpdateAgent}
+        />
       )}
     </div>
   );

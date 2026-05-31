@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { MOCK_CANDIDATES, CRM_STAGES } from "@/data/mockData";
-import { Search, Filter, Plus, Calendar as CalendarIcon, Mail, Star, Phone, MessageCircle, MoreVertical, MapPin, Briefcase, Clock, Facebook, Map, Image as ImageIcon, Send, Activity, User, FileText, Settings as SettingsIcon, Trash2, Check, X, XCircle, Linkedin, Globe, ArrowDownAZ } from "lucide-react";
+import { CRM_STAGES } from "@/data/appDefaults";
+import { Search, Filter, Plus, Calendar as CalendarIcon, Mail, Star, Phone, MessageCircle, MoreVertical, MapPin, Briefcase, Clock, Facebook, Map, Image as ImageIcon, Send, Activity, User, FileText, Settings as SettingsIcon, Trash2, Check, X, XCircle, Linkedin, Globe, ArrowDownAZ, Tag } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { CandidateProfileModal } from "@/components/CandidateProfileModal";
 import { useNotifications } from "@/contexts/NotificationContext";
@@ -9,6 +9,7 @@ import { format, parse, startOfWeek, getDay } from 'date-fns';
 import { es } from 'date-fns/locale';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import { useDb } from "@/hooks/useDb";
+import { deriveCandidateTags, inferVisitReason } from "@/utils/candidateTracking";
 
 const locales = {
   'es': es,
@@ -22,13 +23,16 @@ const localizer = dateFnsLocalizer({
   locales,
 });
 
+type CalendarViewMode = 'month' | 'week' | 'day';
+
 // Helper function for stage colors
 const getStageColor = (stage: string) => {
   const stageLower = stage.toLowerCase();
   if (['nuevo'].includes(stageLower)) return 'cyan';
-  if (['contactado', 'espera de respuesta', 'reagendar'].includes(stageLower)) return 'yellow';
+  if (['contactado', 'habló con agente', 'espera de respuesta', 'reagendar'].includes(stageLower)) return 'yellow';
   if (['cita agendada', 'confirmó asistencia'].includes(stageLower)) return 'cyan';
-  if (['contratado', 'ddo y bienvenida'].includes(stageLower)) return 'emerald';
+  if (['día de observación / ddo', 'ddo y bienvenida'].includes(stageLower)) return 'orange';
+  if (['bienvenida 1er día', 'inventario y materiales', 'seguimiento y bienestar', 'contratado'].includes(stageLower)) return 'emerald';
   if (['rechazado', 'no asistió'].includes(stageLower)) return 'rose';
   if (['entrevista realizada', 'en capacitación'].includes(stageLower)) return 'purple';
   return 'slate';
@@ -48,10 +52,34 @@ const SourceIcon = ({ source }: { source: string }) => {
   return <Briefcase className="w-3 h-3 text-cyan-400" />;
 };
 
+const formatAppointmentTime = (date: Date) => {
+  return format(date, "HH:mm");
+};
+
+const isSameCalendarDay = (left: Date, right: Date) => (
+  left.getFullYear() === right.getFullYear() &&
+  left.getMonth() === right.getMonth() &&
+  left.getDate() === right.getDate()
+);
+
+const parseAppointmentDateTime = (date: string, time: string) => {
+  const [year, month, day] = date.split('-').map(Number);
+  const [timeStr, ampm] = time.trim().split(/\s+/);
+  const [hours = 0, minutes = 0] = timeStr.split(':').map(Number);
+  let hour = hours;
+
+  if (ampm && ampm.toUpperCase() === 'PM' && hour < 12) hour += 12;
+  if (ampm && ampm.toUpperCase() === 'AM' && hour === 12) hour = 0;
+
+  return new Date(year, month - 1, day, hour, minutes || 0);
+};
+
 export function Candidates() {
-  const { candidates, appointments, addCandidate, updateCandidate, deleteCandidate, addMessage } = useDb();
+  const { candidates, appointments, updateCandidate, deleteCandidate, addMessage } = useDb();
 
   const [activeView, setActiveView] = useState<'list' | 'kanban' | 'calendar'>('kanban');
+  const [calendarView, setCalendarView] = useState<CalendarViewMode>('month');
+  const [calendarDate, setCalendarDate] = useState(new Date());
   const [selectedCandidate, setSelectedCandidate] = useState<any | null>(null);
   const [sortByRating, setSortByRating] = useState(false);
   const [sortBySource, setSortBySource] = useState(false);
@@ -83,12 +111,18 @@ export function Candidates() {
   
   if (searchFilterTerm) {
     const term = searchFilterTerm.toLowerCase();
-    displayedCandidates = displayedCandidates.filter(c => 
-      c.name.toLowerCase().includes(term) ||
-      (c.role && c.role.toLowerCase().includes(term)) ||
-      (c.email && c.email.toLowerCase().includes(term)) ||
-      (c.phone && c.phone.toLowerCase().includes(term))
-    );
+    displayedCandidates = displayedCandidates.filter(c => {
+      const visitReason = inferVisitReason(c).toLowerCase();
+      const tags = deriveCandidateTags(c);
+      return (
+        c.name.toLowerCase().includes(term) ||
+        (c.role && c.role.toLowerCase().includes(term)) ||
+        (c.email && c.email.toLowerCase().includes(term)) ||
+        (c.phone && c.phone.toLowerCase().includes(term)) ||
+        visitReason.includes(term) ||
+        tags.some((tag: string) => tag.toLowerCase().includes(term))
+      );
+    });
   }
 
   if (selectedSources.length > 0) {
@@ -116,28 +150,24 @@ export function Candidates() {
   const totalPages = Math.ceil(displayedCandidates.length / itemsPerPage);
   const paginatedCandidates = displayedCandidates.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
-  // Parse events for Calendar using Appointments table (Phase 6)
+  // Parse events for Calendar using Appointments table
   const calendarEvents = appointments.map(appt => {
     const candidate = candidates.find(c => c.id === appt.candidateId);
     if (!candidate) return null;
 
     try {
-      const [year, month, day] = appt.date.split('-').map(Number);
-      const [timeStr, ampm] = appt.time.split(' ');
-      const [hours, minutes] = timeStr.split(':').map(Number);
-      let hour = hours;
-      if (ampm && ampm.toUpperCase() === 'PM' && hour < 12) hour += 12;
-      if (ampm && ampm.toUpperCase() === 'AM' && hour === 12) hour = 0;
-      
-      const start = new Date(year, month - 1, day, hour, minutes || 0);
-      const end = new Date(year, month - 1, day, hour + 1, minutes || 0);
+      const start = parseAppointmentDateTime(appt.date, appt.time || "09:00");
+      const end = new Date(start.getTime() + 60 * 60 * 1000);
+      const timeLabel = `${formatAppointmentTime(start)} - ${formatAppointmentTime(end)}`;
       
       return {
         id: appt.id,
-        title: `Entrevista: ${candidate.name} - ${candidate.role}`,
+        title: `${timeLabel} · ${candidate.name}`,
+        timeLabel,
         start,
         end,
         candidate,
+        appointment: appt,
         status: appt.status
       };
     } catch (e) {
@@ -145,12 +175,17 @@ export function Candidates() {
     }
   }).filter(Boolean);
 
+  const selectedDayEvents = calendarEvents
+    .filter((event: any) => isSameCalendarDay(event.start, calendarDate))
+    .sort((a: any, b: any) => a.start.getTime() - b.start.getTime());
+
   return (
     <div className="flex flex-col gap-6 h-full pb-8">
       {selectedCandidate && (
         <CandidateProfileModal 
           candidate={selectedCandidate} 
           onClose={() => setSelectedCandidate(null)} 
+          onUpdate={updateCandidate}
         />
       )}
       
@@ -207,26 +242,11 @@ export function Candidates() {
             Importar/Sincronizar
           </button>
           <button 
-            onClick={async () => {
-              await addCandidate({
-                name: 'Julia Roberts',
-                email: 'julia.roberts@example.com',
-                phone: '+34 602 999 111',
-                role: 'Product Designer UI/UX',
-                stage: 'Nuevo',
-                source: 'LinkedIn',
-                rating: 5,
-                location: 'Madrid, ES',
-                pool: 'Design',
-                experience: '6 años',
-                salaryDemand: '$60k - $70k / año',
-                cvUrl: 'https://drive.google.com/open?id=julia_roberts_cv',
-                notes: 'Excelente candidata proactiva importada con precalificación instantánea.'
-              });
-              triggerEvent('new_candidate', {
-                title: 'Nuevo candidato ingresado',
-                message: 'Julia Roberts ha sido registrada con éxito en el pipeline de Firestore.',
-                type: 'success'
+            onClick={() => {
+              triggerEvent('info', {
+                title: 'Alta manual pendiente',
+                message: 'Conecta un formulario, bolsa de empleo o integración autorizada para registrar candidatos reales.',
+                type: 'info'
               });
             }}
             className="bg-cyan-600/20 border border-cyan-500/50 hover:bg-cyan-600/40 text-cyan-50 hover:text-white px-4 py-2.5 rounded-lg font-bold text-xs flex items-center gap-2 transition-all shadow-[0_0_15px_rgba(6,182,212,0.2)] hover:shadow-[0_0_20px_rgba(6,182,212,0.4)]">
@@ -571,6 +591,21 @@ export function Candidates() {
                         </span>
                       </div>
 
+                      <p className="relative z-10 line-clamp-2 rounded-lg border border-amber-500/15 bg-amber-500/5 px-2 py-1.5 text-[11px] leading-relaxed text-amber-100/80">
+                        <span className="font-semibold text-amber-300">Motivo:</span> {inferVisitReason(candidate)}
+                      </p>
+
+                      {deriveCandidateTags(candidate).length > 0 && (
+                        <div className="relative z-10 flex flex-wrap gap-1.5">
+                          {deriveCandidateTags(candidate).slice(0, 4).map((tag: string) => (
+                            <span key={tag} className="inline-flex items-center gap-1 rounded-md border border-cyan-500/15 bg-cyan-500/10 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-cyan-300">
+                              <Tag className="w-2.5 h-2.5" />
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+
                       <div className="flex items-center justify-between mt-2 pt-2 border-t border-slate-700/50 relative z-10">
                         <div className="flex items-center gap-1.5 text-[10px] font-medium text-slate-400 bg-slate-900/50 px-2 py-0.5 rounded-full border border-white/5">
                            <SourceIcon source={candidate.source} />
@@ -664,31 +699,105 @@ export function Candidates() {
       
       {activeView === 'calendar' && (
         <div className="flex-1 glass-panel rounded-2xl border border-slate-700/50 p-4 min-h-[600px] bg-slate-900/50">
-           <Calendar
-             localizer={localizer}
-             events={calendarEvents}
-             startAccessor="start"
-             endAccessor="end"
-             culture="es"
-             views={['month', 'week', 'day']}
-             onSelectEvent={(event) => setSelectedCandidate(event.candidate)}
-             messages={{
-               next: "Siguiente",
-               previous: "Anterior",
-               today: "Hoy",
-               month: "Mes",
-               week: "Semana",
-               day: "Día",
-               noEventsInRange: "No hay entrevistas programadas en este rango."
-             }}
-             className="text-slate-300 font-sans rbc-theme-custom"
-             eventPropGetter={(event) => {
-               const isDone = event.status && event.status.toLowerCase() === 'realizada';
-               return {
-                 className: cn("rounded outline-none border", isDone ? "bg-slate-700 border-slate-600 text-slate-300 opactiy-70" : "bg-cyan-500/20 border-cyan-500/50 text-cyan-300 hover:bg-cyan-500/30")
-               };
-             }}
-           />
+          <div className="grid h-full grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1fr)_300px]">
+            <Calendar
+              localizer={localizer}
+              events={calendarEvents as any[]}
+              startAccessor="start"
+              endAccessor="end"
+              culture="es"
+              view={calendarView}
+              date={calendarDate}
+              views={['month', 'week', 'day']}
+              step={15}
+              timeslots={4}
+              min={new Date(1970, 0, 1, 7, 0)}
+              max={new Date(1970, 0, 1, 21, 0)}
+              drilldownView="day"
+              onView={(view) => setCalendarView(view as CalendarViewMode)}
+              onNavigate={(date) => setCalendarDate(date)}
+              onDrillDown={(date) => {
+                setCalendarDate(date);
+                setCalendarView('day');
+              }}
+              onSelectEvent={(event: any) => setSelectedCandidate(event.candidate)}
+              tooltipAccessor={(event: any) => `${event.timeLabel} · ${event.candidate?.name || "Candidato"} · ${event.candidate?.role || "Agendación"}`}
+              formats={{
+                timeGutterFormat: (date) => format(date, "HH:mm"),
+                eventTimeRangeFormat: ({ start, end }) => `${formatAppointmentTime(start)} - ${formatAppointmentTime(end)}`,
+                dayFormat: (date) => format(date, "EEE dd", { locale: es }),
+                dayHeaderFormat: (date) => format(date, "EEEE dd 'de' MMMM", { locale: es }),
+              }}
+              components={{
+                event: ({ event }: any) => (
+                  calendarView === 'month' ? (
+                    <div className="flex min-w-0 items-center gap-1 leading-tight">
+                      <span className="shrink-0 font-mono text-[10px] font-bold text-cyan-100">{formatAppointmentTime(event.start)}</span>
+                      <span className="truncate text-[11px] font-semibold text-white">{event.candidate?.name}</span>
+                    </div>
+                  ) : (
+                    <div className="flex h-full min-w-0 flex-col justify-center gap-0.5 leading-tight">
+                      <span className="font-mono text-[10px] font-bold text-cyan-100">{event.timeLabel}</span>
+                      <span className="truncate text-[11px] font-semibold text-white">{event.candidate?.name}</span>
+                      <span className="truncate text-[10px] text-cyan-100/80">{event.candidate?.role}</span>
+                    </div>
+                  )
+                ),
+              }}
+              messages={{
+                next: "Siguiente",
+                previous: "Anterior",
+                today: "Hoy",
+                month: "Mes",
+                week: "Semana",
+                day: "Día",
+                noEventsInRange: "No hay entrevistas programadas en este rango."
+              }}
+              className="text-slate-300 font-sans rbc-theme-custom min-h-[600px]"
+              eventPropGetter={(event: any) => {
+                const isDone = event.status && ['attended', 'realizada'].includes(event.status.toLowerCase());
+                return {
+                  className: cn("rounded outline-none border shadow-[0_0_12px_rgba(6,182,212,0.16)]", isDone ? "bg-slate-700 border-slate-600 text-slate-300 opacity-70" : "bg-cyan-500/20 border-cyan-500/50 text-cyan-300 hover:bg-cyan-500/30")
+                };
+              }}
+            />
+            <aside className="rounded-xl border border-slate-700/60 bg-slate-950/40 p-4">
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-cyan-400">Vista del día</p>
+                  <h3 className="mt-1 text-sm font-semibold capitalize text-white">
+                    {format(calendarDate, "EEEE dd 'de' MMMM", { locale: es })}
+                  </h3>
+                </div>
+                <span className="rounded-lg border border-cyan-500/20 bg-cyan-500/10 px-2 py-1 text-xs font-bold text-cyan-300">
+                  {selectedDayEvents.length}
+                </span>
+              </div>
+
+              <div className="mt-4 flex flex-col gap-2">
+                {selectedDayEvents.length === 0 ? (
+                  <div className="rounded-lg border border-dashed border-slate-700 bg-slate-900/40 px-3 py-5 text-center text-xs text-slate-500">
+                    Sin agendaciones para este día.
+                  </div>
+                ) : selectedDayEvents.map((event: any) => (
+                  <button
+                    key={event.id}
+                    type="button"
+                    onClick={() => setSelectedCandidate(event.candidate)}
+                    className="group rounded-lg border border-slate-700/70 bg-slate-900/70 p-3 text-left transition-colors hover:border-cyan-500/50 hover:bg-cyan-500/10"
+                  >
+                    <div className="flex items-center gap-2 text-xs font-bold text-cyan-300">
+                      <Clock className="h-3.5 w-3.5" />
+                      <span className="font-mono">{event.timeLabel}</span>
+                    </div>
+                    <p className="mt-2 truncate text-sm font-semibold text-white group-hover:text-cyan-100">{event.candidate?.name}</p>
+                    <p className="truncate text-xs text-slate-400">{event.candidate?.role}</p>
+                    <p className="mt-1 text-[10px] uppercase tracking-wider text-slate-500">{event.status || "scheduled"}</p>
+                  </button>
+                ))}
+              </div>
+            </aside>
+          </div>
            <style>
              {`
                 /* Custom Calendar Styling for Dark Mode */
@@ -756,6 +865,7 @@ export function Candidates() {
               <tr className="bg-slate-900/40 border-b border-white/5">
                 <th className="px-6 py-4 font-semibold text-slate-400 text-[10px] uppercase tracking-widest">Candidato</th>
                 <th className="px-6 py-4 font-semibold text-slate-400 text-[10px] uppercase tracking-widest">Vacante & Exp</th>
+                <th className="px-6 py-4 font-semibold text-slate-400 text-[10px] uppercase tracking-widest">Etiquetas & Motivo</th>
                 <th className="px-6 py-4 font-semibold text-slate-400 text-[10px] uppercase tracking-widest">Contacto</th>
                 <th className="px-6 py-4 font-semibold text-slate-400 text-[10px] uppercase tracking-widest">Fuente de Reclutamiento</th>
                 <th className="px-6 py-4 font-semibold text-slate-400 text-[10px] uppercase tracking-widest">Estatus</th>
@@ -799,6 +909,21 @@ export function Candidates() {
                   <td className="px-6 py-4">
                     <div className="text-slate-300">{candidate.role}</div>
                     <div className="text-[10px] text-slate-500 font-medium">{candidate.experience || candidate.experienceTime || '6 años'} • {candidate.lastJob || 'Heavenly Dreams Aplicante'}</div>
+                  </td>
+                  <td className="px-6 py-4 max-w-[280px]">
+                    <div className="flex flex-wrap gap-1.5 mb-1.5">
+                      {deriveCandidateTags(candidate).length > 0 ? deriveCandidateTags(candidate).slice(0, 3).map((tag: string) => (
+                        <span key={tag} className="inline-flex items-center gap-1 rounded-md border border-cyan-500/15 bg-cyan-500/10 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-cyan-300">
+                          <Tag className="w-2.5 h-2.5" />
+                          {tag}
+                        </span>
+                      )) : (
+                        <span className="text-[10px] text-slate-600">Sin etiquetas</span>
+                      )}
+                    </div>
+                    <p className="max-w-[260px] truncate text-[11px] text-slate-400">
+                      {inferVisitReason(candidate)}
+                    </p>
                   </td>
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">

@@ -1,35 +1,49 @@
+import { lazy, Suspense } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { AppLayout } from '@/components/layout/AppLayout';
-import { Dashboard } from '@/pages/Dashboard';
-import { Candidates } from '@/pages/Candidates';
-import { Jobs } from '@/pages/Jobs';
-import { Messages } from '@/pages/Messages';
-import { Settings } from '@/pages/Settings';
-import { Reports } from '@/pages/Reports';
-import { Agents } from '@/pages/Agents';
-import { WhatsAppAccounts } from '@/pages/WhatsAppAccounts';
-import { WorkspaceHub } from '@/pages/WorkspaceHub';
 import { NotificationProvider } from '@/contexts/NotificationContext';
 import { AuthProvider } from '@/contexts/AuthContext';
+
+const Dashboard = lazy(() => import("@/pages/Dashboard").then((module) => ({ default: module.Dashboard })));
+const Candidates = lazy(() => import("@/pages/Candidates").then((module) => ({ default: module.Candidates })));
+const Jobs = lazy(() => import("@/pages/Jobs").then((module) => ({ default: module.Jobs })));
+const Messages = lazy(() => import("@/pages/Messages").then((module) => ({ default: module.Messages })));
+const Agents = lazy(() => import("@/pages/Agents").then((module) => ({ default: module.Agents })));
+const AIWorkflows = lazy(() => import("@/pages/AIWorkflows").then((module) => ({ default: module.AIWorkflows })));
+const WelcomeTracking = lazy(() => import("@/pages/WelcomeTracking").then((module) => ({ default: module.WelcomeTracking })));
+const WhatsAppAccounts = lazy(() => import("@/pages/WhatsAppAccounts").then((module) => ({ default: module.WhatsAppAccounts })));
+const WorkspaceHub = lazy(() => import("@/pages/WorkspaceHub").then((module) => ({ default: module.WorkspaceHub })));
+const Reports = lazy(() => import("@/pages/Reports").then((module) => ({ default: module.Reports })));
+const Settings = lazy(() => import("@/pages/Settings").then((module) => ({ default: module.Settings })));
+
+const RouteFallback = () => (
+  <div className="min-h-[50vh] w-full flex items-center justify-center text-sm font-semibold tracking-[0.18em] uppercase text-cyan-300">
+    Cargando modulo...
+  </div>
+);
 
 export default function App() {
   return (
     <AuthProvider>
       <NotificationProvider>
         <Router>
-          <Routes>
-            <Route element={<AppLayout />}>
-              <Route path="/" element={<Dashboard />} />
-              <Route path="/candidates" element={<Candidates />} />
-              <Route path="/jobs" element={<Jobs />} />
-              <Route path="/messages" element={<Messages />} />
-              <Route path="/agents" element={<Agents />} />
-              <Route path="/whatsapp" element={<WhatsAppAccounts />} />
-              <Route path="/workspace" element={<WorkspaceHub />} />
-              <Route path="/reports" element={<Reports />} />
-              <Route path="/settings" element={<Settings />} />
-            </Route>
-          </Routes>
+          <Suspense fallback={<RouteFallback />}>
+            <Routes>
+              <Route element={<AppLayout />}>
+                <Route path="/" element={<Dashboard />} />
+                <Route path="/candidates" element={<Candidates />} />
+                <Route path="/jobs" element={<Jobs />} />
+                <Route path="/messages" element={<Messages />} />
+                <Route path="/agents" element={<Agents />} />
+                <Route path="/ai-workflows" element={<AIWorkflows />} />
+                <Route path="/welcome-followup" element={<WelcomeTracking />} />
+                <Route path="/whatsapp" element={<WhatsAppAccounts />} />
+                <Route path="/workspace" element={<WorkspaceHub />} />
+                <Route path="/reports" element={<Reports />} />
+                <Route path="/settings" element={<Settings />} />
+              </Route>
+            </Routes>
+          </Suspense>
         </Router>
       </NotificationProvider>
     </AuthProvider>

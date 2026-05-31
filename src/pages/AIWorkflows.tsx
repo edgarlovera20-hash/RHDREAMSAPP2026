@@ -1,0 +1,719 @@
+import { useMemo, useState } from "react";
+import {
+  Bot,
+  BookOpen,
+  Braces,
+  Calendar,
+  Check,
+  Copy,
+  Database,
+  Filter,
+  GitBranch,
+  Mail,
+  MessageSquare,
+  MousePointerClick,
+  PlayCircle,
+  Plus,
+  Save,
+  Search,
+  Settings2,
+  ShieldCheck,
+  Trash2,
+  UserCheck,
+  Zap
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import { RH_PROMPT_CATEGORIES, RH_PROMPT_LIBRARY, RH_PROMPT_LIBRARY_META, type RhPromptTemplate } from "@/data/rhPromptLibrary";
+
+type VariableType = "texto" | "numero" | "fecha" | "opcion" | "booleano" | "lista" | "json";
+type VariableSource = "Candidato" | "Vacante" | "Canal" | "Calendario" | "Documento" | "Manual" | "Sistema";
+type StepType = "ai" | "condition" | "message" | "calendar" | "task" | "webhook" | "handoff";
+type WorkflowStatus = "Activo" | "Borrador" | "Pausado";
+type ApprovalMode = "Sin aprobación" | "Aprobar antes de enviar" | "Solo escalar excepciones";
+type ConditionOperator = "contiene" | "igual a" | "mayor que" | "menor que" | "existe" | "no existe";
+
+type WorkflowVariable = {
+  id: string;
+  key: string;
+  label: string;
+  type: VariableType;
+  source: VariableSource;
+  fallback: string;
+  required: boolean;
+  description: string;
+};
+
+type WorkflowCondition = {
+  id: string;
+  field: string;
+  operator: ConditionOperator;
+  value: string;
+  actionOnFail: "detener" | "escalar" | "continuar";
+};
+
+type WorkflowStep = {
+  id: string;
+  name: string;
+  type: StepType;
+  agent: string;
+  instruction: string;
+  output: string;
+  channel: string;
+  waitMinutes: number;
+  requiresApproval: boolean;
+  successCriteria: string;
+};
+
+type TriggerConfig = {
+  event: string;
+  source: string;
+  schedule: string;
+  debounceMinutes: number;
+  runWindow: string;
+};
+
+type AiWorkflow = {
+  id: string;
+  name: string;
+  status: WorkflowStatus;
+  channel: string;
+  autonomous: boolean;
+  approvalMode: ApprovalMode;
+  trigger: TriggerConfig;
+  conditions: WorkflowCondition[];
+  variables: WorkflowVariable[];
+  steps: WorkflowStep[];
+};
+
+const VARIABLE_TYPES: VariableType[] = ["texto", "numero", "fecha", "opcion", "booleano", "lista", "json"];
+const VARIABLE_SOURCES: VariableSource[] = ["Candidato", "Vacante", "Canal", "Calendario", "Documento", "Manual", "Sistema"];
+const CHANNELS = ["WhatsApp Normal", "Gmail", "Google Calendar", "Indeed", "Computrabajo", "Facebook Leads", "Instagram DM", "TikTok Leads", "Webhook"];
+const AGENTS = ["Agente de recepción", "Agente de agenda", "Candidate Sourcer", "Creador de Anuncios", "Especialista en políticas", "Supervisor Humano"];
+const TRIGGER_EVENTS = [
+  "Nueva postulación recibida",
+  "Mensaje entrante sin responder",
+  "Candidato pasa a entrevista",
+  "Candidato no responde",
+  "CV o PDF nuevo en Google Drive",
+  "Lead nuevo desde Indeed",
+  "Lead nuevo desde Computrabajo",
+  "Lead nuevo desde Facebook",
+  "Lead nuevo desde TikTok",
+  "Ejecución programada",
+  "Webhook recibido"
+];
+const TRIGGER_SOURCES = ["CRM", "Formulario", "WhatsApp Normal", "Gmail", "Google Calendar", "Indeed", "Computrabajo", "Facebook", "Instagram", "TikTok", "Webhook"];
+
+const DEFAULT_VARIABLES: WorkflowVariable[] = [
+  { id: "var-candidate-name", key: "candidate_name", label: "Nombre candidato", type: "texto", source: "Candidato", fallback: "", required: true, description: "Nombre visible del candidato." },
+  { id: "var-candidate-phone", key: "candidate_phone", label: "Telefono", type: "texto", source: "Candidato", fallback: "", required: true, description: "Telefono o WhatsApp normal para contacto asistido." },
+  { id: "var-candidate-location", key: "candidate_location", label: "Ubicacion", type: "texto", source: "Candidato", fallback: "", required: false, description: "Ciudad, pais o modalidad preferida." },
+  { id: "var-job-name", key: "job_name", label: "Vacante", type: "texto", source: "Vacante", fallback: "", required: true, description: "Titulo de la oferta." },
+  { id: "var-job-profile", key: "job_target_profile", label: "A quien buscar", type: "texto", source: "Vacante", fallback: "", required: true, description: "Perfil objetivo de la vacante." },
+  { id: "var-experience", key: "required_experience", label: "Experiencia requerida", type: "texto", source: "Vacante", fallback: "", required: false, description: "Experiencia minima o deseable." },
+  { id: "var-education", key: "education_level", label: "Preparacion academica", type: "texto", source: "Vacante", fallback: "", required: false, description: "Nivel academico requerido." },
+  { id: "var-schedule", key: "work_schedule", label: "Horario", type: "texto", source: "Vacante", fallback: "", required: false, description: "Horario y disponibilidad." },
+  { id: "var-offer", key: "offer_details", label: "Que se ofrece", type: "texto", source: "Vacante", fallback: "", required: false, description: "Oferta, beneficios y salario." },
+  { id: "var-interview-date", key: "interview_date", label: "Fecha entrevista", type: "fecha", source: "Calendario", fallback: "", required: false, description: "Fecha propuesta o confirmada." }
+];
+
+const DEFAULT_CONDITIONS: WorkflowCondition[] = [
+  { id: "cond-phone", field: "candidate_phone", operator: "existe", value: "", actionOnFail: "escalar" },
+  { id: "cond-job", field: "job_name", operator: "existe", value: "", actionOnFail: "detener" }
+];
+
+const INITIAL_WORKFLOWS: AiWorkflow[] = [
+  {
+    id: "flow-welcome-screening",
+    name: "Nuevo flujo de reclutamiento",
+    status: "Borrador",
+    channel: "WhatsApp Normal",
+    autonomous: true,
+    approvalMode: "Solo escalar excepciones",
+    trigger: {
+      event: "Nueva postulación recibida",
+      source: "CRM",
+      schedule: "Inmediato",
+      debounceMinutes: 5,
+      runWindow: "Lunes a viernes 08:00-20:00"
+    },
+    conditions: DEFAULT_CONDITIONS,
+    variables: DEFAULT_VARIABLES,
+    steps: [
+      {
+        id: "step-1",
+        name: "Analizar perfil",
+        type: "ai",
+        agent: "Agente de recepción",
+        instruction: "Evalua a {{candidate_name}} para la vacante {{job_name}}. Compara con {{job_target_profile}}, {{required_experience}}, {{education_level}} y {{work_schedule}}. Devuelve score, riesgos y pregunta clave.",
+        output: "candidate_fit_score",
+        channel: "Sistema",
+        waitMinutes: 0,
+        requiresApproval: false,
+        successCriteria: "Score y siguiente pregunta generados sin inventar datos."
+      },
+      {
+        id: "step-2",
+        name: "Enviar primer contacto",
+        type: "message",
+        agent: "Agente de recepción",
+        instruction: "Redacta un mensaje breve para {{candidate_name}}. Explica {{job_name}}, que se hace, {{offer_details}} y pregunta disponibilidad para {{work_schedule}}.",
+        output: "outbound_message",
+        channel: "WhatsApp Normal",
+        waitMinutes: 0,
+        requiresApproval: true,
+        successCriteria: "Mensaje claro, sin lenguaje discriminatorio y listo para copiar/enviar."
+      },
+      {
+        id: "step-3",
+        name: "Escalar si faltan datos",
+        type: "condition",
+        agent: "Supervisor Humano",
+        instruction: "Si faltan telefono, ubicacion, experiencia o disponibilidad, solicita datos faltantes antes de agendar.",
+        output: "missing_data_check",
+        channel: "Sistema",
+        waitMinutes: 15,
+        requiresApproval: false,
+        successCriteria: "No avanzar a entrevista con datos obligatorios incompletos."
+      }
+    ]
+  }
+];
+
+const STEP_META: Record<StepType, { label: string; icon: typeof Bot; color: string }> = {
+  ai: { label: "Agente IA", icon: Bot, color: "text-cyan-300 bg-cyan-500/10 border-cyan-400/30" },
+  condition: { label: "Condición", icon: GitBranch, color: "text-amber-300 bg-amber-500/10 border-amber-400/30" },
+  message: { label: "Mensaje", icon: MessageSquare, color: "text-emerald-300 bg-emerald-500/10 border-emerald-400/30" },
+  calendar: { label: "Calendario", icon: Calendar, color: "text-blue-300 bg-blue-500/10 border-blue-400/30" },
+  task: { label: "Tarea CRM", icon: UserCheck, color: "text-purple-300 bg-purple-500/10 border-purple-400/30" },
+  webhook: { label: "Webhook", icon: Database, color: "text-indigo-300 bg-indigo-500/10 border-indigo-400/30" },
+  handoff: { label: "Escalar", icon: ShieldCheck, color: "text-rose-300 bg-rose-500/10 border-rose-400/30" }
+};
+
+function renderWithVariables(template: string, variables: WorkflowVariable[]) {
+  return variables.reduce((result, variable) => result.replaceAll(`{{${variable.key}}}`, variable.fallback || `[${variable.label}]`), template);
+}
+
+function createStep(type: StepType = "ai"): WorkflowStep {
+  return {
+    id: `step-${Date.now()}`,
+    name: type === "message" ? "Enviar mensaje" : type === "condition" ? "Validar condición" : "Nuevo paso IA",
+    type,
+    agent: type === "handoff" ? "Supervisor Humano" : "Agente de recepción",
+    instruction: "Usa {{candidate_name}}, {{job_name}} y {{job_target_profile}} para decidir el siguiente movimiento.",
+    output: `${type}_result`,
+    channel: type === "message" ? "WhatsApp Normal" : "Sistema",
+    waitMinutes: 0,
+    requiresApproval: type === "message",
+    successCriteria: "Resultado valido, trazable y sin datos inventados."
+  };
+}
+
+function createVariable(): WorkflowVariable {
+  return {
+    id: `var-${Date.now()}`,
+    key: "nueva_variable",
+    label: "Nueva variable",
+    type: "texto",
+    source: "Manual",
+    fallback: "",
+    required: false,
+    description: "Describe para que usa esta variable el agente."
+  };
+}
+
+function createCondition(): WorkflowCondition {
+  return {
+    id: `cond-${Date.now()}`,
+    field: "candidate_name",
+    operator: "existe",
+    value: "",
+    actionOnFail: "escalar"
+  };
+}
+
+export function AIWorkflows() {
+  const [workflows, setWorkflows] = useState<AiWorkflow[]>(INITIAL_WORKFLOWS);
+  const [activeWorkflowId, setActiveWorkflowId] = useState(INITIAL_WORKFLOWS[0].id);
+  const [activeStepId, setActiveStepId] = useState(INITIAL_WORKFLOWS[0].steps[0].id);
+  const [activeTab, setActiveTab] = useState<"builder" | "trigger" | "conditions" | "variables" | "library" | "preview">("builder");
+  const [copied, setCopied] = useState(false);
+  const [promptSearch, setPromptSearch] = useState("");
+  const [promptCategory, setPromptCategory] = useState<string>("Todas");
+
+  const activeWorkflow = workflows.find((workflow) => workflow.id === activeWorkflowId) || workflows[0];
+  const activeStep = activeWorkflow.steps.find((step) => step.id === activeStepId) || activeWorkflow.steps[0];
+
+  const executionPayload = useMemo(() => ({
+    workflowId: activeWorkflow.id,
+    name: activeWorkflow.name,
+    status: activeWorkflow.status,
+    channel: activeWorkflow.channel,
+    trigger: activeWorkflow.trigger,
+    autonomous: activeWorkflow.autonomous,
+    approvalMode: activeWorkflow.approvalMode,
+    conditions: activeWorkflow.conditions,
+    variables: Object.fromEntries(activeWorkflow.variables.map((variable) => [variable.key, {
+      value: variable.fallback,
+      type: variable.type,
+      source: variable.source,
+      required: variable.required
+    }])),
+    steps: activeWorkflow.steps.map((step, index) => ({
+      order: index + 1,
+      type: step.type,
+      agent: step.agent,
+      channel: step.channel,
+      waitMinutes: step.waitMinutes,
+      requiresApproval: step.requiresApproval,
+      output: step.output,
+      prompt: renderWithVariables(step.instruction, activeWorkflow.variables),
+      successCriteria: step.successCriteria
+    }))
+  }), [activeWorkflow]);
+
+  const renderedInstruction = useMemo(() => renderWithVariables(activeStep?.instruction || "", activeWorkflow.variables), [activeStep?.instruction, activeWorkflow.variables]);
+
+  const filteredPromptLibrary = useMemo(() => {
+    const query = promptSearch.trim().toLowerCase();
+    return RH_PROMPT_LIBRARY.filter((template) => {
+      const matchesCategory = promptCategory === "Todas" || template.category === promptCategory;
+      const matchesSearch = !query || [template.title, template.category, template.useCase, template.prompt].join(" ").toLowerCase().includes(query);
+      return matchesCategory && matchesSearch;
+    });
+  }, [promptCategory, promptSearch]);
+
+  const updateActiveWorkflow = (patch: Partial<AiWorkflow>) => {
+    setWorkflows((items) => items.map((workflow) => workflow.id === activeWorkflow.id ? { ...workflow, ...patch } : workflow));
+  };
+
+  const updateTrigger = (patch: Partial<TriggerConfig>) => updateActiveWorkflow({ trigger: { ...activeWorkflow.trigger, ...patch } });
+
+  const updateStep = (stepId: string, patch: Partial<WorkflowStep>) => {
+    updateActiveWorkflow({ steps: activeWorkflow.steps.map((step) => step.id === stepId ? { ...step, ...patch } : step) });
+  };
+
+  const updateVariable = (variableId: string, patch: Partial<WorkflowVariable>) => {
+    updateActiveWorkflow({ variables: activeWorkflow.variables.map((variable) => variable.id === variableId ? { ...variable, ...patch } : variable) });
+  };
+
+  const updateCondition = (conditionId: string, patch: Partial<WorkflowCondition>) => {
+    updateActiveWorkflow({ conditions: activeWorkflow.conditions.map((condition) => condition.id === conditionId ? { ...condition, ...patch } : condition) });
+  };
+
+  const addWorkflow = () => {
+    const workflow: AiWorkflow = {
+      id: `flow-${Date.now()}`,
+      name: "Nuevo flujo IA",
+      status: "Borrador",
+      channel: "WhatsApp Normal",
+      autonomous: true,
+      approvalMode: "Aprobar antes de enviar",
+      trigger: { event: "Nueva postulación recibida", source: "CRM", schedule: "Inmediato", debounceMinutes: 5, runWindow: "Lunes a viernes 08:00-20:00" },
+      conditions: [createCondition()],
+      variables: DEFAULT_VARIABLES,
+      steps: [createStep()]
+    };
+    setWorkflows((items) => [workflow, ...items]);
+    setActiveWorkflowId(workflow.id);
+    setActiveStepId(workflow.steps[0].id);
+  };
+
+  const removeStep = (stepId: string) => {
+    if (activeWorkflow.steps.length === 1) return;
+    const nextSteps = activeWorkflow.steps.filter((step) => step.id !== stepId);
+    updateActiveWorkflow({ steps: nextSteps });
+    if (activeStepId === stepId) setActiveStepId(nextSteps[0].id);
+  };
+
+  const insertVariableIntoStep = (key: string) => {
+    if (!activeStep) return;
+    updateStep(activeStep.id, { instruction: `${activeStep.instruction} {{${key}}}` });
+    setActiveTab("builder");
+  };
+
+  const applyPromptToStep = (template: RhPromptTemplate) => {
+    if (!activeStep) return;
+    updateStep(activeStep.id, {
+      name: template.title,
+      type: "ai",
+      instruction: template.prompt,
+      output: `${template.id.replace(/-/g, "_")}_result`,
+      successCriteria: `Resultado util para ${template.useCase.toLowerCase()} sin inventar datos y usando solo variables disponibles.`,
+    });
+    setActiveTab("builder");
+  };
+
+  const copyPayload = async () => {
+    await navigator.clipboard.writeText(JSON.stringify(executionPayload, null, 2));
+    setCopied(true);
+    window.setTimeout(() => setCopied(false), 1800);
+  };
+
+  return (
+    <div className="flex h-full flex-col gap-5 pb-8">
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+        <div>
+          <h1 className="flex items-center gap-2 text-2xl font-bold tracking-tight text-white">
+            <GitBranch className="h-6 w-6 text-cyan-300" />
+            Creador de Flujos IA
+          </h1>
+          <p className="mt-1 text-sm text-slate-400">Configura disparadores, condiciones, variables, acciones y aprobaciones para tus agentes.</p>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-2">
+          <button onClick={addWorkflow} className="flex h-10 items-center gap-2 rounded-lg border border-cyan-400/40 bg-cyan-500/15 px-4 text-sm font-semibold text-cyan-100 transition-colors hover:bg-cyan-500/25">
+            <Plus className="h-4 w-4" />
+            Crear flujo
+          </button>
+          <button className="flex h-10 items-center gap-2 rounded-lg bg-cyan-500 px-4 text-sm font-semibold text-slate-950 transition-colors hover:bg-cyan-400">
+            <Save className="h-4 w-4" />
+            Guardar
+          </button>
+        </div>
+      </div>
+
+      <div className="grid min-h-0 flex-1 grid-cols-1 gap-5 xl:grid-cols-[300px_minmax(0,1fr)_360px]">
+        <aside className="glass-panel flex min-h-[260px] flex-col overflow-hidden rounded-lg border border-slate-700/60">
+          <div className="flex items-center justify-between border-b border-white/5 px-4 py-3">
+            <span className="text-xs font-bold uppercase tracking-[0.18em] text-slate-400">Flujos</span>
+            <span className="rounded-md border border-emerald-400/30 bg-emerald-500/10 px-2 py-1 text-[10px] font-bold text-emerald-300">
+              {workflows.filter((workflow) => workflow.status === "Activo").length} activos
+            </span>
+          </div>
+          <div className="flex-1 space-y-2 overflow-y-auto p-3 styled-scrollbar">
+            {workflows.map((workflow) => (
+              <button
+                key={workflow.id}
+                onClick={() => {
+                  setActiveWorkflowId(workflow.id);
+                  setActiveStepId(workflow.steps[0]?.id || "");
+                }}
+                className={cn("w-full rounded-lg border p-3 text-left transition-colors", workflow.id === activeWorkflow.id ? "border-cyan-400/50 bg-cyan-500/10" : "border-slate-700/60 bg-slate-950/30 hover:border-slate-500/80")}
+              >
+                <div className="flex items-start justify-between gap-2">
+                  <h3 className="text-sm font-semibold text-white">{workflow.name}</h3>
+                  <span className={cn("rounded px-2 py-0.5 text-[10px] font-bold", workflow.status === "Activo" ? "bg-emerald-500/10 text-emerald-300" : workflow.status === "Pausado" ? "bg-amber-500/10 text-amber-300" : "bg-slate-800 text-slate-400")}>{workflow.status}</span>
+                </div>
+                <p className="mt-2 text-xs text-slate-400">{workflow.trigger.event}</p>
+                <div className="mt-3 flex flex-wrap items-center gap-2 text-[11px] text-slate-500">
+                  <Braces className="h-3.5 w-3.5 text-cyan-300" /> {workflow.variables.length} vars
+                  <span className="h-1 w-1 rounded-full bg-slate-600" /> {workflow.conditions.length} reglas
+                  <span className="h-1 w-1 rounded-full bg-slate-600" /> {workflow.steps.length} pasos
+                </div>
+              </button>
+            ))}
+          </div>
+        </aside>
+
+        <section className="glass-panel min-h-[680px] overflow-hidden rounded-lg border border-slate-700/60">
+          <div className="border-b border-white/5 bg-slate-950/20 p-4">
+            <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_160px_190px]">
+              <Field label="Nombre del flujo" value={activeWorkflow.name} onChange={(value) => updateActiveWorkflow({ name: value })} />
+              <Select label="Estado" value={activeWorkflow.status} options={["Activo", "Borrador", "Pausado"]} onChange={(value) => updateActiveWorkflow({ status: value as WorkflowStatus })} />
+              <Select label="Canal principal" value={activeWorkflow.channel} options={CHANNELS} onChange={(value) => updateActiveWorkflow({ channel: value })} />
+            </div>
+
+            <div className="mt-4 flex flex-wrap items-center gap-3">
+              <label className="flex h-10 items-center gap-3 rounded-lg border border-slate-700 bg-slate-950/40 px-3">
+                <input type="checkbox" checked={activeWorkflow.autonomous} onChange={(event) => updateActiveWorkflow({ autonomous: event.target.checked })} className="h-4 w-4 rounded border-slate-600 bg-slate-900 text-cyan-500 focus:ring-cyan-500" />
+                <span className="text-sm text-slate-200">Autónomo</span>
+              </label>
+              <Select compact label="Aprobación" value={activeWorkflow.approvalMode} options={["Sin aprobación", "Aprobar antes de enviar", "Solo escalar excepciones"]} onChange={(value) => updateActiveWorkflow({ approvalMode: value as ApprovalMode })} />
+              <div className="flex rounded-lg border border-slate-700 bg-slate-950/40 p-1">
+                {[
+                  { id: "builder", label: "Pasos", icon: Settings2 },
+                  { id: "trigger", label: "Disparador", icon: Zap },
+                  { id: "conditions", label: "Reglas", icon: Filter },
+                  { id: "variables", label: "Variables", icon: Braces },
+                  { id: "library", label: "Biblioteca RH", icon: BookOpen },
+                  { id: "preview", label: "Prueba", icon: PlayCircle }
+                ].map((tab) => (
+                  <button key={tab.id} onClick={() => setActiveTab(tab.id as typeof activeTab)} className={cn("flex h-8 items-center gap-2 rounded-md px-3 text-xs font-semibold transition-colors", activeTab === tab.id ? "bg-cyan-500/15 text-cyan-200" : "text-slate-400 hover:text-white")}>
+                    <tab.icon className="h-3.5 w-3.5" />
+                    {tab.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div className="min-h-0 p-4">
+            {activeTab === "trigger" && (
+              <div className="grid gap-4 lg:grid-cols-2">
+                <Select label="Evento disparador" value={activeWorkflow.trigger.event} options={TRIGGER_EVENTS} onChange={(value) => updateTrigger({ event: value })} />
+                <Select label="Fuente" value={activeWorkflow.trigger.source} options={TRIGGER_SOURCES} onChange={(value) => updateTrigger({ source: value })} />
+                <Field label="Frecuencia / cron" value={activeWorkflow.trigger.schedule} onChange={(value) => updateTrigger({ schedule: value })} placeholder="Inmediato, diario 09:00, cada 2 horas..." />
+                <Field label="Ventana de ejecución" value={activeWorkflow.trigger.runWindow} onChange={(value) => updateTrigger({ runWindow: value })} placeholder="Lunes a viernes 08:00-20:00" />
+                <Field label="Esperar antes de correr (min)" value={String(activeWorkflow.trigger.debounceMinutes)} onChange={(value) => updateTrigger({ debounceMinutes: Number(value) || 0 })} />
+                <div className="rounded-lg border border-cyan-500/20 bg-cyan-500/5 p-4 text-sm text-slate-300">
+                  <h3 className="mb-2 font-semibold text-cyan-200">Cómo se activará</h3>
+                  Cuando ocurra <b>{activeWorkflow.trigger.event}</b> desde <b>{activeWorkflow.trigger.source}</b>, el flujo esperará <b>{activeWorkflow.trigger.debounceMinutes} min</b> y correrá dentro de <b>{activeWorkflow.trigger.runWindow}</b>.
+                </div>
+              </div>
+            )}
+
+            {activeTab === "conditions" && (
+              <div className="space-y-3">
+                {activeWorkflow.conditions.map((condition) => (
+                  <div key={condition.id} className="grid gap-3 rounded-lg border border-slate-700/60 bg-slate-950/30 p-4 lg:grid-cols-[minmax(0,1fr)_160px_minmax(0,1fr)_150px_40px]">
+                    <Select label="Campo" value={condition.field} options={activeWorkflow.variables.map((variable) => variable.key)} onChange={(value) => updateCondition(condition.id, { field: value })} />
+                    <Select label="Operador" value={condition.operator} options={["contiene", "igual a", "mayor que", "menor que", "existe", "no existe"]} onChange={(value) => updateCondition(condition.id, { operator: value as ConditionOperator })} />
+                    <Field label="Valor" value={condition.value} onChange={(value) => updateCondition(condition.id, { value })} placeholder="Valor esperado, opcional si existe/no existe" />
+                    <Select label="Si falla" value={condition.actionOnFail} options={["detener", "escalar", "continuar"]} onChange={(value) => updateCondition(condition.id, { actionOnFail: value as WorkflowCondition["actionOnFail"] })} />
+                    <button onClick={() => updateActiveWorkflow({ conditions: activeWorkflow.conditions.filter((item) => item.id !== condition.id) })} className="mt-6 flex h-10 w-10 items-center justify-center rounded-lg border border-slate-700 text-slate-500 hover:border-rose-400/40 hover:text-rose-300">
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </div>
+                ))}
+                <AddButton label="Agregar regla o condición" onClick={() => updateActiveWorkflow({ conditions: [...activeWorkflow.conditions, createCondition()] })} />
+              </div>
+            )}
+
+            {activeTab === "builder" && (
+              <div className="space-y-3">
+                {activeWorkflow.steps.map((step, index) => {
+                  const meta = STEP_META[step.type];
+                  const Icon = meta.icon;
+                  return (
+                    <div key={step.id} className={cn("rounded-lg border bg-slate-950/30 p-4", step.id === activeStepId ? "border-cyan-400/50" : "border-slate-700/60")}>
+                      <div className="flex flex-col gap-3 xl:flex-row xl:items-start">
+                        <button onClick={() => setActiveStepId(step.id)} className={cn("flex h-10 w-10 items-center justify-center rounded-lg border", meta.color)} title={meta.label}>
+                          <Icon className="h-5 w-5" />
+                        </button>
+                        <div className="grid flex-1 gap-3 lg:grid-cols-[minmax(0,1fr)_150px_160px_160px]">
+                          <Field label={`Paso ${index + 1}`} value={step.name} onFocus={() => setActiveStepId(step.id)} onChange={(value) => updateStep(step.id, { name: value })} />
+                          <Select label="Tipo" value={step.type} options={Object.keys(STEP_META)} onFocus={() => setActiveStepId(step.id)} onChange={(value) => updateStep(step.id, { type: value as StepType })} />
+                          <Select label="Agente" value={step.agent} options={AGENTS} onFocus={() => setActiveStepId(step.id)} onChange={(value) => updateStep(step.id, { agent: value })} />
+                          <Select label="Canal" value={step.channel} options={["Sistema", ...CHANNELS]} onFocus={() => setActiveStepId(step.id)} onChange={(value) => updateStep(step.id, { channel: value })} />
+                        </div>
+                        <button onClick={() => removeStep(step.id)} disabled={activeWorkflow.steps.length === 1} className="flex h-10 w-10 items-center justify-center rounded-lg border border-slate-700 text-slate-500 hover:border-rose-400/40 hover:text-rose-300 disabled:cursor-not-allowed disabled:opacity-40">
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </div>
+                      <div className="mt-3 grid gap-3 lg:grid-cols-[minmax(0,1fr)_170px_150px]">
+                        <textarea value={step.instruction} onFocus={() => setActiveStepId(step.id)} onChange={(event) => updateStep(step.id, { instruction: event.target.value })} className="min-h-[112px] resize-none rounded-lg border border-slate-700 bg-slate-950/60 px-3 py-3 font-mono text-sm leading-6 text-slate-100 outline-none focus:border-cyan-400" />
+                        <div className="space-y-3">
+                          <Field label="Salida" value={step.output} onFocus={() => setActiveStepId(step.id)} onChange={(value) => updateStep(step.id, { output: value.toLowerCase().replace(/[^a-z0-9_]/g, "") })} />
+                          <Field label="Espera min" value={String(step.waitMinutes)} onFocus={() => setActiveStepId(step.id)} onChange={(value) => updateStep(step.id, { waitMinutes: Number(value) || 0 })} />
+                        </div>
+                        <div className="space-y-3">
+                          <label className="flex h-10 items-center gap-3 rounded-lg border border-slate-700 bg-slate-950/40 px-3 mt-6">
+                            <input type="checkbox" checked={step.requiresApproval} onChange={(event) => updateStep(step.id, { requiresApproval: event.target.checked })} className="h-4 w-4 rounded border-slate-600 bg-slate-900 text-cyan-500 focus:ring-cyan-500" />
+                            <span className="text-xs text-slate-200">Requiere aprobación</span>
+                          </label>
+                          <textarea value={step.successCriteria} onFocus={() => setActiveStepId(step.id)} onChange={(event) => updateStep(step.id, { successCriteria: event.target.value })} className="min-h-[58px] resize-none rounded-lg border border-slate-700 bg-slate-950/60 px-3 py-2 text-xs text-slate-100 outline-none focus:border-cyan-400" />
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+                <div className="grid grid-cols-2 gap-2 md:grid-cols-4">
+                  {(["ai", "condition", "message", "calendar", "task", "webhook", "handoff"] as StepType[]).map((type) => (
+                    <button key={type} onClick={() => { const step = createStep(type); updateActiveWorkflow({ steps: [...activeWorkflow.steps, step] }); setActiveStepId(step.id); }} className="flex h-11 items-center justify-center gap-2 rounded-lg border border-dashed border-cyan-400/40 bg-cyan-500/5 text-xs font-semibold text-cyan-200 hover:bg-cyan-500/10">
+                      <Plus className="h-4 w-4" />
+                      {STEP_META[type].label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {activeTab === "variables" && (
+              <div className="space-y-3">
+                {activeWorkflow.variables.map((variable) => (
+                  <div key={variable.id} className="rounded-lg border border-slate-700/60 bg-slate-950/30 p-4">
+                    <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_140px_150px_130px_40px]">
+                      <Field label="Variable" value={variable.key} onChange={(value) => updateVariable(variable.id, { key: value.toLowerCase().replace(/[^a-z0-9_]/g, "") })} mono prefix="{{" suffix="}}" />
+                      <Select label="Tipo" value={variable.type} options={VARIABLE_TYPES} onChange={(value) => updateVariable(variable.id, { type: value as VariableType })} />
+                      <Select label="Fuente" value={variable.source} options={VARIABLE_SOURCES} onChange={(value) => updateVariable(variable.id, { source: value as VariableSource })} />
+                      <label className="space-y-1">
+                        <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">Obligatoria</span>
+                        <button onClick={() => updateVariable(variable.id, { required: !variable.required })} className={cn("flex h-10 w-full items-center justify-center gap-2 rounded-lg border text-xs font-bold", variable.required ? "border-emerald-400/40 bg-emerald-500/10 text-emerald-300" : "border-slate-700 bg-slate-950/60 text-slate-400")}>
+                          {variable.required && <Check className="h-3.5 w-3.5" />}
+                          {variable.required ? "Sí" : "No"}
+                        </button>
+                      </label>
+                      <button onClick={() => updateActiveWorkflow({ variables: activeWorkflow.variables.filter((item) => item.id !== variable.id) })} className="mt-6 flex h-10 w-10 items-center justify-center rounded-lg border border-slate-700 text-slate-500 hover:border-rose-400/40 hover:text-rose-300">
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    </div>
+                    <div className="mt-3 grid gap-3 lg:grid-cols-3">
+                      <Field label="Etiqueta" value={variable.label} onChange={(value) => updateVariable(variable.id, { label: value })} />
+                      <Field label="Valor de prueba" value={variable.fallback} onChange={(value) => updateVariable(variable.id, { fallback: value })} />
+                      <Field label="Descripción" value={variable.description} onChange={(value) => updateVariable(variable.id, { description: value })} />
+                    </div>
+                  </div>
+                ))}
+                <AddButton label="Agregar variable" onClick={() => updateActiveWorkflow({ variables: [...activeWorkflow.variables, createVariable()] })} />
+              </div>
+            )}
+
+            {activeTab === "library" && (
+              <div className="space-y-4">
+                <div className="rounded-lg border border-cyan-500/20 bg-cyan-500/5 p-4">
+                  <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+                    <div>
+                      <div className="flex items-center gap-2 text-sm font-semibold text-cyan-100">
+                        <BookOpen className="h-4 w-4 text-cyan-300" />
+                        Biblioteca RH para agentes
+                      </div>
+                      <p className="mt-2 text-sm leading-6 text-slate-300">{RH_PROMPT_LIBRARY_META.usage}</p>
+                      <p className="mt-1 text-xs text-slate-500">Fuente cargada: {RH_PROMPT_LIBRARY_META.source}.</p>
+                    </div>
+                    <span className="rounded-lg border border-cyan-400/30 bg-slate-950/60 px-3 py-2 text-xs font-bold text-cyan-200">
+                      {RH_PROMPT_LIBRARY.length} plantillas
+                    </span>
+                  </div>
+                </div>
+
+                <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_260px]">
+                  <label className="space-y-1">
+                    <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">Buscar prompt</span>
+                    <div className="flex h-10 items-center gap-2 rounded-lg border border-slate-700 bg-slate-950/60 px-3 focus-within:border-cyan-400">
+                      <Search className="h-4 w-4 text-slate-500" />
+                      <input
+                        value={promptSearch}
+                        onChange={(event) => setPromptSearch(event.target.value)}
+                        placeholder="Ej: entrevista, onboarding, bienestar..."
+                        className="min-w-0 flex-1 bg-transparent text-sm text-white outline-none placeholder:text-slate-600"
+                      />
+                    </div>
+                  </label>
+                  <Select label="Categoria" value={promptCategory} options={["Todas", ...RH_PROMPT_CATEGORIES]} onChange={setPromptCategory} />
+                </div>
+
+                <div className="grid gap-3">
+                  {filteredPromptLibrary.map((template) => (
+                    <div key={template.id} className="rounded-lg border border-slate-700/60 bg-slate-950/30 p-4">
+                      <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+                        <div className="min-w-0">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <h3 className="text-sm font-semibold text-white">{template.title}</h3>
+                            <span className="rounded-md border border-cyan-400/20 bg-cyan-500/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-cyan-200">
+                              {template.category}
+                            </span>
+                          </div>
+                          <p className="mt-1 text-xs text-slate-400">{template.useCase}</p>
+                        </div>
+                        <button onClick={() => applyPromptToStep(template)} className="flex h-9 shrink-0 items-center justify-center gap-2 rounded-lg bg-cyan-500 px-3 text-xs font-bold text-slate-950 hover:bg-cyan-400">
+                          <MousePointerClick className="h-3.5 w-3.5" />
+                          Usar en paso activo
+                        </button>
+                      </div>
+                      <p className="mt-3 rounded-lg border border-slate-700/60 bg-black/20 p-3 font-mono text-xs leading-5 text-slate-300">{template.prompt}</p>
+                      <div className="mt-3 flex flex-wrap gap-2">
+                        {template.variables.map((variable) => (
+                          <button key={variable} onClick={() => insertVariableIntoStep(variable)} className="rounded-md border border-slate-700 bg-slate-950/60 px-2 py-1 font-mono text-[11px] text-cyan-200 hover:border-cyan-400/40">
+                            {"{{"}{variable}{"}}"}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                  {filteredPromptLibrary.length === 0 && (
+                    <div className="rounded-lg border border-dashed border-slate-700 p-8 text-center text-sm text-slate-500">
+                      No encontre plantillas con ese filtro.
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {activeTab === "preview" && (
+              <div className="grid gap-4">
+                <Panel title="Vista previa del paso activo" icon={PlayCircle}>
+                  <pre className="max-h-[260px] overflow-auto whitespace-pre-wrap rounded-lg bg-black/30 p-4 text-sm leading-6 text-slate-200 styled-scrollbar">{renderedInstruction}</pre>
+                </Panel>
+                <Panel title="Payload completo del flujo" icon={Database} action={<button onClick={copyPayload} className="flex h-8 items-center gap-2 rounded-lg border border-slate-700 px-3 text-xs font-semibold text-slate-300 hover:border-cyan-400/50 hover:text-cyan-200">{copied ? <Check className="h-3.5 w-3.5 text-emerald-300" /> : <Copy className="h-3.5 w-3.5" />}{copied ? "Copiado" : "Copiar"}</button>}>
+                  <pre className="max-h-[360px] overflow-auto rounded-lg bg-black/30 p-4 text-xs leading-5 text-slate-300 styled-scrollbar">{JSON.stringify(executionPayload, null, 2)}</pre>
+                </Panel>
+              </div>
+            )}
+          </div>
+        </section>
+
+        <aside className="glass-panel flex min-h-[360px] flex-col overflow-hidden rounded-lg border border-slate-700/60">
+          <div className="border-b border-white/5 px-4 py-3">
+            <div className="flex items-center gap-2 text-sm font-semibold text-white"><Braces className="h-4 w-4 text-cyan-300" /> Variables disponibles</div>
+          </div>
+          <div className="flex-1 overflow-y-auto p-4 styled-scrollbar">
+            <div className="grid gap-2">
+              {activeWorkflow.variables.map((variable) => (
+                <button key={variable.id} onClick={() => insertVariableIntoStep(variable.key)} className="flex items-center justify-between gap-3 rounded-lg border border-slate-700/70 bg-slate-950/40 px-3 py-2 text-left hover:border-cyan-400/40 hover:bg-cyan-500/5">
+                  <span className="min-w-0">
+                    <span className="block truncate font-mono text-xs text-cyan-200">{"{{"}{variable.key}{"}}"}</span>
+                    <span className="mt-0.5 block truncate text-[11px] text-slate-500">{variable.source} • {variable.type} • {variable.required ? "req" : "opc"}</span>
+                  </span>
+                  <MousePointerClick className="h-4 w-4 shrink-0 text-slate-500" />
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="border-t border-white/5 p-4">
+            <div className="grid grid-cols-3 gap-2 text-center">
+              <Metric icon={Braces} label="Vars" value={activeWorkflow.variables.length} />
+              <Metric icon={Filter} label="Reglas" value={activeWorkflow.conditions.length} />
+              <Metric icon={Zap} label="Pasos" value={activeWorkflow.steps.length} />
+            </div>
+          </div>
+        </aside>
+      </div>
+    </div>
+  );
+}
+
+function Field({ label, value, onChange, onFocus, placeholder, mono, prefix, suffix }: { label: string; value: string; onChange: (value: string) => void; onFocus?: () => void; placeholder?: string; mono?: boolean; prefix?: string; suffix?: string }) {
+  return (
+    <label className="space-y-1">
+      <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">{label}</span>
+      <div className="flex h-10 rounded-lg border border-slate-700 bg-slate-950/60 focus-within:border-cyan-400">
+        {prefix && <span className="flex items-center px-3 font-mono text-xs text-slate-500">{prefix}</span>}
+        <input value={value} onFocus={onFocus} onChange={(event) => onChange(event.target.value)} placeholder={placeholder} className={cn("min-w-0 flex-1 bg-transparent px-3 text-sm text-white outline-none", mono && "font-mono text-cyan-200", prefix && "pl-0", suffix && "pr-0")} />
+        {suffix && <span className="flex items-center px-3 font-mono text-xs text-slate-500">{suffix}</span>}
+      </div>
+    </label>
+  );
+}
+
+function Select({ label, value, options, onChange, onFocus, compact }: { label: string; value: string; options: string[]; onChange: (value: string) => void; onFocus?: () => void; compact?: boolean }) {
+  return (
+    <label className={cn("space-y-1", compact && "min-w-[220px]")}>
+      <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">{label}</span>
+      <select value={value} onFocus={onFocus} onChange={(event) => onChange(event.target.value)} className="h-10 w-full rounded-lg border border-slate-700 bg-slate-950/60 px-3 text-sm text-white outline-none focus:border-cyan-400">
+        {options.map((option) => <option key={option} value={option}>{option}</option>)}
+      </select>
+    </label>
+  );
+}
+
+function AddButton({ label, onClick }: { label: string; onClick: () => void }) {
+  return (
+    <button onClick={onClick} className="flex h-11 w-full items-center justify-center gap-2 rounded-lg border border-dashed border-cyan-400/40 bg-cyan-500/5 text-sm font-semibold text-cyan-200 hover:bg-cyan-500/10">
+      <Plus className="h-4 w-4" />
+      {label}
+    </button>
+  );
+}
+
+function Panel({ title, icon: Icon, children, action }: { title: string; icon: typeof Bot; children: React.ReactNode; action?: React.ReactNode }) {
+  return (
+    <div className="rounded-lg border border-slate-700/60 bg-slate-950/40 p-4">
+      <div className="mb-3 flex items-center justify-between gap-3">
+        <div className="flex items-center gap-2 text-sm font-semibold text-white"><Icon className="h-4 w-4 text-cyan-300" />{title}</div>
+        {action}
+      </div>
+      {children}
+    </div>
+  );
+}
+
+function Metric({ icon: Icon, label, value }: { icon: typeof Bot; label: string; value: number }) {
+  return (
+    <div className="rounded-lg border border-slate-700/60 bg-slate-950/40 p-3">
+      <Icon className="mx-auto h-4 w-4 text-cyan-300" />
+      <div className="mt-2 text-lg font-bold text-white">{value}</div>
+      <div className="text-[10px] uppercase tracking-wider text-slate-500">{label}</div>
+    </div>
+  );
+}

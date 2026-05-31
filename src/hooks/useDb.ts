@@ -2,15 +2,13 @@ import { useState, useEffect, useCallback } from "react";
 import {
   collection,
   doc,
-  addDoc,
   setDoc,
   updateDoc,
   deleteDoc,
   onSnapshot,
-  query,
-  orderBy
 } from "firebase/firestore";
-import { db, auth, handleFirestoreError, OperationType } from "@/lib/firebase";
+import { db, auth, OperationType } from "@/lib/firebase";
+import { apiUrl, readApiJson } from "@/lib/api";
 import {
   Candidate,
   Job,
@@ -20,6 +18,8 @@ import {
   Notification,
   Agent
 } from "@/services/db";
+
+type CollectionUnsubscribe = () => void;
 
 export function useDb() {
   const [candidates, setCandidates] = useState<Candidate[]>([]);
@@ -31,92 +31,134 @@ export function useDb() {
   const [agents, setAgents] = useState<Agent[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const clearCollections = useCallback(() => {
+    setCandidates([]);
+    setAgents([]);
+    setJobs([]);
+    setAppointments([]);
+    setAutomations([]);
+    setNotifications([]);
+    setMessages([]);
+    setLoading(false);
+  }, []);
+
+  const requireAuthenticatedUser = () => {
+    if (!auth.currentUser) {
+      throw new Error("Debes iniciar sesión para modificar datos reales.");
+    }
+    return auth.currentUser;
+  };
+
   // Load all collections reactive
   useEffect(() => {
-    const unsubCandidates = onSnapshot(collection(db, "candidates"), (snapshot) => {
-      const list: Candidate[] = [];
-      snapshot.forEach(doc => {
-        list.push({ id: doc.id, ...doc.data() } as Candidate);
-      });
-      setCandidates(list);
-    }, (error) => {
-      handleFirestoreError(error, OperationType.LIST, "candidates");
-    });
+    let collectionUnsubs: CollectionUnsubscribe[] = [];
 
-    const unsubJobs = onSnapshot(collection(db, "jobs"), (snapshot) => {
-      const list: Job[] = [];
-      snapshot.forEach(doc => {
-        list.push({ id: doc.id, ...doc.data() } as Job);
-      });
-      setJobs(list);
-    }, (error) => {
-      handleFirestoreError(error, OperationType.LIST, "jobs");
-    });
+    const cleanupCollections = () => {
+      collectionUnsubs.forEach((unsubscribe) => unsubscribe());
+      collectionUnsubs = [];
+    };
 
-    const unsubAppointments = onSnapshot(collection(db, "appointments"), (snapshot) => {
-      const list: Appointment[] = [];
-      snapshot.forEach(doc => {
-        list.push({ id: doc.id, ...doc.data() } as Appointment);
+    const reportSubscriptionError = (path: string, error: unknown) => {
+      console.warn("Firestore subscription skipped:", {
+        path,
+        operationType: OperationType.LIST,
+        error: error instanceof Error ? error.message : String(error),
+        userId: auth.currentUser?.uid,
       });
-      setAppointments(list);
-    }, (error) => {
-      handleFirestoreError(error, OperationType.LIST, "appointments");
-    });
-
-    const unsubMessages = onSnapshot(collection(db, "messages"), (snapshot) => {
-      const list: Message[] = [];
-      snapshot.forEach(doc => {
-        list.push({ id: doc.id, ...doc.data() } as Message);
-      });
-      // Sort messages ascending by time for chat timelines
-      list.sort((a, b) => a.createdAt - b.createdAt);
-      setMessages(list);
-    }, (error) => {
-      handleFirestoreError(error, OperationType.LIST, "messages");
-    });
-
-    const unsubAutomations = onSnapshot(collection(db, "automations"), (snapshot) => {
-      const list: Automation[] = [];
-      snapshot.forEach(doc => {
-        list.push({ id: doc.id, ...doc.data() } as Automation);
-      });
-      setAutomations(list);
-    }, (error) => {
-      handleFirestoreError(error, OperationType.LIST, "automations");
-    });
-
-    const unsubNotifications = onSnapshot(collection(db, "notifications"), (snapshot) => {
-      const list: Notification[] = [];
-      snapshot.forEach(doc => {
-        list.push({ id: doc.id, ...doc.data() } as Notification);
-      });
-      list.sort((a, b) => b.createdAt - a.createdAt);
-      setNotifications(list);
       setLoading(false);
-    }, (error) => {
-      handleFirestoreError(error, OperationType.LIST, "notifications");
-    });
+    };
 
-    const unsubAgents = onSnapshot(collection(db, "agents"), (snapshot) => {
-      const list: Agent[] = [];
-      snapshot.forEach(doc => {
-        list.push({ id: doc.id, ...doc.data() } as Agent);
-      });
-      setAgents(list);
-    }, (error) => {
-      handleFirestoreError(error, OperationType.LIST, "agents");
+    const unsubscribeAuth = auth.onAuthStateChanged((firebaseUser) => {
+      cleanupCollections();
+
+      if (!firebaseUser) {
+        clearCollections();
+        return;
+      }
+
+      setLoading(true);
+
+      collectionUnsubs = [
+        onSnapshot(collection(db, "candidates"), (snapshot) => {
+          const list: Candidate[] = [];
+          snapshot.forEach(doc => {
+            list.push({ id: doc.id, ...doc.data() } as Candidate);
+          });
+          setCandidates(list);
+        }, (error) => {
+          reportSubscriptionError("candidates", error);
+        }),
+
+        onSnapshot(collection(db, "jobs"), (snapshot) => {
+          const list: Job[] = [];
+          snapshot.forEach(doc => {
+            list.push({ id: doc.id, ...doc.data() } as Job);
+          });
+          setJobs(list);
+        }, (error) => {
+          reportSubscriptionError("jobs", error);
+        }),
+
+        onSnapshot(collection(db, "appointments"), (snapshot) => {
+          const list: Appointment[] = [];
+          snapshot.forEach(doc => {
+            list.push({ id: doc.id, ...doc.data() } as Appointment);
+          });
+          setAppointments(list);
+        }, (error) => {
+          reportSubscriptionError("appointments", error);
+        }),
+
+        onSnapshot(collection(db, "messages"), (snapshot) => {
+          const list: Message[] = [];
+          snapshot.forEach(doc => {
+            list.push({ id: doc.id, ...doc.data() } as Message);
+          });
+          list.sort((a, b) => a.createdAt - b.createdAt);
+          setMessages(list);
+        }, (error) => {
+          reportSubscriptionError("messages", error);
+        }),
+
+        onSnapshot(collection(db, "automations"), (snapshot) => {
+          const list: Automation[] = [];
+          snapshot.forEach(doc => {
+            list.push({ id: doc.id, ...doc.data() } as Automation);
+          });
+          setAutomations(list);
+        }, (error) => {
+          reportSubscriptionError("automations", error);
+        }),
+
+        onSnapshot(collection(db, "notifications"), (snapshot) => {
+          const list: Notification[] = [];
+          snapshot.forEach(doc => {
+            list.push({ id: doc.id, ...doc.data() } as Notification);
+          });
+          list.sort((a, b) => b.createdAt - a.createdAt);
+          setNotifications(list);
+          setLoading(false);
+        }, (error) => {
+          reportSubscriptionError("notifications", error);
+        }),
+
+        onSnapshot(collection(db, "agents"), (snapshot) => {
+          const list: Agent[] = [];
+          snapshot.forEach(doc => {
+            list.push({ id: doc.id, ...doc.data() } as Agent);
+          });
+          setAgents(list);
+        }, (error) => {
+          reportSubscriptionError("agents", error);
+        }),
+      ];
     });
 
     return () => {
-      unsubCandidates();
-      unsubJobs();
-      unsubAppointments();
-      unsubMessages();
-      unsubAutomations();
-      unsubNotifications();
-      unsubAgents();
+      cleanupCollections();
+      unsubscribeAuth();
     };
-  }, []);
+  }, [clearCollections]);
 
   // AUTOMATION ENGINE (Phase 10 & Phase 7 & Phase 9)
   const runAutomationsForEvent = useCallback(async (triggerType: string, context: { candidate?: Candidate; appointment?: Appointment; message?: Message }) => {
@@ -131,7 +173,7 @@ export function useDb() {
         
         for (const action of auto.actions) {
           if (action === "send_whatsapp" && context.candidate) {
-            const defaultGreeting = `Hola ${context.candidate.name}, te habla Atenea, asistente de Heavenly Dreams. Registramos tu interés para la vacante de ${context.candidate.role}. ¿Te gustaría detalles sobre nuestra capacitación u horarios de entrevistas?`;
+            const defaultGreeting = `Hola ${context.candidate.name}, registramos tu interés para la vacante de ${context.candidate.role}. ¿Te gustaría recibir detalles sobre la capacitación u horarios de entrevistas?`;
             
             // Add outbound WhatsApp message
             const newMsgRef = doc(collection(db, "messages"));
@@ -146,7 +188,7 @@ export function useDb() {
               createdAt: Date.now()
             });
 
-            // Auto prompt AI agent Atenea to answer
+            // Ask the assigned AI agent to continue the conversation.
             triggerAgentDialogue(context.candidate.id, "agent-1", "Por favor da la bienvenida e introduce al candidato.");
           }
 
@@ -179,7 +221,6 @@ export function useDb() {
           }
 
           if (action === "assign_agent" && context.candidate) {
-            // Auto assign agent to candidate (Atenea for early stages, Hermes for scheduling)
             const agentToAssign = context.candidate.stage === "Cita agendada" ? "agent-2" : "agent-1";
             await updateCandidate(context.candidate.id, { assignedAgentId: agentToAssign });
           }
@@ -199,10 +240,10 @@ export function useDb() {
 
       if (!activeCand) return;
       
-      const agentPrompt = activeAgent?.basePrompt || "Eres un reclutador virtual de Heavenly Dreams.";
+      const agentPrompt = activeAgent?.basePrompt || "Eres un asistente virtual de reclutamiento. Responde con datos verificados del proceso y escala a una persona cuando falte información.";
       
       // Post to our secure full-stack backend
-      const res = await fetch("/api/gemini/reply", {
+      const res = await fetch(apiUrl("/api/gemini/reply"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -213,8 +254,9 @@ export function useDb() {
         })
       });
 
-      const data = await res.json();
-      if (data.reply) {
+      const data = await readApiJson(res);
+      const replyPayload = data?.data || data;
+      if (replyPayload?.reply) {
         // Save the outbound AI response as a WhatsApp message in Firestore
         const newMsgRef = doc(collection(db, "messages"));
         await setDoc(newMsgRef, {
@@ -222,7 +264,7 @@ export function useDb() {
           candidateId: candidateId,
           channel: "whatsapp",
           direction: "outbound",
-          body: data.reply,
+          body: replyPayload.reply,
           sender: "me",
           status: "sent",
           createdAt: Date.now() + 100 // tiny delay
@@ -240,8 +282,8 @@ export function useDb() {
           createdAt: Date.now()
         });
 
-        // Simular un cambio de etapa si el agente detecta agendamientos
-        const replyLower = data.reply.toLowerCase();
+        // Advance the stage when the AI response clearly confirms scheduling intent.
+        const replyLower = replyPayload.reply.toLowerCase();
         if (replyLower.includes("entrevista") || replyLower.includes("agenda") || replyLower.includes("coordinada")) {
           if (activeCand.stage === "Nuevo" || activeCand.stage === "Contactado") {
             await updateCandidate(candidateId, { stage: "Cita agendada" });
@@ -257,6 +299,7 @@ export function useDb() {
 
   // Candidates CRUD
   const addCandidate = async (candData: Omit<Candidate, "id" | "createdAt" | "updatedAt">) => {
+    requireAuthenticatedUser();
     const id = "cand-" + Date.now();
     const candidate: Candidate = {
       ...candData,
@@ -283,11 +326,13 @@ export function useDb() {
   };
 
   const updateCandidate = async (id: string, candData: Partial<Candidate>) => {
+    requireAuthenticatedUser();
     const prevCandidate = candidates.find(c => c.id === id);
     const updated: Partial<Candidate> = {
       ...candData,
       updatedAt: Date.now()
     };
+
     await updateDoc(doc(db, "candidates", id), updated);
     
     // Trigger Automation if stage changed
@@ -298,11 +343,13 @@ export function useDb() {
   };
 
   const deleteCandidate = async (id: string) => {
+    requireAuthenticatedUser();
     await deleteDoc(doc(db, "candidates", id));
   };
 
   // Jobs CRUD
   const addJob = async (jobData: Omit<Job, "id" | "applicants" | "platforms" | "createdAt" | "updatedAt">) => {
+    requireAuthenticatedUser();
     const id = "job-" + Date.now();
     const job: Job = {
       ...jobData,
@@ -316,6 +363,7 @@ export function useDb() {
   };
 
   const updateJob = async (id: string, jobData: Partial<Job>) => {
+    requireAuthenticatedUser();
     await updateDoc(doc(db, "jobs", id), {
       ...jobData,
       updatedAt: Date.now()
@@ -323,11 +371,13 @@ export function useDb() {
   };
 
   const deleteJob = async (id: string) => {
+    requireAuthenticatedUser();
     await deleteDoc(doc(db, "jobs", id));
   };
 
   // Appointments CRUD
   const addAppointment = async (apptData: Omit<Appointment, "id" | "createdAt">) => {
+    requireAuthenticatedUser();
     const id = "appt-" + Date.now();
     const appt: Appointment = {
       ...apptData,
@@ -342,7 +392,7 @@ export function useDb() {
     // Inform automations
     await runAutomationsForEvent("appointment.created", { appointment: appt });
     
-    // Send a WhatsApp template simulation
+    // Register an outbound confirmation message for the selected channel.
     const msgBody = `Hola ${apptData.candidateName}, confirmamos tu entrevista el día ${apptData.date} a las ${apptData.time}. Por favor responde CONFIRMO para registrar tu asistencia.`;
     await addMessage({
       candidateId: apptData.candidateId,
@@ -355,6 +405,7 @@ export function useDb() {
   };
 
   const updateAppointment = async (id: string, apptData: Partial<Appointment>) => {
+    requireAuthenticatedUser();
     const prevAppointment = appointments.find(a => a.id === id);
     await updateDoc(doc(db, "appointments", id), apptData);
 
@@ -381,58 +432,130 @@ export function useDb() {
   };
 
   const deleteAppointment = async (id: string) => {
+    requireAuthenticatedUser();
     await deleteDoc(doc(db, "appointments", id));
   };
 
   // Messages CRUD
+  const transcribeInboundAudioMessage = async (
+    audioBase64: string,
+    audioMimeType: string | undefined,
+    candidate?: Candidate,
+    agent?: Agent
+  ) => {
+    const res = await fetch(apiUrl("/api/gemini/audio/transcribe"), {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        audioBase64,
+        mimeType: audioMimeType || "audio/mpeg",
+        language: agent?.audioLanguage || "es-MX",
+        context: candidate
+          ? `Candidato: ${candidate.name}. Puesto: ${candidate.role}. Canal de reclutamiento: ${candidate.source}.`
+          : "Audio entrante de un candidato de reclutamiento.",
+      }),
+    });
+
+    const data = await readApiJson(res);
+    const payload = data?.data || data;
+
+    if (!res.ok || !payload?.transcription) {
+      throw new Error(payload?.error || data?.error || "No se pudo transcribir el audio.");
+    }
+
+    return payload.transcription as string;
+  };
+
   const addMessage = async (msgData: Omit<Message, "id" | "createdAt">) => {
+    requireAuthenticatedUser();
     const id = "msg-" + Date.now();
+    const activeCand = candidates.find(c => c.id === msgData.candidateId);
+    const assignedAgentId = activeCand?.assignedAgentId || "agent-1";
+    const activeAgent = agents.find(a => a.id === assignedAgentId);
+
+    let processedMsgData = { ...msgData };
+
+    if (
+      msgData.direction === "inbound" &&
+      msgData.attachmentType === "audio" &&
+      msgData.audioBase64 &&
+      (activeAgent?.transcribeAudio ?? true)
+    ) {
+      try {
+        const transcription = await transcribeInboundAudioMessage(
+          msgData.audioBase64,
+          msgData.audioMimeType,
+          activeCand,
+          activeAgent
+        );
+
+        processedMsgData = {
+          ...processedMsgData,
+          transcription,
+          transcriptionStatus: "completed",
+          body: transcription ? `[Audio transcrito] ${transcription}` : msgData.body,
+        };
+      } catch (error) {
+        processedMsgData = {
+          ...processedMsgData,
+          transcriptionStatus: "failed",
+          body: msgData.body || "[Audio recibido: transcripción pendiente]",
+        };
+        console.error("Error transcribing inbound audio:", error);
+      }
+    }
+
     const msg: Message = {
-      ...msgData,
+      ...processedMsgData,
       id,
       createdAt: Date.now()
     };
     await setDoc(doc(db, "messages", id), msg);
 
     // If inbound message, we trigger automations and allow assigned AI agent to respond automatically! (Phase 8 & 9)
-    if (msgData.direction === "inbound") {
-      const activeCand = candidates.find(c => c.id === msgData.candidateId);
-      
-      // Auto reply with active agent
-      const assignedAgentId = activeCand?.assignedAgentId || "agent-1"; 
-      
+    if (processedMsgData.direction === "inbound") {
       // Check if message says "CONFIRMO" for appointment
-      if (msgData.body.toUpperCase().includes("CONFIRMO")) {
-        const appt = appointments.find(a => a.candidateId === msgData.candidateId && a.status === "scheduled");
+      if (processedMsgData.body.toUpperCase().includes("CONFIRMO")) {
+        const appt = appointments.find(a => a.candidateId === processedMsgData.candidateId && a.status === "scheduled");
         if (appt) {
           await updateAppointment(appt.id, { status: "confirmed" });
         }
       }
 
-      // Prompt Gemini to produce response
-      setTimeout(() => {
-        triggerAgentDialogue(msgData.candidateId, assignedAgentId, msgData.body);
-      }, 1000);
+      if (processedMsgData.attachmentType !== "audio" || (activeAgent?.audioAutoReply ?? true)) {
+        const agentInstruction = processedMsgData.transcription
+          ? `El candidato envió un audio. Transcripción: "${processedMsgData.transcription}". Responde de forma natural, breve y útil.`
+          : processedMsgData.body;
+
+        // Prompt Gemini to produce response
+        setTimeout(() => {
+          triggerAgentDialogue(processedMsgData.candidateId, assignedAgentId, agentInstruction);
+        }, 1000);
+      }
     }
   };
 
   // Automations CRUD
   const addAutomation = async (autoData: Omit<Automation, "id">) => {
+    requireAuthenticatedUser();
     const id = "auto-" + Date.now();
     const auto: Automation = { ...autoData, id };
     await setDoc(doc(db, "automations", id), auto);
   };
 
   const updateAutomation = async (id: string, autoData: Partial<Automation>) => {
+    requireAuthenticatedUser();
     await updateDoc(doc(db, "automations", id), autoData);
   };
 
   const deleteAutomation = async (id: string) => {
+    requireAuthenticatedUser();
     await deleteDoc(doc(db, "automations", id));
   };
 
   // Notifications CRUD
   const addNotification = async (notData: Omit<Notification, "id" | "createdAt">) => {
+    requireAuthenticatedUser();
     const id = "not-" + Date.now();
     const notification: Notification = {
       ...notData,
@@ -443,27 +566,30 @@ export function useDb() {
   };
 
   const markNotificationRead = async (id: string) => {
+    requireAuthenticatedUser();
     await updateDoc(doc(db, "notifications", id), { read: true });
   };
 
   // Agents CRUD
   const addAgent = async (agentData: Omit<Agent, "id" | "userId" | "createdAt">) => {
+    const currentUser = requireAuthenticatedUser();
     const id = "agent-" + Date.now();
-    const currentUserId = auth.currentUser?.uid || "shared";
     const agent: Agent = {
       ...agentData,
       id,
-      userId: currentUserId,
+      userId: currentUser.uid,
       createdAt: Date.now()
     };
     await setDoc(doc(db, "agents", id), agent);
   };
 
   const updateAgent = async (id: string, agentData: Partial<Agent>) => {
+    requireAuthenticatedUser();
     await updateDoc(doc(db, "agents", id), agentData);
   };
 
   const deleteAgent = async (id: string) => {
+    requireAuthenticatedUser();
     await deleteDoc(doc(db, "agents", id));
   };
 

@@ -1,21 +1,23 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNotifications } from "@/contexts/NotificationContext";
-import { MOCK_CANDIDATES } from "@/data/mockData";
+import { useDb } from "@/hooks/useDb";
+import { GOOGLE_WORKSPACE_CAPABILITIES } from "@/config/googleWorkspace";
 import { 
   FileSpreadsheet, Calendar as CalendarIcon, Mail, FormInput, FolderOpen, 
   StickyNote, Plus, Search, Check, Loader2, Sparkles, RefreshCw, 
   AlertCircle, Trash2, ExternalLink, Send, ArrowRight, CheckCircle2, 
-  HelpCircle, Info, Clock, CheckSquare, Palette
+  HelpCircle, Info, Clock, CheckSquare, Palette, Image as ImageIcon, FileText
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export function WorkspaceHub() {
   const { accessToken, user, signInWithGoogle } = useAuth();
   const { triggerEvent } = useNotifications();
+  const { candidates, addCandidate } = useDb();
 
   // Active Hub Tab
-  const [activeTab, setActiveTab] = useState<'sheets' | 'calendar' | 'gmail' | 'forms' | 'picker' | 'keep'>('sheets');
+  const [activeTab, setActiveTab] = useState<'sheets' | 'calendar' | 'gmail' | 'forms' | 'picker' | 'photos' | 'keep'>('sheets');
 
   // Unified Request Logging Terminal
   const [apiLogs, setApiLogs] = useState<any[]>([
@@ -51,7 +53,6 @@ export function WorkspaceHub() {
   const [sheetId, setSheetId] = useState<string>("");
   const [sheetUrl, setSheetUrl] = useState<string>("");
   const [isExporting, setIsExporting] = useState(false);
-  const [sheetCandidates, setSheetCandidates] = useState<any[]>([...MOCK_CANDIDATES]);
   const [isImporting, setIsImporting] = useState(false);
   const [importSheetId, setImportSheetId] = useState("");
   const [importPreviewData, setImportPreviewData] = useState<any[] | null>(null);
@@ -62,9 +63,9 @@ export function WorkspaceHub() {
 
     setIsExporting(true);
     const serviceName = "Google Sheets";
-    const title = `OmniRecruit - Exportación de Candidatos (${new Date().toLocaleDateString()})`;
+    const title = `RHDreams - Exportación de Candidatos (${new Date().toLocaleDateString()})`;
 
-    addLog(serviceName, `Iniciando proceso de exportación para ${MOCK_CANDIDATES.length} candidatos...`, "info");
+    addLog(serviceName, `Iniciando proceso de exportación para ${candidates.length} candidatos...`, "info");
 
     const payloadCreate = { properties: { title } };
     
@@ -87,7 +88,7 @@ export function WorkspaceHub() {
 
         // Set headers and row values
         const headers = ["ID", "Nombre", "Email", "Teléfono", "Puesto", "Fase", "Fuente", "Calificación", "Notas"];
-        const rows = MOCK_CANDIDATES.map(c => [
+        const rows = candidates.map(c => [
           c.id, c.name, c.email, c.phone, c.role, c.stage, c.source, c.rating, c.notes || ""
         ]);
         const bodyValues = {
@@ -111,28 +112,13 @@ export function WorkspaceHub() {
         triggerEvent("Exportación completada", "Se ha creado una nueva hoja de Google Sheets con tus candidatos.");
       } catch (err: any) {
         console.error(err);
-        addLog(serviceName, `Error de exportación: ${err.message}. Continuando en modo simulación...`, "warning");
-        simulateExportSheets(payloadCreate);
+        addLog(serviceName, `Error de exportación: ${err.message}. No se creó ningún archivo.`, "error");
+        setIsExporting(false);
       }
     } else {
-      simulateExportSheets(payloadCreate);
-    }
-  };
-
-  const simulateExportSheets = (payloadCreate: any) => {
-    setTimeout(() => {
-      const generatedId = `1sH_SheetMock_${Math.floor(Math.random() * 10000000)}`;
-      const generatedUrl = `https://docs.google.com/spreadsheets/d/${generatedId}/edit`;
-      setSheetId(generatedId);
-      setSheetUrl(generatedUrl);
+      addLog(serviceName, "Conecta Google Workspace para exportar candidatos reales a Sheets.", "warning", payloadCreate);
       setIsExporting(false);
-      addLog("Google Sheets", `[MOCK] Documento de Google Sheets creado y sincronizado con éxito.`, "success", payloadCreate, {
-        spreadsheetId: generatedId,
-        spreadsheetUrl: generatedUrl,
-        updatedRows: MOCK_CANDIDATES.length + 1
-      });
-      triggerEvent("Exportación (Simulada)", "Se ha simulado la exportación exitosa de candidatos a Google Sheets.");
-    }, 1500);
+    }
   };
 
   const handleFetchImportPreview = async () => {
@@ -167,52 +153,35 @@ export function WorkspaceHub() {
           throw new Error("El archivo no tiene filas de datos legibles.");
         }
       } catch (err: any) {
-        addLog("Google Sheets", `Error de importación real: ${err.message}. Usando simulación interactiva.`, "warning");
-        simulateImportSheets();
+        addLog("Google Sheets", `Error de importación real: ${err.message}.`, "error");
+        setIsImporting(false);
       }
     } else {
-      simulateImportSheets();
+      addLog("Google Sheets", "Conecta Google Workspace para leer datos reales de Sheets.", "warning");
+      setIsImporting(false);
     }
   };
 
-  const simulateImportSheets = () => {
-    setTimeout(() => {
-      const mockImportData = [
-        {
-          id: `imported-${Date.now()}-1`,
-          name: "Daniela Torres",
-          email: "daniela.torres@gmail.com",
-          phone: "+52 55 4433 2211",
-          role: "SRE Cloud Engineer",
-          stage: "Nuevo",
-          source: "Google Sheets",
-          rating: 5,
-          location: "Bogotá, CO",
-          notes: "Fuerte perfil kubernetes y terraform. Encontrada en Sheets sincronizados."
-        },
-        {
-          id: `imported-${Date.now()}-2`,
-          name: "Lucas Romero",
-          email: "lucas.romero@gmail.com",
-          phone: "+34 609 999 888",
-          role: "Java Backend Tech Lead",
-          stage: "Contactado",
-          source: "Google Sheets",
-          rating: 4,
-          location: "Sevilla, ES",
-          notes: "Importado para proceso de banca. Spring Boot y microservicios."
-        }
-      ];
-      setImportPreviewData(mockImportData);
-      setIsImporting(false);
-      addLog("Google Sheets", `[MOCK] Recuperadas 2 filas del Spreadsheet de prueba. Listo para confirmar.`, "success");
-    }, 1200);
-  };
-
-  const confirmImport = () => {
+  const confirmImport = async () => {
     if (!importPreviewData) return;
-    MOCK_CANDIDATES.push(...importPreviewData);
-    addLog("Google Sheets", `Sincronizados e insertados ${importPreviewData.length} candidatos nuevos en la base de datos local.`, "success");
+    for (const candidate of importPreviewData) {
+      await addCandidate({
+        name: candidate.name || "",
+        email: candidate.email || "",
+        phone: candidate.phone || "",
+        role: candidate.role || "",
+        stage: candidate.stage || "Nuevo",
+        source: candidate.source || "Google Sheets",
+        rating: Number(candidate.rating || 0),
+        location: candidate.location || "",
+        pool: candidate.pool || "",
+        experience: candidate.experience || "",
+        salaryDemand: candidate.salaryDemand || "",
+        cvUrl: candidate.cvUrl || "",
+        notes: candidate.notes || "",
+      });
+    }
+    addLog("Google Sheets", `Sincronizados ${importPreviewData.length} candidatos reales en Firestore.`, "success");
     triggerEvent("Candidatos Importados", `Se han añadido ${importPreviewData.length} candidatos desde Google Sheets.`);
     setImportPreviewData(null);
     setImportSheetId("");
@@ -221,35 +190,29 @@ export function WorkspaceHub() {
   // ----------------------------------------------------
   // 2. STATE & METHODS: GOOGLE CALENDAR
   // ----------------------------------------------------
-  const [calendarEvents, setCalendarEvents] = useState<any[]>([
-    {
-      id: "cal-e1",
-      summary: "Entrevista Inicial - Sofía Delgado",
-      description: "Screening inicial técnico con Sofía Delgado y el Agente de Reclutamiento AI",
-      start: { dateTime: "2026-06-02T10:00:00-06:00" },
-      end: { dateTime: "2026-06-02T10:30:00-06:00" },
-      hangoutLink: "https://meet.google.com/abc-defg-hij",
-      status: "confirmed"
-    }
-  ]);
+  const [calendarEvents, setCalendarEvents] = useState<any[]>([]);
 
   const [interviewForm, setInterviewForm] = useState({
     candidateId: "",
-    interviewerName: "Reclutador Principal",
-    date: "2026-06-05",
-    time: "11:00",
+    interviewerName: "",
+    date: "",
+    time: "",
     lengthMinutes: "45",
     generateMeet: true,
-    description: "Evaluación conversación de perfil y competencias blandas."
+    description: ""
   });
 
   const [isScheduling, setIsScheduling] = useState(false);
 
   const handleScheduleInterview = async (e: React.FormEvent) => {
     e.preventDefault();
-    const candidate = MOCK_CANDIDATES.find(c => c.id === interviewForm.candidateId);
+    const candidate = candidates.find(c => c.id === interviewForm.candidateId);
     if (!candidate) {
       alert("Selecciona un candidato válido.");
+      return;
+    }
+    if (!isLoggedInWithGoogle || !accessToken) {
+      addLog("Google Calendar", "Conecta Google Workspace para crear eventos reales en Calendar.", "warning");
       return;
     }
 
@@ -306,7 +269,7 @@ export function WorkspaceHub() {
           description: resData.description,
           start: resData.start,
           end: resData.end,
-          hangoutLink: resData.hangoutLink || "https://meet.google.com/meet-simulado-real",
+          hangoutLink: resData.hangoutLink || "",
           status: "confirmed"
         };
 
@@ -314,31 +277,10 @@ export function WorkspaceHub() {
         addLog(serviceName, `¡Cita agendada con éxito en Google Calendar! Enlace Meet: ${createdEvent.hangoutLink}`, "success", newEventPayload, resData);
         triggerEvent("Cita confirmada", `Entrevista agendada con ${candidate.name} para ${interviewForm.date}`);
       } catch (err: any) {
-        addLog(serviceName, `Error de Calendar API: ${err.message}. Entrando en modo simulado...`, "warning");
-        simulateCalendarEvent(summary, description, startIso, endIso);
+        addLog(serviceName, `Error de Calendar API: ${err.message}. No se creó ningún evento.`, "error");
+        setIsScheduling(false);
       }
-    } else {
-      simulateCalendarEvent(summary, description, startIso, endIso);
     }
-  };
-
-  const simulateCalendarEvent = (summary: string, description: string, startIso: string, endIso: string) => {
-    setTimeout(() => {
-      const simulatedMeet = `https://meet.google.com/mt-${Math.floor(100 + Math.random() * 900)}-${Math.floor(100 + Math.random() * 900)}-${Math.floor(100 + Math.random() * 900)}`;
-      const newEvent = {
-        id: `event-${Date.now()}`,
-        summary,
-        description,
-        start: { dateTime: startIso },
-        end: { dateTime: endIso },
-        hangoutLink: simulatedMeet,
-        status: "confirmed"
-      };
-      setCalendarEvents([newEvent, ...calendarEvents]);
-      setIsScheduling(false);
-      addLog("Google Calendar", `[MOCK] Evento creado exitosamente en tu calendario de Google.`, "success", null, newEvent);
-      triggerEvent("Cita agendada (Simulada)", `Entrevista agendada con éxito.`);
-    }, 1000);
   };
 
   // ----------------------------------------------------
@@ -346,21 +288,21 @@ export function WorkspaceHub() {
   // ----------------------------------------------------
   const [gmailForm, setGmailForm] = useState({
     candidateEmail: "",
-    subject: "Invitación para Entrevista - OmniRecruit AI",
+    subject: "",
     template: "invite",
-    body: "Hola,\n\nNos encantaría invitarte a una entrevista de seguimiento técnica de 30 minutos sobre tu postulación a nuestra oferta de empleo activa.\n\nPor favor indícanos tus disponibilidades horarias de la semana.\n\nSaludos cordiales,\nEquipo de Reclutamiento"
+    body: ""
   });
 
   const [isSendingEmail, setIsSendingEmail] = useState(false);
 
   const handleTemplateChange = (tmpl: string) => {
-    const candidate = MOCK_CANDIDATES.find(c => c.email === gmailForm.candidateEmail) || { name: "[Nombre]" };
+    const candidate = candidates.find(c => c.email === gmailForm.candidateEmail) || { name: "[Nombre]" };
     let subj = "Actualización de Postulación";
     let bdy = "";
 
     if (tmpl === 'invite') {
       subj = `Invitación a Entrevista - ${candidate.name}`;
-      bdy = `Hola ${candidate.name},\n\nGracias por tu interés en OmniRecruit. Tu perfil ha sido seleccionado por nuestro Agente conversacional para la siguiente fase.\n\nQueremos agendar una videollamada para repasar tu experiencia técnica.\n\nSaludos cordiales,\nRecursos Humanos`;
+      bdy = `Hola ${candidate.name},\n\nGracias por tu interés. Queremos agendar una conversación para revisar tu experiencia y resolver dudas sobre el proceso.\n\nSaludos cordiales,\nRecursos Humanos`;
     } else if (tmpl === 'offer') {
       subj = `Propuesta de Oferta Laboral - ${candidate.name}`;
       bdy = `Hola ${candidate.name},\n\n¡Felicidades! Fue un gusto entrevistarte. Tenemos el agrado de proponerte una oferta formal de empleo para unirte a nuestro equipo.\n\nToda la información detallada está en el documento adjunto de Google Drive.\n\nAtentamente,\nDirección de Operaciones`;
@@ -376,6 +318,10 @@ export function WorkspaceHub() {
     e.preventDefault();
     if (!gmailForm.candidateEmail) {
       alert("Selecciona un correo destinatario.");
+      return;
+    }
+    if (!isLoggedInWithGoogle || !accessToken) {
+      addLog("Gmail API", "Conecta Google Workspace para enviar correos reales desde Gmail.", "warning");
       return;
     }
 
@@ -420,24 +366,10 @@ export function WorkspaceHub() {
         triggerEvent("Gmail Enviado", `Correo enviado con éxito a ${gmailForm.candidateEmail}`);
         setIsSendingEmail(false);
       } catch (err: any) {
-        addLog(serviceName, `Error de Gmail API: ${err.message}. Entrando en simulación...`, "warning");
-        simulateSendGmail(payload);
+        addLog(serviceName, `Error de Gmail API: ${err.message}. No se envió ningún correo.`, "error");
+        setIsSendingEmail(false);
       }
-    } else {
-      simulateSendGmail(payload);
     }
-  };
-
-  const simulateSendGmail = (payload: any) => {
-    setTimeout(() => {
-      setIsSendingEmail(false);
-      addLog("Gmail API", `[MOCK] Correo electrónico enviado y colocado en la bandeja de enviados de Gmail con éxito.`, "success", payload, {
-        id: `msg-${Date.now()}`,
-        threadId: `thread-${Date.now()}`,
-        labelIds: ["SENT"]
-      });
-      triggerEvent("Gmail Enviado (Simulado)", `Correo entregado con éxito.`);
-    }, 1200);
   };
 
   // ----------------------------------------------------
@@ -446,12 +378,7 @@ export function WorkspaceHub() {
   const [formId, setFormId] = useState<string>("");
   const [isLinkingForm, setIsLinkingForm] = useState(false);
   const [isSyncingResponses, setIsSyncingResponses] = useState(false);
-  const [connectedForm, setConnectedForm] = useState<any | null>({
-    id: "1FAIpQLSfD-T1Form_MockResponse_OmniRecruit",
-    title: "Postulación para Ofertas de Empleo (General)",
-    responderCount: 14,
-    publishedUrl: "https://docs.google.com/forms/d/e/1FAIpQLSfD-T1Form_MockResponse_OmniRecruit/viewform"
-  });
+  const [connectedForm, setConnectedForm] = useState<any | null>(null);
 
   const handleLinkGoogleForm = async () => {
     if (!formId) return;
@@ -475,26 +402,13 @@ export function WorkspaceHub() {
         addLog("Google Forms", `¡Formulario de Google vinculado correctamente! Título: ${data.info?.title}`, "success", null, data);
         triggerEvent("Formulario Vinculado", "Sincronización de Forms activada correctamente.");
       } catch (err: any) {
-        addLog("Google Forms", `Error de Forms API: ${err.message}. Usando opción simulada.`, "warning");
-        simulateLinkGoogleForm();
+        addLog("Google Forms", `Error de Forms API: ${err.message}.`, "error");
+        setIsLinkingForm(false);
       }
     } else {
-      simulateLinkGoogleForm();
-    }
-  };
-
-  const simulateLinkGoogleForm = () => {
-    setTimeout(() => {
-      setConnectedForm({
-        id: formId,
-        title: "Registro de Talento y Habilidades - OmniRecruit 2026",
-        responderCount: 8,
-        publishedUrl: `https://docs.google.com/forms/d/e/${formId}/viewform`
-      });
+      addLog("Google Forms", "Conecta Google Workspace para vincular formularios reales.", "warning");
       setIsLinkingForm(false);
-      addLog("Google Forms", `[MOCK] Formulario de Google vinculado exitosamente en segundo plano.`, "success");
-      triggerEvent("Formulario Vinculado (Simulado)", "Sincronización configurada.");
-    }, 1200);
+    }
   };
 
   const handleSyncFormResponses = async () => {
@@ -513,69 +427,73 @@ export function WorkspaceHub() {
         addLog("Google Forms", `¡Respuestas sincronizadas! Encontradas ${data.responses?.length || 0} postulaciones nuevas.`, "success", null, data);
         setIsSyncingResponses(false);
       } catch (err: any) {
-        addLog("Google Forms", `Error al leer respuestas reales: ${err.message}. Simulando ingesta de respuestas...`, "warning");
-        simulateSyncFormResponses();
+        addLog("Google Forms", `Error al leer respuestas reales: ${err.message}.`, "error");
+        setIsSyncingResponses(false);
       }
     } else {
-      simulateSyncFormResponses();
+      addLog("Google Forms", "Conecta Google Workspace para sincronizar respuestas reales.", "warning");
+      setIsSyncingResponses(false);
     }
   };
 
-  const simulateSyncFormResponses = () => {
-    setTimeout(() => {
-      setIsSyncingResponses(false);
-      const randomNewCandidate = {
-        id: `form-${Date.now()}`,
-        name: "Gerardo Medina",
-        email: "gerardo.medina@icloud.com",
-        phone: "+52 81 2233 4455",
-        role: "DevOps Engineer Sr",
-        stage: "Nuevo",
-        source: "Google Forms",
-        rating: 4,
-        location: "Monterrey, MX",
-        notes: "Postulado vía Formulario de Google de Registro de Talento. Experiencia en AWS, Ansible y Docker."
-      };
-      
-      MOCK_CANDIDATES.unshift(randomNewCandidate);
-      
-      setConnectedForm((prev: any) => ({ ...prev, responderCount: prev.responderCount + 1 }));
-      addLog("Google Forms", `[MOCK] ¡Nueva postulación detectada! Gerardo Medina (DevOps Engineer Sr) ha sido incorporado al CRM de Candidatos.`, "success");
-      triggerEvent("Sincronización Forms", "1 nuevo candidato registrado automáticamente.");
-    }, 1500);
-  };
-
-  const handleCreateNewForm = () => {
-    const title = "Postulación Directa - OmniRecruit AI";
+  const handleCreateNewForm = async () => {
+    const title = "Postulación Directa - RHDreams";
     addLog("Google Forms", `Creando nuevo formulario en Google Drive titulado "${title}"...`, "info");
-    
-    setTimeout(() => {
-      const gFormId = `1FAIpQLSfForm_${Math.floor(Math.random() * 1000000)}`;
-      setFormId(gFormId);
+
+    if (!isLoggedInWithGoogle || !accessToken) {
+      addLog("Google Forms", "Conecta Google Workspace para crear formularios reales.", "warning");
+      return;
+    }
+
+    try {
+      const res = await fetch("https://forms.googleapis.com/v1/forms", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ info: { title } }),
+      });
+      if (!res.ok) throw new Error("No se pudo crear el formulario.");
+      const data = await res.json();
+      const gFormId = data.formId;
       setConnectedForm({
         id: gFormId,
-        title,
+        title: data.info?.title || title,
         responderCount: 0,
-        publishedUrl: `https://docs.google.com/forms/d/e/${gFormId}/viewform`
+        publishedUrl: data.responderUri || `https://docs.google.com/forms/d/${gFormId}/edit`
       });
-      addLog("Google Forms", `¡Formulario de Google generado y asignado correctamente!`, "success", { title }, { formId: gFormId, status: "created" });
+      setFormId(gFormId);
+      addLog("Google Forms", `¡Formulario de Google generado y asignado correctamente!`, "success", { title }, data);
       triggerEvent("Formulario Creado", "Se ha creado el formulario en Google Drive.");
-    }, 1000);
+    } catch (err: any) {
+      addLog("Google Forms", `Error creando formulario: ${err.message}`, "error");
+    }
   };
 
   // ----------------------------------------------------
   // 5. STATE & METHODS: GOOGLE PICKER / DRIVE FILES
   // ----------------------------------------------------
-  const [driveFiles, setDriveFiles] = useState<any[]>([
-    { id: "dr-1", name: "Guía de Reclutamiento Tech.pdf", mimeType: "application/pdf", webViewLink: "#", size: "1.4 MB" },
-    { id: "dr-2", name: "Plantilla Contratos de Trabajo 2026.docx", mimeType: "application/vnd.google-apps.document", webViewLink: "#", size: "260 KB" },
-    { id: "dr-3", name: "Presupuesto anual RH.xlsx", mimeType: "application/vnd.google-apps.spreadsheet", webViewLink: "#", size: "940 KB" },
-    { id: "dr-4", name: "Vídeo Onboarding Candidatos.mp4", mimeType: "video/mp4", webViewLink: "#", size: "15.4 MB" }
-  ]);
+  const [driveFiles, setDriveFiles] = useState<any[]>([]);
 
   const [searchDrive, setSearchDrive] = useState("");
+  const [driveTypeFilter, setDriveTypeFilter] = useState<'all' | 'pdf' | 'image' | 'docs'>('all');
   const [selectedDriveFile, setSelectedDriveFile] = useState<any | null>(null);
   const [isFetchingDrive, setIsFetchingDrive] = useState(false);
+
+  const isImageMime = (mimeType: string) => mimeType?.startsWith("image/");
+  const isPdfMime = (mimeType: string) => mimeType?.includes("pdf");
+
+  const filteredDriveFiles = driveFiles.filter(file => {
+    const matchesText = file.name.toLowerCase().includes(searchDrive.toLowerCase());
+    const matchesType =
+      driveTypeFilter === 'all' ||
+      (driveTypeFilter === 'pdf' && isPdfMime(file.mimeType)) ||
+      (driveTypeFilter === 'image' && isImageMime(file.mimeType)) ||
+      (driveTypeFilter === 'docs' && !isPdfMime(file.mimeType) && !isImageMime(file.mimeType));
+
+    return matchesText && matchesType;
+  });
 
   const fetchRealDriveFiles = async () => {
     setIsFetchingDrive(true);
@@ -583,8 +501,9 @@ export function WorkspaceHub() {
 
     if (isLoggedInWithGoogle && accessToken) {
       try {
-        const query = encodeURIComponent("mimeType != 'application/vnd.google-apps.folder'");
-        const res = await fetch(`https://www.googleapis.com/drive/v3/files?q=${query}&fields=files(id,name,mimeType,webViewLink,size)`, {
+        const query = encodeURIComponent("mimeType != 'application/vnd.google-apps.folder' and trashed = false");
+        const fields = "files(id,name,mimeType,webViewLink,webContentLink,thumbnailLink,iconLink,size,modifiedTime)";
+        const res = await fetch(`https://www.googleapis.com/drive/v3/files?q=${query}&pageSize=50&fields=${fields}`, {
           headers: { "Authorization": `Bearer ${accessToken}` }
         });
         if (!res.ok) throw new Error("Error leyendo archivos de Google Drive");
@@ -596,27 +515,31 @@ export function WorkspaceHub() {
             name: file.name,
             mimeType: file.mimeType,
             webViewLink: file.webViewLink || "#",
+            webContentLink: file.webContentLink || null,
+            thumbnailLink: file.thumbnailLink || file.iconLink || null,
+            modifiedTime: file.modifiedTime || null,
             size: file.size ? `${(parseInt(file.size) / (1024 * 1024)).toFixed(1)} MB` : "N/D"
           }));
           setDriveFiles(formattedFiles);
           addLog("Google Drive", `Recuperados con éxito ${formattedFiles.length} archivos mediante el explorador seguro de Google Drive/Picker.`, "success", null, data);
         }
       } catch (err: any) {
-        addLog("Google Drive", `Error de Drive API: ${err.message}. Volviendo a lista simulada.`, "warning");
+        addLog("Google Drive", `Error de Drive API: ${err.message}.`, "error");
       } finally {
         setIsFetchingDrive(false);
       }
     } else {
-      setTimeout(() => {
-        setIsFetchingDrive(false);
-        addLog("Google Drive", "[MOCK] Visualizador de archivos de Google Drive inicializado en simulación.", "info");
-      }, 800);
+      setIsFetchingDrive(false);
+      addLog("Google Drive", "Conecta Google Workspace para leer archivos reales de Drive.", "warning");
     }
   };
 
   useEffect(() => {
     if (activeTab === 'picker') {
       fetchRealDriveFiles();
+    }
+    if (activeTab === 'photos') {
+      fetchGooglePhotos();
     }
   }, [activeTab]);
 
@@ -627,28 +550,90 @@ export function WorkspaceHub() {
   };
 
   // ----------------------------------------------------
-  // 6. STATE & METHODS: GOOGLE KEEP
+  // 6. STATE & METHODS: GOOGLE PHOTOS
   // ----------------------------------------------------
-  const [keepNotes, setKeepNotes] = useState<any[]>([
-    { id: "note-1", title: "Preguntas Screening Desarrolladores", content: "- ¿Experiencia con Typescript?\n- ¿Manejo de estado en React (Zustand)?\n- ¿Principio SOLID y patrones?", color: "yellow", updated: "Hace 1 hora" },
-    { id: "note-2", title: "Recordatorio Ofertas SRE", content: "Sincronizar el presupuesto aprobado de Sheets para la vacante de Daniela antes del viernes.", color: "rose", updated: "Hace 2 horas" },
-    { id: "note-3", title: "Checklist de Onboarding General", content: "[x] Crear correo corporativo\n[x] Enviar carta oferta firmada por Gmail\n[ ] Agendar bienvenida en Calendario", color: "purple", updated: "Hace un día" }
-  ]);
+  const [googlePhotos, setGooglePhotos] = useState<any[]>([]);
+  const [selectedPhoto, setSelectedPhoto] = useState<any | null>(null);
+  const [isFetchingPhotos, setIsFetchingPhotos] = useState(false);
+
+  const fetchGooglePhotos = async () => {
+    setIsFetchingPhotos(true);
+    addLog("Google Photos", "Leyendo imagenes y fotos autorizadas desde Google Photos...", "info");
+
+    if (isLoggedInWithGoogle && accessToken) {
+      try {
+        const res = await fetch("https://photoslibrary.googleapis.com/v1/mediaItems?pageSize=25", {
+          headers: { "Authorization": `Bearer ${accessToken}` },
+        });
+
+        if (!res.ok) throw new Error("Error leyendo Google Photos. Revisa que Photos Library API este habilitada.");
+        const data = await res.json();
+        const formattedPhotos = (data.mediaItems || []).map((photo: any) => ({
+          id: photo.id,
+          filename: photo.filename,
+          mimeType: photo.mimeType,
+          baseUrl: photo.baseUrl,
+          productUrl: photo.productUrl,
+          mediaMetadata: photo.mediaMetadata,
+        }));
+
+        setGooglePhotos(formattedPhotos);
+        addLog("Google Photos", `Recuperadas ${formattedPhotos.length} fotos autorizadas.`, "success", null, data);
+      } catch (err: any) {
+        addLog("Google Photos", `Error de Photos API: ${err.message}.`, "error");
+      } finally {
+        setIsFetchingPhotos(false);
+      }
+    } else {
+      setIsFetchingPhotos(false);
+      addLog("Google Photos", "Conecta Google Workspace para leer fotos autorizadas reales.", "warning");
+    }
+  };
+
+  const getPhotoPreviewUrl = (photo: any, size = "w420-h260") => {
+    if (!photo?.baseUrl) return "";
+    return photo.baseUrl.includes("googleusercontent")
+      ? `${photo.baseUrl}=${size}`
+      : `${photo.baseUrl}?w=420&h=260&fit=crop`;
+  };
+
+  // ----------------------------------------------------
+  // 7. STATE & METHODS: GOOGLE KEEP
+  // ----------------------------------------------------
+  const [keepNotes, setKeepNotes] = useState<any[]>([]);
 
   const [newKeepNote, setNewKeepNote] = useState({ title: "", content: "", color: "yellow" });
   const [isCreatingNote, setIsCreatingNote] = useState(false);
 
-  const handleCreateKeepNote = (e: React.FormEvent) => {
+  const handleCreateKeepNote = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newKeepNote.title && !newKeepNote.content) return;
+    if (!isLoggedInWithGoogle || !accessToken) {
+      addLog("Google Keep", "Conecta Google Workspace para crear notas reales en Keep.", "warning");
+      return;
+    }
 
     setIsCreatingNote(true);
     addLog("Google Keep", `Publicando nota en Google Keep con título: "${newKeepNote.title}"...`, "info");
 
-    setTimeout(() => {
+    try {
+      const payload = {
+        title: newKeepNote.title || "Nota de reclutamiento",
+        body: { text: { text: newKeepNote.content } },
+      };
+      const res = await fetch("https://keep.googleapis.com/v1/notes", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) throw new Error("No se pudo crear la nota en Google Keep.");
+      const data = await res.json();
       const added = {
-        id: `note-${Date.now()}`,
-        title: newKeepNote.title || "Nota de Reclutamiento",
+        id: data.name || `note-${Date.now()}`,
+        title: data.title || newKeepNote.title || "Nota de reclutamiento",
         content: newKeepNote.content,
         color: newKeepNote.color,
         updated: "Justo ahora"
@@ -658,9 +643,12 @@ export function WorkspaceHub() {
       setNewKeepNote({ title: "", content: "", color: "yellow" });
       setIsCreatingNote(false);
       
-      addLog("Google Keep", `[MOCK] Nota sincronizada exitosamente en tu Google Keep dashboard.`, "success", added, { status: "SUCCESS", cloudId: `keep-${Date.now()}` });
+      addLog("Google Keep", "Nota creada correctamente en Google Keep.", "success", payload, data);
       triggerEvent("Nota creada", "Nota añadida en Google Keep.");
-    }, 600);
+    } catch (err: any) {
+      setIsCreatingNote(false);
+      addLog("Google Keep", `Error creando nota: ${err.message}`, "error");
+    }
   };
 
   const handleRemoveNote = (id: string, name: string) => {
@@ -682,7 +670,14 @@ export function WorkspaceHub() {
             <Sparkles className="w-6 h-6 text-cyan-400 drop-shadow-[0_0_10px_rgba(34,211,238,0.5)]" />
             Integración Google Workspace
           </h1>
-          <p className="text-slate-400 text-sm">Centraliza tus hojas de Sheets, citas de Calendario, avisos de Gmail, formularios, Picker y Keep de Reclutamiento.</p>
+          <p className="text-slate-400 text-sm">Centraliza Sheets, Calendar, Gmail, Forms, Drive, Photos y Keep de Reclutamiento.</p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            {GOOGLE_WORKSPACE_CAPABILITIES.slice(0, 4).map((capability) => (
+              <span key={capability} className="text-[10px] px-2 py-1 rounded-lg bg-slate-950/60 border border-white/5 text-slate-400">
+                {capability}
+              </span>
+            ))}
+          </div>
         </div>
 
         {/* OAuth Integration Status Banner */}
@@ -690,7 +685,7 @@ export function WorkspaceHub() {
           <div className="flex flex-col text-right">
             <span className="text-xs text-slate-450 font-bold uppercase tracking-wider">Estado de Conexión</span>
             <span className={cn("text-xs font-semibold", isLoggedInWithGoogle ? "text-emerald-400" : "text-amber-400")}>
-              {isLoggedInWithGoogle ? "✓ Autenticado con Google" : "ⓘ Corriendo en Modo Demo/Local"}
+              {isLoggedInWithGoogle ? "✓ Autenticado con Google" : "Conexión requerida"}
             </span>
           </div>
           {!isLoggedInWithGoogle ? (
@@ -727,7 +722,8 @@ export function WorkspaceHub() {
             { id: "calendar", name: "Google Calendar", desc: "Agendar entrevistas", icon: CalendarIcon, color: "text-blue-400 hover:bg-blue-500/5", activeBg: "bg-blue-500/10 border-blue-500/30 text-blue-300" },
             { id: "gmail", name: "Gmail", desc: "Comunicaciones", icon: Mail, color: "text-red-400 hover:bg-red-500/5", activeBg: "bg-red-500/10 border-red-500/30 text-red-300" },
             { id: "forms", name: "Google Forms", desc: "Postulantes nuevos", icon: FormInput, color: "text-purple-400 hover:bg-purple-500/5", activeBg: "bg-purple-500/10 border-purple-500/30 text-purple-300" },
-            { id: "picker", name: "Google Drive Picker", desc: "Sourcing de archivos CV", icon: FolderOpen, color: "text-amber-400 hover:bg-amber-500/5", activeBg: "bg-amber-500/10 border-amber-500/30 text-amber-300" },
+            { id: "picker", name: "Google Drive Picker", desc: "PDFs, imagenes y CVs", icon: FolderOpen, color: "text-amber-400 hover:bg-amber-500/5", activeBg: "bg-amber-500/10 border-amber-500/30 text-amber-300" },
+            { id: "photos", name: "Google Photos", desc: "Fotos autorizadas", icon: ImageIcon, color: "text-pink-400 hover:bg-pink-500/5", activeBg: "bg-pink-500/10 border-pink-500/30 text-pink-300" },
             { id: "keep", name: "Google Keep", desc: "Apuntes y notas rápidas", icon: StickyNote, color: "text-yellow-400 hover:bg-yellow-500/5", activeBg: "bg-yellow-500/10 border-yellow-500/30 text-yellow-300" }
           ].map(tool => (
             <button
@@ -756,7 +752,7 @@ export function WorkspaceHub() {
             <div className="grid grid-cols-2 gap-4">
               <div className="bg-slate-950 p-2.5 rounded-lg border border-white/5">
                 <div className="text-[10px] text-slate-500">Candidatos</div>
-                <div className="text-lg font-bold text-white">{MOCK_CANDIDATES.length}</div>
+                <div className="text-lg font-bold text-white">{candidates.length}</div>
               </div>
               <div className="bg-slate-950 p-2.5 rounded-lg border border-white/5">
                 <div className="text-[10px] text-slate-500">Eventos</div>
@@ -878,7 +874,7 @@ export function WorkspaceHub() {
               <div className="space-y-3">
                 <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest block">Últimos candidatos en cola</span>
                 <div className="space-y-2">
-                  {MOCK_CANDIDATES.slice(0, 3).map(cand => (
+                  {candidates.slice(0, 3).map(cand => (
                     <div key={cand.id} className="flex justify-between items-center bg-slate-950/40 p-3 rounded-xl border border-white/5 text-xs">
                       <div>
                         <div className="font-bold text-slate-200">{cand.name}</div>
@@ -919,7 +915,7 @@ export function WorkspaceHub() {
                       required
                     >
                       <option value="">Selecciona un candidato...</option>
-                      {MOCK_CANDIDATES.map(c => (
+                      {candidates.map(c => (
                         <option key={c.id} value={c.id}>{c.name} ({c.role})</option>
                       ))}
                     </select>
@@ -1060,7 +1056,7 @@ export function WorkspaceHub() {
                     required
                   >
                     <option value="">Selecciona el correo del candidato...</option>
-                    {MOCK_CANDIDATES.map(c => (
+                    {candidates.map(c => (
                       <option key={c.id} value={c.email}>{c.name} ({c.email})</option>
                     ))}
                   </select>
@@ -1240,15 +1236,38 @@ export function WorkspaceHub() {
                 </button>
               </div>
 
+              <div className="flex flex-wrap gap-2">
+                {[
+                  { id: "all", label: "Todos" },
+                  { id: "pdf", label: "PDF" },
+                  { id: "image", label: "Imagenes" },
+                  { id: "docs", label: "Docs" },
+                ].map((filter) => (
+                  <button
+                    key={filter.id}
+                    onClick={() => setDriveTypeFilter(filter.id as any)}
+                    className={cn(
+                      "px-3 py-1.5 rounded-lg text-[11px] font-bold border transition-all",
+                      driveTypeFilter === filter.id
+                        ? "bg-amber-500/15 text-amber-300 border-amber-500/30"
+                        : "bg-slate-950 text-slate-400 border-white/5 hover:text-white"
+                    )}
+                  >
+                    {filter.label}
+                  </button>
+                ))}
+              </div>
+
               {/* File list */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-[300px] overflow-y-auto pr-1">
-                {driveFiles
-                  .filter(file => file.name.toLowerCase().includes(searchDrive.toLowerCase()))
+                {filteredDriveFiles
                   .map(file => {
                     const isSelected = selectedDriveFile?.id === file.id;
                     const isDoc = file.mimeType.includes("document");
                     const isSheet = file.mimeType.includes("spreadsheet");
                     const isPdf = file.mimeType.includes("pdf");
+                    const isImage = file.mimeType.startsWith("image/");
+                    const FileIcon = isPdf ? FileText : isImage ? ImageIcon : FolderOpen;
 
                     return (
                       <div
@@ -1266,13 +1285,15 @@ export function WorkspaceHub() {
                           isDoc ? "bg-blue-500/10 text-blue-400 border-blue-500/20" :
                           isSheet ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" :
                           isPdf ? "bg-red-500/10 text-red-400 border-red-500/20" :
+                          isImage ? "bg-pink-500/10 text-pink-400 border-pink-500/20" :
                           "bg-amber-500/10 text-amber-400 border-amber-500/20"
                         )}>
-                          <FolderOpen className="w-3.5 h-3.5" />
+                          <FileIcon className="w-3.5 h-3.5" />
                         </div>
                         <div className="flex-1 overflow-hidden">
                           <div className="font-bold text-xs text-slate-200 truncate pr-4">{file.name}</div>
                           <div className="text-[10px] text-slate-500 mt-0.5">{file.size}</div>
+                          <div className="text-[9px] text-slate-600 truncate mt-1">{file.mimeType}</div>
                         </div>
                         {isSelected && (
                           <div className="bg-amber-550 p-0.5 rounded-full text-slate-900">
@@ -1286,23 +1307,118 @@ export function WorkspaceHub() {
 
               {/* Selected File Details Box */}
               {selectedDriveFile && (
-                <div className="bg-amber-500/10 border border-amber-500/25 p-4 rounded-xl flex items-center justify-between gap-3 animate-in fade-in duration-200">
-                  <div>
+                <div className="bg-amber-500/10 border border-amber-500/25 p-4 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 animate-in fade-in duration-200">
+                  <div className="flex items-center gap-3 min-w-0">
+                    {selectedDriveFile.thumbnailLink && (
+                      <img
+                        src={selectedDriveFile.thumbnailLink}
+                        alt={selectedDriveFile.name}
+                        className="w-16 h-12 rounded-lg object-cover border border-white/10"
+                      />
+                    )}
+                    <div className="min-w-0">
                     <span className="text-[9px] font-bold text-amber-400 uppercase tracking-widest block">Archivo Enlazado</span>
                     <span className="text-xs font-bold text-white truncate max-w-xs">{selectedDriveFile.name}</span>
+                    </div>
                   </div>
-                  <button
-                    onClick={() => setSelectedDriveFile(null)}
-                    className="text-xs text-slate-400 hover:text-white"
-                  >
-                    Desvincular
-                  </button>
+                  <div className="flex items-center gap-2">
+                    {selectedDriveFile.webViewLink && selectedDriveFile.webViewLink !== "#" && (
+                      <a
+                        href={selectedDriveFile.webViewLink}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-xs text-amber-300 hover:text-white flex items-center gap-1"
+                      >
+                        Abrir <ExternalLink className="w-3 h-3" />
+                      </a>
+                    )}
+                    <button
+                      onClick={() => setSelectedDriveFile(null)}
+                      className="text-xs text-slate-400 hover:text-white"
+                    >
+                      Desvincular
+                    </button>
+                  </div>
                 </div>
               )}
             </div>
           )}
 
-          {/* Tab 6: Google Keep */}
+          {/* Tab 6: Google Photos */}
+          {activeTab === 'photos' && (
+            <div className="glass-panel p-6 rounded-2xl border border-white/5 flex flex-col gap-6">
+              <div className="flex justify-between items-start">
+                <div>
+                  <h3 className="text-lg font-bold text-white leading-tight">Google Photos</h3>
+                  <p className="text-slate-400 text-xs mt-1">Consulta fotos e imagenes autorizadas para expedientes, evidencias y onboarding.</p>
+                </div>
+                <div className="p-2 bg-pink-500/10 text-pink-400 rounded-lg border border-pink-500/20">
+                  <ImageIcon className="w-5 h-5" />
+                </div>
+              </div>
+
+              <div className="flex justify-end">
+                <button
+                  onClick={fetchGooglePhotos}
+                  disabled={isFetchingPhotos}
+                  className="bg-pink-500/10 hover:bg-pink-500/20 text-pink-300 border border-pink-500/20 px-3.5 py-2 rounded-lg text-xs font-bold flex items-center gap-2"
+                >
+                  <RefreshCw className={cn("w-3.5 h-3.5", isFetchingPhotos ? "animate-spin" : "")} />
+                  Actualizar Fotos
+                </button>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                {googlePhotos.map((photo) => {
+                  const isSelected = selectedPhoto?.id === photo.id;
+                  return (
+                    <button
+                      key={photo.id}
+                      onClick={() => {
+                        setSelectedPhoto(photo);
+                        addLog("Google Photos", `Foto seleccionada: ${photo.filename}`, "success", null, photo);
+                      }}
+                      className={cn(
+                        "text-left bg-slate-950 rounded-xl border overflow-hidden transition-all hover:scale-[1.01]",
+                        isSelected ? "border-pink-500 shadow-[0_0_18px_rgba(236,72,153,0.12)]" : "border-white/5 hover:border-white/10"
+                      )}
+                    >
+                      <img
+                        src={getPhotoPreviewUrl(photo)}
+                        alt={photo.filename}
+                        className="w-full h-32 object-cover bg-slate-900"
+                      />
+                      <div className="p-3">
+                        <div className="font-bold text-xs text-slate-200 truncate">{photo.filename}</div>
+                        <div className="text-[10px] text-slate-500 mt-1">{photo.mimeType}</div>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+
+              {selectedPhoto && (
+                <div className="bg-pink-500/10 border border-pink-500/25 p-4 rounded-xl flex items-center justify-between gap-3">
+                  <div className="min-w-0">
+                    <span className="text-[9px] font-bold text-pink-300 uppercase tracking-widest block">Foto vinculada</span>
+                    <span className="text-xs font-bold text-white truncate block">{selectedPhoto.filename}</span>
+                  </div>
+                  {selectedPhoto.productUrl && selectedPhoto.productUrl !== "#" && (
+                    <a
+                      href={selectedPhoto.productUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-xs text-pink-300 hover:text-white flex items-center gap-1"
+                    >
+                      Abrir <ExternalLink className="w-3 h-3" />
+                    </a>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Tab 7: Google Keep */}
           {activeTab === 'keep' && (
             <div className="glass-panel p-6 rounded-2xl border border-white/5 flex flex-col gap-6">
               <div className="flex justify-between items-start">

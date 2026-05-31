@@ -1,7 +1,17 @@
-import React, { useState } from 'react';
-import { Search, Filter, Phone, Video, MoreVertical, Paperclip, Send, Image as ImageIcon, Smile, Briefcase, Mail, MapPin, User, ChevronLeft, PlusCircle } from 'lucide-react';
+import React, { useRef, useState } from 'react';
+import { Search, Filter, Phone, Video, MoreVertical, Paperclip, Send, Image as ImageIcon, Smile, Briefcase, Mail, MapPin, User, ChevronLeft } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useDb } from '@/hooks/useDb';
+
+const readFileAsBase64 = (file: File) => new Promise<string>((resolve, reject) => {
+  const reader = new FileReader();
+  reader.onload = () => {
+    const result = String(reader.result || '');
+    resolve(result.includes(',') ? result.split(',')[1] : result);
+  };
+  reader.onerror = () => reject(reader.error || new Error('No se pudo leer el archivo de audio.'));
+  reader.readAsDataURL(file);
+});
 
 export function Messages() {
   const { candidates, messages, addMessage, triggerAgentDialogue } = useDb();
@@ -11,6 +21,8 @@ export function Messages() {
   const [messageInput, setMessageInput] = useState('');
   const [searchFilter, setSearchFilter] = useState('');
   const [selectedPlatform, setSelectedPlatform] = useState<'all' | 'whatsapp' | 'instagram' | 'messenger'>('all');
+  const [isProcessingAudio, setIsProcessingAudio] = useState(false);
+  const audioInputRef = useRef<HTMLInputElement>(null);
 
   // Group candidate messages into active chats dynamically
   const chats = candidates.map(cand => {
@@ -46,7 +58,11 @@ export function Messages() {
         id: m.id,
         sender: m.sender,
         text: m.body,
-        timestamp: new Date(m.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        timestamp: new Date(m.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        attachmentType: m.attachmentType,
+        audioFileName: m.audioFileName,
+        transcription: m.transcription,
+        transcriptionStatus: m.transcriptionStatus,
       }))
     };
   });
@@ -90,6 +106,32 @@ export function Messages() {
     if (!activeChat || !activeCandidate) return;
     const assignedAgentId = activeCandidate.assignedAgentId || "agent-1";
     await triggerAgentDialogue(activeChat.candidateId, assignedAgentId, "Por favor habla con el candidato sobre oportunidades de Heavenly Dreams.");
+  };
+
+  const handleInboundAudioUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file || !activeChat) return;
+
+    setIsProcessingAudio(true);
+    try {
+      const audioBase64 = await readFileAsBase64(file);
+      await addMessage({
+        candidateId: activeChat.candidateId,
+        channel: activeChat.platform,
+        direction: "inbound",
+        body: `[Audio recibido: ${file.name}]`,
+        sender: "user",
+        status: "delivered",
+        attachmentType: "audio",
+        audioBase64,
+        audioMimeType: file.type || "audio/mpeg",
+        audioFileName: file.name,
+        transcriptionStatus: "pending",
+      });
+    } finally {
+      setIsProcessingAudio(false);
+      event.target.value = "";
+    }
   };
 
   if (candidates.length === 0) {
@@ -266,6 +308,21 @@ export function Messages() {
                         ? "bg-cyan-600 text-white rounded-tr-sm shadow-cyan-900/20" 
                         : "bg-slate-800 border border-slate-700 text-slate-200 rounded-tl-sm shadow-black/20"
                     )}>
+                      {msg.attachmentType === 'audio' && (
+                        <div className="mb-2 rounded-xl border border-cyan-500/20 bg-cyan-500/10 px-3 py-2 text-[11px] text-cyan-100">
+                          <div className="flex items-center gap-2 font-bold uppercase tracking-wider">
+                            <Paperclip className="h-3.5 w-3.5" />
+                            Audio entrante
+                          </div>
+                          <p className="mt-1 text-cyan-100/80">{msg.audioFileName || 'Nota de voz'}</p>
+                          {msg.transcriptionStatus === 'completed' && (
+                            <p className="mt-1 text-emerald-300">Transcripción lista. El agente puede responder con este texto.</p>
+                          )}
+                          {msg.transcriptionStatus === 'failed' && (
+                            <p className="mt-1 text-amber-300">No se pudo transcribir automáticamente. Revisión humana recomendada.</p>
+                          )}
+                        </div>
+                      )}
                       {msg.text}
                     </div>
                     <span className={cn(
@@ -281,9 +338,22 @@ export function Messages() {
 
             {/* Message Input Area */}
             <div className="p-4 bg-slate-900/80 backdrop-blur-md border-t border-white/5 shrink-0 rounded-b-2xl">
+              <input
+                ref={audioInputRef}
+                type="file"
+                accept="audio/*"
+                className="hidden"
+                onChange={handleInboundAudioUpload}
+              />
               <div className="flex items-end gap-2 bg-slate-950/50 p-2 rounded-2xl border border-slate-700/50 focus-within:border-cyan-500/50 focus-within:ring-1 focus-within:ring-cyan-500/30 transition-all shadow-inner">
-                <button className="p-2.5 text-slate-400 hover:text-cyan-400 hover:bg-slate-800 rounded-xl transition-all shrink-0 group">
-                  <PlusCircle className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                <button
+                  type="button"
+                  onClick={() => audioInputRef.current?.click()}
+                  disabled={isProcessingAudio}
+                  title="Subir audio entrante para transcribir y responder con IA"
+                  className="p-2.5 text-slate-400 hover:text-cyan-400 hover:bg-slate-800 rounded-xl transition-all shrink-0 group disabled:opacity-50 disabled:cursor-wait"
+                >
+                  <Paperclip className="w-5 h-5 group-hover:scale-110 transition-transform" />
                 </button>
                 <div className="flex-1 min-h-[44px] relative">
                   <textarea 
@@ -313,6 +383,7 @@ export function Messages() {
               </div>
               <div className="mt-2 flex items-center justify-between px-2 text-[10px] text-slate-500">
                 <span>Presiona Enter para enviar, Shift + Enter para nueva línea</span>
+                <span>{isProcessingAudio ? 'Transcribiendo audio y activando agente...' : 'Audio entrante: adjunta una nota de voz del candidato'}</span>
               </div>
             </div>
           </>
