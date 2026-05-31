@@ -3,6 +3,7 @@ import { User, signInWithPopup, GoogleAuthProvider, signOut } from 'firebase/aut
 import { auth } from '@/lib/firebase';
 import { NetworkBackground } from '@/components/layout/NetworkBackground';
 import { Sparkles } from 'lucide-react';
+import { GOOGLE_WORKSPACE_SCOPES } from '@/config/googleWorkspace';
 
 interface AuthContextType {
   user: User | null;
@@ -36,8 +37,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const signInWithGoogle = async () => {
     setErrorMsg(null);
     const provider = new GoogleAuthProvider();
+    GOOGLE_WORKSPACE_SCOPES.forEach((scope) => provider.addScope(scope));
     provider.setCustomParameters({
-      prompt: 'select_account'
+      access_type: 'online',
+      include_granted_scopes: 'true',
+      prompt: 'consent select_account'
     });
 
     try {

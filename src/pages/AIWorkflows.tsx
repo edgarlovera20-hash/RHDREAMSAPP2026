@@ -9,6 +9,7 @@ import {
   Database,
   Filter,
   GitBranch,
+  Loader2,
   Mail,
   MessageSquare,
   MousePointerClick,
@@ -23,6 +24,7 @@ import {
   Zap
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { apiUrl, readApiJson } from "@/lib/api";
 import { RH_PROMPT_CATEGORIES, RH_PROMPT_LIBRARY, RH_PROMPT_LIBRARY_META, type RhPromptTemplate } from "@/data/rhPromptLibrary";
 
 type VariableType = "texto" | "numero" | "fecha" | "opcion" | "booleano" | "lista" | "json";
@@ -240,6 +242,9 @@ export function AIWorkflows() {
   const [copied, setCopied] = useState(false);
   const [promptSearch, setPromptSearch] = useState("");
   const [promptCategory, setPromptCategory] = useState<string>("Todas");
+  const [isStartingWorkflow, setIsStartingWorkflow] = useState(false);
+  const [workflowRun, setWorkflowRun] = useState<{ runId: string; status: string } | null>(null);
+  const [workflowRunError, setWorkflowRunError] = useState<string | null>(null);
 
   const activeWorkflow = workflows.find((workflow) => workflow.id === activeWorkflowId) || workflows[0];
   const activeStep = activeWorkflow.steps.find((step) => step.id === activeStepId) || activeWorkflow.steps[0];
@@ -350,6 +355,25 @@ export function AIWorkflows() {
     window.setTimeout(() => setCopied(false), 1800);
   };
 
+  const startWorkflowRun = async () => {
+    setIsStartingWorkflow(true);
+    setWorkflowRun(null);
+    setWorkflowRunError(null);
+    try {
+      const response = await fetch(apiUrl("/api/workflows/start"), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(executionPayload),
+      });
+      const payload = await readApiJson<{ success: boolean; data: { runId: string; status: string } }>(response);
+      setWorkflowRun(payload.data);
+    } catch (error) {
+      setWorkflowRunError(error instanceof Error ? error.message : "No se pudo iniciar el flujo.");
+    } finally {
+      setIsStartingWorkflow(false);
+    }
+  };
+
   return (
     <div className="flex h-full flex-col gap-5 pb-8">
       <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
@@ -373,7 +397,7 @@ export function AIWorkflows() {
         </div>
       </div>
 
-      <div className="grid min-h-0 flex-1 grid-cols-1 gap-5 xl:grid-cols-[300px_minmax(0,1fr)_360px]">
+      <div className="grid min-h-0 flex-1 grid-cols-1 gap-4 xl:grid-cols-[280px_minmax(0,1fr)] 2xl:grid-cols-[280px_minmax(620px,1fr)_320px]">
         <aside className="glass-panel flex min-h-[260px] flex-col overflow-hidden rounded-lg border border-slate-700/60">
           <div className="flex items-center justify-between border-b border-white/5 px-4 py-3">
             <span className="text-xs font-bold uppercase tracking-[0.18em] text-slate-400">Flujos</span>
@@ -406,21 +430,21 @@ export function AIWorkflows() {
           </div>
         </aside>
 
-        <section className="glass-panel min-h-[680px] overflow-hidden rounded-lg border border-slate-700/60">
+        <section className="glass-panel min-h-[680px] min-w-0 overflow-hidden rounded-lg border border-slate-700/60">
           <div className="border-b border-white/5 bg-slate-950/20 p-4">
-            <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_160px_190px]">
-              <Field label="Nombre del flujo" value={activeWorkflow.name} onChange={(value) => updateActiveWorkflow({ name: value })} />
+            <div className="grid gap-3 lg:grid-cols-2 2xl:grid-cols-[minmax(0,1fr)_150px_180px]">
+              <Field className="lg:col-span-2 2xl:col-span-1" label="Nombre del flujo" value={activeWorkflow.name} onChange={(value) => updateActiveWorkflow({ name: value })} />
               <Select label="Estado" value={activeWorkflow.status} options={["Activo", "Borrador", "Pausado"]} onChange={(value) => updateActiveWorkflow({ status: value as WorkflowStatus })} />
               <Select label="Canal principal" value={activeWorkflow.channel} options={CHANNELS} onChange={(value) => updateActiveWorkflow({ channel: value })} />
             </div>
 
-            <div className="mt-4 flex flex-wrap items-center gap-3">
+            <div className="mt-4 grid gap-3 xl:grid-cols-[160px_minmax(220px,320px)] 2xl:grid-cols-[160px_260px_minmax(0,1fr)]">
               <label className="flex h-10 items-center gap-3 rounded-lg border border-slate-700 bg-slate-950/40 px-3">
                 <input type="checkbox" checked={activeWorkflow.autonomous} onChange={(event) => updateActiveWorkflow({ autonomous: event.target.checked })} className="h-4 w-4 rounded border-slate-600 bg-slate-900 text-cyan-500 focus:ring-cyan-500" />
                 <span className="text-sm text-slate-200">Autónomo</span>
               </label>
               <Select compact label="Aprobación" value={activeWorkflow.approvalMode} options={["Sin aprobación", "Aprobar antes de enviar", "Solo escalar excepciones"]} onChange={(value) => updateActiveWorkflow({ approvalMode: value as ApprovalMode })} />
-              <div className="flex rounded-lg border border-slate-700 bg-slate-950/40 p-1">
+              <div className="flex min-w-0 gap-1 overflow-x-auto rounded-lg border border-slate-700 bg-slate-950/40 p-1 styled-scrollbar xl:col-span-2 2xl:col-span-1">
                 {[
                   { id: "builder", label: "Pasos", icon: Settings2 },
                   { id: "trigger", label: "Disparador", icon: Zap },
@@ -429,7 +453,7 @@ export function AIWorkflows() {
                   { id: "library", label: "Biblioteca RH", icon: BookOpen },
                   { id: "preview", label: "Prueba", icon: PlayCircle }
                 ].map((tab) => (
-                  <button key={tab.id} onClick={() => setActiveTab(tab.id as typeof activeTab)} className={cn("flex h-8 items-center gap-2 rounded-md px-3 text-xs font-semibold transition-colors", activeTab === tab.id ? "bg-cyan-500/15 text-cyan-200" : "text-slate-400 hover:text-white")}>
+                  <button key={tab.id} onClick={() => setActiveTab(tab.id as typeof activeTab)} className={cn("flex h-8 shrink-0 items-center gap-2 rounded-md px-3 text-xs font-semibold transition-colors", activeTab === tab.id ? "bg-cyan-500/15 text-cyan-200" : "text-slate-400 hover:text-white")}>
                     <tab.icon className="h-3.5 w-3.5" />
                     {tab.label}
                   </button>
@@ -477,11 +501,11 @@ export function AIWorkflows() {
                   const Icon = meta.icon;
                   return (
                     <div key={step.id} className={cn("rounded-lg border bg-slate-950/30 p-4", step.id === activeStepId ? "border-cyan-400/50" : "border-slate-700/60")}>
-                      <div className="flex flex-col gap-3 xl:flex-row xl:items-start">
+                      <div className="flex flex-col gap-3 2xl:flex-row 2xl:items-start">
                         <button onClick={() => setActiveStepId(step.id)} className={cn("flex h-10 w-10 items-center justify-center rounded-lg border", meta.color)} title={meta.label}>
                           <Icon className="h-5 w-5" />
                         </button>
-                        <div className="grid flex-1 gap-3 lg:grid-cols-[minmax(0,1fr)_150px_160px_160px]">
+                        <div className="grid min-w-0 flex-1 gap-3 md:grid-cols-2 2xl:grid-cols-[minmax(0,1fr)_135px_180px_150px]">
                           <Field label={`Paso ${index + 1}`} value={step.name} onFocus={() => setActiveStepId(step.id)} onChange={(value) => updateStep(step.id, { name: value })} />
                           <Select label="Tipo" value={step.type} options={Object.keys(STEP_META)} onFocus={() => setActiveStepId(step.id)} onChange={(value) => updateStep(step.id, { type: value as StepType })} />
                           <Select label="Agente" value={step.agent} options={AGENTS} onFocus={() => setActiveStepId(step.id)} onChange={(value) => updateStep(step.id, { agent: value })} />
@@ -491,14 +515,14 @@ export function AIWorkflows() {
                           <Trash2 className="h-4 w-4" />
                         </button>
                       </div>
-                      <div className="mt-3 grid gap-3 lg:grid-cols-[minmax(0,1fr)_170px_150px]">
+                      <div className="mt-3 grid gap-3 2xl:grid-cols-[minmax(0,1fr)_170px_180px]">
                         <textarea value={step.instruction} onFocus={() => setActiveStepId(step.id)} onChange={(event) => updateStep(step.id, { instruction: event.target.value })} className="min-h-[112px] resize-none rounded-lg border border-slate-700 bg-slate-950/60 px-3 py-3 font-mono text-sm leading-6 text-slate-100 outline-none focus:border-cyan-400" />
-                        <div className="space-y-3">
+                        <div className="grid gap-3 sm:grid-cols-2 2xl:block 2xl:space-y-3">
                           <Field label="Salida" value={step.output} onFocus={() => setActiveStepId(step.id)} onChange={(value) => updateStep(step.id, { output: value.toLowerCase().replace(/[^a-z0-9_]/g, "") })} />
                           <Field label="Espera min" value={String(step.waitMinutes)} onFocus={() => setActiveStepId(step.id)} onChange={(value) => updateStep(step.id, { waitMinutes: Number(value) || 0 })} />
                         </div>
-                        <div className="space-y-3">
-                          <label className="flex h-10 items-center gap-3 rounded-lg border border-slate-700 bg-slate-950/40 px-3 mt-6">
+                        <div className="grid gap-3 sm:grid-cols-[190px_minmax(0,1fr)] 2xl:block 2xl:space-y-3">
+                          <label className="flex h-10 items-center gap-3 rounded-lg border border-slate-700 bg-slate-950/40 px-3 2xl:mt-6">
                             <input type="checkbox" checked={step.requiresApproval} onChange={(event) => updateStep(step.id, { requiresApproval: event.target.checked })} className="h-4 w-4 rounded border-slate-600 bg-slate-900 text-cyan-500 focus:ring-cyan-500" />
                             <span className="text-xs text-slate-200">Requiere aprobación</span>
                           </label>
@@ -622,8 +646,31 @@ export function AIWorkflows() {
 
             {activeTab === "preview" && (
               <div className="grid gap-4">
-                <Panel title="Vista previa del paso activo" icon={PlayCircle}>
+                <Panel
+                  title="Vista previa del paso activo"
+                  icon={PlayCircle}
+                  action={
+                    <button
+                      onClick={startWorkflowRun}
+                      disabled={isStartingWorkflow}
+                      className="flex h-8 items-center gap-2 rounded-lg bg-emerald-500 px-3 text-xs font-bold text-slate-950 hover:bg-emerald-400 disabled:cursor-wait disabled:opacity-70"
+                    >
+                      {isStartingWorkflow ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <PlayCircle className="h-3.5 w-3.5" />}
+                      {isStartingWorkflow ? "Iniciando" : "Ejecutar flujo"}
+                    </button>
+                  }
+                >
                   <pre className="max-h-[260px] overflow-auto whitespace-pre-wrap rounded-lg bg-black/30 p-4 text-sm leading-6 text-slate-200 styled-scrollbar">{renderedInstruction}</pre>
+                  {workflowRun && (
+                    <div className="mt-3 rounded-lg border border-emerald-400/30 bg-emerald-500/10 p-3 text-sm text-emerald-100">
+                      Flujo iniciado. Run ID: <span className="font-mono text-emerald-200">{workflowRun.runId}</span>
+                    </div>
+                  )}
+                  {workflowRunError && (
+                    <div className="mt-3 rounded-lg border border-rose-400/30 bg-rose-500/10 p-3 text-sm text-rose-100">
+                      {workflowRunError}
+                    </div>
+                  )}
                 </Panel>
                 <Panel title="Payload completo del flujo" icon={Database} action={<button onClick={copyPayload} className="flex h-8 items-center gap-2 rounded-lg border border-slate-700 px-3 text-xs font-semibold text-slate-300 hover:border-cyan-400/50 hover:text-cyan-200">{copied ? <Check className="h-3.5 w-3.5 text-emerald-300" /> : <Copy className="h-3.5 w-3.5" />}{copied ? "Copiado" : "Copiar"}</button>}>
                   <pre className="max-h-[360px] overflow-auto rounded-lg bg-black/30 p-4 text-xs leading-5 text-slate-300 styled-scrollbar">{JSON.stringify(executionPayload, null, 2)}</pre>
@@ -633,7 +680,7 @@ export function AIWorkflows() {
           </div>
         </section>
 
-        <aside className="glass-panel flex min-h-[360px] flex-col overflow-hidden rounded-lg border border-slate-700/60">
+        <aside className="glass-panel flex min-h-[360px] flex-col overflow-hidden rounded-lg border border-slate-700/60 xl:col-span-2 2xl:col-span-1">
           <div className="border-b border-white/5 px-4 py-3">
             <div className="flex items-center gap-2 text-sm font-semibold text-white"><Braces className="h-4 w-4 text-cyan-300" /> Variables disponibles</div>
           </div>
@@ -663,9 +710,9 @@ export function AIWorkflows() {
   );
 }
 
-function Field({ label, value, onChange, onFocus, placeholder, mono, prefix, suffix }: { label: string; value: string; onChange: (value: string) => void; onFocus?: () => void; placeholder?: string; mono?: boolean; prefix?: string; suffix?: string }) {
+function Field({ label, value, onChange, onFocus, placeholder, mono, prefix, suffix, className }: { label: string; value: string; onChange: (value: string) => void; onFocus?: () => void; placeholder?: string; mono?: boolean; prefix?: string; suffix?: string; className?: string }) {
   return (
-    <label className="space-y-1">
+    <label className={cn("min-w-0 space-y-1", className)}>
       <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">{label}</span>
       <div className="flex h-10 rounded-lg border border-slate-700 bg-slate-950/60 focus-within:border-cyan-400">
         {prefix && <span className="flex items-center px-3 font-mono text-xs text-slate-500">{prefix}</span>}

@@ -22,6 +22,97 @@ const getPath = (context: any) => {
   return `/${parts.join("/")}`;
 };
 
+const integrationCatalog = {
+  indeed: {
+    id: "indeed",
+    name: "Indeed",
+    mode: "partner_api",
+    requiredConfig: [
+      "INDEED_CLIENT_ID",
+      "INDEED_CLIENT_SECRET",
+      "INDEED_EMPLOYER_ID",
+      "INDEED_WEBHOOK_SECRET",
+    ],
+    capabilities: [
+      "Publicar y sincronizar vacantes",
+      "Recibir candidatos desde Indeed Apply",
+      "Sincronizar estados del proceso",
+    ],
+    notes: "Requiere acceso de partner/provisionamiento en Indeed Partner Console.",
+  },
+  computrabajo: {
+    id: "computrabajo",
+    name: "Computrabajo",
+    mode: "managed_import",
+    requiredConfig: [
+      "COMPUTRABAJO_COUNTRY_PORTAL",
+      "COMPUTRABAJO_COMPANY_ACCOUNT",
+      "COMPUTRABAJO_IMPORT_SECRET",
+    ],
+    capabilities: [
+      "Registrar fuente de candidatos Computrabajo",
+      "Importar candidatos por CSV, email parser o webhook intermedio",
+      "Mapear vacante, etapa y documentos",
+    ],
+    notes: "Usa feed autorizado, CSV, email parser o proveedor empresarial.",
+  },
+  whatsapp_personal: {
+    id: "whatsapp_personal",
+    name: "WhatsApp Normal",
+    mode: "baileys_local_socket",
+    requiredConfig: [],
+    capabilities: [
+      "Generar QR real con Baileys en servidor persistente",
+      "Mantener sesion local multi-file auth",
+      "Enviar y recibir mensajes desde el dispositivo vinculado",
+    ],
+    notes:
+      "En serverless no se puede mantener WhatsApp Web conectado; usa localhost o VPS para QR real.",
+  },
+} as const;
+
+const testIntegrationConfig = (env: any, provider: string, config: Record<string, string> = {}) => {
+  const connector = integrationCatalog[provider as keyof typeof integrationCatalog];
+  if (!connector) {
+    return {
+      ok: false,
+      provider,
+      message: "Integracion desconocida",
+      missing: [],
+    };
+  }
+
+  if (provider === "whatsapp_personal") {
+    return {
+      ok: false,
+      provider: connector.id,
+      name: connector.name,
+      mode: connector.mode,
+      missing: [],
+      message:
+        "Endpoint disponible. WhatsApp Normal necesita localhost o un VPS persistente para generar QR real; serverless no mantiene la sesion Baileys activa.",
+      capabilities: connector.capabilities,
+      notes: connector.notes,
+      deployment: "serverless",
+    };
+  }
+
+  const missing = connector.requiredConfig.filter((key) => !config[key] && !env[key]);
+  return {
+    ok: missing.length === 0,
+    provider: connector.id,
+    name: connector.name,
+    mode: connector.mode,
+    missing,
+    message:
+      missing.length === 0
+        ? "Configuracion minima presente. Lista para prueba real."
+        : `Faltan credenciales o parametros: ${missing.join(", ")}.`,
+    capabilities: connector.capabilities,
+    notes: connector.notes,
+  };
+};
+
 const openRouterReply = async (env: any, body: any) => {
   if (!env.OPENROUTER_API_KEY) {
     return json(
@@ -100,6 +191,32 @@ export const onRequest = async (context: any) => {
         environment: "cloudflare-pages",
         timestamp: new Date().toISOString(),
       },
+    });
+  }
+
+  if (request.method === "GET" && path === "/integrations/catalog") {
+    return json({
+      success: true,
+      data: integrationCatalog,
+    });
+  }
+
+  if (request.method === "POST" && path === "/integrations/test") {
+    const body = await readJsonBody(request);
+    if (!body?.provider) {
+      return json(
+        {
+          success: false,
+          error: "provider es requerido",
+          code: 400,
+        },
+        { status: 400 }
+      );
+    }
+
+    return json({
+      success: true,
+      data: testIntegrationConfig(env, body.provider, body.config || {}),
     });
   }
 

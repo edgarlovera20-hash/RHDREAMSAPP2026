@@ -1,5 +1,7 @@
 import express from "express";
 import dotenv from "dotenv";
+import { start, getRun } from "workflow/api";
+import { recruitmentAutomationWorkflow } from "../src/workflows/recruitmentAutomation";
 
 dotenv.config();
 
@@ -21,6 +23,97 @@ const canTryNextGroqModel = (message: string) =>
   message.includes("decommissioned") ||
   message.includes("no longer supported") ||
   message.includes("model_not_found");
+
+const integrationCatalog = {
+  indeed: {
+    id: "indeed",
+    name: "Indeed",
+    mode: "partner_api",
+    requiredConfig: [
+      "INDEED_CLIENT_ID",
+      "INDEED_CLIENT_SECRET",
+      "INDEED_EMPLOYER_ID",
+      "INDEED_WEBHOOK_SECRET",
+    ],
+    capabilities: [
+      "Publicar y sincronizar vacantes",
+      "Recibir candidatos desde Indeed Apply",
+      "Sincronizar estados del proceso",
+    ],
+    notes: "Requiere acceso de partner/provisionamiento en Indeed Partner Console.",
+  },
+  computrabajo: {
+    id: "computrabajo",
+    name: "Computrabajo",
+    mode: "managed_import",
+    requiredConfig: [
+      "COMPUTRABAJO_COUNTRY_PORTAL",
+      "COMPUTRABAJO_COMPANY_ACCOUNT",
+      "COMPUTRABAJO_IMPORT_SECRET",
+    ],
+    capabilities: [
+      "Registrar fuente de candidatos Computrabajo",
+      "Importar candidatos por CSV, email parser o webhook intermedio",
+      "Mapear vacante, etapa y documentos",
+    ],
+    notes: "Usa feed autorizado, CSV, email parser o proveedor empresarial.",
+  },
+  whatsapp_personal: {
+    id: "whatsapp_personal",
+    name: "WhatsApp Normal",
+    mode: "baileys_local_socket",
+    requiredConfig: [],
+    capabilities: [
+      "Generar QR real con Baileys en servidor persistente",
+      "Mantener sesion local multi-file auth",
+      "Enviar y recibir mensajes desde el dispositivo vinculado",
+    ],
+    notes:
+      "En Vercel serverless no se puede mantener WhatsApp Web conectado; usa localhost o VPS para QR real.",
+  },
+} as const;
+
+const testIntegrationConfig = (provider: string, config: Record<string, string> = {}) => {
+  const connector = integrationCatalog[provider as keyof typeof integrationCatalog];
+  if (!connector) {
+    return {
+      ok: false,
+      provider,
+      message: "Integracion desconocida",
+      missing: [],
+    };
+  }
+
+  if (provider === "whatsapp_personal") {
+    return {
+      ok: false,
+      provider: connector.id,
+      name: connector.name,
+      mode: connector.mode,
+      missing: [],
+      message:
+        "Endpoint disponible. WhatsApp Normal necesita localhost o un VPS persistente para generar QR real; Vercel no mantiene la sesion Baileys activa.",
+      capabilities: connector.capabilities,
+      notes: connector.notes,
+      deployment: "vercel_serverless",
+    };
+  }
+
+  const missing = connector.requiredConfig.filter((key) => !config[key] && !process.env[key]);
+  return {
+    ok: missing.length === 0,
+    provider: connector.id,
+    name: connector.name,
+    mode: connector.mode,
+    missing,
+    message:
+      missing.length === 0
+        ? "Configuracion minima presente. Lista para prueba real."
+        : `Faltan credenciales o parametros: ${missing.join(", ")}.`,
+    capabilities: connector.capabilities,
+    notes: connector.notes,
+  };
+};
 
 app.get(["/api/health", "/health"], (_req, res) => {
   res.json({
@@ -45,6 +138,29 @@ app.get(["/api/groq/health", "/groq/health"], (_req, res) => {
         defaultModel: process.env.GROQ_MODEL || "llama-3.1-8b-instant",
       },
     },
+  });
+});
+
+app.get(["/api/integrations/catalog", "/integrations/catalog"], (_req, res) => {
+  res.json({
+    success: true,
+    data: integrationCatalog,
+  });
+});
+
+app.post(["/api/integrations/test", "/integrations/test"], (req, res) => {
+  const provider = req.body?.provider;
+  if (!provider) {
+    return res.status(400).json({
+      success: false,
+      error: "provider es requerido",
+      code: 400,
+    });
+  }
+
+  res.json({
+    success: true,
+    data: testIntegrationConfig(provider, req.body?.config || {}),
   });
 });
 
@@ -276,6 +392,57 @@ app.get(["/api/gemini/health", "/gemini/health"], (_req, res) => {
       },
     },
   });
+});
+
+app.post(["/api/workflows/start", "/workflows/start"], async (req, res) => {
+  try {
+    const payload = req.body;
+    if (!payload?.workflowId || !Array.isArray(payload?.steps)) {
+      return res.status(400).json({
+        success: false,
+        error: "workflowId y steps son requeridos para iniciar la automatizacion.",
+        code: 400,
+      });
+    }
+
+    const run = await start(recruitmentAutomationWorkflow, [payload], {
+      deploymentId: "latest",
+    });
+
+    res.json({
+      success: true,
+      data: {
+        runId: run.runId,
+        workflowId: payload.workflowId,
+        status: "started",
+      },
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : "No se pudo iniciar el workflow.",
+      code: 500,
+    });
+  }
+});
+
+app.get(["/api/workflows/status/:runId", "/workflows/status/:runId"], async (req, res) => {
+  try {
+    const run = getRun(req.params.runId);
+    res.json({
+      success: true,
+      data: {
+        runId: req.params.runId,
+        status: run.status,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : "No se pudo consultar el workflow.",
+      code: 500,
+    });
+  }
 });
 
 app.post(["/api/gemini/agent/reply", "/gemini/agent/reply"], async (req, res) => {
