@@ -1,7 +1,5 @@
 import express from "express";
 import dotenv from "dotenv";
-import { start, getRun } from "workflow/api";
-import { recruitmentAutomationWorkflow } from "../src/workflows/recruitmentAutomation";
 
 dotenv.config();
 
@@ -9,6 +7,16 @@ const app = express();
 
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ limit: "10mb", extended: true }));
+
+type WorkflowRunStatus = {
+  runId: string;
+  workflowId: string;
+  status: "started" | "blocked";
+  createdAt: string;
+  missingVariables?: string[];
+};
+
+const workflowRuns = new Map<string, WorkflowRunStatus>();
 
 const groqFallbackModels = [
   process.env.GROQ_MODEL || "llama-3.1-8b-instant",
@@ -405,16 +413,27 @@ app.post(["/api/workflows/start", "/workflows/start"], async (req, res) => {
       });
     }
 
-    const run = await start(recruitmentAutomationWorkflow, [payload], {
-      deploymentId: "latest",
-    });
+    const missingVariables = Object.entries(payload.variables || {})
+      .filter(([, value]: [string, any]) => value?.required && !String(value?.value || "").trim())
+      .map(([key]) => key);
+
+    const runId = `run_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+    const status: WorkflowRunStatus = {
+      runId,
+      workflowId: payload.workflowId,
+      status: missingVariables.length ? "blocked" : "started",
+      createdAt: new Date().toISOString(),
+      missingVariables: missingVariables.length ? missingVariables : undefined,
+    };
+    workflowRuns.set(runId, status);
 
     res.json({
       success: true,
       data: {
-        runId: run.runId,
+        runId,
         workflowId: payload.workflowId,
-        status: "started",
+        status: status.status,
+        missingVariables: status.missingVariables || [],
       },
     });
   } catch (error) {
@@ -428,12 +447,15 @@ app.post(["/api/workflows/start", "/workflows/start"], async (req, res) => {
 
 app.get(["/api/workflows/status/:runId", "/workflows/status/:runId"], async (req, res) => {
   try {
-    const run = getRun(req.params.runId);
+    const run = workflowRuns.get(req.params.runId);
     res.json({
       success: true,
       data: {
         runId: req.params.runId,
-        status: run.status,
+        status: run?.status || "unknown",
+        workflowId: run?.workflowId || null,
+        createdAt: run?.createdAt || null,
+        missingVariables: run?.missingVariables || [],
       },
     });
   } catch (error) {
