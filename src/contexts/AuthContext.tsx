@@ -39,8 +39,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const provider = new GoogleAuthProvider();
     GOOGLE_WORKSPACE_SCOPES.forEach((scope) => provider.addScope(scope));
     provider.setCustomParameters({
-      access_type: 'online',
-      include_granted_scopes: 'true',
       prompt: 'consent select_account'
     });
 
