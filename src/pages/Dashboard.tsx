@@ -262,22 +262,22 @@ export function Dashboard() {
       </div>
 
       {/* Dynamic Date Filter Toolbar */}
-      <div className="flex flex-col xl:flex-row items-stretch xl:items-center justify-between gap-4 p-5 glass-panel rounded-2xl border border-white/5 bg-slate-900/45 shadow-lg relative overflow-hidden group mb-2">
+      <div className="flex flex-col 2xl:flex-row items-stretch 2xl:items-center justify-between gap-5 p-5 md:p-6 glass-panel rounded-2xl border border-white/5 bg-slate-900/45 shadow-lg relative overflow-hidden group mb-6">
         <div className="absolute top-0 left-0 w-2 h-full bg-gradient-to-b from-cyan-500 to-blue-500"></div>
-        <div className="flex items-center gap-3 relative z-10 w-full xl:w-auto">
-          <div className="p-2 border border-cyan-500/20 bg-cyan-500/10 rounded-xl">
+        <div className="flex items-start gap-4 relative z-10 w-full min-w-0 2xl:max-w-[460px]">
+          <div className="shrink-0 p-2.5 border border-cyan-500/20 bg-cyan-500/10 rounded-xl">
             <Calendar className="w-5 h-5 text-cyan-400" />
           </div>
-          <div>
-            <h4 className="text-sm font-semibold tracking-wide text-slate-100 flex items-center gap-2">
+          <div className="min-w-0">
+            <h4 className="text-sm md:text-base font-semibold tracking-wide text-slate-100 flex items-center gap-2">
               Rango de Tiempo
             </h4>
-            <p className="text-xs text-slate-400 font-sans mt-0.5">Filtra métricas por rango específico o selecciona presets rápidos</p>
+            <p className="text-xs md:text-sm text-slate-400 font-sans mt-1 leading-relaxed">Filtra métricas por rango específico o selecciona presets rápidos</p>
           </div>
         </div>
         
-        <div className="flex flex-wrap items-center gap-3 relative z-10">
-          <div className="flex items-center p-1 bg-slate-950/45 rounded-xl border border-white/5">
+        <div className="flex flex-col lg:flex-row lg:flex-wrap items-stretch lg:items-center gap-3 relative z-10 w-full 2xl:w-auto 2xl:justify-end">
+          <div className="flex flex-wrap items-center gap-1 p-1 bg-slate-950/45 rounded-xl border border-white/5">
             {[
               { id: "7d", label: "7 Días" },
               { id: "30d", label: "30 Días" },
@@ -302,7 +302,7 @@ export function Dashboard() {
                   }
                 }}
                 className={cn(
-                  "px-3 py-1.5 rounded-lg text-xs font-semibold tracking-wide transition-all border border-transparent",
+                  "px-3 py-2 rounded-lg text-xs font-semibold tracking-wide transition-all border border-transparent whitespace-nowrap",
                   selectedPreset === preset.id 
                     ? "bg-gradient-to-r from-cyan-500/20 to-blue-500/20 text-cyan-300 shadow-[0_0_12px_rgba(6,182,212,0.15)] border-cyan-500/30"
                     : "text-slate-400 hover:text-white hover:bg-slate-800/40"
@@ -313,7 +313,7 @@ export function Dashboard() {
             ))}
           </div>
           
-          <div className="flex items-center gap-2 bg-slate-950/45 rounded-xl border border-white/5 py-1 px-3">
+          <div className="flex flex-wrap items-center gap-2 bg-slate-950/45 rounded-xl border border-white/5 py-2 px-3">
             <span className="text-[10px] uppercase text-slate-500 font-bold tracking-wider">Desde</span>
             <input 
               type="date"
