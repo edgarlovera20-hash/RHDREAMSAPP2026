@@ -160,24 +160,28 @@ export function AppLayout() {
           <nav className={cn("flex flex-col gap-1.5", isCollapsed ? "px-2" : "px-4")}>
             {NAV_ITEMS.map((item) => {
               const Icon = item.icon;
-              const isActive = location.pathname === item.path;
+              const isActive = item.path === "/" ? location.pathname === "/" : location.pathname.startsWith(item.path);
               return (
                 <Link
                   key={item.path}
                   to={item.path}
+                  aria-current={isActive ? "page" : undefined}
                   onClick={() => setSidebarOpen(false)}
                   title={isCollapsed ? item.name : undefined}
                   className={cn(
                     "flex items-center rounded-lg font-medium transition-all duration-300 group relative overflow-hidden",
                     isCollapsed ? "justify-center py-3 px-0 w-10 h-10 mx-auto" : "gap-3 px-4 py-3",
                     isActive 
-                      ? "text-cyan-300 bg-cyan-500/10 border border-cyan-500/30 shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]" 
-                      : "text-slate-400 hover:text-white border border-transparent hover:bg-slate-800/40"
+                      ? "neon-selected text-neutral-100 bg-white/[0.07] border border-neutral-300/35 shadow-[0_0_18px_rgba(212,212,212,0.18),inset_0_0_14px_rgba(255,255,255,0.06),inset_0_1px_0_rgba(255,255,255,0.16)]" 
+                      : "text-slate-400 hover:text-neutral-100 border border-transparent hover:bg-white/[0.045] hover:border-neutral-400/20 hover:shadow-[0_0_14px_rgba(212,212,212,0.10)]"
                   )}
                 >
-                  <Icon className={cn("w-5 h-5 relative z-10 transition-colors shrink-0", isActive ? "text-cyan-400 drop-shadow-[0_0_8px_rgba(212,212,212,0.45)]" : "opacity-70 group-hover:text-cyan-300")} />
-                  {!isCollapsed && <span className="relative z-10 tracking-wide text-[13px] whitespace-nowrap">{item.name}</span>}
-                  {isActive && !isCollapsed && <div className="absolute right-3 w-1.5 h-1.5 rounded-full bg-cyan-400 shadow-[0_0_8px_#a3a3a3] animate-pulse relative z-10 shrink-0" />}
+                  {isActive && (
+                    <span className="pointer-events-none absolute inset-0 rounded-lg bg-[radial-gradient(circle_at_20%_50%,rgba(255,255,255,0.16),transparent_42%)] opacity-80" />
+                  )}
+                  <Icon className={cn("w-5 h-5 relative z-10 transition-all shrink-0", isActive ? "text-neutral-100 drop-shadow-[0_0_10px_rgba(245,245,245,0.70)]" : "opacity-70 group-hover:text-neutral-200 group-hover:drop-shadow-[0_0_8px_rgba(212,212,212,0.35)]")} />
+                  {!isCollapsed && <span className={cn("relative z-10 tracking-wide text-[13px] whitespace-nowrap", isActive && "drop-shadow-[0_0_8px_rgba(245,245,245,0.22)]")}>{item.name}</span>}
+                  {isActive && !isCollapsed && <div className="absolute right-3 w-1.5 h-1.5 rounded-full bg-neutral-200 shadow-[0_0_10px_rgba(245,245,245,0.85),0_0_18px_rgba(212,212,212,0.45)] animate-pulse relative z-10 shrink-0" />}
                 </Link>
               );
             })}

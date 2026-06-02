@@ -177,14 +177,14 @@ export function Jobs() {
 
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
         {filteredJobs.map((job) => (
-          <div key={job.id} className="glass-panel glass-panel-hover rounded-2xl flex flex-col p-6 group border border-white/5">
+          <div key={job.id} className="glass-panel glass-panel-hover rounded-2xl flex flex-col p-6 group border border-white/5 hover:border-neutral-300/40 hover:shadow-[0_0_26px_rgba(245,245,245,0.14),0_0_70px_rgba(163,163,163,0.10)]">
             <div className="flex justify-between items-start gap-4 mb-5">
               <div className="flex items-start gap-4 min-w-0">
-                <div className="w-12 h-12 rounded-xl bg-cyan-500/10 text-cyan-400 flex items-center justify-center shrink-0 border border-cyan-500/20 group-hover:bg-cyan-500/20 transition-colors">
+                <div className="w-12 h-12 rounded-xl bg-cyan-500/10 text-cyan-400 flex items-center justify-center shrink-0 border border-cyan-500/20 group-hover:bg-white/[0.08] group-hover:border-neutral-200/35 group-hover:shadow-[0_0_18px_rgba(245,245,245,0.18),inset_0_0_10px_rgba(255,255,255,0.06)] transition-all">
                   <Briefcase className="w-6 h-6 opacity-80" />
                 </div>
                 <div className="min-w-0">
-                  <h3 className="font-semibold text-white group-hover:text-cyan-300 transition-colors">{job.title}</h3>
+                  <h3 className="font-semibold text-white transition-all group-hover:text-white group-hover:drop-shadow-[0_0_8px_rgba(212,212,212,0.45)]">{job.title}</h3>
                   <p className="text-sm text-slate-400 mt-0.5">{job.department}</p>
                   <div className="flex flex-wrap gap-2 mt-3">
                     <span className="text-[11px] bg-slate-900/70 border border-white/5 text-slate-300 px-2 py-1 rounded-md flex items-center gap-1">
@@ -219,7 +219,7 @@ export function Jobs() {
               <InfoBlock icon={Gift} label="Que se ofrece" value={`${job.offer} ${job.benefits}`} />
             </div>
 
-            <div className="rounded-xl border border-cyan-500/15 bg-cyan-500/5 p-4 mb-5">
+            <div className="rounded-xl border border-cyan-500/15 bg-cyan-500/5 p-4 mb-5 transition-all hover:border-neutral-300/35 hover:bg-white/[0.04] hover:shadow-[0_0_18px_rgba(245,245,245,0.10)]">
               <div className="flex items-center justify-between gap-3 mb-2">
                 <h4 className="text-xs font-bold uppercase tracking-widest text-cyan-300">Brief para el agente</h4>
                 <button
@@ -251,7 +251,7 @@ export function Jobs() {
                   <Users className="w-3.5 h-3.5" />
                   {job.applicants}
                 </span>
-                <button onClick={() => setSelectedJob(job)} className="px-3 py-2 text-xs font-semibold text-cyan-300 bg-cyan-500/10 hover:bg-cyan-500/20 rounded-lg transition-colors">
+                <button onClick={() => setSelectedJob(job)} className="px-3 py-2 text-xs font-semibold text-slate-200 bg-white/5 border border-white/10 hover:bg-white/10 hover:border-slate-200/35 hover:shadow-[0_0_16px_rgba(245,245,245,0.12)] rounded-lg transition-all">
                   Ver ficha
                 </button>
                 {job.status === "Active" && (
@@ -301,7 +301,7 @@ export function Jobs() {
 
 function InfoBlock({ icon: Icon, label, value }: { icon: typeof Briefcase; label: string; value: string }) {
   return (
-    <div className="rounded-xl border border-white/5 bg-slate-950/35 p-3">
+    <div className="rounded-xl border border-white/5 bg-slate-950/35 p-3 transition-all hover:border-neutral-300/25 hover:bg-white/[0.035] hover:shadow-[0_0_14px_rgba(212,212,212,0.08)]">
       <div className="flex items-center gap-2 text-[10px] uppercase tracking-widest text-slate-500 font-bold mb-2">
         <Icon className="w-3.5 h-3.5 text-cyan-400" />
         {label}
