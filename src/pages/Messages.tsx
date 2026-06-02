@@ -745,7 +745,7 @@ Personalidad configurada: ${principalAgent?.personalityPrompt || principalAgent?
                 </div>
                 <div className="min-w-0">
                   <h3 className="max-w-[34ch] truncate font-semibold text-white tracking-tight leading-tight">{activeChat.name}</h3>
-                  <p className="text-[10px] uppercase font-bold tracking-widest text-[#00AFFF] mt-0.5">
+                  <p className="text-[10px] uppercase font-bold tracking-widest text-[#d4d4d4] mt-0.5">
                     Via {platformStyles[activeChat.platform]?.label || activeChat.sourceLabel}
                   </p>
                 </div>

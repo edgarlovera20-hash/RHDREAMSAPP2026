@@ -175,7 +175,7 @@ export function CandidateProfileModal({ candidate, onClose, onUpdate }: Candidat
         {/* Header */}
         <div className="flex items-start justify-between p-6 border-b border-white/10 bg-slate-900/30">
           <div className="flex items-center gap-5">
-            <div className="w-16 h-16 rounded-full bg-cyan-500/10 text-cyan-400 flex items-center justify-center text-2xl font-bold border border-cyan-500/20 shrink-0 shadow-[0_0_15px_rgba(6,182,212,0.15)]">
+            <div className="w-16 h-16 rounded-full bg-cyan-500/10 text-cyan-400 flex items-center justify-center text-2xl font-bold border border-cyan-500/20 shrink-0 shadow-[0_0_15px_rgba(163,163,163,0.15)]">
               {candidate.name.charAt(0)}
             </div>
             <div>
@@ -204,7 +204,7 @@ export function CandidateProfileModal({ candidate, onClose, onUpdate }: Candidat
               </div>
               <p className="text-slate-400 mt-1 font-light">{candidate.role}</p>
               <div className="flex items-center gap-3 mt-3">
-                <span className="px-2.5 py-1 bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 rounded-md text-[10px] font-bold uppercase tracking-widest shadow-[inset_0_0_8px_rgba(6,182,212,0.2)]">{candidate.stage}</span>
+                <span className="px-2.5 py-1 bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 rounded-md text-[10px] font-bold uppercase tracking-widest shadow-[inset_0_0_8px_rgba(163,163,163,0.2)]">{candidate.stage}</span>
                 <div className="flex items-center gap-1 text-xs text-slate-500">
                   <Clock className="w-3.5 h-3.5" /> Postulado hace 2 días
                 </div>
@@ -330,7 +330,7 @@ export function CandidateProfileModal({ candidate, onClose, onUpdate }: Candidat
             <div className="space-y-3">
               {candidate.linkedin && (
                 <a href={`https://${candidate.linkedin}`} target="_blank" rel="noreferrer" className="flex items-center gap-3 p-2 rounded-lg hover:bg-white/5 transition-colors group">
-                  <Linkedin className="w-4 h-4 text-slate-400 group-hover:text-blue-400 drop-shadow-[0_0_8px_rgba(96,165,250,0)] group-hover:drop-shadow-[0_0_8px_rgba(96,165,250,0.5)]" />
+                  <Linkedin className="w-4 h-4 text-slate-400 group-hover:text-blue-400 drop-shadow-[0_0_8px_rgba(163,163,163,0)] group-hover:drop-shadow-[0_0_8px_rgba(163,163,163,0.5)]" />
                   <span className="text-sm text-slate-300 group-hover:text-white transition-colors font-light">{candidate.linkedin}</span>
                 </a>
               )}
@@ -342,7 +342,7 @@ export function CandidateProfileModal({ candidate, onClose, onUpdate }: Candidat
               )}
               {candidate.portfolio && (
                 <a href={`https://${candidate.portfolio}`} target="_blank" rel="noreferrer" className="flex items-center gap-3 p-2 rounded-lg hover:bg-white/5 transition-colors group">
-                  <Globe className="w-4 h-4 text-slate-400 group-hover:text-cyan-400 drop-shadow-[0_0_8px_rgba(6,182,212,0)] group-hover:drop-shadow-[0_0_8px_rgba(6,182,212,0.5)]" />
+                  <Globe className="w-4 h-4 text-slate-400 group-hover:text-cyan-400 drop-shadow-[0_0_8px_rgba(163,163,163,0)] group-hover:drop-shadow-[0_0_8px_rgba(163,163,163,0.5)]" />
                   <span className="text-sm text-slate-300 group-hover:text-white transition-colors font-light">{candidate.portfolio}</span>
                 </a>
               )}
@@ -365,7 +365,7 @@ export function CandidateProfileModal({ candidate, onClose, onUpdate }: Candidat
                 )}
               >
                 Perfil y CV
-                {activeTab === 'profile' && <div className="absolute bottom-0 left-0 w-full h-[2px] bg-cyan-400 glowing-border shadow-[0_0_8px_rgba(6,182,212,0.8)]"></div>}
+                {activeTab === 'profile' && <div className="absolute bottom-0 left-0 w-full h-[2px] bg-cyan-400 glowing-border shadow-[0_0_8px_rgba(163,163,163,0.8)]"></div>}
               </button>
               <button 
                 onClick={() => setActiveTab('scorecard')}
@@ -375,7 +375,7 @@ export function CandidateProfileModal({ candidate, onClose, onUpdate }: Candidat
                 )}
               >
                 Scorecard
-                {activeTab === 'scorecard' && <div className="absolute bottom-0 left-0 w-full h-[2px] bg-purple-400 glowing-border shadow-[0_0_8px_rgba(168,85,247,0.8)]"></div>}
+                {activeTab === 'scorecard' && <div className="absolute bottom-0 left-0 w-full h-[2px] bg-purple-400 glowing-border shadow-[0_0_8px_rgba(163,163,163,0.8)]"></div>}
               </button>
               <button 
                 onClick={() => setActiveTab('history')}
@@ -385,7 +385,7 @@ export function CandidateProfileModal({ candidate, onClose, onUpdate }: Candidat
                 )}
               >
                 Historial & Notas
-                {activeTab === 'history' && <div className="absolute bottom-0 left-0 w-full h-[2px] bg-emerald-400 glowing-border shadow-[0_0_8px_rgba(52,211,153,0.8)]"></div>}
+                {activeTab === 'history' && <div className="absolute bottom-0 left-0 w-full h-[2px] bg-emerald-400 glowing-border shadow-[0_0_8px_rgba(163,163,163,0.8)]"></div>}
               </button>
               <button 
                 onClick={() => setActiveTab('offer')}
@@ -395,7 +395,7 @@ export function CandidateProfileModal({ candidate, onClose, onUpdate }: Candidat
                 )}
               >
                 Oferta
-                {activeTab === 'offer' && <div className="absolute bottom-0 left-0 w-full h-[2px] bg-amber-400 glowing-border shadow-[0_0_8px_rgba(251,191,36,0.8)]"></div>}
+                {activeTab === 'offer' && <div className="absolute bottom-0 left-0 w-full h-[2px] bg-amber-400 glowing-border shadow-[0_0_8px_rgba(163,163,163,0.8)]"></div>}
               </button>
             </div>
 
@@ -553,7 +553,7 @@ export function CandidateProfileModal({ candidate, onClose, onUpdate }: Candidat
                   <div className="space-y-6 relative before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-slate-700 before:to-transparent">
                     {/* Event 1 */}
                     <div className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
-                      <div className="flex items-center justify-center w-10 h-10 rounded-full border border-emerald-500/30 bg-emerald-500/10 text-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.2)] shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 z-10 ms-0 md:mx-auto">
+                      <div className="flex items-center justify-center w-10 h-10 rounded-full border border-emerald-500/30 bg-emerald-500/10 text-emerald-400 shadow-[0_0_10px_rgba(163,163,163,0.2)] shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 z-10 ms-0 md:mx-auto">
                         <MessageSquare className="w-4 h-4" />
                       </div>
                       <div className="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] glass-panel p-4 rounded-xl border border-white/5">
@@ -568,7 +568,7 @@ export function CandidateProfileModal({ candidate, onClose, onUpdate }: Candidat
                     </div>
                     {/* Event 2 */}
                     <div className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
-                      <div className="flex items-center justify-center w-10 h-10 rounded-full border border-cyan-500/30 bg-cyan-500/10 text-cyan-400 shadow-[0_0_10px_rgba(6,182,212,0.2)] shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 z-10 ms-0 md:mx-auto">
+                      <div className="flex items-center justify-center w-10 h-10 rounded-full border border-cyan-500/30 bg-cyan-500/10 text-cyan-400 shadow-[0_0_10px_rgba(163,163,163,0.2)] shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 z-10 ms-0 md:mx-auto">
                         <Activity className="w-4 h-4" />
                       </div>
                       <div className="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] glass-panel p-4 rounded-xl border border-white/5">
@@ -588,7 +588,7 @@ export function CandidateProfileModal({ candidate, onClose, onUpdate }: Candidat
                     {/* Dynamic Notes */}
                     {notes.map((note, idx) => (
                       <div key={`note-${idx}`} className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
-                        <div className="flex items-center justify-center w-10 h-10 rounded-full border border-purple-500/30 bg-purple-500/10 text-purple-400 shadow-[0_0_10px_rgba(168,85,247,0.2)] shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 z-10 ms-0 md:mx-auto">
+                        <div className="flex items-center justify-center w-10 h-10 rounded-full border border-purple-500/30 bg-purple-500/10 text-purple-400 shadow-[0_0_10px_rgba(163,163,163,0.2)] shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 z-10 ms-0 md:mx-auto">
                           <MessageSquare className="w-4 h-4" />
                         </div>
                         <div className="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] glass-panel p-4 rounded-xl border border-white/5">
@@ -778,7 +778,7 @@ export function CandidateProfileModal({ candidate, onClose, onUpdate }: Candidat
                         </button>
                         <button 
                           onClick={handleGenerateOffer}
-                          className="px-3 py-1.5 bg-amber-500 hover:bg-amber-400 text-slate-900 rounded-lg text-xs font-bold transition-colors shadow-[0_0_10px_rgba(251,191,36,0.2)] flex items-center gap-1.5"
+                          className="px-3 py-1.5 bg-amber-500 hover:bg-amber-400 text-slate-900 rounded-lg text-xs font-bold transition-colors shadow-[0_0_10px_rgba(163,163,163,0.2)] flex items-center gap-1.5"
                         >
                           <Mail className="w-3.5 h-3.5" /> Enviar para Firma (Docusign)
                         </button>
@@ -805,7 +805,7 @@ export function CandidateProfileModal({ candidate, onClose, onUpdate }: Candidat
                     <CalendarIcon className="w-3.5 h-3.5" /> Entrevista
                   </button>
                   <button className="px-3 py-1.5 glass-panel text-slate-300 hover:text-white hover:bg-white/5 rounded-md text-xs font-medium transition-colors">Rechazar</button>
-                  <button className="px-3 py-1.5 bg-cyan-600/20 border border-cyan-500/50 hover:bg-cyan-600/40 text-cyan-50 hover:text-white rounded-md text-xs font-bold flex items-center gap-1 transition-all shadow-[0_0_15px_rgba(6,182,212,0.2)] hover:shadow-[0_0_20px_rgba(6,182,212,0.4)]">
+                  <button className="px-3 py-1.5 bg-cyan-600/20 border border-cyan-500/50 hover:bg-cyan-600/40 text-cyan-50 hover:text-white rounded-md text-xs font-bold flex items-center gap-1 transition-all shadow-[0_0_15px_rgba(163,163,163,0.2)] hover:shadow-[0_0_20px_rgba(163,163,163,0.4)]">
                     Avanzar <ArrowRight className="w-3.5 h-3.5" />
                   </button>
                 </div>
@@ -855,7 +855,7 @@ export function CandidateProfileModal({ candidate, onClose, onUpdate }: Candidat
                          </button>
                          <button 
                            onClick={() => handleSchedule('outlook')}
-                           className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-[#0078D4] text-white rounded-lg text-xs font-semibold hover:bg-[#006cbd] transition-colors"
+                           className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-[#737373] text-white rounded-lg text-xs font-semibold hover:bg-[#525252] transition-colors"
                          >
                            <svg className="w-4 h-4" viewBox="0 0 24 24"><path fill="currentColor" d="M22.56 5.5v13h-4v-11h-11v-4h15v2zm-20 6h15v11h-15v-11zm1 1v9h13v-9h-13z" /></svg>
                            Outlook Calendar

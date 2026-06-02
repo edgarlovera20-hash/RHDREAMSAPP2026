@@ -58,7 +58,7 @@ export function NotificationsPopover({
       >
         <Bell className="w-5 h-5" />
         {unreadCount > 0 && (
-          <span className="absolute top-1 right-1.5 flex h-4 w-4 shrink-0 translate-x-1/3 -translate-y-1/3 items-center justify-center rounded-full bg-cyan-500 text-[10px] font-bold text-white shadow-[0_0_8px_rgba(34,211,238,0.6)]">
+          <span className="absolute top-1 right-1.5 flex h-4 w-4 shrink-0 translate-x-1/3 -translate-y-1/3 items-center justify-center rounded-full bg-cyan-500 text-[10px] font-bold text-white shadow-[0_0_8px_rgba(212,212,212,0.6)]">
             {unreadCount > 9 ? '9+' : unreadCount}
           </span>
         )}

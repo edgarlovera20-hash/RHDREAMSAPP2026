@@ -51,7 +51,7 @@ export function Login() {
               <img
                 src={BRAND_LOGO_PATH}
                 alt="Heavenly Dreams"
-                className="h-14 w-14 object-contain drop-shadow-[0_0_16px_rgba(34,211,238,0.45)]"
+                className="h-14 w-14 object-contain grayscale drop-shadow-[0_0_16px_rgba(212,212,212,0.26)]"
               />
               <div>
                 <p className="text-2xl font-bold tracking-tight">
@@ -86,7 +86,7 @@ export function Login() {
 
           <div className="flex min-h-[560px] flex-col justify-center p-6 sm:p-10">
             <div className="mb-8 flex items-center gap-3 md:hidden">
-              <img src={BRAND_LOGO_PATH} alt="Heavenly Dreams" className="h-12 w-12 object-contain" />
+              <img src={BRAND_LOGO_PATH} alt="Heavenly Dreams" className="h-12 w-12 object-contain grayscale" />
               <div>
                 <p className="text-xl font-bold">
                   RH<span className="text-cyan-400">Dreams</span>

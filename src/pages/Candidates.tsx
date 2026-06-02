@@ -249,7 +249,7 @@ export function Candidates() {
                 type: 'info'
               });
             }}
-            className="bg-cyan-600/20 border border-cyan-500/50 hover:bg-cyan-600/40 text-cyan-50 hover:text-white px-4 py-2.5 rounded-lg font-bold text-xs flex items-center gap-2 transition-all shadow-[0_0_15px_rgba(6,182,212,0.2)] hover:shadow-[0_0_20px_rgba(6,182,212,0.4)]">
+            className="bg-cyan-600/20 border border-cyan-500/50 hover:bg-cyan-600/40 text-cyan-50 hover:text-white px-4 py-2.5 rounded-lg font-bold text-xs flex items-center gap-2 transition-all shadow-[0_0_15px_rgba(163,163,163,0.2)] hover:shadow-[0_0_20px_rgba(163,163,163,0.4)]">
             <Plus className="w-4 h-4" />
             Nuevo Lead
           </button>
@@ -686,7 +686,7 @@ export function Candidates() {
                          setNewStageName('');
                        }
                      }}
-                     className="bg-cyan-500/10 text-cyan-400 hover:bg-cyan-500/20 px-3 py-2 rounded-lg transition-colors border border-cyan-500/20 shadow-[0_0_10px_rgba(6,182,212,0.1)]"
+                     className="bg-cyan-500/10 text-cyan-400 hover:bg-cyan-500/20 px-3 py-2 rounded-lg transition-colors border border-cyan-500/20 shadow-[0_0_10px_rgba(163,163,163,0.1)]"
                    >
                      <Plus className="w-5 h-5" />
                    </button>
@@ -757,7 +757,7 @@ export function Candidates() {
               eventPropGetter={(event: any) => {
                 const isDone = event.status && ['attended', 'realizada'].includes(event.status.toLowerCase());
                 return {
-                  className: cn("rounded outline-none border shadow-[0_0_12px_rgba(6,182,212,0.16)]", isDone ? "bg-slate-700 border-slate-600 text-slate-300 opacity-70" : "bg-cyan-500/20 border-cyan-500/50 text-cyan-300 hover:bg-cyan-500/30")
+                  className: cn("rounded outline-none border shadow-[0_0_12px_rgba(163,163,163,0.16)]", isDone ? "bg-slate-700 border-slate-600 text-slate-300 opacity-70" : "bg-cyan-500/20 border-cyan-500/50 text-cyan-300 hover:bg-cyan-500/30")
                 };
               }}
             />
@@ -824,7 +824,7 @@ export function Candidates() {
                   background: rgba(0, 0, 0, 0.2);
                 }
                 .rbc-theme-custom .rbc-today {
-                  background: rgba(6, 182, 212, 0.05); /* subtle cyan */
+                  background: rgba(163, 163, 163, 0.05); /* subtle cyan */
                 }
                 .rbc-theme-custom .rbc-btn-group button {
                   color: #cbd5e1;
@@ -839,9 +839,9 @@ export function Candidates() {
                   color: white;
                 }
                 .rbc-theme-custom .rbc-btn-group button.rbc-active {
-                  background: rgba(6, 182, 212, 0.2);
-                  color: #22d3ee;
-                  border-color: rgba(6, 182, 212, 0.5);
+                  background: rgba(163, 163, 163, 0.2);
+                  color: #a3a3a3;
+                  border-color: rgba(163, 163, 163, 0.5);
                   box-shadow: none;
                 }
                 .rbc-theme-custom .rbc-toolbar button {
@@ -960,7 +960,7 @@ export function Candidates() {
                       )}
                       <button 
                         onClick={(e) => { e.stopPropagation(); setSelectedCandidate(candidate); }}
-                        className="text-slate-400 hover:text-cyan-400 font-medium text-sm transition-colors hover:drop-shadow-[0_0_8px_rgba(6,182,212,0.8)]"
+                        className="text-slate-400 hover:text-cyan-400 font-medium text-sm transition-colors hover:drop-shadow-[0_0_8px_rgba(163,163,163,0.8)]"
                       >
                         Analizar
                       </button>
@@ -1070,7 +1070,7 @@ export function Candidates() {
                   setContactMessage('');
                 }}
                 disabled={!contactMessage.trim()}
-                className="bg-cyan-500 hover:bg-cyan-600 text-slate-900 font-semibold px-6 py-2.5 rounded-xl flex items-center gap-2 transition-all shadow-[0_0_15px_rgba(34,211,238,0.2)] disabled:opacity-50 disabled:cursor-not-allowed"
+                className="bg-cyan-500 hover:bg-cyan-600 text-slate-900 font-semibold px-6 py-2.5 rounded-xl flex items-center gap-2 transition-all shadow-[0_0_15px_rgba(212,212,212,0.2)] disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <Send className="w-4 h-4 text-slate-900" fill="currentColor" />
                 Enviar Mensaje

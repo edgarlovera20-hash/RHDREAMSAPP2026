@@ -365,7 +365,7 @@ export function Settings() {
     return (
       <div key={integration.id} className="glass-panel glass-panel-hover p-5 rounded-xl border border-white/10 group">
         <div className="flex items-start justify-between mb-3">
-          <div className={cn("w-12 h-12 rounded-xl flex items-center justify-center shrink-0 transition-all overflow-hidden", status.ok ? "bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 shadow-[inset_0_0_10px_rgba(6,182,212,0.3)]" : "bg-slate-800 text-slate-500 border border-slate-700")}>
+          <div className={cn("w-12 h-12 rounded-xl flex items-center justify-center shrink-0 transition-all overflow-hidden", status.ok ? "bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 shadow-[inset_0_0_10px_rgba(163,163,163,0.3)]" : "bg-slate-800 text-slate-500 border border-slate-700")}>
             {iconImage ? (
               <img
                 src={iconImage}
@@ -460,7 +460,7 @@ export function Settings() {
               className={cn(
                 "flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-all text-left",
                 activeTab === tab.id 
-                  ? "bg-cyan-500/10 text-cyan-400 drop-shadow-[0_0_8px_rgba(6,182,212,0.8)]" 
+                  ? "bg-cyan-500/10 text-cyan-400 drop-shadow-[0_0_8px_rgba(163,163,163,0.8)]" 
                   : "text-slate-400 hover:bg-slate-800 hover:text-white"
               )}
             >
@@ -483,7 +483,7 @@ export function Settings() {
                   </div>
                   <button 
                     onClick={() => setIsFlowModalOpen(true)}
-                    className="bg-cyan-600/20 border border-cyan-500/50 hover:bg-cyan-600/40 text-cyan-50 hover:text-white px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wide flex items-center gap-2 transition-all shadow-[0_0_15px_rgba(6,182,212,0.2)]">
+                    className="bg-cyan-600/20 border border-cyan-500/50 hover:bg-cyan-600/40 text-cyan-50 hover:text-white px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wide flex items-center gap-2 transition-all shadow-[0_0_15px_rgba(163,163,163,0.2)]">
                     <Plus className="w-4 h-4" /> Crear Flujo
                   </button>
                 </div>
@@ -493,7 +493,7 @@ export function Settings() {
                     {automations.map(auto => (
                       <div key={auto.id} className="glass-panel glass-panel-hover p-5 rounded-xl flex items-center justify-between group">
                         <div className="flex items-center gap-4">
-                          <div className={cn("w-10 h-10 rounded-lg flex items-center justify-center shrink-0 transition-all", auto.active ? "bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 shadow-[inset_0_0_8px_rgba(6,182,212,0.2)]" : "bg-slate-800 text-slate-500 border border-slate-700")}>
+                          <div className={cn("w-10 h-10 rounded-lg flex items-center justify-center shrink-0 transition-all", auto.active ? "bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 shadow-[inset_0_0_8px_rgba(163,163,163,0.2)]" : "bg-slate-800 text-slate-500 border border-slate-700")}>
                             <Zap className="w-5 h-5" />
                           </div>
                           <div>
@@ -535,7 +535,7 @@ export function Settings() {
                   </div>
                   <button 
                     onClick={() => setIsInviteModalOpen(true)}
-                    className="bg-cyan-600/20 border border-cyan-500/50 hover:bg-cyan-600/40 text-cyan-50 hover:text-white px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wide flex items-center gap-2 transition-all shadow-[0_0_15px_rgba(6,182,212,0.2)]">
+                    className="bg-cyan-600/20 border border-cyan-500/50 hover:bg-cyan-600/40 text-cyan-50 hover:text-white px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wide flex items-center gap-2 transition-all shadow-[0_0_15px_rgba(163,163,163,0.2)]">
                     <Plus className="w-4 h-4" /> Invitar
                   </button>
                 </div>
@@ -601,7 +601,7 @@ export function Settings() {
                   <div className="grid gap-4">
                     {ROLES.map(role => (
                       <div key={role.id} className="glass-panel p-4 rounded-xl flex items-start gap-4 hover:border-white/10 transition-colors">
-                        <div className="mt-0.5 bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 p-2 rounded-lg shadow-[inset_0_0_8px_rgba(6,182,212,0.2)]">
+                        <div className="mt-0.5 bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 p-2 rounded-lg shadow-[inset_0_0_8px_rgba(163,163,163,0.2)]">
                           <Shield className="w-5 h-5" />
                         </div>
                         <div>
@@ -620,7 +620,7 @@ export function Settings() {
                     <h2 className="text-lg font-semibold text-white">Preferencias de Notificación</h2>
                     <p className="text-sm text-slate-400 font-light">Elige qué eventos activan cada tipo de notificación.</p>
                   </div>
-                  <button className="bg-cyan-600/20 border border-cyan-500/50 hover:bg-cyan-600/40 text-cyan-50 hover:text-white px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wide flex items-center transition-all shadow-[0_0_15px_rgba(6,182,212,0.2)]">
+                  <button className="bg-cyan-600/20 border border-cyan-500/50 hover:bg-cyan-600/40 text-cyan-50 hover:text-white px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wide flex items-center transition-all shadow-[0_0_15px_rgba(163,163,163,0.2)]">
                     Guardar Cambios
                   </button>
                 </div>
@@ -704,7 +704,7 @@ export function Settings() {
                                 />
                                 <div className={cn(
                                   "w-9 h-5 rounded-full peer-focus:outline-none transition-all",
-                                  pref.inApp ? "bg-cyan-500 shadow-[0_0_10px_rgba(6,182,212,0.5)]" : "bg-slate-700"
+                                  pref.inApp ? "bg-cyan-500 shadow-[0_0_10px_rgba(163,163,163,0.5)]" : "bg-slate-700"
                                 )}></div>
                                 <div className={cn(
                                   "absolute left-[2px] top-[2px] bg-white border-gray-300 border rounded-full h-4 w-4 transition-all",
@@ -722,7 +722,7 @@ export function Settings() {
                                 />
                                 <div className={cn(
                                   "w-9 h-5 rounded-full peer-focus:outline-none transition-all",
-                                  pref.push ? "bg-cyan-500 shadow-[0_0_10px_rgba(6,182,212,0.5)]" : "bg-slate-700"
+                                  pref.push ? "bg-cyan-500 shadow-[0_0_10px_rgba(163,163,163,0.5)]" : "bg-slate-700"
                                 )}></div>
                                 <div className={cn(
                                   "absolute left-[2px] top-[2px] bg-white border-gray-300 border rounded-full h-4 w-4 transition-all",
@@ -740,7 +740,7 @@ export function Settings() {
                                 />
                                 <div className={cn(
                                   "w-9 h-5 rounded-full peer-focus:outline-none transition-all",
-                                  pref.email ? "bg-cyan-500 shadow-[0_0_10px_rgba(6,182,212,0.5)]" : "bg-slate-700"
+                                  pref.email ? "bg-cyan-500 shadow-[0_0_10px_rgba(163,163,163,0.5)]" : "bg-slate-700"
                                 )}></div>
                                 <div className={cn(
                                   "absolute left-[2px] top-[2px] bg-white border-gray-300 border rounded-full h-4 w-4 transition-all",
@@ -764,7 +764,7 @@ export function Settings() {
                   </div>
                   <button
                     onClick={() => setConfiguringIntegration(integrationsList.find(item => item.provider) || null)}
-                    className="bg-cyan-600/20 border border-cyan-500/50 hover:bg-cyan-600/40 text-cyan-50 hover:text-white px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wide flex items-center gap-2 transition-all shadow-[0_0_15px_rgba(6,182,212,0.2)]"
+                    className="bg-cyan-600/20 border border-cyan-500/50 hover:bg-cyan-600/40 text-cyan-50 hover:text-white px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wide flex items-center gap-2 transition-all shadow-[0_0_15px_rgba(163,163,163,0.2)]"
                   >
                     <Plus className="w-4 h-4" /> Nueva Integracion
                   </button>
@@ -1079,7 +1079,7 @@ export function Settings() {
                   {!editingTemplate && (
                     <button 
                       onClick={() => setEditingTemplate({ id: Date.now(), name: '', subject: '', type: 'Manual', body: '' })}
-                      className="bg-cyan-600/20 border border-cyan-500/50 hover:bg-cyan-600/40 text-cyan-50 hover:text-white px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wide flex items-center gap-2 transition-all shadow-[0_0_15px_rgba(6,182,212,0.2)]">
+                      className="bg-cyan-600/20 border border-cyan-500/50 hover:bg-cyan-600/40 text-cyan-50 hover:text-white px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wide flex items-center gap-2 transition-all shadow-[0_0_15px_rgba(163,163,163,0.2)]">
                       <Plus className="w-4 h-4" /> Crear Plantilla
                     </button>
                   )}
@@ -1240,7 +1240,7 @@ export function Settings() {
                         <div className="relative z-10">
                           <label className="relative inline-flex items-center cursor-pointer">
                             <input type="checkbox" className="sr-only peer" defaultChecked />
-                            <div className="w-9 h-5 rounded-full peer-focus:outline-none transition-all bg-cyan-500 shadow-[0_0_10px_rgba(6,182,212,0.5)]"></div>
+                            <div className="w-9 h-5 rounded-full peer-focus:outline-none transition-all bg-cyan-500 shadow-[0_0_10px_rgba(163,163,163,0.5)]"></div>
                             <div className="absolute left-[2px] top-[2px] bg-white border-gray-300 border rounded-full h-4 w-4 transition-all translate-x-full border-white"></div>
                           </label>
                         </div>
@@ -1320,7 +1320,7 @@ export function Settings() {
             ) : (
                <div className="p-6 flex flex-col items-center justify-center text-center h-[400px] text-slate-500 relative">
                  <div className="absolute inset-0 bg-gradient-to-t from-slate-900/50 to-transparent pointer-events-none"></div>
-                 <Shield className="w-16 h-16 text-cyan-900 mb-4 opacity-50 drop-shadow-[0_0_15px_rgba(6,182,212,0.2)]" />
+                 <Shield className="w-16 h-16 text-cyan-900 mb-4 opacity-50 drop-shadow-[0_0_15px_rgba(163,163,163,0.2)]" />
                  <h3 className="text-lg font-medium text-slate-300 mb-1 tracking-tight">Módulo en construcción</h3>
                  <p className="max-w-xs text-sm font-light">Pronto podrás configurar esta sección del sistema inteligente aquí.</p>
                </div>

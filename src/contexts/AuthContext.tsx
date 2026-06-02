@@ -180,7 +180,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0c1d31] flex flex-col items-center justify-center relative overflow-hidden" style={{ background: 'radial-gradient(circle at center, #123659 0%, #0f2843 55%, #0c1d31 100%)' }}>
+      <div className="min-h-screen bg-[#171717] flex flex-col items-center justify-center relative overflow-hidden" style={{ background: 'radial-gradient(circle at center, #2a2a2a 0%, #202020 55%, #171717 100%)' }}>
         <div className="opacity-15 absolute inset-0 pointer-events-none z-0">
           <NetworkBackground />
         </div>
@@ -188,7 +188,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           <div className="relative w-16 h-16 flex items-center justify-center mb-6">
             <div className="absolute inset-0 rounded-full border-2 border-cyan-400/20 animate-[ping_1.5s_ease-in-out_infinite]" />
             <div className="absolute w-12 h-12 rounded-full border border-cyan-400/35 border-t-cyan-400 animate-spin" />
-            <Sparkles className="w-5 h-5 text-[#00AFFF] animate-pulse" />
+            <Sparkles className="w-5 h-5 text-[#d4d4d4] animate-pulse" />
           </div>
           <span className="font-extrabold text-xs tracking-[0.2em] text-white uppercase opacity-90">Iniciando Red Neuronal</span>
           <span className="text-[10px] text-slate-500 mt-1 uppercase font-mono">Conectando a Heavenly Dreams Enterprise...</span>

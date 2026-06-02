@@ -796,7 +796,7 @@ export function WhatsAppAccounts() {
         <img
           src={image}
           alt={`${getPlatformLabel(type)} icono`}
-          className="h-5 w-5 object-contain drop-shadow-[0_0_10px_rgba(34,211,238,0.35)]"
+          className="h-5 w-5 object-contain drop-shadow-[0_0_10px_rgba(212,212,212,0.35)]"
           loading="lazy"
         />
       );
@@ -867,7 +867,7 @@ export function WhatsAppAccounts() {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-white/5 pb-4">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight text-white mt-1 flex items-center gap-2">
-            <Sparkles className="w-6 h-6 text-cyan-400 drop-shadow-[0_0_10px_rgba(34,211,238,0.5)]" />
+            <Sparkles className="w-6 h-6 text-cyan-400 drop-shadow-[0_0_10px_rgba(212,212,212,0.5)]" />
             Canales de Mensajería y Redes Sociales
           </h1>
           <p className="text-slate-400 text-sm">Gestiona tus conexiones de reclutamiento desde un único lugar asignando Agentes de IA conversacionales.</p>
@@ -891,7 +891,7 @@ export function WhatsAppAccounts() {
             setIsModalOpen(true);
           }}
           className={cn(
-            "px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-2 transition-all shadow-[0_0_15px_rgba(6,182,212,0.15)] uppercase tracking-wide border",
+            "px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-2 transition-all shadow-[0_0_15px_rgba(163,163,163,0.15)] uppercase tracking-wide border",
             activeTab === 'whatsapp_meta' ? "bg-teal-600/20 border-teal-500/50 hover:bg-teal-600/40 text-teal-200" :
             activeTab === 'whatsapp_personal' ? "bg-emerald-600/20 border-emerald-500/50 hover:bg-emerald-600/40 text-emerald-250" :
             activeTab === 'indeed' ? "bg-blue-600/20 border-blue-500/50 hover:bg-blue-600/40 text-blue-250" :
@@ -1592,7 +1592,7 @@ export function WhatsAppAccounts() {
                   <button 
                     onClick={startLinking}
                     disabled={!newAccountName || !selectedAgent || isStartingBaileys}
-                    className="bg-cyan-500 hover:bg-cyan-600 text-slate-900 font-semibold px-6 py-2.5 rounded-xl text-sm transition-all shadow-[0_0_15px_rgba(34,211,238,0.2)] disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="bg-cyan-500 hover:bg-cyan-600 text-slate-900 font-semibold px-6 py-2.5 rounded-xl text-sm transition-all shadow-[0_0_15px_rgba(212,212,212,0.2)] disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {isStartingBaileys ? 'Iniciando...' : activeTab === 'whatsapp_personal' ? 'Generar Código QR' : activeTab === 'whatsapp_meta' ? 'Registrar modulo Meta API' : activeTab === 'indeed' || activeTab === 'computrabajo' ? 'Crear entrada sin API' : 'Conectar con API oficial'}
                   </button>
@@ -1614,7 +1614,7 @@ export function WhatsAppAccounts() {
                       <Loader2 className="w-5 h-5 animate-spin" />
                     </div>
                   )}
-                  <div className="absolute top-0 left-0 w-full h-1 bg-cyan-500 shadow-[0_0_10px_rgba(34,211,238,0.8)] animate-[scan_2s_ease-in-out_infinite]" />
+                  <div className="absolute top-0 left-0 w-full h-1 bg-cyan-500 shadow-[0_0_10px_rgba(212,212,212,0.8)] animate-[scan_2s_ease-in-out_infinite]" />
                 </div>
 
                 <div className="flex items-center gap-2 text-sm text-cyan-400 animate-pulse">
@@ -1925,7 +1925,7 @@ export function WhatsAppAccounts() {
               </button>
               <button 
                 onClick={saveAutomationConfig}
-                className="bg-cyan-500 hover:bg-cyan-600 text-slate-900 font-semibold px-6 py-2.5 rounded-xl text-sm transition-all shadow-[0_0_15px_rgba(34,211,238,0.2)] flex items-center gap-2"
+                className="bg-cyan-500 hover:bg-cyan-600 text-slate-900 font-semibold px-6 py-2.5 rounded-xl text-sm transition-all shadow-[0_0_15px_rgba(212,212,212,0.2)] flex items-center gap-2"
               >
                 <CheckCircle2 className="w-4 h-4" /> Guardar Cambios
               </button>

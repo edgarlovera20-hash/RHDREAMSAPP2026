@@ -5,7 +5,7 @@ import { useNotifications } from "@/contexts/NotificationContext";
 import { useDb } from "@/hooks/useDb";
 import { cn } from "@/lib/utils";
 
-const COLORS = ['#0ea5e9', '#6366f1', '#8b5cf6', '#d946ef', '#f43f5e'];
+const COLORS = ['#737373', '#737373', '#737373', '#737373', '#737373'];
 
 const getAlertColors = (type: string) => {
   switch (type) {
@@ -266,7 +266,7 @@ export function Dashboard() {
       <div className="flex flex-col 2xl:flex-row items-stretch 2xl:items-center justify-between gap-4 p-4 glass-panel rounded-2xl border border-cyan-400/10 bg-slate-950/70 shadow-lg relative overflow-visible group">
         <div className="absolute inset-y-4 left-0 w-1 rounded-r-full bg-gradient-to-b from-cyan-400 to-blue-500"></div>
         <div className="flex items-center gap-4 relative z-10 w-full min-w-0 2xl:max-w-[460px]">
-          <div className="grid h-11 w-11 shrink-0 place-items-center border border-cyan-500/25 bg-cyan-500/12 rounded-xl shadow-[0_0_18px_rgba(6,182,212,0.12)]">
+          <div className="grid h-11 w-11 shrink-0 place-items-center border border-cyan-500/25 bg-cyan-500/12 rounded-xl shadow-[0_0_18px_rgba(163,163,163,0.12)]">
             <Calendar className="w-5 h-5 text-cyan-400" />
           </div>
           <div className="min-w-0">
@@ -305,7 +305,7 @@ export function Dashboard() {
                 className={cn(
                   "px-3 py-2 rounded-lg text-xs font-semibold tracking-wide transition-all border border-transparent whitespace-nowrap",
                   selectedPreset === preset.id 
-                    ? "bg-gradient-to-r from-cyan-500/25 to-blue-500/20 text-cyan-200 shadow-[0_0_16px_rgba(6,182,212,0.18)] border-cyan-500/35"
+                    ? "bg-gradient-to-r from-cyan-500/25 to-blue-500/20 text-cyan-200 shadow-[0_0_16px_rgba(163,163,163,0.18)] border-cyan-500/35"
                     : "text-slate-400 hover:text-white hover:bg-slate-800/40"
                 )}
               >
@@ -348,8 +348,8 @@ export function Dashboard() {
         ].map((stat, i) => {
           const Icon = stat.icon;
           const styles = {
-            cyan: { text: "text-cyan-400", bgLine: "via-cyan-500/40", shadow: "group-hover:drop-shadow-[0_0_12px_rgba(6,182,212,0.8)]", dot: "bg-cyan-400", hoverBorder: "hover:border-cyan-500/50" },
-            purple: { text: "text-purple-400", bgLine: "via-purple-500/40", shadow: "group-hover:drop-shadow-[0_0_12px_rgba(168,85,247,0.8)]", dot: "bg-purple-400", hoverBorder: "hover:border-purple-500/50" },
+            cyan: { text: "text-cyan-400", bgLine: "via-cyan-500/40", shadow: "group-hover:drop-shadow-[0_0_12px_rgba(163,163,163,0.8)]", dot: "bg-cyan-400", hoverBorder: "hover:border-cyan-500/50" },
+            purple: { text: "text-purple-400", bgLine: "via-purple-500/40", shadow: "group-hover:drop-shadow-[0_0_12px_rgba(163,163,163,0.8)]", dot: "bg-purple-400", hoverBorder: "hover:border-purple-500/50" },
             emerald: { text: "text-emerald-400", bgLine: "via-emerald-500/40", shadow: "group-hover:drop-shadow-[0_0_12px_rgba(16,185,129,0.8)]", dot: "bg-emerald-400", hoverBorder: "hover:border-emerald-500/50" },
             rose: { text: "text-rose-400", bgLine: "via-rose-500/40", shadow: "group-hover:drop-shadow-[0_0_12px_rgba(244,63,94,0.8)]", dot: "bg-rose-400", hoverBorder: "hover:border-rose-500/50" },
           }[stat.color];
@@ -382,7 +382,7 @@ export function Dashboard() {
         <div className="glass-panel p-6 rounded-2xl flex flex-col relative overflow-hidden group border-white/10 bg-slate-950/75 hover:border-cyan-500/30 transition-all duration-300">
           <div className="absolute top-0 right-0 p-32 bg-cyan-500/8 blur-3xl rounded-full opacity-60 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"></div>
           <h2 className="text-[11px] font-bold text-slate-300 mb-6 uppercase tracking-[0.2em] flex items-center gap-3">
-            <span className="w-2 h-2 bg-cyan-400 rounded-sm shadow-[0_0_8px_#22d3ee]"></span> Embudo y Tasa de Conversión (%)
+            <span className="w-2 h-2 bg-cyan-400 rounded-sm shadow-[0_0_8px_#a3a3a3]"></span> Embudo y Tasa de Conversión (%)
           </h2>
           <div className="h-[320px] w-full relative z-10">
             <ResponsiveContainer width="100%" height="100%">
@@ -392,13 +392,13 @@ export function Dashboard() {
                 <YAxis dataKey="stage" type="category" axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 11, fontWeight: 600, fontFamily: 'Inter' }} />
                 <RechartsTooltip 
                   cursor={{ fill: 'rgba(255,255,255,0.02)' }}
-                  contentStyle={{ borderRadius: '12px', border: '1px solid rgba(6,182,212,0.3)', backgroundColor: 'rgba(15, 17, 21, 0.9)', color: '#e2e8f0', boxShadow: '0 8px 32px rgba(0, 0, 0, 0.5)', backdropFilter: 'blur(12px)', fontFamily: 'Inter', fontSize: '12px' }}
+                  contentStyle={{ borderRadius: '12px', border: '1px solid rgba(163,163,163,0.3)', backgroundColor: 'rgba(15, 17, 21, 0.9)', color: '#e2e8f0', boxShadow: '0 8px 32px rgba(0, 0, 0, 0.5)', backdropFilter: 'blur(12px)', fontFamily: 'Inter', fontSize: '12px' }}
                 />
                 <Bar dataKey="count" fill="url(#cyanGradient)" radius={[0, 4, 4, 0]} barSize={24} name="Candidatos">
                   <defs>
                     <linearGradient id="cyanGradient" x1="0" y1="0" x2="1" y2="0">
-                      <stop offset="0%" stopColor="#0ea5e9" stopOpacity={0.6}/>
-                      <stop offset="100%" stopColor="#06b6d4" stopOpacity={1}/>
+                      <stop offset="0%" stopColor="#737373" stopOpacity={0.6}/>
+                      <stop offset="100%" stopColor="#737373" stopOpacity={1}/>
                     </linearGradient>
                   </defs>
                 </Bar>
@@ -451,8 +451,8 @@ export function Dashboard() {
               <AreaChart data={computedPerformanceData} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
                 <defs>
                   <linearGradient id="colorHires" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#0ea5e9" stopOpacity={0.3}/>
-                    <stop offset="95%" stopColor="#0ea5e9" stopOpacity={0}/>
+                    <stop offset="5%" stopColor="#737373" stopOpacity={0.3}/>
+                    <stop offset="95%" stopColor="#737373" stopOpacity={0}/>
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.03)" />
@@ -460,9 +460,9 @@ export function Dashboard() {
                 <YAxis yAxisId="left" axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 11, fontFamily: 'JetBrains Mono' }} />
                 <YAxis yAxisId="right" orientation="right" axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 11, fontFamily: 'JetBrains Mono' }} />
                 <RechartsTooltip 
-                  contentStyle={{ borderRadius: '12px', border: '1px solid rgba(14,165,233,0.3)', backgroundColor: 'rgba(15, 17, 21, 0.9)', color: '#e2e8f0', boxShadow: '0 8px 32px rgba(0, 0, 0, 0.5)', backdropFilter: 'blur(12px)', fontFamily: 'Inter', fontSize: '12px' }}
+                  contentStyle={{ borderRadius: '12px', border: '1px solid rgba(163,163,163,0.3)', backgroundColor: 'rgba(15, 17, 21, 0.9)', color: '#e2e8f0', boxShadow: '0 8px 32px rgba(0, 0, 0, 0.5)', backdropFilter: 'blur(12px)', fontFamily: 'Inter', fontSize: '12px' }}
                 />
-                <Area yAxisId="left" type="monotone" dataKey="hires" name="Contrataciones" stroke="#0ea5e9" strokeWidth={3} fillOpacity={1} fill="url(#colorHires)" activeDot={{ r: 6, fill: '#0ea5e9', strokeWidth: 0, className: "drop-shadow-[0_0_12px_#0ea5e9]" }} />
+                <Area yAxisId="left" type="monotone" dataKey="hires" name="Contrataciones" stroke="#737373" strokeWidth={3} fillOpacity={1} fill="url(#colorHires)" activeDot={{ r: 6, fill: '#737373', strokeWidth: 0, className: "drop-shadow-[0_0_12px_#737373]" }} />
                 <Line yAxisId="right" type="monotone" dataKey="timeToHire" name="Tiempo (días)" stroke="#8B5CF6" strokeWidth={3} dot={{ fill: '#0F172A', strokeWidth: 2, stroke: '#8B5CF6' }} activeDot={{ r: 7, fill: '#8B5CF6', strokeWidth: 0, className: "drop-shadow-[0_0_12px_#8B5CF6]" }} />
               </AreaChart>
             </ResponsiveContainer>

@@ -667,7 +667,7 @@ export function WorkspaceHub() {
       <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 border-b border-white/5 pb-4">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight text-white mt-1 flex items-center gap-2">
-            <Sparkles className="w-6 h-6 text-cyan-400 drop-shadow-[0_0_10px_rgba(34,211,238,0.5)]" />
+            <Sparkles className="w-6 h-6 text-cyan-400 drop-shadow-[0_0_10px_rgba(212,212,212,0.5)]" />
             Integración Google Workspace
           </h1>
           <p className="text-slate-400 text-sm">Centraliza Sheets, Calendar, Gmail, Forms, Drive, Photos y Keep de Reclutamiento.</p>

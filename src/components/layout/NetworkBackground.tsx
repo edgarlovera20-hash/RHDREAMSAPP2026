@@ -45,8 +45,8 @@ export function NetworkBackground() {
         if (!ctx) return;
         ctx.beginPath();
         ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(34, 211, 238, 0.42)';
-        ctx.shadowColor = 'rgba(34, 211, 238, 0.55)';
+        ctx.fillStyle = 'rgba(163, 163, 163, 0.34)';
+        ctx.shadowColor = 'rgba(212, 212, 212, 0.36)';
         ctx.shadowBlur = 8;
         ctx.fill();
         ctx.shadowBlur = 0;
@@ -74,9 +74,9 @@ export function NetworkBackground() {
             ctx.moveTo(particles[i].x, particles[i].y);
             ctx.lineTo(particles[j].x, particles[j].y);
             const opacity = (1 - distance / 155) * 0.36;
-            ctx.strokeStyle = `rgba(34, 211, 238, ${opacity})`;
+            ctx.strokeStyle = `rgba(163, 163, 163, ${opacity})`;
             ctx.lineWidth = 1;
-            ctx.shadowColor = 'rgba(14, 165, 233, 0.25)';
+            ctx.shadowColor = 'rgba(212, 212, 212, 0.18)';
             ctx.shadowBlur = 5;
             ctx.stroke();
             ctx.shadowBlur = 0;

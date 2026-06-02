@@ -7,7 +7,7 @@ import {
   BarChart, Bar, Legend, LineChart, Line, ComposedChart, PieChart as RechartsPieChart, Pie, Cell 
 } from 'recharts';
 
-const COLORS = ['#06b6d4', '#8b5cf6', '#10b981', '#f59e0b', '#f43f5e', '#64748b'];
+const COLORS = ['#737373', '#737373', '#737373', '#737373', '#737373', '#64748b'];
 
 export function Reports() {
   const { candidates, jobs } = useDb();
@@ -102,7 +102,7 @@ export function Reports() {
           </button>
           <button 
             onClick={handleExportCSV}
-            className="bg-cyan-600/20 border border-cyan-500/50 hover:bg-cyan-600/40 text-cyan-50 hover:text-white px-4 py-2 rounded-lg font-bold text-xs flex items-center gap-2 transition-all shadow-[0_0_15px_rgba(6,182,212,0.2)]">
+            className="bg-cyan-600/20 border border-cyan-500/50 hover:bg-cyan-600/40 text-cyan-50 hover:text-white px-4 py-2 rounded-lg font-bold text-xs flex items-center gap-2 transition-all shadow-[0_0_15px_rgba(163,163,163,0.2)]">
             Exportar CSV
           </button>
         </div>
@@ -279,9 +279,9 @@ export function Reports() {
                 <YAxis dataKey="stage" type="category" stroke="#94a3b8" fontSize={11} width={90} />
                 <RechartsTooltip 
                   contentStyle={{ backgroundColor: '#0f172a', borderColor: '#1e293b', borderRadius: '8px', color: '#f8fafc' }}
-                  itemStyle={{ color: '#06b6d4' }}
+                  itemStyle={{ color: '#737373' }}
                 />
-                <Bar dataKey="count" fill="#06b6d4" radius={[0, 4, 4, 0]} barSize={20}>
+                <Bar dataKey="count" fill="#737373" radius={[0, 4, 4, 0]} barSize={20}>
                   {funnelData.map((_entry, index) => (
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
@@ -308,8 +308,8 @@ export function Reports() {
                   contentStyle={{ backgroundColor: '#0f172a', borderColor: '#1e293b', borderRadius: '8px', color: '#f8fafc' }}
                 />
                 <Legend wrapperStyle={{ fontSize: '12px' }} />
-                <Bar yAxisId="left" dataKey="hires" name="Contratados" fill="#8b5cf6" radius={[4, 4, 0, 0]} barSize={30} />
-                <Line yAxisId="right" type="monotone" dataKey="timeToHire" name="Tiempo (días)" stroke="#06b6d4" strokeWidth={2} dot={{ r: 4 }} activeDot={{ r: 6 }} />
+                <Bar yAxisId="left" dataKey="hires" name="Contratados" fill="#737373" radius={[4, 4, 0, 0]} barSize={30} />
+                <Line yAxisId="right" type="monotone" dataKey="timeToHire" name="Tiempo (días)" stroke="#737373" strokeWidth={2} dot={{ r: 4 }} activeDot={{ r: 6 }} />
               </ComposedChart>
             </ResponsiveContainer>
           </div>
@@ -326,8 +326,8 @@ export function Reports() {
               <AreaChart data={sourceDistribution} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
                 <defs>
                   <linearGradient id="colorHires" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#10b981" stopOpacity={0.3}/>
-                    <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
+                    <stop offset="5%" stopColor="#737373" stopOpacity={0.3}/>
+                    <stop offset="95%" stopColor="#737373" stopOpacity={0}/>
                   </linearGradient>
                 </defs>
                 <XAxis dataKey="name" stroke="#94a3b8" fontSize={12} />
@@ -336,7 +336,7 @@ export function Reports() {
                 <RechartsTooltip 
                   contentStyle={{ backgroundColor: '#0f172a', borderColor: '#1e293b', borderRadius: '8px', color: '#f8fafc' }}
                 />
-                <Area type="monotone" dataKey="count" stroke="#10b981" fillOpacity={1} fill="url(#colorHires)" />
+                <Area type="monotone" dataKey="count" stroke="#737373" fillOpacity={1} fill="url(#colorHires)" />
               </AreaChart>
             </ResponsiveContainer>
           </div>

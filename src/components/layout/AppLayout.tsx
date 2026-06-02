@@ -15,7 +15,7 @@ function BrandLogoMark({ className }: { className?: string }) {
   return (
     <div
       className={cn(
-        "relative flex shrink-0 items-center justify-center overflow-visible bg-transparent drop-shadow-[0_0_10px_rgba(34,211,238,0.35)]",
+        "relative flex shrink-0 items-center justify-center overflow-visible bg-transparent grayscale drop-shadow-[0_0_10px_rgba(212,212,212,0.22)]",
         className
       )}
     >
@@ -150,7 +150,7 @@ export function AppLayout() {
             <BrandLogoMark className={cn("transition-transform duration-300 group-hover:scale-105", isCollapsed ? "h-12 w-12" : "h-16 w-16")} />
             {!isCollapsed && (
               <div className="flex min-w-0 flex-col">
-                <span className="whitespace-nowrap font-bold tracking-tight text-[27px] leading-none">RH<span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">Dreams</span></span>
+                <span className="whitespace-nowrap font-bold tracking-tight text-[27px] leading-none">RH<span className="text-transparent bg-clip-text bg-gradient-to-r from-neutral-200 to-neutral-500">Dreams</span></span>
                 <span className="mt-2 whitespace-nowrap text-[11px] text-cyan-400/85 uppercase tracking-[0.26em] font-bold">Heavenly Dreams</span>
               </div>
             )}
@@ -175,9 +175,9 @@ export function AppLayout() {
                       : "text-slate-400 hover:text-white border border-transparent hover:bg-slate-800/40"
                   )}
                 >
-                  <Icon className={cn("w-5 h-5 relative z-10 transition-colors shrink-0", isActive ? "text-cyan-400 drop-shadow-[0_0_8px_rgba(34,211,238,0.8)]" : "opacity-70 group-hover:text-cyan-300")} />
+                  <Icon className={cn("w-5 h-5 relative z-10 transition-colors shrink-0", isActive ? "text-cyan-400 drop-shadow-[0_0_8px_rgba(212,212,212,0.45)]" : "opacity-70 group-hover:text-cyan-300")} />
                   {!isCollapsed && <span className="relative z-10 tracking-wide text-[13px] whitespace-nowrap">{item.name}</span>}
-                  {isActive && !isCollapsed && <div className="absolute right-3 w-1.5 h-1.5 rounded-full bg-cyan-400 shadow-[0_0_8px_#22d3ee] animate-pulse relative z-10 shrink-0" />}
+                  {isActive && !isCollapsed && <div className="absolute right-3 w-1.5 h-1.5 rounded-full bg-cyan-400 shadow-[0_0_8px_#a3a3a3] animate-pulse relative z-10 shrink-0" />}
                 </Link>
               );
             })}
@@ -196,7 +196,7 @@ export function AppLayout() {
         
         <div className={cn("p-4 border-t border-white/5 shrink-0 bg-black/10 flex items-center transition-all duration-300", isCollapsed ? "flex-col gap-4 justify-center" : "justify-between")}>
           <div className={cn("flex items-center gap-3 glass-panel p-2 rounded-xl group cursor-pointer hover:border-cyan-500/30 transition-colors", isCollapsed ? "justify-center w-full" : "flex-1 min-w-0")}>
-            <div className="w-10 h-10 rounded-lg bg-slate-800 border border-slate-600 flex flex-shrink-0 items-center justify-center text-cyan-400 font-bold text-sm shadow-[0_0_10px_rgba(34,211,238,0.1)] group-hover:shadow-[0_0_15px_rgba(34,211,238,0.3)] transition-all">
+            <div className="w-10 h-10 rounded-lg bg-slate-800 border border-slate-600 flex flex-shrink-0 items-center justify-center text-cyan-400 font-bold text-sm shadow-[0_0_10px_rgba(212,212,212,0.08)] group-hover:shadow-[0_0_15px_rgba(212,212,212,0.22)] transition-all">
               {initials}
             </div>
             {!isCollapsed && (

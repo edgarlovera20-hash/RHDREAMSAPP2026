@@ -827,7 +827,7 @@ Escribenos por mensaje para recibir requisitos, horarios y siguientes pasos.
           </button>
           <button 
             onClick={() => setIsCreateModalOpen(true)}
-            className="bg-cyan-500 hover:bg-cyan-600 text-slate-900 font-semibold px-4 py-2 rounded-xl flex items-center justify-center gap-2 transition-all shadow-[0_0_15px_rgba(34,211,238,0.2)] hover:shadow-[0_0_20px_rgba(34,211,238,0.4)]"
+            className="bg-cyan-500 hover:bg-cyan-600 text-slate-900 font-semibold px-4 py-2 rounded-xl flex items-center justify-center gap-2 transition-all shadow-[0_0_15px_rgba(212,212,212,0.2)] hover:shadow-[0_0_20px_rgba(212,212,212,0.4)]"
           >
             <Plus className="w-4 h-4" />
             Crear Nuevo Agente
@@ -841,7 +841,7 @@ Escribenos por mensaje para recibir requisitos, horarios y siguientes pasos.
           onClick={() => setActiveTab('agents')}
           className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
             activeTab === 'agents' 
-              ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 shadow-[0_0_10px_rgba(34,211,238,0.1)]' 
+              ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 shadow-[0_0_10px_rgba(212,212,212,0.1)]' 
               : 'text-slate-400 hover:text-slate-200 hover:bg-white/5'
           }`}
         >
@@ -851,7 +851,7 @@ Escribenos por mensaje para recibir requisitos, horarios y siguientes pasos.
           onClick={() => setActiveTab('templates')}
           className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
             activeTab === 'templates' 
-              ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 shadow-[0_0_10px_rgba(34,211,238,0.1)]' 
+              ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 shadow-[0_0_10px_rgba(212,212,212,0.1)]' 
               : 'text-slate-400 hover:text-slate-200 hover:bg-white/5'
           }`}
         >
@@ -861,7 +861,7 @@ Escribenos por mensaje para recibir requisitos, horarios y siguientes pasos.
           onClick={() => setActiveTab('tester')}
           className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
             activeTab === 'tester'
-              ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 shadow-[0_0_10px_rgba(34,211,238,0.1)]'
+              ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 shadow-[0_0_10px_rgba(212,212,212,0.1)]'
               : 'text-slate-400 hover:text-slate-200 hover:bg-white/5'
           }`}
         >
@@ -872,7 +872,7 @@ Escribenos por mensaje para recibir requisitos, horarios y siguientes pasos.
           onClick={() => setActiveTab('schedule')}
           className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
             activeTab === 'schedule'
-              ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 shadow-[0_0_10px_rgba(34,211,238,0.1)]'
+              ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 shadow-[0_0_10px_rgba(212,212,212,0.1)]'
               : 'text-slate-400 hover:text-slate-200 hover:bg-white/5'
           }`}
         >
@@ -883,7 +883,7 @@ Escribenos por mensaje para recibir requisitos, horarios y siguientes pasos.
           onClick={() => setActiveTab('canva')}
           className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
             activeTab === 'canva' 
-              ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 shadow-[0_0_10px_rgba(34,211,238,0.1)]' 
+              ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 shadow-[0_0_10px_rgba(212,212,212,0.1)]' 
               : 'text-slate-400 hover:text-slate-200 hover:bg-white/5'
           }`}
         >
@@ -894,7 +894,7 @@ Escribenos por mensaje para recibir requisitos, horarios y siguientes pasos.
           onClick={() => setActiveTab('memory')}
           className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
             activeTab === 'memory' 
-              ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 shadow-[0_0_10px_rgba(34,211,238,0.1)]' 
+              ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 shadow-[0_0_10px_rgba(212,212,212,0.1)]' 
               : 'text-slate-400 hover:text-slate-200 hover:bg-white/5'
           }`}
         >
@@ -913,7 +913,7 @@ Escribenos por mensaje para recibir requisitos, horarios y siguientes pasos.
               <div 
                 key={agent.id} 
                 onClick={() => openChat(agent)} 
-                className={`glass-panel bg-[#050609]/95 p-6 rounded-2xl flex flex-col border transition-all hover:-translate-y-1 group cursor-pointer ${activeChatAgent?.id === agent.id ? 'border-cyan-500 shadow-[0_0_20px_rgba(34,211,238,0.16)]' : 'border-slate-700/50 hover:border-cyan-500/30 hover:shadow-[0_8px_30px_rgba(34,211,238,0.04)]'}`}
+                className={`glass-panel bg-[#050609]/95 p-6 rounded-2xl flex flex-col border transition-all hover:-translate-y-1 group cursor-pointer ${activeChatAgent?.id === agent.id ? 'border-cyan-500 shadow-[0_0_20px_rgba(212,212,212,0.16)]' : 'border-slate-700/50 hover:border-cyan-500/30 hover:shadow-[0_8px_30px_rgba(212,212,212,0.04)]'}`}
               >
                 <div className="flex justify-between items-start mb-4">
                   <div className="flex items-center gap-3">
@@ -1339,7 +1339,7 @@ Escribenos por mensaje para recibir requisitos, horarios y siguientes pasos.
                           key={template.id}
                           className={`rounded-xl border p-4 bg-slate-950/40 transition-all ${
                             isSelected
-                              ? 'border-cyan-500/50 shadow-[0_0_18px_rgba(34,211,238,0.10)]'
+                              ? 'border-cyan-500/50 shadow-[0_0_18px_rgba(212,212,212,0.10)]'
                               : 'border-slate-700/70 hover:border-slate-500'
                           }`}
                         >
@@ -1379,7 +1379,7 @@ Escribenos por mensaje para recibir requisitos, horarios y siguientes pasos.
                           onClick={() => setCanvaFormat(format.id)}
                           className={`text-left p-3 rounded-xl border transition-all ${
                             isSelected
-                              ? 'border-cyan-500/60 bg-cyan-500/10 text-white shadow-[0_0_14px_rgba(34,211,238,0.12)]'
+                              ? 'border-cyan-500/60 bg-cyan-500/10 text-white shadow-[0_0_14px_rgba(212,212,212,0.12)]'
                               : 'border-slate-700 bg-slate-900/50 text-slate-300 hover:border-slate-500'
                           }`}
                         >
@@ -1968,7 +1968,7 @@ Escribenos por mensaje para recibir requisitos, horarios y siguientes pasos.
               <button 
                 onClick={handleAddAgent}
                 disabled={!newAgentName.trim() || !newAgentRole.trim()}
-                className="bg-cyan-500 hover:bg-cyan-600 text-slate-900 font-semibold px-6 py-2.5 rounded-xl flex items-center gap-2 transition-all shadow-[0_0_15px_rgba(34,211,238,0.2)] disabled:opacity-50 disabled:cursor-not-allowed"
+                className="bg-cyan-500 hover:bg-cyan-600 text-slate-900 font-semibold px-6 py-2.5 rounded-xl flex items-center gap-2 transition-all shadow-[0_0_15px_rgba(212,212,212,0.2)] disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <Zap className="w-4 h-4 text-slate-900" fill="currentColor" />
                 Desplegar Agente
@@ -2007,7 +2007,7 @@ Escribenos por mensaje para recibir requisitos, horarios y siguientes pasos.
               {chatMessages.map((msg, idx) => (
                 <div key={idx} className={`flex flex-col ${msg.role === 'user' ? 'items-end' : 'items-start'} group/msg`}>
                   <div className="flex items-start gap-2 max-w-[85%]">
-                    <div className={`rounded-2xl px-4 py-3 text-sm whitespace-pre-wrap leading-relaxed font-sans ${msg.role === 'user' ? 'bg-cyan-600 text-white rounded-br-none shadow-[0_4px_12px_rgba(6,182,212,0.15)]' : 'bg-slate-800 text-slate-100 border border-slate-700/60 rounded-bl-none shadow-lg'}`}>
+                    <div className={`rounded-2xl px-4 py-3 text-sm whitespace-pre-wrap leading-relaxed font-sans ${msg.role === 'user' ? 'bg-cyan-600 text-white rounded-br-none shadow-[0_4px_12px_rgba(163,163,163,0.15)]' : 'bg-slate-800 text-slate-100 border border-slate-700/60 rounded-bl-none shadow-lg'}`}>
                       {msg.text}
                     </div>
                     {msg.role === 'agent' && (
