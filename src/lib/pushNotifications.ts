@@ -11,7 +11,7 @@ export interface BrowserNotificationPayload {
 }
 
 const SERVICE_WORKER_PATH = appUrl('/sw.js');
-const APP_ICON = appUrl('/assets/heavenly-dreams-logo.svg');
+const APP_ICON = appUrl('/assets/rhdreams-icon-192.png');
 
 export const isBrowserPushSupported = () => (
   typeof window !== 'undefined' &&

@@ -9,7 +9,7 @@ import { NotificationsPopover } from "@/components/notifications/NotificationsPo
 import { useAuth } from "@/contexts/AuthContext";
 import { appUrl } from "@/lib/basePath";
 
-const BRAND_LOGO_PATH = appUrl("/assets/heavenly-dreams-logo-square.png");
+const BRAND_LOGO_PATH = appUrl("/assets/rhdreams-icon.png");
 
 function BrandLogoMark({ className }: { className?: string }) {
   return (

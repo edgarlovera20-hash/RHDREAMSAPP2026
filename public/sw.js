@@ -1,5 +1,5 @@
 const APP_NAME = 'RHDreams';
-const APP_ICON = 'assets/heavenly-dreams-logo.svg';
+const APP_ICON = 'assets/rhdreams-icon-192.png';
 
 self.addEventListener('install', (event) => {
   event.waitUntil(self.skipWaiting());

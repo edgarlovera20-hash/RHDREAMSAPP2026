@@ -5,7 +5,7 @@ import { NetworkBackground } from "@/components/layout/NetworkBackground";
 import { useAuth } from "@/contexts/AuthContext";
 import { appUrl } from "@/lib/basePath";
 
-const BRAND_LOGO_PATH = appUrl("/assets/heavenly-dreams-logo-square.png");
+const BRAND_LOGO_PATH = appUrl("/assets/rhdreams-icon.png");
 const REMEMBERED_USERNAME_KEY = "rhdreams_remembered_username";
 
 export function Login() {
