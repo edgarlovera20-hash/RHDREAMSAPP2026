@@ -4,7 +4,7 @@
 << /Type /Catalog /Pages 2 0 R >>
 endobj
 2 0 obj
-<< /Type /Pages /Kids [6 0 R 8 0 R 10 0 R 12 0 R 14 0 R] /Count 5 >>
+<< /Type /Pages /Kids [6 0 R 8 0 R 10 0 R 12 0 R 14 0 R 16 0 R 18 0 R 20 0 R] /Count 8 >>
 endobj
 3 0 obj
 << /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
@@ -13,13 +13,13 @@ endobj
 << /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>
 endobj
 5 0 obj
-<< /Length 4498 >>
+<< /Length 4571 >>
 stream
 BT /Helvetica-Bold 18 Tf 48 784 Td (Plan Maestro de Mejora - RHDreamsApp 2026) Tj ET
 BT /Helvetica 10 Tf 48 762 Td (Fecha: 2026-06-02) Tj ET
 BT /Helvetica 10 Tf 48 749 Td (Repositorio: RHDREAMSAPP2026) Tj ET
-BT /Helvetica 10 Tf 48 736 Td (Objetivo: mejorar la lgica de chats, flujos, arquitectura, frontend, backend y UX/UI de la) Tj ET
-BT /Helvetica 10 Tf 48 723 Td (  aplicacin.) Tj ET
+BT /Helvetica 10 Tf 48 736 Td (Objetivo: mejorar la lgica de chats, flujos, arquitectura, frontend, backend, OCR) Tj ET
+BT /Helvetica 10 Tf 48 723 Td (  documental, versin mvil y UX/UI de la aplicacin.) Tj ET
 BT /Helvetica-Bold 14 Tf 48 698 Td (1. Resumen ejecutivo) Tj ET
 BT /Helvetica 10 Tf 48 677 Td (La aplicacin ya tiene una base funcional fuerte: React + Vite, Firebase/Firestore, backend) Tj ET
 BT /Helvetica 10 Tf 48 664 Td (  Express, rutas serverless para Vercel/Cloudflare, mdulos de candidatos, mensajes, agentes) Tj ET
@@ -27,278 +27,442 @@ BT /Helvetica 10 Tf 48 651 Td (  IA, flujos IA, reportes, Google Workspace e int
 BT /Helvetica 10 Tf 48 633 Td (La prioridad debe ser convertirla de una app demostrativa o semiprototipo en una plataforma) Tj ET
 BT /Helvetica 10 Tf 48 620 Td (  de reclutamiento robusta, segura y escalable. Los puntos ms urgentes son: cerrar reglas de) Tj ET
 BT /Helvetica 10 Tf 48 607 Td (  Firestore, mover la lgica crtica del frontend al backend, formalizar conversaciones y) Tj ET
-BT /Helvetica 10 Tf 48 594 Td (  mensajes, usar historial real en IA, unificar automatizaciones con workflows, y definir una) Tj ET
-BT /Helvetica 10 Tf 48 581 Td (  arquitectura de despliegue nica.) Tj ET
-BT /Helvetica-Bold 14 Tf 48 556 Td (2. Diagnstico principal) Tj ET
-BT /Helvetica-Bold 12 Tf 48 531 Td (2.1 Seguridad) Tj ET
-BT /Helvetica 10 Tf 60 511 Td (- Las reglas de Firestore deben dejar de permitir lectura y escritura pblica.) Tj ET
-BT /Helvetica 10 Tf 60 498 Td (- Las operaciones sensibles deben requerir usuario autenticado, rol y empresa.) Tj ET
-BT /Helvetica 10 Tf 60 485 Td (- Los endpoints de IA deben validar identidad real, no auth opcional.) Tj ET
-BT /Helvetica 10 Tf 60 472 Td (- Deben eliminarse secretos fallback o valores por defecto inseguros.) Tj ET
-BT /Helvetica 10 Tf 60 459 Td (- El frontend no debe escribir directamente mensajes, automatizaciones, agentes o etapas) Tj ET
-BT /Helvetica 10 Tf 60 446 Td (  crticas sin pasar por backend.) Tj ET
-BT /Helvetica-Bold 12 Tf 48 424 Td (2.2 Chats) Tj ET
-BT /Helvetica 10 Tf 60 404 Td (- La pantalla de mensajes infiere conversaciones desde candidatos y mensajes, pero falta) Tj ET
-BT /Helvetica 10 Tf 60 391 Td (  una entidad formal Conversation.) Tj ET
-BT /Helvetica 10 Tf 60 378 Td (- La respuesta IA se guarda como WhatsApp aunque el canal original pueda ser Instagram,) Tj ET
-BT /Helvetica 10 Tf 60 365 Td (  Messenger, email o manual.) Tj ET
-BT /Helvetica 10 Tf 60 352 Td (- La IA recibe historial desde el cliente, pero el backend debe convertirlo en contexto) Tj ET
-BT /Helvetica 10 Tf 60 339 Td (  real para el modelo.) Tj ET
-BT /Helvetica 10 Tf 60 326 Td (- Las etapas no deben cambiar por palabras clave en el texto de la IA; deben cambiar por) Tj ET
-BT /Helvetica 10 Tf 60 313 Td (  intencin estructurada y validada.) Tj ET
-BT /Helvetica 10 Tf 60 300 Td (- Falta trazabilidad de estado: enviado, entregado, ledo, fallido, pendiente de) Tj ET
-BT /Helvetica 10 Tf 60 287 Td (  aprobacin, escalado humano y borrador IA.) Tj ET
-BT /Helvetica-Bold 12 Tf 48 265 Td (2.3 Flujos y automatizaciones) Tj ET
-BT /Helvetica 10 Tf 60 245 Td (- Hoy conviven automatizaciones simples en el hook de datos y un builder de workflows) Tj ET
-BT /Helvetica 10 Tf 60 232 Td (  ms avanzado.) Tj ET
-BT /Helvetica 10 Tf 60 219 Td (- El workflow actual valida variables y marca pasos como completados, pero no ejecuta) Tj ET
-BT /Helvetica 10 Tf 60 206 Td (  acciones reales de negocio.) Tj ET
-BT /Helvetica 10 Tf 60 193 Td (- Hace falta una sola fuente de verdad para triggers, condiciones, pasos, aprobaciones,) Tj ET
-BT /Helvetica 10 Tf 60 180 Td (  logs y resultados.) Tj ET
-BT /Helvetica 10 Tf 60 167 Td (- Las aprobaciones humanas deben integrarse al chat y no quedar separadas en una) Tj ET
-BT /Helvetica 10 Tf 60 154 Td (  pantalla de flujos.) Tj ET
-BT /Helvetica-Bold 12 Tf 48 132 Td (2.4 Backend) Tj ET
-BT /Helvetica 10 Tf 60 112 Td (- Hay Express, Vercel serverless y Cloudflare Pages Functions con comportamientos) Tj ET
-BT /Helvetica 10 Tf 60 99 Td (  distintos.) Tj ET
-BT /Helvetica 10 Tf 60 86 Td (- La app necesita decidir una arquitectura oficial: backend Node persistente o) Tj ET
-BT /Helvetica 10 Tf 60 73 Td (  serverless con proveedores compatibles.) Tj ET
-BT /Helvetica 8 Tf 500 28 Td (Pagina 1 de 5) Tj ET
+BT /Helvetica 10 Tf 48 594 Td (  mensajes, usar historial real en IA, unificar automatizaciones con workflows, optimizar OCR) Tj ET
+BT /Helvetica 10 Tf 48 581 Td (  para CVs/documentos, preparar una experiencia mvil de primer nivel y definir una) Tj ET
+BT /Helvetica 10 Tf 48 568 Td (  arquitectura de despliegue nica.) Tj ET
+BT /Helvetica-Bold 14 Tf 48 543 Td (2. Diagnstico principal) Tj ET
+BT /Helvetica-Bold 12 Tf 48 518 Td (2.1 Seguridad) Tj ET
+BT /Helvetica 10 Tf 60 498 Td (- Las reglas de Firestore deben dejar de permitir lectura y escritura pblica.) Tj ET
+BT /Helvetica 10 Tf 60 485 Td (- Las operaciones sensibles deben requerir usuario autenticado, rol y empresa.) Tj ET
+BT /Helvetica 10 Tf 60 472 Td (- Los endpoints de IA deben validar identidad real, no auth opcional.) Tj ET
+BT /Helvetica 10 Tf 60 459 Td (- Deben eliminarse secretos fallback o valores por defecto inseguros.) Tj ET
+BT /Helvetica 10 Tf 60 446 Td (- El frontend no debe escribir directamente mensajes, automatizaciones, agentes o etapas) Tj ET
+BT /Helvetica 10 Tf 60 433 Td (  crticas sin pasar por backend.) Tj ET
+BT /Helvetica-Bold 12 Tf 48 411 Td (2.2 Chats) Tj ET
+BT /Helvetica 10 Tf 60 391 Td (- La pantalla de mensajes infiere conversaciones desde candidatos y mensajes, pero falta) Tj ET
+BT /Helvetica 10 Tf 60 378 Td (  una entidad formal Conversation.) Tj ET
+BT /Helvetica 10 Tf 60 365 Td (- La respuesta IA se guarda como WhatsApp aunque el canal original pueda ser Instagram,) Tj ET
+BT /Helvetica 10 Tf 60 352 Td (  Messenger, email o manual.) Tj ET
+BT /Helvetica 10 Tf 60 339 Td (- La IA recibe historial desde el cliente, pero el backend debe convertirlo en contexto) Tj ET
+BT /Helvetica 10 Tf 60 326 Td (  real para el modelo.) Tj ET
+BT /Helvetica 10 Tf 60 313 Td (- Las etapas no deben cambiar por palabras clave en el texto de la IA; deben cambiar por) Tj ET
+BT /Helvetica 10 Tf 60 300 Td (  intencin estructurada y validada.) Tj ET
+BT /Helvetica 10 Tf 60 287 Td (- Falta trazabilidad de estado: enviado, entregado, ledo, fallido, pendiente de) Tj ET
+BT /Helvetica 10 Tf 60 274 Td (  aprobacin, escalado humano y borrador IA.) Tj ET
+BT /Helvetica-Bold 12 Tf 48 252 Td (2.3 Flujos y automatizaciones) Tj ET
+BT /Helvetica 10 Tf 60 232 Td (- Hoy conviven automatizaciones simples en el hook de datos y un builder de workflows) Tj ET
+BT /Helvetica 10 Tf 60 219 Td (  ms avanzado.) Tj ET
+BT /Helvetica 10 Tf 60 206 Td (- El workflow actual valida variables y marca pasos como completados, pero no ejecuta) Tj ET
+BT /Helvetica 10 Tf 60 193 Td (  acciones reales de negocio.) Tj ET
+BT /Helvetica 10 Tf 60 180 Td (- Hace falta una sola fuente de verdad para triggers, condiciones, pasos, aprobaciones,) Tj ET
+BT /Helvetica 10 Tf 60 167 Td (  logs y resultados.) Tj ET
+BT /Helvetica 10 Tf 60 154 Td (- Las aprobaciones humanas deben integrarse al chat y no quedar separadas en una) Tj ET
+BT /Helvetica 10 Tf 60 141 Td (  pantalla de flujos.) Tj ET
+BT /Helvetica-Bold 12 Tf 48 119 Td (2.4 Backend) Tj ET
+BT /Helvetica 10 Tf 60 99 Td (- Hay Express, Vercel serverless y Cloudflare Pages Functions con comportamientos) Tj ET
+BT /Helvetica 10 Tf 60 86 Td (  distintos.) Tj ET
+BT /Helvetica 10 Tf 60 73 Td (- La app necesita decidir una arquitectura oficial: backend Node persistente o) Tj ET
+BT /Helvetica 8 Tf 500 28 Td (Pagina 1 de 8) Tj ET
 endstream
 endobj
 6 0 obj
 << /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /Helvetica 3 0 R /Helvetica-Bold 4 0 R >> >> /Contents 5 0 R >>
 endobj
 7 0 obj
-<< /Length 3734 >>
+<< /Length 4202 >>
 stream
-BT /Helvetica 10 Tf 60 792 Td (- WhatsApp normal con Baileys requiere servidor persistente; si se quiere serverless,) Tj ET
-BT /Helvetica 10 Tf 60 779 Td (  conviene WhatsApp Business Cloud API.) Tj ET
-BT /Helvetica 10 Tf 60 766 Td (- La lgica de negocio debe vivir en servicios backend: conversaciones, mensajes, IA,) Tj ET
-BT /Helvetica 10 Tf 60 753 Td (  flujos, estados de candidato e integraciones.) Tj ET
-BT /Helvetica-Bold 12 Tf 48 731 Td (2.5 Frontend y UX/UI) Tj ET
-BT /Helvetica 10 Tf 60 711 Td (- La navegacin es completa y est bien segmentada por mdulos.) Tj ET
-BT /Helvetica 10 Tf 60 698 Td (- La pantalla de chat necesita estados operativos claros: IA pensando, requiere) Tj ET
-BT /Helvetica 10 Tf 60 685 Td (  aprobacin, escalado, error, no enviado, SLA vencido.) Tj ET
-BT /Helvetica 10 Tf 60 672 Td (- Los estados vacos deben invitar a crear candidato, importar conversacin, conectar) Tj ET
-BT /Helvetica 10 Tf 60 659 Td (  canal o simular una conversacin.) Tj ET
-BT /Helvetica 10 Tf 60 646 Td (- El usuario debe poder ver por qu la IA tom una decisin, qu datos us y qu) Tj ET
-BT /Helvetica 10 Tf 60 633 Td (  workflow se ejecut.) Tj ET
-BT /Helvetica-Bold 14 Tf 48 608 Td (3. Modelo de datos propuesto) Tj ET
-BT /Helvetica-Bold 12 Tf 48 583 Td (3.1 Conversation) Tj ET
-BT /Helvetica 9 Tf 66 563 Td (Conversation {) Tj ET
-BT /Helvetica 9 Tf 66 550 Td (id: string;) Tj ET
-BT /Helvetica 9 Tf 66 537 Td (companyId: string;) Tj ET
-BT /Helvetica 9 Tf 66 524 Td (candidateId: string;) Tj ET
-BT /Helvetica 9 Tf 66 511 Td (channel: "whatsapp" | "instagram" | "messenger" | "email" | "manual";) Tj ET
-BT /Helvetica 9 Tf 66 498 Td (provider: "baileys" | "meta" | "gmail" | "manual";) Tj ET
-BT /Helvetica 9 Tf 66 485 Td (status: "open" | "pending_ai" | "pending_human" | "closed";) Tj ET
-BT /Helvetica 9 Tf 66 472 Td (assignedAgentId?: string;) Tj ET
-BT /Helvetica 9 Tf 66 459 Td (assignedRecruiterId?: string;) Tj ET
-BT /Helvetica 9 Tf 66 446 Td (lastMessageAt: number;) Tj ET
-BT /Helvetica 9 Tf 66 433 Td (unreadCount: number;) Tj ET
-BT /Helvetica 9 Tf 66 420 Td (tags: string[];) Tj ET
-BT /Helvetica 9 Tf 66 407 Td (aiMode: "off" | "suggest" | "auto_with_approval" | "auto_send";) Tj ET
-BT /Helvetica 9 Tf 66 394 Td (}) Tj ET
-BT /Helvetica-Bold 12 Tf 48 372 Td (3.2 Message) Tj ET
-BT /Helvetica 9 Tf 66 352 Td (Message {) Tj ET
-BT /Helvetica 9 Tf 66 339 Td (id: string;) Tj ET
-BT /Helvetica 9 Tf 66 326 Td (companyId: string;) Tj ET
-BT /Helvetica 9 Tf 66 313 Td (conversationId: string;) Tj ET
-BT /Helvetica 9 Tf 66 300 Td (candidateId: string;) Tj ET
-BT /Helvetica 9 Tf 66 287 Td (channel: string;) Tj ET
-BT /Helvetica 9 Tf 66 274 Td (direction: "inbound" | "outbound";) Tj ET
-BT /Helvetica 9 Tf 66 261 Td (body: string;) Tj ET
-BT /Helvetica 9 Tf 66 248 Td (status: "draft" | "pending_approval" | "sent" | "delivered" | "read" | "failed";) Tj ET
-BT /Helvetica 9 Tf 66 235 Td (providerMessageId?: string;) Tj ET
-BT /Helvetica 9 Tf 66 222 Td (sentAt?: number;) Tj ET
-BT /Helvetica 9 Tf 66 209 Td (deliveredAt?: number;) Tj ET
-BT /Helvetica 9 Tf 66 196 Td (readAt?: number;) Tj ET
-BT /Helvetica 9 Tf 66 183 Td (failedReason?: string;) Tj ET
-BT /Helvetica 9 Tf 66 170 Td (aiGenerated?: boolean;) Tj ET
-BT /Helvetica 9 Tf 66 157 Td (aiAgentId?: string;) Tj ET
-BT /Helvetica 9 Tf 66 144 Td (aiConfidence?: number;) Tj ET
-BT /Helvetica 9 Tf 66 131 Td (intent?: string;) Tj ET
-BT /Helvetica 9 Tf 66 118 Td (sentiment?: string;) Tj ET
-BT /Helvetica 9 Tf 66 105 Td (requiresApproval?: boolean;) Tj ET
-BT /Helvetica 9 Tf 66 92 Td (approvedBy?: string;) Tj ET
-BT /Helvetica 9 Tf 66 79 Td (approvedAt?: number;) Tj ET
-BT /Helvetica 9 Tf 66 66 Td (dedupeKey?: string;) Tj ET
-BT /Helvetica 8 Tf 500 28 Td (Pagina 2 de 5) Tj ET
+BT /Helvetica 10 Tf 60 792 Td (  serverless con proveedores compatibles.) Tj ET
+BT /Helvetica 10 Tf 60 779 Td (- WhatsApp normal con Baileys requiere servidor persistente; si se quiere serverless,) Tj ET
+BT /Helvetica 10 Tf 60 766 Td (  conviene WhatsApp Business Cloud API.) Tj ET
+BT /Helvetica 10 Tf 60 753 Td (- La lgica de negocio debe vivir en servicios backend: conversaciones, mensajes, IA,) Tj ET
+BT /Helvetica 10 Tf 60 740 Td (  flujos, estados de candidato e integraciones.) Tj ET
+BT /Helvetica-Bold 12 Tf 48 718 Td (2.5 Frontend y UX/UI) Tj ET
+BT /Helvetica 10 Tf 60 698 Td (- La navegacin es completa y est bien segmentada por mdulos.) Tj ET
+BT /Helvetica 10 Tf 60 685 Td (- La pantalla de chat necesita estados operativos claros: IA pensando, requiere) Tj ET
+BT /Helvetica 10 Tf 60 672 Td (  aprobacin, escalado, error, no enviado, SLA vencido.) Tj ET
+BT /Helvetica 10 Tf 60 659 Td (- Los estados vacos deben invitar a crear candidato, importar conversacin, conectar) Tj ET
+BT /Helvetica 10 Tf 60 646 Td (  canal o simular una conversacin.) Tj ET
+BT /Helvetica 10 Tf 60 633 Td (- El usuario debe poder ver por qu la IA tom una decisin, qu datos us y qu) Tj ET
+BT /Helvetica 10 Tf 60 620 Td (  workflow se ejecut.) Tj ET
+BT /Helvetica-Bold 12 Tf 48 598 Td (2.6 OCR documental) Tj ET
+BT /Helvetica 10 Tf 60 578 Td (- El reclutamiento necesita extraer datos de CVs, identificaciones, comprobantes,) Tj ET
+BT /Helvetica 10 Tf 60 565 Td (  certificados, formularios escaneados e imgenes recibidas por WhatsApp.) Tj ET
+BT /Helvetica 10 Tf 60 552 Td (- El OCR debe separar extraccin de texto, clasificacin documental, validacin, scoring) Tj ET
+BT /Helvetica 10 Tf 60 539 Td (  y revisin humana.) Tj ET
+BT /Helvetica 10 Tf 60 526 Td (- No debe sobrescribir datos del candidato automticamente si la confianza es baja o si) Tj ET
+BT /Helvetica 10 Tf 60 513 Td (  detecta documentos sensibles.) Tj ET
+BT /Helvetica 10 Tf 60 500 Td (- Debe guardar evidencia, fuente, versin del extractor, confianza por campo y auditora) Tj ET
+BT /Helvetica 10 Tf 60 487 Td (  de aprobacin.) Tj ET
+BT /Helvetica-Bold 12 Tf 48 465 Td (2.7 Versin mvil) Tj ET
+BT /Helvetica 10 Tf 60 445 Td (- La app debe funcionar como experiencia mobile-first para reclutadores que atienden) Tj ET
+BT /Helvetica 10 Tf 60 432 Td (  candidatos desde telfono.) Tj ET
+BT /Helvetica 10 Tf 60 419 Td (- El chat, la revisin de documentos, la aprobacin de respuestas IA y la agenda deben) Tj ET
+BT /Helvetica 10 Tf 60 406 Td (  estar optimizados para pantallas pequeas.) Tj ET
+BT /Helvetica 10 Tf 60 393 Td (- La versin mvil debe soportar PWA instalable, navegacin inferior, acciones rpidas,) Tj ET
+BT /Helvetica 10 Tf 60 380 Td (  offline bsico y carga progresiva.) Tj ET
+BT /Helvetica 10 Tf 60 367 Td (- El diseo debe reducir tablas anchas, modales grandes y paneles simultneos en favor) Tj ET
+BT /Helvetica 10 Tf 60 354 Td (  de tarjetas, drawers y flujos por pasos.) Tj ET
+BT /Helvetica-Bold 14 Tf 48 329 Td (3. Modelo de datos propuesto) Tj ET
+BT /Helvetica-Bold 12 Tf 48 304 Td (3.1 Conversation) Tj ET
+BT /Helvetica 9 Tf 66 284 Td (Conversation {) Tj ET
+BT /Helvetica 9 Tf 66 271 Td (id: string;) Tj ET
+BT /Helvetica 9 Tf 66 258 Td (companyId: string;) Tj ET
+BT /Helvetica 9 Tf 66 245 Td (candidateId: string;) Tj ET
+BT /Helvetica 9 Tf 66 232 Td (channel: "whatsapp" | "instagram" | "messenger" | "email" | "manual";) Tj ET
+BT /Helvetica 9 Tf 66 219 Td (provider: "baileys" | "meta" | "gmail" | "manual";) Tj ET
+BT /Helvetica 9 Tf 66 206 Td (status: "open" | "pending_ai" | "pending_human" | "closed";) Tj ET
+BT /Helvetica 9 Tf 66 193 Td (assignedAgentId?: string;) Tj ET
+BT /Helvetica 9 Tf 66 180 Td (assignedRecruiterId?: string;) Tj ET
+BT /Helvetica 9 Tf 66 167 Td (lastMessageAt: number;) Tj ET
+BT /Helvetica 9 Tf 66 154 Td (unreadCount: number;) Tj ET
+BT /Helvetica 9 Tf 66 141 Td (tags: string[];) Tj ET
+BT /Helvetica 9 Tf 66 128 Td (aiMode: "off" | "suggest" | "auto_with_approval" | "auto_send";) Tj ET
+BT /Helvetica 9 Tf 66 115 Td (}) Tj ET
+BT /Helvetica-Bold 12 Tf 48 93 Td (3.2 Message) Tj ET
+BT /Helvetica 9 Tf 66 73 Td (Message {) Tj ET
+BT /Helvetica 8 Tf 500 28 Td (Pagina 2 de 8) Tj ET
 endstream
 endobj
 8 0 obj
 << /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /Helvetica 3 0 R /Helvetica-Bold 4 0 R >> >> /Contents 7 0 R >>
 endobj
 9 0 obj
-<< /Length 4059 >>
+<< /Length 3471 >>
 stream
-BT /Helvetica 9 Tf 66 792 Td (}) Tj ET
-BT /Helvetica-Bold 12 Tf 48 770 Td (3.3 WorkflowRun) Tj ET
-BT /Helvetica 9 Tf 66 750 Td (WorkflowRun {) Tj ET
-BT /Helvetica 9 Tf 66 737 Td (id: string;) Tj ET
-BT /Helvetica 9 Tf 66 724 Td (companyId: string;) Tj ET
-BT /Helvetica 9 Tf 66 711 Td (workflowId: string;) Tj ET
-BT /Helvetica 9 Tf 66 698 Td (entityType: "candidate" | "conversation" | "appointment";) Tj ET
-BT /Helvetica 9 Tf 66 685 Td (entityId: string;) Tj ET
-BT /Helvetica 9 Tf 66 672 Td (status: "queued" | "running" | "approval_required" | "completed" | "failed";) Tj ET
-BT /Helvetica 9 Tf 66 659 Td (startedAt: number;) Tj ET
-BT /Helvetica 9 Tf 66 646 Td (finishedAt?: number;) Tj ET
-BT /Helvetica 9 Tf 66 633 Td (logs: WorkflowRunLog[];) Tj ET
-BT /Helvetica 9 Tf 66 620 Td (}) Tj ET
-BT /Helvetica-Bold 14 Tf 48 595 Td (4. Roadmap recomendado) Tj ET
-BT /Helvetica-Bold 12 Tf 48 570 Td (Fase 0 - Seguridad y control de datos) Tj ET
-BT /Helvetica 10 Tf 60 550 Td (1. Cerrar Firestore con reglas por request.auth, companyId y rol.) Tj ET
-BT /Helvetica 10 Tf 60 537 Td (2. Desactivar escrituras pblicas en candidatos, mensajes, agentes, workflows y) Tj ET
-BT /Helvetica 10 Tf 60 524 Td (  notificaciones.) Tj ET
-BT /Helvetica 10 Tf 60 511 Td (3. Validar Firebase ID Token en backend.) Tj ET
-BT /Helvetica 10 Tf 60 498 Td (4. Sustituir autenticacin opcional por autenticacin obligatoria en endpoints de IA.) Tj ET
-BT /Helvetica 10 Tf 60 485 Td (5. Agregar auditora mnima: quin cre, actualiz, aprob o envi cada accin.) Tj ET
-BT /Helvetica-Bold 12 Tf 48 463 Td (Fase 1 - Chat robusto) Tj ET
-BT /Helvetica 10 Tf 60 443 Td (1. Crear entidad Conversation y migrar la pantalla de mensajes para usarla.) Tj ET
-BT /Helvetica 10 Tf 60 430 Td (2. Agregar estados de mensajes y trazabilidad de proveedor.) Tj ET
-BT /Helvetica 10 Tf 60 417 Td (3. Corregir el canal de respuesta IA para respetar el canal original.) Tj ET
-BT /Helvetica 10 Tf 60 404 Td (4. Mostrar estados UX: "IA redactando", "pendiente de aprobacin", "enviado", "fall",) Tj ET
-BT /Helvetica 10 Tf 60 391 Td (  "escalado".) Tj ET
-BT /Helvetica 10 Tf 60 378 Td (5. Agregar panel lateral de candidato dentro del chat con vacante, etapa, tags, ltimos) Tj ET
-BT /Helvetica 10 Tf 60 365 Td (  eventos y prximo paso.) Tj ET
-BT /Helvetica-Bold 12 Tf 48 343 Td (Fase 2 - IA conversacional confiable) Tj ET
-BT /Helvetica 10 Tf 60 323 Td (1. Crear ai-orchestrator.service.ts en backend.) Tj ET
-BT /Helvetica 10 Tf 60 310 Td (2. Enviar historial real al modelo, no solo el ltimo prompt.) Tj ET
-BT /Helvetica 10 Tf 60 297 Td (3. Pedir salida JSON estructurada: respuesta, intencin, confianza, siguiente etapa,) Tj ET
-BT /Helvetica 10 Tf 60 284 Td (  campos faltantes y escalamiento.) Tj ET
-BT /Helvetica 10 Tf 60 271 Td (4. Validar la salida con Zod antes de guardar cualquier decisin.) Tj ET
-BT /Helvetica 10 Tf 60 258 Td (5. Activar aprobacin humana para respuestas sensibles: rechazo, salario, documentos,) Tj ET
-BT /Helvetica 10 Tf 60 245 Td (  temas legales o baja confianza.) Tj ET
-BT /Helvetica-Bold 12 Tf 48 223 Td (Fase 3 - Workflows reales) Tj ET
-BT /Helvetica 10 Tf 60 203 Td (1. Unificar automatizaciones simples y workflows visuales.) Tj ET
-BT /Helvetica 10 Tf 60 190 Td (2. Crear colecciones workflows, workflowRuns y workflowRunLogs.) Tj ET
-BT /Helvetica 10 Tf 60 177 Td (3. Convertir pasos simulados en acciones reales: mensaje, IA, condicin, calendario,) Tj ET
-BT /Helvetica 10 Tf 60 164 Td (  tarea, webhook y handoff.) Tj ET
-BT /Helvetica 10 Tf 60 151 Td (4. Agregar simulador de workflow con candidato real.) Tj ET
-BT /Helvetica 10 Tf 60 138 Td (5. Agregar versionado, publicacin y rollback de flujos.) Tj ET
-BT /Helvetica-Bold 12 Tf 48 116 Td (Fase 4 - Backend productivo) Tj ET
-BT /Helvetica 10 Tf 60 96 Td (1. Decidir arquitectura oficial.) Tj ET
-BT /Helvetica 10 Tf 60 83 Td (2. Si se requiere Baileys/WhatsApp normal, usar backend Node persistente en) Tj ET
-BT /Helvetica 10 Tf 60 70 Td (  VPS/Render/Fly/Railway.) Tj ET
-BT /Helvetica 8 Tf 500 28 Td (Pagina 3 de 5) Tj ET
+BT /Helvetica 9 Tf 66 792 Td (id: string;) Tj ET
+BT /Helvetica 9 Tf 66 779 Td (companyId: string;) Tj ET
+BT /Helvetica 9 Tf 66 766 Td (conversationId: string;) Tj ET
+BT /Helvetica 9 Tf 66 753 Td (candidateId: string;) Tj ET
+BT /Helvetica 9 Tf 66 740 Td (channel: string;) Tj ET
+BT /Helvetica 9 Tf 66 727 Td (direction: "inbound" | "outbound";) Tj ET
+BT /Helvetica 9 Tf 66 714 Td (body: string;) Tj ET
+BT /Helvetica 9 Tf 66 701 Td (status: "draft" | "pending_approval" | "sent" | "delivered" | "read" | "failed";) Tj ET
+BT /Helvetica 9 Tf 66 688 Td (providerMessageId?: string;) Tj ET
+BT /Helvetica 9 Tf 66 675 Td (sentAt?: number;) Tj ET
+BT /Helvetica 9 Tf 66 662 Td (deliveredAt?: number;) Tj ET
+BT /Helvetica 9 Tf 66 649 Td (readAt?: number;) Tj ET
+BT /Helvetica 9 Tf 66 636 Td (failedReason?: string;) Tj ET
+BT /Helvetica 9 Tf 66 623 Td (aiGenerated?: boolean;) Tj ET
+BT /Helvetica 9 Tf 66 610 Td (aiAgentId?: string;) Tj ET
+BT /Helvetica 9 Tf 66 597 Td (aiConfidence?: number;) Tj ET
+BT /Helvetica 9 Tf 66 584 Td (intent?: string;) Tj ET
+BT /Helvetica 9 Tf 66 571 Td (sentiment?: string;) Tj ET
+BT /Helvetica 9 Tf 66 558 Td (requiresApproval?: boolean;) Tj ET
+BT /Helvetica 9 Tf 66 545 Td (approvedBy?: string;) Tj ET
+BT /Helvetica 9 Tf 66 532 Td (approvedAt?: number;) Tj ET
+BT /Helvetica 9 Tf 66 519 Td (dedupeKey?: string;) Tj ET
+BT /Helvetica 9 Tf 66 506 Td (}) Tj ET
+BT /Helvetica-Bold 12 Tf 48 484 Td (3.3 WorkflowRun) Tj ET
+BT /Helvetica 9 Tf 66 464 Td (WorkflowRun {) Tj ET
+BT /Helvetica 9 Tf 66 451 Td (id: string;) Tj ET
+BT /Helvetica 9 Tf 66 438 Td (companyId: string;) Tj ET
+BT /Helvetica 9 Tf 66 425 Td (workflowId: string;) Tj ET
+BT /Helvetica 9 Tf 66 412 Td (entityType: "candidate" | "conversation" | "appointment";) Tj ET
+BT /Helvetica 9 Tf 66 399 Td (entityId: string;) Tj ET
+BT /Helvetica 9 Tf 66 386 Td (status: "queued" | "running" | "approval_required" | "completed" | "failed";) Tj ET
+BT /Helvetica 9 Tf 66 373 Td (startedAt: number;) Tj ET
+BT /Helvetica 9 Tf 66 360 Td (finishedAt?: number;) Tj ET
+BT /Helvetica 9 Tf 66 347 Td (logs: WorkflowRunLog[];) Tj ET
+BT /Helvetica 9 Tf 66 334 Td (}) Tj ET
+BT /Helvetica-Bold 12 Tf 48 312 Td (3.4 DocumentOcrJob) Tj ET
+BT /Helvetica 9 Tf 66 292 Td (DocumentOcrJob {) Tj ET
+BT /Helvetica 9 Tf 66 279 Td (id: string;) Tj ET
+BT /Helvetica 9 Tf 66 266 Td (companyId: string;) Tj ET
+BT /Helvetica 9 Tf 66 253 Td (candidateId?: string;) Tj ET
+BT /Helvetica 9 Tf 66 240 Td (conversationId?: string;) Tj ET
+BT /Helvetica 9 Tf 66 227 Td (source: "upload" | "whatsapp" | "email" | "drive" | "camera";) Tj ET
+BT /Helvetica 9 Tf 66 214 Td (documentType: "cv" | "id" | "proof_of_address" | "certificate" | "unknown";) Tj ET
+BT /Helvetica 9 Tf 66 201 Td (fileUrl: string;) Tj ET
+BT /Helvetica 9 Tf 66 188 Td (status: "queued" | "processing" | "needs_review" | "completed" | "failed";) Tj ET
+BT /Helvetica 9 Tf 66 175 Td (extractedText?: string;) Tj ET
+BT /Helvetica 9 Tf 66 162 Td (extractedFields: Record<string, { value: string; confidence: number }>;) Tj ET
+BT /Helvetica 9 Tf 66 149 Td (overallConfidence: number;) Tj ET
+BT /Helvetica 9 Tf 66 136 Td (requiresHumanReview: boolean;) Tj ET
+BT /Helvetica 9 Tf 66 123 Td (reviewedBy?: string;) Tj ET
+BT /Helvetica 9 Tf 66 110 Td (reviewedAt?: number;) Tj ET
+BT /Helvetica 9 Tf 66 97 Td (createdAt: number;) Tj ET
+BT /Helvetica 9 Tf 66 84 Td (}) Tj ET
+BT /Helvetica-Bold 12 Tf 48 62 Td (3.5 MobileSessionState) Tj ET
+BT /Helvetica 8 Tf 500 28 Td (Pagina 3 de 8) Tj ET
 endstream
 endobj
 10 0 obj
 << /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /Helvetica 3 0 R /Helvetica-Bold 4 0 R >> >> /Contents 9 0 R >>
 endobj
 11 0 obj
-<< /Length 4323 >>
+<< /Length 4227 >>
 stream
-BT /Helvetica 10 Tf 60 792 Td (3. Si se quiere serverless puro, migrar a WhatsApp Business Cloud API.) Tj ET
-BT /Helvetica 10 Tf 60 779 Td (4. Eliminar divergencia entre Express, Vercel y Cloudflare o documentar responsabilidades) Tj ET
-BT /Helvetica 10 Tf 60 766 Td (  claras.) Tj ET
-BT /Helvetica 10 Tf 60 753 Td (5. Implementar Firebase Admin en backend y repositorios por entidad.) Tj ET
-BT /Helvetica-Bold 12 Tf 48 731 Td (Fase 5 - UX/UI y mtricas) Tj ET
-BT /Helvetica 10 Tf 60 711 Td (1. Redisear chat con bandejas por estado y prioridad.) Tj ET
-BT /Helvetica 10 Tf 60 698 Td (2. Crear estados vacos accionables.) Tj ET
-BT /Helvetica 10 Tf 60 685 Td (3. Integrar aprobaciones IA dentro del chat.) Tj ET
-BT /Helvetica 10 Tf 60 672 Td (4. Mostrar explicacin de decisiones IA y logs de workflow.) Tj ET
-BT /Helvetica 10 Tf 60 659 Td (5. Medir KPIs: tiempo de respuesta, show rate, tasa de conversin, escalaciones, tasa de) Tj ET
-BT /Helvetica 10 Tf 60 646 Td (  error por proveedor y rendimiento por agente.) Tj ET
-BT /Helvetica-Bold 14 Tf 48 621 Td (5. Arquitectura backend recomendada) Tj ET
-BT /Helvetica 10 Tf 48 600 Td (La opcin ms prctica para esta app es:) Tj ET
-BT /Helvetica 10 Tf 60 582 Td (- Frontend en Cloudflare Pages.) Tj ET
-BT /Helvetica 10 Tf 60 569 Td (- Backend Node persistente para IA, WhatsApp/Baileys, colas y cron jobs.) Tj ET
-BT /Helvetica 10 Tf 60 556 Td (- Firebase Auth para identidad.) Tj ET
-BT /Helvetica 10 Tf 60 543 Td (- Firebase Admin en backend para Firestore.) Tj ET
-BT /Helvetica 10 Tf 60 530 Td (- Firestore como base operacional.) Tj ET
-BT /Helvetica 10 Tf 60 517 Td (- Cloud Tasks, BullMQ, Redis o cola equivalente para eventos asncronos.) Tj ET
-BT /Helvetica 10 Tf 60 504 Td (- Workers o funciones serverless solo para endpoints simples si se decide mantener) Tj ET
-BT /Helvetica 10 Tf 60 491 Td (  Cloudflare.) Tj ET
-BT /Helvetica 10 Tf 48 473 Td (Esta arquitectura evita que WhatsApp Web falle por falta de socket persistente y permite) Tj ET
-BT /Helvetica 10 Tf 48 460 Td (  ejecutar flujos largos, reintentos, aprobaciones y trabajos programados.) Tj ET
-BT /Helvetica-Bold 14 Tf 48 435 Td (6. Servicios backend propuestos) Tj ET
-BT /Helvetica 9 Tf 66 414 Td (server/services/conversation.service.ts) Tj ET
-BT /Helvetica 9 Tf 66 401 Td (server/services/message.service.ts) Tj ET
-BT /Helvetica 9 Tf 66 388 Td (server/services/ai-orchestrator.service.ts) Tj ET
-BT /Helvetica 9 Tf 66 375 Td (server/services/recruitment-state.service.ts) Tj ET
-BT /Helvetica 9 Tf 66 362 Td (server/services/workflow-engine.service.ts) Tj ET
-BT /Helvetica 9 Tf 66 349 Td (server/services/handoff.service.ts) Tj ET
-BT /Helvetica 9 Tf 66 336 Td (server/services/audit-log.service.ts) Tj ET
-BT /Helvetica 9 Tf 66 323 Td (server/repositories/candidates.repository.ts) Tj ET
-BT /Helvetica 9 Tf 66 310 Td (server/repositories/conversations.repository.ts) Tj ET
-BT /Helvetica 9 Tf 66 297 Td (server/repositories/messages.repository.ts) Tj ET
-BT /Helvetica 9 Tf 66 284 Td (server/repositories/workflows.repository.ts) Tj ET
-BT /Helvetica 9 Tf 66 271 Td (server/repositories/appointments.repository.ts) Tj ET
-BT /Helvetica-Bold 14 Tf 48 246 Td (7. UX/UI propuesta para chat) Tj ET
-BT /Helvetica 10 Tf 60 225 Td (- Bandejas: Todos, Sin responder, Pendiente IA, Pendiente aprobacin, Escalados,) Tj ET
-BT /Helvetica 10 Tf 60 212 Td (  Cerrados.) Tj ET
-BT /Helvetica 10 Tf 60 199 Td (- Badges visibles por conversacin.) Tj ET
-BT /Helvetica 10 Tf 60 186 Td (- Composer con acciones rpidas: sugerir respuesta, aprobar y enviar, agendar, escalar,) Tj ET
-BT /Helvetica 10 Tf 60 173 Td (  insertar plantilla.) Tj ET
-BT /Helvetica 10 Tf 60 160 Td (- Vista de candidato al lado derecho: datos, vacante, etapa, score, prximos pasos,) Tj ET
-BT /Helvetica 10 Tf 60 147 Td (  historial y notas.) Tj ET
-BT /Helvetica 10 Tf 60 134 Td (- Timeline de eventos: mensaje recibido, IA gener borrador, reclutador aprob, workflow) Tj ET
-BT /Helvetica 10 Tf 60 121 Td (  ejecutado, cita agendada.) Tj ET
-BT /Helvetica 10 Tf 60 108 Td (- Filtros por canal, vacante, agente, etapa, prioridad y SLA.) Tj ET
-BT /Helvetica-Bold 14 Tf 48 83 Td (8. Checklist de implementacin inmediata) Tj ET
-BT /Helvetica 10 Tf 60 62 Td (- [ ] Cerrar reglas pblicas de Firestore.) Tj ET
-BT /Helvetica 8 Tf 500 28 Td (Pagina 4 de 5) Tj ET
+BT /Helvetica 9 Tf 66 792 Td (MobileSessionState {) Tj ET
+BT /Helvetica 9 Tf 66 779 Td (userId: string;) Tj ET
+BT /Helvetica 9 Tf 66 766 Td (companyId: string;) Tj ET
+BT /Helvetica 9 Tf 66 753 Td (deviceId: string;) Tj ET
+BT /Helvetica 9 Tf 66 740 Td (lastRoute: string;) Tj ET
+BT /Helvetica 9 Tf 66 727 Td (preferredInboxFilter?: string;) Tj ET
+BT /Helvetica 9 Tf 66 714 Td (offlineQueueCount: number;) Tj ET
+BT /Helvetica 9 Tf 66 701 Td (pushEnabled: boolean;) Tj ET
+BT /Helvetica 9 Tf 66 688 Td (lastSyncAt: number;) Tj ET
+BT /Helvetica 9 Tf 66 675 Td (}) Tj ET
+BT /Helvetica-Bold 14 Tf 48 650 Td (4. Roadmap recomendado) Tj ET
+BT /Helvetica-Bold 12 Tf 48 625 Td (Fase 0 - Seguridad y control de datos) Tj ET
+BT /Helvetica 10 Tf 60 605 Td (1. Cerrar Firestore con reglas por request.auth, companyId y rol.) Tj ET
+BT /Helvetica 10 Tf 60 592 Td (2. Desactivar escrituras pblicas en candidatos, mensajes, agentes, workflows y) Tj ET
+BT /Helvetica 10 Tf 60 579 Td (  notificaciones.) Tj ET
+BT /Helvetica 10 Tf 60 566 Td (3. Validar Firebase ID Token en backend.) Tj ET
+BT /Helvetica 10 Tf 60 553 Td (4. Sustituir autenticacin opcional por autenticacin obligatoria en endpoints de IA.) Tj ET
+BT /Helvetica 10 Tf 60 540 Td (5. Agregar auditora mnima: quin cre, actualiz, aprob o envi cada accin.) Tj ET
+BT /Helvetica-Bold 12 Tf 48 518 Td (Fase 1 - Chat robusto) Tj ET
+BT /Helvetica 10 Tf 60 498 Td (1. Crear entidad Conversation y migrar la pantalla de mensajes para usarla.) Tj ET
+BT /Helvetica 10 Tf 60 485 Td (2. Agregar estados de mensajes y trazabilidad de proveedor.) Tj ET
+BT /Helvetica 10 Tf 60 472 Td (3. Corregir el canal de respuesta IA para respetar el canal original.) Tj ET
+BT /Helvetica 10 Tf 60 459 Td (4. Mostrar estados UX: "IA redactando", "pendiente de aprobacin", "enviado", "fall",) Tj ET
+BT /Helvetica 10 Tf 60 446 Td (  "escalado".) Tj ET
+BT /Helvetica 10 Tf 60 433 Td (5. Agregar panel lateral de candidato dentro del chat con vacante, etapa, tags, ltimos) Tj ET
+BT /Helvetica 10 Tf 60 420 Td (  eventos y prximo paso.) Tj ET
+BT /Helvetica-Bold 12 Tf 48 398 Td (Fase 2 - IA conversacional confiable) Tj ET
+BT /Helvetica 10 Tf 60 378 Td (1. Crear ai-orchestrator.service.ts en backend.) Tj ET
+BT /Helvetica 10 Tf 60 365 Td (2. Enviar historial real al modelo, no solo el ltimo prompt.) Tj ET
+BT /Helvetica 10 Tf 60 352 Td (3. Pedir salida JSON estructurada: respuesta, intencin, confianza, siguiente etapa,) Tj ET
+BT /Helvetica 10 Tf 60 339 Td (  campos faltantes y escalamiento.) Tj ET
+BT /Helvetica 10 Tf 60 326 Td (4. Validar la salida con Zod antes de guardar cualquier decisin.) Tj ET
+BT /Helvetica 10 Tf 60 313 Td (5. Activar aprobacin humana para respuestas sensibles: rechazo, salario, documentos,) Tj ET
+BT /Helvetica 10 Tf 60 300 Td (  temas legales o baja confianza.) Tj ET
+BT /Helvetica-Bold 12 Tf 48 278 Td (Fase 3 - Workflows reales) Tj ET
+BT /Helvetica 10 Tf 60 258 Td (1. Unificar automatizaciones simples y workflows visuales.) Tj ET
+BT /Helvetica 10 Tf 60 245 Td (2. Crear colecciones workflows, workflowRuns y workflowRunLogs.) Tj ET
+BT /Helvetica 10 Tf 60 232 Td (3. Convertir pasos simulados en acciones reales: mensaje, IA, condicin, calendario,) Tj ET
+BT /Helvetica 10 Tf 60 219 Td (  tarea, webhook y handoff.) Tj ET
+BT /Helvetica 10 Tf 60 206 Td (4. Agregar simulador de workflow con candidato real.) Tj ET
+BT /Helvetica 10 Tf 60 193 Td (5. Agregar versionado, publicacin y rollback de flujos.) Tj ET
+BT /Helvetica-Bold 12 Tf 48 171 Td (Fase 4 - Backend productivo) Tj ET
+BT /Helvetica 10 Tf 60 151 Td (1. Decidir arquitectura oficial.) Tj ET
+BT /Helvetica 10 Tf 60 138 Td (2. Si se requiere Baileys/WhatsApp normal, usar backend Node persistente en) Tj ET
+BT /Helvetica 10 Tf 60 125 Td (  VPS/Render/Fly/Railway.) Tj ET
+BT /Helvetica 10 Tf 60 112 Td (3. Si se quiere serverless puro, migrar a WhatsApp Business Cloud API.) Tj ET
+BT /Helvetica 10 Tf 60 99 Td (4. Eliminar divergencia entre Express, Vercel y Cloudflare o documentar responsabilidades) Tj ET
+BT /Helvetica 10 Tf 60 86 Td (  claras.) Tj ET
+BT /Helvetica 10 Tf 60 73 Td (5. Implementar Firebase Admin en backend y repositorios por entidad.) Tj ET
+BT /Helvetica 8 Tf 500 28 Td (Pagina 4 de 8) Tj ET
 endstream
 endobj
 12 0 obj
 << /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /Helvetica 3 0 R /Helvetica-Bold 4 0 R >> >> /Contents 11 0 R >>
 endobj
 13 0 obj
-<< /Length 2251 >>
+<< /Length 4601 >>
 stream
-BT /Helvetica 10 Tf 60 792 Td (- [ ] Crear Conversation y migrar chat.) Tj ET
-BT /Helvetica 10 Tf 60 779 Td (- [ ] Mover triggerAgentDialogue del frontend al backend.) Tj ET
-BT /Helvetica 10 Tf 60 766 Td (- [ ] Usar historial real en IA.) Tj ET
-BT /Helvetica 10 Tf 60 753 Td (- [ ] Exigir salida JSON estructurada de IA.) Tj ET
-BT /Helvetica 10 Tf 60 740 Td (- [ ] Agregar aprobacin humana.) Tj ET
-BT /Helvetica 10 Tf 60 727 Td (- [ ] Unificar workflows y automatizaciones.) Tj ET
-BT /Helvetica 10 Tf 60 714 Td (- [ ] Definir backend productivo nico.) Tj ET
-BT /Helvetica 10 Tf 60 701 Td (- [ ] Crear pruebas unitarias y E2E.) Tj ET
-BT /Helvetica 10 Tf 60 688 Td (- [ ] Documentar variables de entorno y despliegue real.) Tj ET
-BT /Helvetica-Bold 14 Tf 48 663 Td (9. Indicadores de xito) Tj ET
-BT /Helvetica 10 Tf 60 642 Td (- Cero escrituras pblicas en Firestore.) Tj ET
-BT /Helvetica 10 Tf 60 629 Td (- 100% de respuestas IA auditables.) Tj ET
-BT /Helvetica 10 Tf 60 616 Td (- Menos falsos cambios de etapa por heursticas.) Tj ET
-BT /Helvetica 10 Tf 60 603 Td (- Mayor tasa de respuesta en chats.) Tj ET
-BT /Helvetica 10 Tf 60 590 Td (- Menor tiempo promedio hasta entrevista.) Tj ET
-BT /Helvetica 10 Tf 60 577 Td (- Mayor show rate de entrevistas.) Tj ET
-BT /Helvetica 10 Tf 60 564 Td (- Menos errores por proveedor de IA o WhatsApp.) Tj ET
-BT /Helvetica 10 Tf 60 551 Td (- Workflows con logs y ejecucin reproducible.) Tj ET
-BT /Helvetica-Bold 14 Tf 48 526 Td (10. Prximo paso sugerido) Tj ET
-BT /Helvetica 10 Tf 48 505 Td (El primer sprint debera enfocarse en seguridad y chat:) Tj ET
-BT /Helvetica 10 Tf 60 487 Td (1. Bloquear Firestore pblico.) Tj ET
-BT /Helvetica 10 Tf 60 474 Td (2. Crear Conversation.) Tj ET
-BT /Helvetica 10 Tf 60 461 Td (3. Crear endpoint backend para mensajes.) Tj ET
-BT /Helvetica 10 Tf 60 448 Td (4. Migrar auto-respuesta IA al backend.) Tj ET
-BT /Helvetica 10 Tf 60 435 Td (5. Agregar aprobacin humana antes de enviar respuestas IA.) Tj ET
-BT /Helvetica 10 Tf 48 417 Td (Con eso la app gana seguridad, control operativo y base slida para mejorar flujos y UX sin) Tj ET
-BT /Helvetica 10 Tf 48 404 Td (  seguir acumulando lgica crtica en el frontend.) Tj ET
-BT /Helvetica 8 Tf 500 28 Td (Pagina 5 de 5) Tj ET
+BT /Helvetica-Bold 12 Tf 48 792 Td (Fase 5 - OCR y documentos inteligentes) Tj ET
+BT /Helvetica 10 Tf 60 772 Td (1. Crear pipeline OCR para CVs, identificaciones, comprobantes y documentos enviados por) Tj ET
+BT /Helvetica 10 Tf 60 759 Td (  WhatsApp/email/upload.) Tj ET
+BT /Helvetica 10 Tf 60 746 Td (2. Clasificar documentos antes de extraer campos y aplicar reglas por tipo documental.) Tj ET
+BT /Helvetica 10 Tf 60 733 Td (3. Extraer campos con confianza por dato: nombre, telfono, email, experiencia,) Tj ET
+BT /Helvetica 10 Tf 60 720 Td (  ubicacin, habilidades, escolaridad, documentos faltantes y fechas.) Tj ET
+BT /Helvetica 10 Tf 60 707 Td (4. Enviar a revisin humana cualquier documento sensible, ilegible, duplicado o con) Tj ET
+BT /Helvetica 10 Tf 60 694 Td (  confianza baja.) Tj ET
+BT /Helvetica 10 Tf 60 681 Td (5. Conectar OCR con scoring de candidato, enriquecimiento del perfil y checklist de) Tj ET
+BT /Helvetica 10 Tf 60 668 Td (  contratacin.) Tj ET
+BT /Helvetica-Bold 12 Tf 48 646 Td (Fase 6 - Versin mvil y PWA) Tj ET
+BT /Helvetica 10 Tf 60 626 Td (1. Redisear navegacin mvil con bottom navigation, drawers y acciones rpidas.) Tj ET
+BT /Helvetica 10 Tf 60 613 Td (2. Optimizar chat mvil para responder, aprobar IA, grabar audio, adjuntar documentos y) Tj ET
+BT /Helvetica 10 Tf 60 600 Td (  agendar en pocos taps.) Tj ET
+BT /Helvetica 10 Tf 60 587 Td (3. Convertir tablas y kanban complejos en tarjetas responsive y vistas resumidas.) Tj ET
+BT /Helvetica 10 Tf 60 574 Td (4. Agregar PWA instalable, push notifications, cache de shell, offline queue para) Tj ET
+BT /Helvetica 10 Tf 60 561 Td (  borradores y sincronizacin segura.) Tj ET
+BT /Helvetica 10 Tf 60 548 Td (5. Medir Core Web Vitals mviles, tamao de bundle, latencia de primer render y tiempo) Tj ET
+BT /Helvetica 10 Tf 60 535 Td (  hasta responder un chat.) Tj ET
+BT /Helvetica-Bold 12 Tf 48 513 Td (Fase 7 - UX/UI y mtricas) Tj ET
+BT /Helvetica 10 Tf 60 493 Td (1. Redisear chat con bandejas por estado y prioridad.) Tj ET
+BT /Helvetica 10 Tf 60 480 Td (2. Crear estados vacos accionables.) Tj ET
+BT /Helvetica 10 Tf 60 467 Td (3. Integrar aprobaciones IA dentro del chat.) Tj ET
+BT /Helvetica 10 Tf 60 454 Td (4. Mostrar explicacin de decisiones IA, resultados OCR y logs de workflow.) Tj ET
+BT /Helvetica 10 Tf 60 441 Td (5. Medir KPIs: tiempo de respuesta, show rate, tasa de conversin, escalaciones, tasa de) Tj ET
+BT /Helvetica 10 Tf 60 428 Td (  error por proveedor, precisin OCR, revisin humana y rendimiento por agente.) Tj ET
+BT /Helvetica-Bold 14 Tf 48 403 Td (5. Arquitectura backend recomendada) Tj ET
+BT /Helvetica 10 Tf 48 382 Td (La opcin ms prctica para esta app es:) Tj ET
+BT /Helvetica 10 Tf 60 364 Td (- Frontend en Cloudflare Pages.) Tj ET
+BT /Helvetica 10 Tf 60 351 Td (- Backend Node persistente para IA, WhatsApp/Baileys, colas y cron jobs.) Tj ET
+BT /Helvetica 10 Tf 60 338 Td (- Firebase Auth para identidad.) Tj ET
+BT /Helvetica 10 Tf 60 325 Td (- Firebase Admin en backend para Firestore.) Tj ET
+BT /Helvetica 10 Tf 60 312 Td (- Firestore como base operacional.) Tj ET
+BT /Helvetica 10 Tf 60 299 Td (- Cloud Tasks, BullMQ, Redis o cola equivalente para eventos asncronos.) Tj ET
+BT /Helvetica 10 Tf 60 286 Td (- Workers o funciones serverless solo para endpoints simples si se decide mantener) Tj ET
+BT /Helvetica 10 Tf 60 273 Td (  Cloudflare.) Tj ET
+BT /Helvetica 10 Tf 48 255 Td (Esta arquitectura evita que WhatsApp Web falle por falta de socket persistente y permite) Tj ET
+BT /Helvetica 10 Tf 48 242 Td (  ejecutar flujos largos, reintentos, aprobaciones y trabajos programados.) Tj ET
+BT /Helvetica-Bold 14 Tf 48 217 Td (6. Servicios backend propuestos) Tj ET
+BT /Helvetica 9 Tf 66 196 Td (server/services/conversation.service.ts) Tj ET
+BT /Helvetica 9 Tf 66 183 Td (server/services/message.service.ts) Tj ET
+BT /Helvetica 9 Tf 66 170 Td (server/services/ai-orchestrator.service.ts) Tj ET
+BT /Helvetica 9 Tf 66 157 Td (server/services/recruitment-state.service.ts) Tj ET
+BT /Helvetica 9 Tf 66 144 Td (server/services/workflow-engine.service.ts) Tj ET
+BT /Helvetica 9 Tf 66 131 Td (server/services/handoff.service.ts) Tj ET
+BT /Helvetica 9 Tf 66 118 Td (server/services/audit-log.service.ts) Tj ET
+BT /Helvetica 9 Tf 66 105 Td (server/services/ocr.service.ts) Tj ET
+BT /Helvetica 9 Tf 66 92 Td (server/services/document-intelligence.service.ts) Tj ET
+BT /Helvetica 9 Tf 66 79 Td (server/services/mobile-sync.service.ts) Tj ET
+BT /Helvetica 9 Tf 66 66 Td (server/repositories/candidates.repository.ts) Tj ET
+BT /Helvetica 8 Tf 500 28 Td (Pagina 5 de 8) Tj ET
 endstream
 endobj
 14 0 obj
 << /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /Helvetica 3 0 R /Helvetica-Bold 4 0 R >> >> /Contents 13 0 R >>
 endobj
+15 0 obj
+<< /Length 4380 >>
+stream
+BT /Helvetica 9 Tf 66 792 Td (server/repositories/conversations.repository.ts) Tj ET
+BT /Helvetica 9 Tf 66 779 Td (server/repositories/messages.repository.ts) Tj ET
+BT /Helvetica 9 Tf 66 766 Td (server/repositories/workflows.repository.ts) Tj ET
+BT /Helvetica 9 Tf 66 753 Td (server/repositories/appointments.repository.ts) Tj ET
+BT /Helvetica 9 Tf 66 740 Td (server/repositories/ocr-jobs.repository.ts) Tj ET
+BT /Helvetica 9 Tf 66 727 Td (server/repositories/mobile-session.repository.ts) Tj ET
+BT /Helvetica-Bold 14 Tf 48 702 Td (7. UX/UI propuesta para chat) Tj ET
+BT /Helvetica 10 Tf 60 681 Td (- Bandejas: Todos, Sin responder, Pendiente IA, Pendiente aprobacin, Escalados,) Tj ET
+BT /Helvetica 10 Tf 60 668 Td (  Cerrados.) Tj ET
+BT /Helvetica 10 Tf 60 655 Td (- Badges visibles por conversacin.) Tj ET
+BT /Helvetica 10 Tf 60 642 Td (- Composer con acciones rpidas: sugerir respuesta, aprobar y enviar, agendar, escalar,) Tj ET
+BT /Helvetica 10 Tf 60 629 Td (  insertar plantilla.) Tj ET
+BT /Helvetica 10 Tf 60 616 Td (- Vista de candidato al lado derecho: datos, vacante, etapa, score, prximos pasos,) Tj ET
+BT /Helvetica 10 Tf 60 603 Td (  historial y notas.) Tj ET
+BT /Helvetica 10 Tf 60 590 Td (- Timeline de eventos: mensaje recibido, IA gener borrador, reclutador aprob, workflow) Tj ET
+BT /Helvetica 10 Tf 60 577 Td (  ejecutado, cita agendada.) Tj ET
+BT /Helvetica 10 Tf 60 564 Td (- Filtros por canal, vacante, agente, etapa, prioridad y SLA.) Tj ET
+BT /Helvetica-Bold 14 Tf 48 539 Td (8. Plan especfico de OCR optimizado) Tj ET
+BT /Helvetica-Bold 12 Tf 48 514 Td (8.1 Pipeline OCR recomendado) Tj ET
+BT /Helvetica 10 Tf 60 494 Td (1. Ingesta: recibir archivo desde upload, WhatsApp, email, Drive o cmara mvil.) Tj ET
+BT /Helvetica 10 Tf 60 481 Td (2. Preprocesamiento: normalizar orientacin, contraste, tamao, ruido, compresin y) Tj ET
+BT /Helvetica 10 Tf 60 468 Td (  pginas.) Tj ET
+BT /Helvetica 10 Tf 60 455 Td (3. Clasificacin: detectar si es CV, identificacin, comprobante, certificado, formulario) Tj ET
+BT /Helvetica 10 Tf 60 442 Td (  o desconocido.) Tj ET
+BT /Helvetica 10 Tf 60 429 Td (4. Extraccin OCR: obtener texto completo y bloques con posicin.) Tj ET
+BT /Helvetica 10 Tf 60 416 Td (5. Extraccin semntica: convertir texto a campos normalizados con IA y reglas) Tj ET
+BT /Helvetica 10 Tf 60 403 Td (  determinsticas.) Tj ET
+BT /Helvetica 10 Tf 60 390 Td (6. Validacin: comparar campos contra candidato, vacante, telfono, email y documentos) Tj ET
+BT /Helvetica 10 Tf 60 377 Td (  requeridos.) Tj ET
+BT /Helvetica 10 Tf 60 364 Td (7. Revisin humana: solicitar aprobacin si hay baja confianza, datos sensibles o) Tj ET
+BT /Helvetica 10 Tf 60 351 Td (  conflicto.) Tj ET
+BT /Helvetica 10 Tf 60 338 Td (8. Persistencia: guardar texto, campos, confianza, fuente, versin del extractor y) Tj ET
+BT /Helvetica 10 Tf 60 325 Td (  auditora.) Tj ET
+BT /Helvetica-Bold 12 Tf 48 303 Td (8.2 Reglas de calidad OCR) Tj ET
+BT /Helvetica 10 Tf 60 283 Td (- No aceptar OCR como verdad absoluta si overallConfidence es menor a 0.85.) Tj ET
+BT /Helvetica 10 Tf 60 270 Td (- No actualizar telfono, email, nombre legal o documentos sensibles sin aprobacin) Tj ET
+BT /Helvetica 10 Tf 60 257 Td (  humana.) Tj ET
+BT /Helvetica 10 Tf 60 244 Td (- Detectar duplicados por hash de archivo y similitud de texto.) Tj ET
+BT /Helvetica 10 Tf 60 231 Td (- Guardar el documento original y el resultado OCR por separado.) Tj ET
+BT /Helvetica 10 Tf 60 218 Td (- Permitir correccin manual de campos extrados y usar esa correccin para aprendizaje) Tj ET
+BT /Helvetica 10 Tf 60 205 Td (  supervisado.) Tj ET
+BT /Helvetica-Bold 12 Tf 48 183 Td (8.3 UX OCR) Tj ET
+BT /Helvetica 10 Tf 60 163 Td (- Vista mvil y desktop para revisar documento al lado del texto extrado.) Tj ET
+BT /Helvetica 10 Tf 60 150 Td (- Resaltar campos con baja confianza.) Tj ET
+BT /Helvetica 10 Tf 60 137 Td (- Botones rpidos: aprobar, corregir, rechazar, pedir documento nuevamente.) Tj ET
+BT /Helvetica 10 Tf 60 124 Td (- Mostrar checklist de documentos por candidato.) Tj ET
+BT /Helvetica 10 Tf 60 111 Td (- Usar OCR para autocompletar perfil y sugerir vacantes compatibles.) Tj ET
+BT /Helvetica-Bold 14 Tf 48 86 Td (9. Plan especfico de versin mvil) Tj ET
+BT /Helvetica-Bold 12 Tf 48 61 Td (9.1 Principios mobile-first) Tj ET
+BT /Helvetica 8 Tf 500 28 Td (Pagina 6 de 8) Tj ET
+endstream
+endobj
+16 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /Helvetica 3 0 R /Helvetica-Bold 4 0 R >> >> /Contents 15 0 R >>
+endobj
+17 0 obj
+<< /Length 4393 >>
+stream
+BT /Helvetica 10 Tf 60 792 Td (- Priorizar inbox, candidato, agenda y aprobaciones IA como navegacin inferior.) Tj ET
+BT /Helvetica 10 Tf 60 779 Td (- Reducir formularios largos a pasos cortos con guardado automtico.) Tj ET
+BT /Helvetica 10 Tf 60 766 Td (- Usar drawers en vez de modales grandes.) Tj ET
+BT /Helvetica 10 Tf 60 753 Td (- Mantener botones tctiles de al menos 44px y evitar targets pequeos.) Tj ET
+BT /Helvetica 10 Tf 60 740 Td (- Optimizar performance para redes mviles lentas.) Tj ET
+BT /Helvetica-Bold 12 Tf 48 718 Td (9.2 Funciones mviles clave) Tj ET
+BT /Helvetica 10 Tf 60 698 Td (- PWA instalable con manifest, service worker y cache de shell.) Tj ET
+BT /Helvetica 10 Tf 60 685 Td (- Push notifications para nuevos mensajes, citas prximas y aprobaciones pendientes.) Tj ET
+BT /Helvetica 10 Tf 60 672 Td (- Offline queue para borradores de mensajes, notas y cambios no crticos.) Tj ET
+BT /Helvetica 10 Tf 60 659 Td (- Cmara mvil para subir documentos y disparar OCR.) Tj ET
+BT /Helvetica 10 Tf 60 646 Td (- Audio rpido: grabar, transcribir, revisar y responder.) Tj ET
+BT /Helvetica 10 Tf 60 633 Td (- Agenda mvil con confirmacin, reprogramacin y recordatorios.) Tj ET
+BT /Helvetica-Bold 12 Tf 48 611 Td (9.3 Mtricas mviles) Tj ET
+BT /Helvetica 10 Tf 60 591 Td (- Largest Contentful Paint mvil menor a 2.5s.) Tj ET
+BT /Helvetica 10 Tf 60 578 Td (- Interaction to Next Paint menor a 200ms en acciones de chat.) Tj ET
+BT /Helvetica 10 Tf 60 565 Td (- Tiempo para aprobar y enviar respuesta IA menor a 20s.) Tj ET
+BT /Helvetica 10 Tf 60 552 Td (- Bundle inicial por debajo de 250KB comprimido cuando sea posible.) Tj ET
+BT /Helvetica 10 Tf 60 539 Td (- Tasa de errores offline/sync menor al 1%.) Tj ET
+BT /Helvetica-Bold 14 Tf 48 514 Td (10. Checklist de implementacin inmediata) Tj ET
+BT /Helvetica 10 Tf 60 493 Td (- [ ] Cerrar reglas pblicas de Firestore.) Tj ET
+BT /Helvetica 10 Tf 60 480 Td (- [ ] Crear Conversation y migrar chat.) Tj ET
+BT /Helvetica 10 Tf 60 467 Td (- [ ] Mover triggerAgentDialogue del frontend al backend.) Tj ET
+BT /Helvetica 10 Tf 60 454 Td (- [ ] Usar historial real en IA.) Tj ET
+BT /Helvetica 10 Tf 60 441 Td (- [ ] Exigir salida JSON estructurada de IA.) Tj ET
+BT /Helvetica 10 Tf 60 428 Td (- [ ] Agregar aprobacin humana.) Tj ET
+BT /Helvetica 10 Tf 60 415 Td (- [ ] Unificar workflows y automatizaciones.) Tj ET
+BT /Helvetica 10 Tf 60 402 Td (- [ ] Definir backend productivo nico.) Tj ET
+BT /Helvetica 10 Tf 60 389 Td (- [ ] Crear pipeline OCR con revisin humana.) Tj ET
+BT /Helvetica 10 Tf 60 376 Td (- [ ] Agregar PWA, navegacin mvil y push notifications.) Tj ET
+BT /Helvetica 10 Tf 60 363 Td (- [ ] Crear pruebas unitarias, E2E, OCR fixtures y pruebas responsive.) Tj ET
+BT /Helvetica 10 Tf 60 350 Td (- [ ] Documentar variables de entorno y despliegue real.) Tj ET
+BT /Helvetica-Bold 14 Tf 48 325 Td (11. Indicadores de xito) Tj ET
+BT /Helvetica 10 Tf 60 304 Td (- Cero escrituras pblicas en Firestore.) Tj ET
+BT /Helvetica 10 Tf 60 291 Td (- 100% de respuestas IA auditables.) Tj ET
+BT /Helvetica 10 Tf 60 278 Td (- Menos falsos cambios de etapa por heursticas.) Tj ET
+BT /Helvetica 10 Tf 60 265 Td (- Mayor tasa de respuesta en chats.) Tj ET
+BT /Helvetica 10 Tf 60 252 Td (- Menor tiempo promedio hasta entrevista.) Tj ET
+BT /Helvetica 10 Tf 60 239 Td (- Mayor show rate de entrevistas.) Tj ET
+BT /Helvetica 10 Tf 60 226 Td (- Menos errores por proveedor de IA o WhatsApp.) Tj ET
+BT /Helvetica 10 Tf 60 213 Td (- Workflows con logs y ejecucin reproducible.) Tj ET
+BT /Helvetica 10 Tf 60 200 Td (- Precisin OCR por encima de 90% en CVs legibles y documentos frecuentes.) Tj ET
+BT /Helvetica 10 Tf 60 187 Td (- Menos de 10% de documentos enviados a revisin por baja calidad despus de optimizar) Tj ET
+BT /Helvetica 10 Tf 60 174 Td (  captura.) Tj ET
+BT /Helvetica 10 Tf 60 161 Td (- Tiempo mvil para responder o aprobar IA menor a 20 segundos.) Tj ET
+BT /Helvetica 10 Tf 60 148 Td (- Core Web Vitals mviles dentro de rangos recomendados.) Tj ET
+BT /Helvetica-Bold 14 Tf 48 123 Td (12. Prximo paso sugerido) Tj ET
+BT /Helvetica 10 Tf 48 102 Td (El primer sprint debera enfocarse en seguridad, chat, OCR base y mvil:) Tj ET
+BT /Helvetica 10 Tf 60 84 Td (1. Bloquear Firestore pblico.) Tj ET
+BT /Helvetica 10 Tf 60 71 Td (2. Crear Conversation.) Tj ET
+BT /Helvetica 8 Tf 500 28 Td (Pagina 7 de 8) Tj ET
+endstream
+endobj
+18 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /Helvetica 3 0 R /Helvetica-Bold 4 0 R >> >> /Contents 17 0 R >>
+endobj
+19 0 obj
+<< /Length 810 >>
+stream
+BT /Helvetica 10 Tf 60 792 Td (3. Crear endpoint backend para mensajes.) Tj ET
+BT /Helvetica 10 Tf 60 779 Td (4. Migrar auto-respuesta IA al backend.) Tj ET
+BT /Helvetica 10 Tf 60 766 Td (5. Agregar aprobacin humana antes de enviar respuestas IA.) Tj ET
+BT /Helvetica 10 Tf 60 753 Td (6. Crear DocumentOcrJob y prototipo OCR para CVs/documentos desde upload y cmara mvil.) Tj ET
+BT /Helvetica 10 Tf 60 740 Td (7. Crear navegacin mvil principal: inbox, candidatos, agenda y aprobaciones.) Tj ET
+BT /Helvetica 10 Tf 48 722 Td (Con eso la app gana seguridad, control operativo, captura documental inteligente y una base) Tj ET
+BT /Helvetica 10 Tf 48 709 Td (  mvil slida para mejorar flujos y UX sin seguir acumulando lgica crtica en el frontend.) Tj ET
+BT /Helvetica 8 Tf 500 28 Td (Pagina 8 de 8) Tj ET
+endstream
+endobj
+20 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /Helvetica 3 0 R /Helvetica-Bold 4 0 R >> >> /Contents 19 0 R >>
+endobj
 xref
-0 15
+0 21
 0000000000 65535 f 
 0000000015 00000 n 
 0000000064 00000 n 
-0000000148 00000 n 
-0000000218 00000 n 
-0000000293 00000 n 
-0000004843 00000 n 
-0000004998 00000 n 
-0000008784 00000 n 
-0000008939 00000 n 
-0000013050 00000 n 
-0000013206 00000 n 
-0000017582 00000 n 
-0000017739 00000 n 
-0000020043 00000 n 
+0000000169 00000 n 
+0000000239 00000 n 
+0000000314 00000 n 
+0000004937 00000 n 
+0000005092 00000 n 
+0000009346 00000 n 
+0000009501 00000 n 
+0000013024 00000 n 
+0000013180 00000 n 
+0000017460 00000 n 
+0000017617 00000 n 
+0000022271 00000 n 
+0000022428 00000 n 
+0000026861 00000 n 
+0000027018 00000 n 
+0000031464 00000 n 
+0000031621 00000 n 
+0000032483 00000 n 
 trailer
-<< /Size 15 /Root 1 0 R >>
+<< /Size 21 /Root 1 0 R >>
 startxref
-20200
+32640
 %%EOF

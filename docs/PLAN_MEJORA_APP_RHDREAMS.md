@@ -2,13 +2,13 @@
 
 **Fecha:** 2026-06-02  
 **Repositorio:** RHDREAMSAPP2026  
-**Objetivo:** mejorar la lógica de chats, flujos, arquitectura, frontend, backend y UX/UI de la aplicación.
+**Objetivo:** mejorar la lógica de chats, flujos, arquitectura, frontend, backend, OCR documental, versión móvil y UX/UI de la aplicación.
 
 ## 1. Resumen ejecutivo
 
 La aplicación ya tiene una base funcional fuerte: React + Vite, Firebase/Firestore, backend Express, rutas serverless para Vercel/Cloudflare, módulos de candidatos, mensajes, agentes IA, flujos IA, reportes, Google Workspace e integraciones.
 
-La prioridad debe ser convertirla de una app demostrativa o semiprototipo en una plataforma de reclutamiento robusta, segura y escalable. Los puntos más urgentes son: cerrar reglas de Firestore, mover la lógica crítica del frontend al backend, formalizar conversaciones y mensajes, usar historial real en IA, unificar automatizaciones con workflows, y definir una arquitectura de despliegue única.
+La prioridad debe ser convertirla de una app demostrativa o semiprototipo en una plataforma de reclutamiento robusta, segura y escalable. Los puntos más urgentes son: cerrar reglas de Firestore, mover la lógica crítica del frontend al backend, formalizar conversaciones y mensajes, usar historial real en IA, unificar automatizaciones con workflows, optimizar OCR para CVs/documentos, preparar una experiencia móvil de primer nivel y definir una arquitectura de despliegue única.
 
 ## 2. Diagnóstico principal
 
@@ -48,6 +48,20 @@ La prioridad debe ser convertirla de una app demostrativa o semiprototipo en una
 - La pantalla de chat necesita estados operativos claros: IA pensando, requiere aprobación, escalado, error, no enviado, SLA vencido.
 - Los estados vacíos deben invitar a crear candidato, importar conversación, conectar canal o simular una conversación.
 - El usuario debe poder ver por qué la IA tomó una decisión, qué datos usó y qué workflow se ejecutó.
+
+### 2.6 OCR documental
+
+- El reclutamiento necesita extraer datos de CVs, identificaciones, comprobantes, certificados, formularios escaneados e imágenes recibidas por WhatsApp.
+- El OCR debe separar extracción de texto, clasificación documental, validación, scoring y revisión humana.
+- No debe sobrescribir datos del candidato automáticamente si la confianza es baja o si detecta documentos sensibles.
+- Debe guardar evidencia, fuente, versión del extractor, confianza por campo y auditoría de aprobación.
+
+### 2.7 Versión móvil
+
+- La app debe funcionar como experiencia mobile-first para reclutadores que atienden candidatos desde teléfono.
+- El chat, la revisión de documentos, la aprobación de respuestas IA y la agenda deben estar optimizados para pantallas pequeñas.
+- La versión móvil debe soportar PWA instalable, navegación inferior, acciones rápidas, offline básico y carga progresiva.
+- El diseño debe reducir tablas anchas, modales grandes y paneles simultáneos en favor de tarjetas, drawers y flujos por pasos.
 
 ## 3. Modelo de datos propuesto
 
@@ -115,6 +129,43 @@ WorkflowRun {
 }
 ```
 
+### 3.4 DocumentOcrJob
+
+```ts
+DocumentOcrJob {
+  id: string;
+  companyId: string;
+  candidateId?: string;
+  conversationId?: string;
+  source: "upload" | "whatsapp" | "email" | "drive" | "camera";
+  documentType: "cv" | "id" | "proof_of_address" | "certificate" | "unknown";
+  fileUrl: string;
+  status: "queued" | "processing" | "needs_review" | "completed" | "failed";
+  extractedText?: string;
+  extractedFields: Record<string, { value: string; confidence: number }>;
+  overallConfidence: number;
+  requiresHumanReview: boolean;
+  reviewedBy?: string;
+  reviewedAt?: number;
+  createdAt: number;
+}
+```
+
+### 3.5 MobileSessionState
+
+```ts
+MobileSessionState {
+  userId: string;
+  companyId: string;
+  deviceId: string;
+  lastRoute: string;
+  preferredInboxFilter?: string;
+  offlineQueueCount: number;
+  pushEnabled: boolean;
+  lastSyncAt: number;
+}
+```
+
 ## 4. Roadmap recomendado
 
 ### Fase 0 - Seguridad y control de datos
@@ -157,13 +208,29 @@ WorkflowRun {
 4. Eliminar divergencia entre Express, Vercel y Cloudflare o documentar responsabilidades claras.
 5. Implementar Firebase Admin en backend y repositorios por entidad.
 
-### Fase 5 - UX/UI y métricas
+### Fase 5 - OCR y documentos inteligentes
+
+1. Crear pipeline OCR para CVs, identificaciones, comprobantes y documentos enviados por WhatsApp/email/upload.
+2. Clasificar documentos antes de extraer campos y aplicar reglas por tipo documental.
+3. Extraer campos con confianza por dato: nombre, teléfono, email, experiencia, ubicación, habilidades, escolaridad, documentos faltantes y fechas.
+4. Enviar a revisión humana cualquier documento sensible, ilegible, duplicado o con confianza baja.
+5. Conectar OCR con scoring de candidato, enriquecimiento del perfil y checklist de contratación.
+
+### Fase 6 - Versión móvil y PWA
+
+1. Rediseñar navegación móvil con bottom navigation, drawers y acciones rápidas.
+2. Optimizar chat móvil para responder, aprobar IA, grabar audio, adjuntar documentos y agendar en pocos taps.
+3. Convertir tablas y kanban complejos en tarjetas responsive y vistas resumidas.
+4. Agregar PWA instalable, push notifications, cache de shell, offline queue para borradores y sincronización segura.
+5. Medir Core Web Vitals móviles, tamaño de bundle, latencia de primer render y tiempo hasta responder un chat.
+
+### Fase 7 - UX/UI y métricas
 
 1. Rediseñar chat con bandejas por estado y prioridad.
 2. Crear estados vacíos accionables.
 3. Integrar aprobaciones IA dentro del chat.
-4. Mostrar explicación de decisiones IA y logs de workflow.
-5. Medir KPIs: tiempo de respuesta, show rate, tasa de conversión, escalaciones, tasa de error por proveedor y rendimiento por agente.
+4. Mostrar explicación de decisiones IA, resultados OCR y logs de workflow.
+5. Medir KPIs: tiempo de respuesta, show rate, tasa de conversión, escalaciones, tasa de error por proveedor, precisión OCR, revisión humana y rendimiento por agente.
 
 ## 5. Arquitectura backend recomendada
 
@@ -189,11 +256,16 @@ server/services/recruitment-state.service.ts
 server/services/workflow-engine.service.ts
 server/services/handoff.service.ts
 server/services/audit-log.service.ts
+server/services/ocr.service.ts
+server/services/document-intelligence.service.ts
+server/services/mobile-sync.service.ts
 server/repositories/candidates.repository.ts
 server/repositories/conversations.repository.ts
 server/repositories/messages.repository.ts
 server/repositories/workflows.repository.ts
 server/repositories/appointments.repository.ts
+server/repositories/ocr-jobs.repository.ts
+server/repositories/mobile-session.repository.ts
 ```
 
 ## 7. UX/UI propuesta para chat
@@ -205,7 +277,63 @@ server/repositories/appointments.repository.ts
 - Timeline de eventos: mensaje recibido, IA generó borrador, reclutador aprobó, workflow ejecutado, cita agendada.
 - Filtros por canal, vacante, agente, etapa, prioridad y SLA.
 
-## 8. Checklist de implementación inmediata
+## 8. Plan específico de OCR optimizado
+
+### 8.1 Pipeline OCR recomendado
+
+1. Ingesta: recibir archivo desde upload, WhatsApp, email, Drive o cámara móvil.
+2. Preprocesamiento: normalizar orientación, contraste, tamaño, ruido, compresión y páginas.
+3. Clasificación: detectar si es CV, identificación, comprobante, certificado, formulario o desconocido.
+4. Extracción OCR: obtener texto completo y bloques con posición.
+5. Extracción semántica: convertir texto a campos normalizados con IA y reglas determinísticas.
+6. Validación: comparar campos contra candidato, vacante, teléfono, email y documentos requeridos.
+7. Revisión humana: solicitar aprobación si hay baja confianza, datos sensibles o conflicto.
+8. Persistencia: guardar texto, campos, confianza, fuente, versión del extractor y auditoría.
+
+### 8.2 Reglas de calidad OCR
+
+- No aceptar OCR como verdad absoluta si `overallConfidence` es menor a 0.85.
+- No actualizar teléfono, email, nombre legal o documentos sensibles sin aprobación humana.
+- Detectar duplicados por hash de archivo y similitud de texto.
+- Guardar el documento original y el resultado OCR por separado.
+- Permitir corrección manual de campos extraídos y usar esa corrección para aprendizaje supervisado.
+
+### 8.3 UX OCR
+
+- Vista móvil y desktop para revisar documento al lado del texto extraído.
+- Resaltar campos con baja confianza.
+- Botones rápidos: aprobar, corregir, rechazar, pedir documento nuevamente.
+- Mostrar checklist de documentos por candidato.
+- Usar OCR para autocompletar perfil y sugerir vacantes compatibles.
+
+## 9. Plan específico de versión móvil
+
+### 9.1 Principios mobile-first
+
+- Priorizar inbox, candidato, agenda y aprobaciones IA como navegación inferior.
+- Reducir formularios largos a pasos cortos con guardado automático.
+- Usar drawers en vez de modales grandes.
+- Mantener botones táctiles de al menos 44px y evitar targets pequeños.
+- Optimizar performance para redes móviles lentas.
+
+### 9.2 Funciones móviles clave
+
+- PWA instalable con manifest, service worker y cache de shell.
+- Push notifications para nuevos mensajes, citas próximas y aprobaciones pendientes.
+- Offline queue para borradores de mensajes, notas y cambios no críticos.
+- Cámara móvil para subir documentos y disparar OCR.
+- Audio rápido: grabar, transcribir, revisar y responder.
+- Agenda móvil con confirmación, reprogramación y recordatorios.
+
+### 9.3 Métricas móviles
+
+- Largest Contentful Paint móvil menor a 2.5s.
+- Interaction to Next Paint menor a 200ms en acciones de chat.
+- Tiempo para aprobar y enviar respuesta IA menor a 20s.
+- Bundle inicial por debajo de 250KB comprimido cuando sea posible.
+- Tasa de errores offline/sync menor al 1%.
+
+## 10. Checklist de implementación inmediata
 
 - [ ] Cerrar reglas públicas de Firestore.
 - [ ] Crear `Conversation` y migrar chat.
@@ -215,10 +343,12 @@ server/repositories/appointments.repository.ts
 - [ ] Agregar aprobación humana.
 - [ ] Unificar workflows y automatizaciones.
 - [ ] Definir backend productivo único.
-- [ ] Crear pruebas unitarias y E2E.
+- [ ] Crear pipeline OCR con revisión humana.
+- [ ] Agregar PWA, navegación móvil y push notifications.
+- [ ] Crear pruebas unitarias, E2E, OCR fixtures y pruebas responsive.
 - [ ] Documentar variables de entorno y despliegue real.
 
-## 9. Indicadores de éxito
+## 11. Indicadores de éxito
 
 - Cero escrituras públicas en Firestore.
 - 100% de respuestas IA auditables.
@@ -228,15 +358,21 @@ server/repositories/appointments.repository.ts
 - Mayor show rate de entrevistas.
 - Menos errores por proveedor de IA o WhatsApp.
 - Workflows con logs y ejecución reproducible.
+- Precisión OCR por encima de 90% en CVs legibles y documentos frecuentes.
+- Menos de 10% de documentos enviados a revisión por baja calidad después de optimizar captura.
+- Tiempo móvil para responder o aprobar IA menor a 20 segundos.
+- Core Web Vitals móviles dentro de rangos recomendados.
 
-## 10. Próximo paso sugerido
+## 12. Próximo paso sugerido
 
-El primer sprint debería enfocarse en seguridad y chat:
+El primer sprint debería enfocarse en seguridad, chat, OCR base y móvil:
 
 1. Bloquear Firestore público.
 2. Crear `Conversation`.
 3. Crear endpoint backend para mensajes.
 4. Migrar auto-respuesta IA al backend.
 5. Agregar aprobación humana antes de enviar respuestas IA.
+6. Crear `DocumentOcrJob` y prototipo OCR para CVs/documentos desde upload y cámara móvil.
+7. Crear navegación móvil principal: inbox, candidatos, agenda y aprobaciones.
 
-Con eso la app gana seguridad, control operativo y base sólida para mejorar flujos y UX sin seguir acumulando lógica crítica en el frontend.
+Con eso la app gana seguridad, control operativo, captura documental inteligente y una base móvil sólida para mejorar flujos y UX sin seguir acumulando lógica crítica en el frontend.
