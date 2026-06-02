@@ -110,9 +110,9 @@ export function NetworkBackground() {
   return (
     <div className="fixed inset-0 z-[-1] bg-gradient-to-br from-[#01040B] via-[#020817] to-[#050B16] overflow-hidden">
       {/* Subtle diagonal tech lines / grid hologram */}
-      <div className="absolute inset-0 bg-[linear-gradient(rgba(34,211,238,0.06)_1px,transparent_1px),linear-gradient(90deg,rgba(34,211,238,0.05)_1px,transparent_1px)] bg-[size:3rem_3rem] [mask-image:radial-gradient(ellipse_65%_55%_at_50%_48%,#000_72%,transparent_100%)] opacity-55" />
+      <div className="absolute inset-0 bg-[linear-gradient(rgba(34,211,238,0.045)_1px,transparent_1px),linear-gradient(90deg,rgba(34,211,238,0.04)_1px,transparent_1px)] bg-[size:3rem_3rem] [mask-image:radial-gradient(ellipse_65%_55%_at_50%_48%,#000_72%,transparent_100%)] opacity-40" />
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_18%,rgba(8,145,178,0.2),transparent_34%),radial-gradient(circle_at_82%_12%,rgba(37,99,235,0.15),transparent_32%),radial-gradient(circle_at_50%_82%,rgba(6,182,212,0.12),transparent_40%)]" />
-      <canvas ref={canvasRef} className="absolute inset-0 w-full h-full" />
+      <canvas ref={canvasRef} className="absolute inset-0 w-full h-full opacity-60" />
     </div>
   );
 }

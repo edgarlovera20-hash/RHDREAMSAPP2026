@@ -216,7 +216,7 @@ export function Dashboard() {
   })();
 
   return (
-    <div className="flex flex-col gap-6 w-full min-h-full pb-8">
+    <div className="flex flex-col gap-5 w-full min-h-full pb-8">
       {unreadAlerts.length > 0 && (
         <div className="flex flex-col gap-2">
           {unreadAlerts.map(alert => {
@@ -240,38 +240,45 @@ export function Dashboard() {
         </div>
       )}
 
-      <div className="flex flex-col md:flex-row md:items-start justify-between gap-6 mt-2 mb-6">
-        <div>
-          <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-white flex flex-wrap items-center gap-x-3 gap-y-1 leading-tight">
-             <Cpu className="w-8 h-8 text-cyan-400 shrink-0" />
-             <span>Heavenly Dreams</span>
-             <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500 font-bold">Metrics</span>
-          </h1>
-          <p className="text-slate-400 mt-2 font-light tracking-wide text-sm opacity-80 uppercase">Autonomous matching and conversion analysis</p>
-        </div>
-        <div className="hidden md:flex items-center gap-3 px-5 py-2.5 glass-panel rounded-full text-xs font-semibold uppercase tracking-widest text-emerald-400 border-emerald-500/20">
-          <div className="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_#34d399] animate-pulse" />
-          System Active
+      <div className="glass-panel rounded-2xl border border-cyan-400/10 bg-slate-950/70 px-5 py-5 md:px-7 md:py-6 relative overflow-hidden">
+        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-cyan-300/40 to-transparent" />
+        <div className="absolute -right-20 -top-24 h-56 w-56 rounded-full bg-cyan-500/12 blur-3xl" />
+        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-5">
+          <div className="min-w-0">
+            <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-cyan-400/20 bg-cyan-400/10 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.24em] text-cyan-200">
+              <Cpu className="w-3.5 h-3.5" />
+              Centro de mando
+            </div>
+            <h1 className="text-3xl md:text-[42px] font-bold tracking-tight text-white flex flex-wrap items-center gap-x-3 gap-y-1 leading-tight">
+               <span>Heavenly Dreams</span>
+               <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 via-sky-400 to-blue-500">Metrics</span>
+            </h1>
+            <p className="text-slate-400 mt-2 font-medium tracking-wide text-sm uppercase">Autonomous matching and conversion analysis</p>
+          </div>
+          <div className="flex items-center gap-3 rounded-full border border-emerald-400/20 bg-emerald-400/10 px-5 py-3 text-xs font-bold uppercase tracking-[0.22em] text-emerald-300 shadow-[0_0_28px_rgba(16,185,129,0.08)]">
+            <div className="w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-[0_0_12px_#34d399] animate-pulse" />
+            System Active
+          </div>
         </div>
       </div>
 
       {/* Dynamic Date Filter Toolbar */}
-      <div className="flex min-h-[76px] flex-col 2xl:flex-row items-stretch 2xl:items-center justify-between gap-4 p-4 md:p-5 glass-panel rounded-2xl border border-white/5 bg-slate-900/45 shadow-lg relative overflow-visible group mb-6">
-        <div className="absolute inset-y-0 left-0 w-2 rounded-l-2xl bg-gradient-to-b from-cyan-500 to-blue-500"></div>
+      <div className="flex flex-col 2xl:flex-row items-stretch 2xl:items-center justify-between gap-4 p-4 glass-panel rounded-2xl border border-cyan-400/10 bg-slate-950/70 shadow-lg relative overflow-visible group">
+        <div className="absolute inset-y-4 left-0 w-1 rounded-r-full bg-gradient-to-b from-cyan-400 to-blue-500"></div>
         <div className="flex items-center gap-4 relative z-10 w-full min-w-0 2xl:max-w-[460px]">
-          <div className="grid h-11 w-11 shrink-0 place-items-center border border-cyan-500/20 bg-cyan-500/10 rounded-xl">
+          <div className="grid h-11 w-11 shrink-0 place-items-center border border-cyan-500/25 bg-cyan-500/12 rounded-xl shadow-[0_0_18px_rgba(6,182,212,0.12)]">
             <Calendar className="w-5 h-5 text-cyan-400" />
           </div>
           <div className="min-w-0">
             <h4 className="text-sm md:text-base font-semibold tracking-wide text-slate-100 leading-tight">
-              Rango de Tiempo
+              Periodo de análisis
             </h4>
-            <p className="text-xs md:text-sm text-slate-400 font-sans mt-1 leading-snug">Filtra métricas por rango específico o selecciona presets rápidos</p>
+            <p className="text-xs md:text-sm text-slate-400 font-sans mt-1 leading-snug">Filtra métricas por rango o presets rápidos</p>
           </div>
         </div>
         
         <div className="flex flex-col lg:flex-row lg:flex-wrap items-stretch lg:items-center gap-3 relative z-10 w-full 2xl:w-auto 2xl:justify-end">
-          <div className="flex flex-wrap items-center gap-1 p-1 bg-slate-950/45 rounded-xl border border-white/5">
+          <div className="flex flex-wrap items-center gap-1 p-1 bg-black/35 rounded-xl border border-white/10">
             {[
               { id: "7d", label: "7 Días" },
               { id: "30d", label: "30 Días" },
@@ -298,7 +305,7 @@ export function Dashboard() {
                 className={cn(
                   "px-3 py-2 rounded-lg text-xs font-semibold tracking-wide transition-all border border-transparent whitespace-nowrap",
                   selectedPreset === preset.id 
-                    ? "bg-gradient-to-r from-cyan-500/20 to-blue-500/20 text-cyan-300 shadow-[0_0_12px_rgba(6,182,212,0.15)] border-cyan-500/30"
+                    ? "bg-gradient-to-r from-cyan-500/25 to-blue-500/20 text-cyan-200 shadow-[0_0_16px_rgba(6,182,212,0.18)] border-cyan-500/35"
                     : "text-slate-400 hover:text-white hover:bg-slate-800/40"
                 )}
               >
@@ -307,7 +314,7 @@ export function Dashboard() {
             ))}
           </div>
           
-          <div className="flex flex-wrap items-center gap-2 bg-slate-950/45 rounded-xl border border-white/5 py-2 px-3">
+          <div className="flex flex-wrap items-center gap-2 bg-black/35 rounded-xl border border-white/10 py-2 px-3">
             <span className="text-[10px] uppercase text-slate-500 font-bold tracking-wider">Desde</span>
             <input 
               type="date"
@@ -316,7 +323,7 @@ export function Dashboard() {
                 setStartDateStr(e.target.value);
                 setSelectedPreset("custom");
               }}
-              className="text-xs font-mono text-slate-200 bg-transparent border-0 focus:outline-none focus:ring-0 cursor-pointer p-0 w-[115px] filter invert-[0.1]"
+              className="text-xs font-mono text-slate-200 bg-transparent border-0 focus:outline-none focus:ring-0 cursor-pointer p-0 w-[115px] [color-scheme:dark]"
             />
             <span className="text-[10px] uppercase text-slate-500 font-bold tracking-wider ml-1">Hasta</span>
             <input 
@@ -326,13 +333,13 @@ export function Dashboard() {
                 setEndDateStr(e.target.value);
                 setSelectedPreset("custom");
               }}
-              className="text-xs font-mono text-slate-200 bg-transparent border-0 focus:outline-none focus:ring-0 cursor-pointer p-0 w-[115px] filter invert-[0.1]"
+              className="text-xs font-mono text-slate-200 bg-transparent border-0 focus:outline-none focus:ring-0 cursor-pointer p-0 w-[115px] [color-scheme:dark]"
             />
           </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {[
           { title: "Total Candidatos", value: String(totalCandidates), subtitle: "Sincronizado Firestore", icon: Users, color: 'cyan' as const },
           { title: "Nuevas Aplicaciones", value: String(newApplications), subtitle: "En bandeja 'Nuevo'", icon: Activity, color: 'purple' as const },
@@ -348,17 +355,20 @@ export function Dashboard() {
           }[stat.color];
 
           return (
-            <div key={i} className={`glass-panel p-6 rounded-2xl flex flex-col relative overflow-hidden group ${styles.hoverBorder} transition-all duration-300`}>
-              <div className={`absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent ${styles.bgLine} to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300`}></div>
-              <div className="absolute -inset-20 bg-slate-900/0 group-hover:bg-slate-800/20 transition-colors pointer-events-none"></div>
+            <div key={i} className={`glass-panel p-5 rounded-2xl flex flex-col relative overflow-hidden group border-white/10 bg-slate-950/75 ${styles.hoverBorder} transition-all duration-300`}>
+              <div className={`absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent ${styles.bgLine} to-transparent opacity-80 transition-opacity duration-300`}></div>
+              <div className="absolute inset-0 bg-gradient-to-br from-white/[0.04] to-transparent pointer-events-none"></div>
+              <div className="absolute -right-8 -bottom-10 h-28 w-28 rounded-full bg-cyan-400/5 blur-2xl group-hover:bg-cyan-400/10 transition-colors pointer-events-none"></div>
               
               <div className="flex items-center justify-between pb-4 relative z-10">
-                <p className="text-slate-400 text-[10px] font-bold tracking-widest uppercase">{stat.title}</p>
-                <Icon className={`w-5 h-5 opacity-70 group-hover:opacity-100 transition-all ${styles.text} ${styles.shadow}`} />
+                <p className="text-slate-400 text-[10px] font-bold tracking-[0.18em] uppercase">{stat.title}</p>
+                <div className="grid h-9 w-9 place-items-center rounded-xl border border-white/10 bg-white/[0.03]">
+                  <Icon className={`w-[18px] h-[18px] opacity-85 group-hover:opacity-100 transition-all ${styles.text} ${styles.shadow}`} />
+                </div>
               </div>
               
               <div className="relative z-10">
-                <div className="text-4xl font-light text-white tracking-tighter font-mono">{stat.value}</div>
+                <div className="text-[42px] font-semibold text-white tracking-tighter font-mono leading-none">{stat.value}</div>
                 <p className={`text-[10px] mt-3 font-semibold uppercase tracking-widest flex items-center gap-2 ${styles.text} opacity-80`}>
                   <span className={`w-1.5 h-1.5 rounded-full ${styles.dot}`} /> {stat.subtitle}
                 </p>
@@ -368,10 +378,10 @@ export function Dashboard() {
         })}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-2">
-        <div className="glass-panel p-8 rounded-2xl flex flex-col relative overflow-hidden group hover:border-cyan-500/30 transition-all duration-300">
-          <div className="absolute top-0 right-0 p-32 bg-cyan-500/5 blur-3xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"></div>
-          <h2 className="text-[11px] font-bold text-slate-400 mb-8 uppercase tracking-widest flex items-center gap-3">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mt-1">
+        <div className="glass-panel p-6 rounded-2xl flex flex-col relative overflow-hidden group border-white/10 bg-slate-950/75 hover:border-cyan-500/30 transition-all duration-300">
+          <div className="absolute top-0 right-0 p-32 bg-cyan-500/8 blur-3xl rounded-full opacity-60 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"></div>
+          <h2 className="text-[11px] font-bold text-slate-300 mb-6 uppercase tracking-[0.2em] flex items-center gap-3">
             <span className="w-2 h-2 bg-cyan-400 rounded-sm shadow-[0_0_8px_#22d3ee]"></span> Embudo y Tasa de Conversión (%)
           </h2>
           <div className="h-[320px] w-full relative z-10">
@@ -398,9 +408,9 @@ export function Dashboard() {
           </div>
         </div>
 
-        <div className="glass-panel p-8 rounded-2xl flex flex-col relative overflow-hidden group hover:border-indigo-500/30 transition-all duration-300">
-          <div className="absolute top-0 right-0 p-32 bg-indigo-500/5 blur-3xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"></div>
-          <h2 className="text-[11px] font-bold text-slate-400 mb-8 uppercase tracking-widest flex items-center gap-3">
+        <div className="glass-panel p-6 rounded-2xl flex flex-col relative overflow-hidden group border-white/10 bg-slate-950/75 hover:border-indigo-500/30 transition-all duration-300">
+          <div className="absolute top-0 right-0 p-32 bg-indigo-500/8 blur-3xl rounded-full opacity-60 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"></div>
+          <h2 className="text-[11px] font-bold text-slate-300 mb-6 uppercase tracking-[0.2em] flex items-center gap-3">
             <span className="w-2 h-2 bg-indigo-400 rounded-sm shadow-[0_0_8px_#818cf8]"></span> Candidatos por Oferta Activa
           </h2>
           <div className="h-[320px] w-full relative z-10">
@@ -431,9 +441,9 @@ export function Dashboard() {
           </div>
         </div>
 
-        <div className="glass-panel p-8 rounded-2xl flex flex-col lg:col-span-2 relative overflow-hidden group hover:border-sky-500/30 transition-all duration-300">
-          <div className="absolute top-0 right-0 p-32 bg-sky-500/5 blur-3xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"></div>
-          <h2 className="text-[11px] font-bold text-slate-400 mb-8 uppercase tracking-widest flex items-center gap-3">
+        <div className="glass-panel p-6 rounded-2xl flex flex-col lg:col-span-2 relative overflow-hidden group border-white/10 bg-slate-950/75 hover:border-sky-500/30 transition-all duration-300">
+          <div className="absolute top-0 right-0 p-32 bg-sky-500/8 blur-3xl rounded-full opacity-60 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"></div>
+          <h2 className="text-[11px] font-bold text-slate-300 mb-6 uppercase tracking-[0.2em] flex items-center gap-3">
             <span className="w-2 h-2 bg-sky-400 rounded-sm shadow-[0_0_8px_#38bdf8]"></span> Rendimiento de Contratación (y Tiempo al Contratar)
           </h2>
           <div className="h-[340px] w-full relative z-10">

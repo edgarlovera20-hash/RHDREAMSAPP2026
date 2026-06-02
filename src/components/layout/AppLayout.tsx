@@ -95,6 +95,7 @@ export function AppLayout() {
   return (
     <div className="flex flex-col md:flex-row font-sans text-slate-200" style={{ height: '100dvh', overflow: 'hidden' }}>
       <NetworkBackground />
+      <div className="pointer-events-none fixed inset-0 z-0 bg-[linear-gradient(90deg,rgba(1,4,11,0.82)_0%,rgba(2,8,23,0.58)_34%,rgba(2,8,23,0.7)_100%)]" />
       {/* Mobile nav header */}
       <div className="md:hidden flex items-center justify-between glass-panel p-3 shrink-0 m-2 rounded-xl relative z-40">
         <div className="flex flex-col">
@@ -233,7 +234,7 @@ export function AppLayout() {
 
       {/* Main content */}
       <main className="flex-1 overflow-auto w-full relative z-10 styled-scrollbar">
-        <div className="p-4 pt-6 md:p-8 md:pt-8 max-w-7xl mx-auto min-w-0 flex flex-col min-h-full">
+        <div className="p-4 pt-5 md:p-7 md:pt-6 max-w-7xl mx-auto min-w-0 flex flex-col min-h-full">
           <div className="flex items-center gap-2 text-sm text-slate-500 mb-4">
             <Link to="/" className="hover:text-cyan-400 transition-colors flex items-center gap-1">
               <Home className="w-4 h-4" />
