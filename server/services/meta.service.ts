@@ -30,6 +30,15 @@ const getAppSecrets = () =>
     process.env.META_INSTAGRAM_APP_SECRET,
   ].filter(Boolean) as string[];
 
+function addAccessTokenParams(url: URL, accessToken: string) {
+  url.searchParams.set("access_token", accessToken);
+
+  const appSecret = getAppSecrets()[0];
+  if (appSecret) {
+    url.searchParams.set("appsecret_proof", crypto.createHmac("sha256", appSecret).update(accessToken).digest("hex"));
+  }
+}
+
 export function verifyMetaWebhookChallenge(query: Record<string, any>) {
   const mode = String(query["hub.mode"] || "");
   const token = String(query["hub.verify_token"] || "");
@@ -67,7 +76,7 @@ async function fetchLeadDetails(leadgenId: string) {
   if (!token || !leadgenId) return null;
 
   const url = new URL(`https://graph.facebook.com/${getGraphVersion()}/${leadgenId}`);
-  url.searchParams.set("access_token", token);
+  addAccessTokenParams(url, token);
   url.searchParams.set("fields", "id,created_time,ad_id,form_id,field_data");
 
   const response = await fetch(url);
@@ -89,7 +98,7 @@ async function sendMetaText(psid: string, text: string) {
   }
 
   const url = new URL(`https://graph.facebook.com/${getGraphVersion()}/me/messages`);
-  url.searchParams.set("access_token", token);
+  addAccessTokenParams(url, token);
 
   const response = await fetch(url, {
     method: "POST",
