@@ -13,13 +13,6 @@ const customLevels = {
     info: 3,
     debug: 4,
   },
-  colors: {
-    fatal: "red",
-    error: "red",
-    warn: "yellow",
-    info: "green",
-    debug: "blue",
-  },
 };
 
 // Create logger instance
@@ -36,7 +29,6 @@ export const logger = winston.createLogger({
     // Console transport (always active)
     new winston.transports.Console({
       format: winston.format.combine(
-        winston.format.colorize({ colors: customLevels.colors }),
         winston.format.printf(
           ({ timestamp, level, message, ...meta }) =>
             `${timestamp} [${level}]: ${message} ${Object.keys(meta).length ? JSON.stringify(meta, null, 2) : ""}`

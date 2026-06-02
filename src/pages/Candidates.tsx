@@ -237,7 +237,7 @@ export function Candidates() {
                 type: 'info'
               });
             }}
-            className="bg-[#737373]/20 border border-[#737373]/50 hover:bg-[#737373]/40 text-[#737373] hover:text-white px-4 py-2.5 rounded-lg font-bold text-xs flex items-center gap-2 transition-all shadow-[0_0_15px_rgba(10,102,194,0.1)]">
+            className="bg-[#737373]/20 border border-[#737373]/50 hover:bg-[#737373]/40 text-[#737373] hover:text-white px-4 py-2.5 rounded-lg font-bold text-xs flex items-center gap-2 transition-all shadow-[0_0_15px_rgba(163,163,163,0.1)]">
             <Linkedin className="w-4 h-4" />
             Importar/Sincronizar
           </button>
@@ -827,7 +827,7 @@ export function Candidates() {
                   background: rgba(163, 163, 163, 0.05); /* subtle cyan */
                 }
                 .rbc-theme-custom .rbc-btn-group button {
-                  color: #cbd5e1;
+                  color: #d4d4d4;
                   border-color: rgba(255, 255, 255, 0.1);
                   background: transparent;
                   cursor: pointer;

@@ -399,7 +399,7 @@ If text is included, keep it very short and readable in Spanish:
 "Nueva oportunidad profesional"
 "Postulate hoy"
 
-Use clean composition, premium HR agency look, monochrome grayscale accents, realistic diverse adult professionals, optimistic office atmosphere.
+Use clean composition, premium HR agency look, strict grayscale only, monochrome black-white-neutral palette, realistic diverse adult professionals, optimistic office atmosphere. No blue, cyan, purple, neon, saturated colors, warm tint, colored logos, or colored lighting.
   `.trim();
 };
 

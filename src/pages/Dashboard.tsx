@@ -389,10 +389,10 @@ export function Dashboard() {
               <ComposedChart data={computedFunnelData} layout="vertical" margin={{ top: 0, right: 30, left: 40, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="rgba(255,255,255,0.03)" />
                 <XAxis type="number" hide />
-                <YAxis dataKey="stage" type="category" axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 11, fontWeight: 600, fontFamily: 'Inter' }} />
+                <YAxis dataKey="stage" type="category" axisLine={false} tickLine={false} tick={{ fill: '#737373', fontSize: 11, fontWeight: 600, fontFamily: 'Inter' }} />
                 <RechartsTooltip 
                   cursor={{ fill: 'rgba(255,255,255,0.02)' }}
-                  contentStyle={{ borderRadius: '12px', border: '1px solid rgba(163,163,163,0.3)', backgroundColor: 'rgba(15, 17, 21, 0.9)', color: '#e2e8f0', boxShadow: '0 8px 32px rgba(0, 0, 0, 0.5)', backdropFilter: 'blur(12px)', fontFamily: 'Inter', fontSize: '12px' }}
+                  contentStyle={{ borderRadius: '12px', border: '1px solid rgba(163,163,163,0.3)', backgroundColor: 'rgba(15, 17, 21, 0.9)', color: '#e5e5e5', boxShadow: '0 8px 32px rgba(0, 0, 0, 0.5)', backdropFilter: 'blur(12px)', fontFamily: 'Inter', fontSize: '12px' }}
                 />
                 <Bar dataKey="count" fill="url(#cyanGradient)" radius={[0, 4, 4, 0]} barSize={24} name="Candidatos">
                   <defs>
@@ -402,7 +402,7 @@ export function Dashboard() {
                     </linearGradient>
                   </defs>
                 </Bar>
-                <Line type="monotone" dataKey="conversion" stroke="#a3a3a3" strokeWidth={3} dot={{ r: 5, fill: '#0F172A', strokeWidth: 2, stroke: '#a3a3a3' }} activeDot={{ r: 7, fill: '#a3a3a3', strokeWidth: 0, className: "drop-shadow-[0_0_12px_#a3a3a3]" }} name="Conversión %" />
+                <Line type="monotone" dataKey="conversion" stroke="#a3a3a3" strokeWidth={3} dot={{ r: 5, fill: '#171717', strokeWidth: 2, stroke: '#a3a3a3' }} activeDot={{ r: 7, fill: '#a3a3a3', strokeWidth: 0, className: "drop-shadow-[0_0_12px_#a3a3a3]" }} name="Conversión %" />
               </ComposedChart>
             </ResponsiveContainer>
           </div>
@@ -433,7 +433,7 @@ export function Dashboard() {
                   ))}
                 </Pie>
                 <RechartsTooltip 
-                  itemStyle={{ color: '#e2e8f0', fontWeight: 600, fontFamily: 'Inter', fontSize: '12px' }}
+                  itemStyle={{ color: '#e5e5e5', fontWeight: 600, fontFamily: 'Inter', fontSize: '12px' }}
                   contentStyle={{ borderRadius: '12px', border: '1px solid rgba(99,102,241,0.3)', backgroundColor: 'rgba(15, 17, 21, 0.9)', boxShadow: '0 8px 32px rgba(0, 0, 0, 0.5)', backdropFilter: 'blur(12px)' }}
                 />
               </PieChart>
@@ -456,11 +456,11 @@ export function Dashboard() {
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.03)" />
-                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 11, fontWeight: 600, fontFamily: 'Inter' }} dy={15} />
-                <YAxis yAxisId="left" axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 11, fontFamily: 'JetBrains Mono' }} />
-                <YAxis yAxisId="right" orientation="right" axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 11, fontFamily: 'JetBrains Mono' }} />
+                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#737373', fontSize: 11, fontWeight: 600, fontFamily: 'Inter' }} dy={15} />
+                <YAxis yAxisId="left" axisLine={false} tickLine={false} tick={{ fill: '#737373', fontSize: 11, fontFamily: 'JetBrains Mono' }} />
+                <YAxis yAxisId="right" orientation="right" axisLine={false} tickLine={false} tick={{ fill: '#737373', fontSize: 11, fontFamily: 'JetBrains Mono' }} />
                 <RechartsTooltip 
-                  contentStyle={{ borderRadius: '12px', border: '1px solid rgba(163,163,163,0.3)', backgroundColor: 'rgba(15, 17, 21, 0.9)', color: '#e2e8f0', boxShadow: '0 8px 32px rgba(0, 0, 0, 0.5)', backdropFilter: 'blur(12px)', fontFamily: 'Inter', fontSize: '12px' }}
+                  contentStyle={{ borderRadius: '12px', border: '1px solid rgba(163,163,163,0.3)', backgroundColor: 'rgba(15, 17, 21, 0.9)', color: '#e5e5e5', boxShadow: '0 8px 32px rgba(0, 0, 0, 0.5)', backdropFilter: 'blur(12px)', fontFamily: 'Inter', fontSize: '12px' }}
                 />
                 <Area yAxisId="left" type="monotone" dataKey="hires" name="Contrataciones" stroke="#737373" strokeWidth={3} fillOpacity={1} fill="url(#colorHires)" activeDot={{ r: 6, fill: '#737373', strokeWidth: 0, className: "drop-shadow-[0_0_12px_#737373]" }} />
                 <Line yAxisId="right" type="monotone" dataKey="timeToHire" name="Tiempo (días)" stroke="#a3a3a3" strokeWidth={3} dot={{ fill: '#171717', strokeWidth: 2, stroke: '#a3a3a3' }} activeDot={{ r: 7, fill: '#a3a3a3', strokeWidth: 0, className: "drop-shadow-[0_0_12px_#a3a3a3]" }} />

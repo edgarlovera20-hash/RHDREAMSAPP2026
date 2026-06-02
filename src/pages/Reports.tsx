@@ -7,7 +7,7 @@ import {
   BarChart, Bar, Legend, LineChart, Line, ComposedChart, PieChart as RechartsPieChart, Pie, Cell 
 } from 'recharts';
 
-const COLORS = ['#737373', '#737373', '#737373', '#737373', '#737373', '#64748b'];
+const COLORS = ['#737373', '#737373', '#737373', '#737373', '#737373', '#737373'];
 
 export function Reports() {
   const { candidates, jobs } = useDb();
@@ -274,9 +274,9 @@ export function Reports() {
           <div className="h-[300px] w-full">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={funnelData} layout="vertical" margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#334155" opacity={0.5} horizontal={false} />
-                <XAxis type="number" stroke="#94a3b8" fontSize={10} tickFormatter={(val) => `${val}`} />
-                <YAxis dataKey="stage" type="category" stroke="#94a3b8" fontSize={11} width={90} />
+                <CartesianGrid strokeDasharray="3 3" stroke="#404040" opacity={0.5} horizontal={false} />
+                <XAxis type="number" stroke="#a3a3a3" fontSize={10} tickFormatter={(val) => `${val}`} />
+                <YAxis dataKey="stage" type="category" stroke="#a3a3a3" fontSize={11} width={90} />
                 <RechartsTooltip 
                   contentStyle={{ backgroundColor: '#171717', borderColor: '#262626', borderRadius: '8px', color: '#fafafa' }}
                   itemStyle={{ color: '#737373' }}
@@ -300,10 +300,10 @@ export function Reports() {
           <div className="h-[300px] w-full">
             <ResponsiveContainer width="100%" height="100%">
               <ComposedChart data={performanceData} margin={{ top: 5, right: 20, left: -20, bottom: 5 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#334155" opacity={0.5} vertical={false} />
-                <XAxis dataKey="name" stroke="#94a3b8" fontSize={12} />
-                <YAxis yAxisId="left" stroke="#94a3b8" fontSize={12} orientation="left" />
-                <YAxis yAxisId="right" stroke="#94a3b8" fontSize={12} orientation="right" />
+                <CartesianGrid strokeDasharray="3 3" stroke="#404040" opacity={0.5} vertical={false} />
+                <XAxis dataKey="name" stroke="#a3a3a3" fontSize={12} />
+                <YAxis yAxisId="left" stroke="#a3a3a3" fontSize={12} orientation="left" />
+                <YAxis yAxisId="right" stroke="#a3a3a3" fontSize={12} orientation="right" />
                 <RechartsTooltip 
                   contentStyle={{ backgroundColor: '#171717', borderColor: '#262626', borderRadius: '8px', color: '#fafafa' }}
                 />
@@ -330,9 +330,9 @@ export function Reports() {
                     <stop offset="95%" stopColor="#737373" stopOpacity={0}/>
                   </linearGradient>
                 </defs>
-                <XAxis dataKey="name" stroke="#94a3b8" fontSize={12} />
-                <YAxis stroke="#94a3b8" fontSize={12} />
-                <CartesianGrid strokeDasharray="3 3" stroke="#334155" opacity={0.3} vertical={false} />
+                <XAxis dataKey="name" stroke="#a3a3a3" fontSize={12} />
+                <YAxis stroke="#a3a3a3" fontSize={12} />
+                <CartesianGrid strokeDasharray="3 3" stroke="#404040" opacity={0.3} vertical={false} />
                 <RechartsTooltip 
                   contentStyle={{ backgroundColor: '#171717', borderColor: '#262626', borderRadius: '8px', color: '#fafafa' }}
                 />
