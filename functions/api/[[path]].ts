@@ -58,7 +58,7 @@ const integrationCatalog = {
   },
   whatsapp_personal: {
     id: "whatsapp_personal",
-    name: "WhatsApp Normal",
+    name: "WhatsApp Baileys QR",
     mode: "baileys_local_socket",
     requiredConfig: [],
     capabilities: [
@@ -68,6 +68,24 @@ const integrationCatalog = {
     ],
     notes:
       "En serverless no se puede mantener WhatsApp Web conectado; usa localhost o VPS para QR real.",
+  },
+  whatsapp_meta: {
+    id: "whatsapp_meta",
+    name: "WhatsApp Meta Cloud API",
+    mode: "meta_whatsapp_cloud_api",
+    requiredConfig: [
+      "META_WEBHOOK_VERIFY_TOKEN",
+      "META_APP_SECRET",
+      "WHATSAPP_CLOUD_ACCESS_TOKEN",
+      "WHATSAPP_PHONE_NUMBER_ID",
+    ],
+    capabilities: [
+      "Recibir mensajes por webhook oficial de Meta",
+      "Responder por WhatsApp Business Cloud API",
+      "Separar conversaciones de Baileys",
+    ],
+    notes:
+      "Modulo oficial de Meta. No usa QR ni sesiones Baileys.",
   },
 } as const;
 
@@ -90,7 +108,7 @@ const testIntegrationConfig = (env: any, provider: string, config: Record<string
       mode: connector.mode,
       missing: [],
       message:
-        "Endpoint disponible. WhatsApp Normal necesita localhost o un VPS persistente para generar QR real; serverless no mantiene la sesion Baileys activa.",
+        "Endpoint disponible. WhatsApp Baileys QR necesita localhost o un VPS persistente para generar QR real; serverless no mantiene la sesion Baileys activa.",
       capabilities: connector.capabilities,
       notes: connector.notes,
       deployment: "serverless",

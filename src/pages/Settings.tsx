@@ -23,6 +23,7 @@ const INTEGRATION_ICON_IMAGES: Record<string, string> = {
   indeed: "/assets/integrations/indeed.svg",
   computrabajo: "/assets/integrations/computrabajo.svg",
   whatsapp_personal: "/assets/integrations/whatsapp.svg",
+  whatsapp_meta: "/assets/integrations/whatsapp.svg",
   facebook_ads: "/assets/integrations/facebook.svg",
   facebook: "/assets/integrations/facebook.svg",
   messenger: "/assets/integrations/messenger.svg",
@@ -34,7 +35,8 @@ const INTEGRATIONS = [
   { id: 'google_workspace', name: 'Google Workspace', category: 'Productividad', description: 'OAuth real para Gmail, Calendar, Sheets, Forms y Drive desde el modulo Google Workspace.', icon: Globe, provider: null, actionPath: '/workspace' },
   { id: 'indeed', name: 'Indeed CSV / Correo / Webhook', category: 'Bolsa de empleo', description: 'Importa candidatos por CSV, correo parser, feed autorizado, Indeed Apply empresarial o webhook intermedio.', icon: MessageSquare, provider: 'indeed' },
   { id: 'computrabajo', name: 'Computrabajo CSV / Correo / Webhook', category: 'Bolsa de empleo', description: 'Importa candidatos por exportacion CSV, correo parser, feed autorizado o webhook intermedio.', icon: Users, provider: 'computrabajo' },
-  { id: 'whatsapp_personal', name: 'WhatsApp Normal', category: 'Comunicación asistida', description: 'Conexion real por QR usando Baileys desde Canales de Chat.', icon: Smartphone, provider: 'whatsapp_personal', actionPath: '/whatsapp' },
+  { id: 'whatsapp_meta', name: 'WhatsApp Meta Cloud API', category: 'Comunicación oficial', description: 'Conector oficial de Meta: webhooks, Phone Number ID, token Cloud API y agente IA sin QR.', icon: Smartphone, provider: 'whatsapp_meta', actionPath: '/whatsapp' },
+  { id: 'whatsapp_personal', name: 'WhatsApp Baileys QR', category: 'Comunicación asistida', description: 'Conexion real por QR usando Baileys. No se mezcla con WhatsApp Meta Cloud API.', icon: Smartphone, provider: 'whatsapp_personal', actionPath: '/whatsapp' },
   { id: 'facebook_ads', name: 'Facebook Recruitment Ads', category: 'Paid social', description: 'Analiza gasto, CPL, mejores horas y presupuesto de campañas de reclutamiento en Meta Ads.', icon: Facebook, provider: 'facebook_ads' },
   { id: 'canva', name: 'Canva Content Studio', category: 'Creatividad', description: 'Crea piezas reales con Canva Connect API cuando exista token OAuth valido.', icon: Edit3, provider: 'canva' },
   { id: 'facebook', name: 'Facebook Lead Ads & Messenger', category: 'Sourcing & Chat', description: 'Requiere Meta App, permisos aprobados, Page Access Token y webhooks de Meta.', icon: Facebook, provider: null, actionPath: '/whatsapp' },
@@ -44,6 +46,7 @@ const INTEGRATIONS = [
 
 const API_INTEGRATION_IDS = [
   "google_workspace",
+  "whatsapp_meta",
   "whatsapp_personal",
   "facebook_ads",
   "canva",
@@ -88,7 +91,8 @@ const API_VAULT_PRESETS = [
   "Indeed",
   "Computrabajo",
   "Canva",
-  "WhatsApp / Baileys",
+  "WhatsApp Meta Cloud API",
+  "WhatsApp / Baileys QR",
   "Otro",
 ];
 

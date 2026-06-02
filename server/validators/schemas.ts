@@ -46,6 +46,7 @@ export const IntegrationProviderSchema = z.enum([
   "indeed",
   "computrabajo",
   "whatsapp_personal",
+  "whatsapp_meta",
   "facebook",
   "instagram",
   "messenger",

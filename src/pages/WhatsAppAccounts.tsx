@@ -7,6 +7,7 @@ import { WHATSAPP_RECRUITMENT_TEMPLATES } from "@/data/recruitmentKnowledge";
 import { DEFAULT_COMPANY_NAME } from "@/lib/recruiterAgentPrompt";
 
 type ChannelType =
+  | 'whatsapp_meta'
   | 'whatsapp_personal'
   | 'indeed'
   | 'computrabajo'
@@ -70,11 +71,17 @@ const CHANNEL_AGENT_RULES: Record<ChannelType, {
   matches: string[];
   helper: string;
 }> = {
+  whatsapp_meta: {
+    defaultAgentId: "ag-whatsapp-recruiter-elite",
+    label: "WhatsApp Meta Cloud",
+    matches: ["whatsapp", "crm", "calendar", "meta"],
+    helper: "Este modulo usa la API oficial de Meta y no comparte sesiones ni QR con Baileys.",
+  },
   whatsapp_personal: {
     defaultAgentId: "ag-whatsapp-recruiter-elite",
-    label: "WhatsApp y CRM",
+    label: "WhatsApp Baileys QR",
     matches: ["whatsapp", "crm", "calendar"],
-    helper: "Solo agentes WhatsApp/CRM pueden responder por este numero.",
+    helper: "Este modulo usa QR Baileys y no comparte tokens ni webhooks con Meta Cloud API.",
   },
   indeed: {
     defaultAgentId: "ag-indeed-recruiting",
@@ -117,6 +124,7 @@ const CHANNEL_AGENT_RULES: Record<ChannelType, {
 const CHANNEL_ICON_IMAGES: Partial<Record<ChannelType, string>> = {
   indeed: "/assets/integrations/indeed.svg",
   computrabajo: "/assets/integrations/computrabajo.svg",
+  whatsapp_meta: "/assets/integrations/whatsapp.svg",
   whatsapp_personal: "/assets/integrations/whatsapp.svg",
   facebook: "/assets/integrations/facebook.svg",
   messenger: "/assets/integrations/messenger.svg",
@@ -131,7 +139,7 @@ const normalizeAgentText = (agent: any) =>
     .toLowerCase();
 
 export function WhatsAppAccounts() {
-  const [activeTab, setActiveTab] = useState<ChannelType>('whatsapp_personal');
+  const [activeTab, setActiveTab] = useState<ChannelType>('whatsapp_meta');
   
   const [accounts, setAccounts] = useState<ChannelAccount[]>(() => {
     try {
@@ -193,7 +201,7 @@ export function WhatsAppAccounts() {
     }
 
     const principal = activeAgents.find((agent) => agent.id === "agent-principal-1");
-    return principal && ["whatsapp_personal", "messenger"].includes(type)
+    return principal && ["whatsapp_meta", "whatsapp_personal", "messenger"].includes(type)
       ? [principal, ...compatible]
       : compatible;
   };
@@ -261,10 +269,11 @@ export function WhatsAppAccounts() {
 
   const getAssignedAgent = (agentId: string) => availableAgents.find(agent => agent.id === agentId) || EMPTY_AGENTS.find(agent => agent.id === agentId);
 
-  const whatsappAccounts = accounts.filter(account => account.type === "whatsapp_personal");
+  const baileysWhatsAppAccounts = accounts.filter(account => account.type === "whatsapp_personal");
+  const metaWhatsAppAccounts = accounts.filter(account => account.type === "whatsapp_meta");
 
   const getNextWhatsAppSessionId = () => {
-    const nextNumber = whatsappAccounts.length + 1;
+    const nextNumber = baileysWhatsAppAccounts.length + 1;
     return nextNumber === 1 ? "whatsapp-rh-1" : `whatsapp-rh-${nextNumber}`;
   };
 
@@ -278,7 +287,7 @@ export function WhatsAppAccounts() {
 
   const hasDuplicateWhatsAppSession = (sessionId: string) => {
     const normalized = sessionId.trim().toLowerCase();
-    return whatsappAccounts.some(account => getAccountIsolationKey(account).toLowerCase() === normalized);
+    return baileysWhatsAppAccounts.some(account => getAccountIsolationKey(account).toLowerCase() === normalized);
   };
 
   useEffect(() => {
@@ -335,6 +344,7 @@ export function WhatsAppAccounts() {
   );
 
   const providerForActiveTab = () => {
+    if (activeTab === 'whatsapp_meta') return 'whatsapp_meta';
     if (activeTab === 'whatsapp_personal') return 'whatsapp_personal';
     return null;
   };
@@ -474,7 +484,7 @@ export function WhatsAppAccounts() {
       } finally {
         setIsStartingBaileys(false);
       }
-    } else if (activeTab === 'indeed' || activeTab === 'computrabajo') {
+    } else if (activeTab === 'whatsapp_meta' || activeTab === 'indeed' || activeTab === 'computrabajo') {
       setModalStep('success');
       setTimeout(() => {
         handleCreateAccount();
@@ -492,7 +502,9 @@ export function WhatsAppAccounts() {
 
   const handleCreateAccount = () => {
     let phoneIdText = "";
-    if (activeTab === 'whatsapp_personal') {
+    if (activeTab === 'whatsapp_meta') {
+      phoneIdText = "WhatsApp Cloud API: WHATSAPP_PHONE_NUMBER_ID";
+    } else if (activeTab === 'whatsapp_personal') {
       phoneIdText = baileysStatus?.phone || `Sesion Baileys: ${baileysSessionId.trim() || "default"}`;
     } else if (activeTab === 'indeed') {
       phoneIdText = `Entrada: CSV/correo/webhook Indeed`;
@@ -518,7 +530,12 @@ export function WhatsAppAccounts() {
       type: activeTab,
       mode: getPlatformMode(activeTab),
       webhookUrl: getWebhookUrl(activeTab),
-      isolationKey: activeTab === 'whatsapp_personal' ? baileysSessionId.trim() || "default" : undefined,
+      isolationKey:
+        activeTab === 'whatsapp_personal'
+          ? baileysSessionId.trim() || "default"
+          : activeTab === 'whatsapp_meta'
+            ? "meta-whatsapp-cloud"
+            : undefined,
       companyName: newAccountCompanyName.trim() || DEFAULT_COMPANY_NAME,
       agentPersonalName: newAgentPersonalName.trim() || undefined,
     };
@@ -617,8 +634,10 @@ export function WhatsAppAccounts() {
     const companyName = account.companyName || agent?.companyName || DEFAULT_COMPANY_NAME;
 
     switch (account.type) {
+      case 'whatsapp_meta':
+        return `Hola, soy ${account.agentPersonalName || agentName} de ${companyName}. Con gusto te ayudo por WhatsApp Business. Cuéntame qué vacante o información necesitas y te oriento.`;
       case 'whatsapp_personal':
-        return WHATSAPP_RECRUITMENT_TEMPLATES.find((template) => template.id === "wa-saludo-precalificacion")?.body || "";
+        return `Hola, buen dia, soy ${account.agentPersonalName || agentName} de ${companyName}. Con gusto te atiendo por WhatsApp. Cuéntame qué información necesitas y seguimos la conversación paso a paso.`;
       case 'facebook':
         return `Hola, soy ${agentName} de ${companyName}. Gracias por tu interés en nuestras vacantes. ¿Qué puesto te interesa y en qué ciudad estás para darte la información correcta?`;
       case 'messenger':
@@ -634,8 +653,10 @@ export function WhatsAppAccounts() {
 
   const getDefaultFollowUpMessage = (type: ChannelType) => {
     switch (type) {
+      case 'whatsapp_meta':
+        return "Hola de nuevo, sigo por aquí para ayudarte con requisitos, horarios o agendar tu entrevista por WhatsApp Business.";
       case 'whatsapp_personal':
-        return WHATSAPP_RECRUITMENT_TEMPLATES.find((template) => template.id === "wa-agendar-entrevista")?.body || "";
+        return "Hola de nuevo, sigo disponible para ayudarte con la información, requisitos o siguiente paso de tu conversación.";
       case 'facebook':
         return "Hola de nuevo, ¿sigues interesado en la vacante? Puedo enviarte requisitos, horarios y el siguiente paso para aplicar.";
       case 'messenger':
@@ -650,13 +671,17 @@ export function WhatsAppAccounts() {
   };
 
   const getDefaultAutomationRules = (type: ChannelType, agentId: string) => {
+    if (type === 'whatsapp_meta') {
+      return [
+        { id: 'rule-wa-meta-inbound', trigger: 'message', keywords: '', condition: 'any', action: 'assign_agent', actionData: agentId },
+        { id: 'rule-wa-meta-human', trigger: 'keyword', keywords: 'asesor, humano, llamada, entrevista', condition: 'contains', action: 'assign_agent', actionData: agentId }
+      ];
+    }
+
     if (type === 'whatsapp_personal') {
       return [
-        { id: 'rule-wa-info', trigger: 'keyword', keywords: 'hola, informes, empleo, vacante, trabajo', condition: 'contains', action: 'send_message', actionData: WHATSAPP_RECRUITMENT_TEMPLATES.find((template) => template.id === "wa-saludo-precalificacion")?.body || "" },
-        { id: 'rule-wa-ayudante', trigger: 'keyword', keywords: 'ayudante, operativo, sin experiencia', condition: 'contains', action: 'send_message', actionData: WHATSAPP_RECRUITMENT_TEMPLATES.find((template) => template.id === "wa-ayudante-general")?.body || "" },
-        { id: 'rule-wa-asesor', trigger: 'keyword', keywords: 'asesor, comercial, ventas', condition: 'contains', action: 'send_message', actionData: WHATSAPP_RECRUITMENT_TEMPLATES.find((template) => template.id === "wa-asesor-comercial")?.body || "" },
-        { id: 'rule-wa-supervisor', trigger: 'keyword', keywords: 'supervisor, liderazgo, lider', condition: 'contains', action: 'send_message', actionData: WHATSAPP_RECRUITMENT_TEMPLATES.find((template) => template.id === "wa-supervisor-area")?.body || "" },
-        { id: 'rule-wa-ubicacion', trigger: 'keyword', keywords: 'ubicacion, dirección, direccion, donde, metro', condition: 'contains', action: 'send_message', actionData: WHATSAPP_RECRUITMENT_TEMPLATES.find((template) => template.id === "wa-ubicacion")?.body || "" }
+        { id: 'rule-wa-baileys-inbound', trigger: 'message', keywords: '', condition: 'any', action: 'assign_agent', actionData: agentId },
+        { id: 'rule-wa-baileys-human', trigger: 'keyword', keywords: 'asesor, humano, llamada, entrevista', condition: 'contains', action: 'assign_agent', actionData: agentId }
       ];
     }
 
@@ -738,7 +763,8 @@ export function WhatsAppAccounts() {
 
   const getPlatformLabel = (type: string) => {
     switch(type) {
-      case 'whatsapp_personal': return 'WhatsApp Normal';
+      case 'whatsapp_meta': return 'WhatsApp Meta API';
+      case 'whatsapp_personal': return 'WhatsApp Baileys QR';
       case 'indeed': return 'Indeed';
       case 'computrabajo': return 'Computrabajo';
       case 'facebook': return 'Facebook Lead Ads';
@@ -751,6 +777,7 @@ export function WhatsAppAccounts() {
 
   const getPlatformColor = (type: string) => {
     switch(type) {
+      case 'whatsapp_meta': return 'text-teal-300 border-teal-500/30';
       case 'whatsapp_personal': return 'text-emerald-300 border-emerald-500/30';
       case 'indeed': return 'text-blue-300 border-blue-500/30';
       case 'computrabajo': return 'text-sky-300 border-sky-500/30';
@@ -776,6 +803,7 @@ export function WhatsAppAccounts() {
     }
 
     switch(type) {
+      case 'whatsapp_meta': return <Smartphone className="w-5 h-5 text-teal-400" />;
       case 'whatsapp_personal': return <Smartphone className="w-5 h-5 text-emerald-400" />;
       case 'indeed': return <MessageSquare className="w-5 h-5 text-blue-300" />;
       case 'computrabajo': return <SmartphoneNfc className="w-5 h-5 text-sky-300" />;
@@ -789,6 +817,7 @@ export function WhatsAppAccounts() {
 
   const getPlatformMode = (type: string) => {
     switch(type) {
+      case 'whatsapp_meta': return 'Meta WhatsApp Cloud API';
       case 'whatsapp_personal': return 'Baileys WhatsApp Web';
       case 'indeed': return 'CSV / Email parser / Feed autorizado / Webhook';
       case 'computrabajo': return 'Feed autorizado / CSV / Webhook';
@@ -802,6 +831,7 @@ export function WhatsAppAccounts() {
 
   const getWebhookUrl = (type: string) => {
     switch(type) {
+      case 'whatsapp_meta': return apiUrl('/api/integrations/meta/webhook');
       case 'indeed': return apiUrl('/api/integrations/webhooks/job-board/indeed');
       case 'computrabajo': return apiUrl('/api/integrations/webhooks/job-board/computrabajo');
       default: return undefined;
@@ -810,8 +840,10 @@ export function WhatsAppAccounts() {
 
   const getCaptureDescription = (type: string) => {
     switch(type) {
+      case 'whatsapp_meta':
+        return "Modulo oficial de Meta Cloud API: recibe mensajes por webhook de WhatsApp Business y responde con IA usando token y Phone Number ID. No usa QR ni sesiones Baileys.";
       case 'whatsapp_personal':
-        return "Conector local Baileys: genera QR real, vincula WhatsApp Web, recibe mensajes y permite al agente responder desde el dispositivo enlazado.";
+        return "Modulo Baileys QR: genera QR real, vincula WhatsApp Web, recibe mensajes y permite al agente responder desde el dispositivo enlazado. No usa tokens de Meta.";
       case 'indeed':
         return "Entrada sin API directa obligatoria: importa postulantes desde CSV, correo parser, feed autorizado, Indeed Apply empresarial o webhook intermedio.";
       case 'computrabajo':
@@ -846,7 +878,9 @@ export function WhatsAppAccounts() {
             setModalStep('info');
             setSelectedAgent(getDefaultAgentId(activeTab));
             setNewAccountName(
-              activeTab === 'whatsapp_personal'
+              activeTab === 'whatsapp_meta'
+                ? 'WhatsApp Meta Business Oficial'
+                : activeTab === 'whatsapp_personal'
                 ? 'WhatsApp Baileys Reclutamiento'
                 : ''
             );
@@ -858,6 +892,7 @@ export function WhatsAppAccounts() {
           }}
           className={cn(
             "px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-2 transition-all shadow-[0_0_15px_rgba(6,182,212,0.15)] uppercase tracking-wide border",
+            activeTab === 'whatsapp_meta' ? "bg-teal-600/20 border-teal-500/50 hover:bg-teal-600/40 text-teal-200" :
             activeTab === 'whatsapp_personal' ? "bg-emerald-600/20 border-emerald-500/50 hover:bg-emerald-600/40 text-emerald-250" :
             activeTab === 'indeed' ? "bg-blue-600/20 border-blue-500/50 hover:bg-blue-600/40 text-blue-250" :
             activeTab === 'computrabajo' ? "bg-sky-600/20 border-sky-500/50 hover:bg-sky-600/40 text-sky-250" :
@@ -877,7 +912,8 @@ export function WhatsAppAccounts() {
         {[
           { id: 'indeed', name: 'Indeed', icon: MessageSquare, color: 'text-blue-300' },
           { id: 'computrabajo', name: 'Computrabajo', icon: SmartphoneNfc, color: 'text-sky-300' },
-          { id: 'whatsapp_personal', name: 'WhatsApp Normal', icon: Smartphone, color: 'text-emerald-400' },
+          { id: 'whatsapp_meta', name: 'WhatsApp Meta API', icon: Smartphone, color: 'text-teal-400' },
+          { id: 'whatsapp_personal', name: 'WhatsApp Baileys QR', icon: QrCode, color: 'text-emerald-400' },
           { id: 'facebook', name: 'Facebook Leads', icon: Facebook, color: 'text-blue-400' },
           { id: 'messenger', name: 'Messenger', icon: MessageSquare, color: 'text-sky-400' },
           { id: 'instagram', name: 'Instagram DM', icon: Instagram, color: 'text-pink-400' },
@@ -968,39 +1004,80 @@ export function WhatsAppAccounts() {
         </div>
       </div>
 
+      {activeTab === 'whatsapp_meta' && (
+        <div className="glass-panel rounded-2xl border border-teal-500/20 bg-teal-500/5 p-5">
+          <div className="flex flex-col xl:flex-row xl:items-center xl:justify-between gap-5">
+            <div className="max-w-3xl">
+              <div className="flex items-center gap-2 text-teal-300 text-xs font-bold uppercase tracking-[0.18em]">
+                <Shield className="w-4 h-4" />
+                Modulo oficial separado
+              </div>
+              <h3 className="mt-2 text-xl font-bold text-white">WhatsApp Meta Cloud API no usa QR</h3>
+              <p className="mt-1 text-sm leading-6 text-slate-400">
+                Este modulo trabaja solo con el webhook oficial de Meta, el token Cloud API y el Phone Number ID. Sus mensajes entran por Meta y no comparten sesiones, QR ni reglas con Baileys.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3 min-w-full xl:min-w-[360px]">
+              <div className="rounded-xl border border-teal-500/20 bg-slate-950/50 p-3">
+                <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Cuentas Meta</p>
+                <p className="mt-1 text-2xl font-bold text-white">{metaWhatsAppAccounts.length}</p>
+              </div>
+              <div className="rounded-xl border border-cyan-500/20 bg-slate-950/50 p-3">
+                <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Entrada</p>
+                <p className="mt-1 text-sm font-bold text-cyan-200">Webhook Meta</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-4 grid grid-cols-1 lg:grid-cols-2 gap-3">
+            <div className="rounded-xl border border-cyan-500/15 bg-slate-950/45 p-3">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-cyan-300">URL oficial del webhook</p>
+              <p className="mt-2 break-all font-mono text-[11px] text-slate-300">{getWebhookUrl('whatsapp_meta')}</p>
+            </div>
+            <div className="rounded-xl border border-teal-500/15 bg-slate-950/45 p-3">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-teal-300">Variables separadas</p>
+              <p className="mt-2 text-[11px] leading-5 text-slate-400">
+                Usa <span className="font-mono text-teal-200">WHATSAPP_CLOUD_ACCESS_TOKEN</span> y <span className="font-mono text-teal-200">WHATSAPP_PHONE_NUMBER_ID</span>. Baileys no lee estas credenciales.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {activeTab === 'whatsapp_personal' && (
         <div className="glass-panel rounded-2xl border border-emerald-500/20 bg-emerald-500/5 p-5">
           <div className="flex flex-col xl:flex-row xl:items-center xl:justify-between gap-5">
             <div className="max-w-3xl">
               <div className="flex items-center gap-2 text-emerald-300 text-xs font-bold uppercase tracking-[0.18em]">
                 <Shield className="w-4 h-4" />
-                Modulo extra: aislamiento por cuenta
+                Modulo Baileys separado
               </div>
-              <h3 className="mt-2 text-xl font-bold text-white">Cada WhatsApp trabaja con su propio agente</h3>
+              <h3 className="mt-2 text-xl font-bold text-white">Cada WhatsApp por QR trabaja con su propio agente</h3>
               <p className="mt-1 text-sm leading-6 text-slate-400">
-                Cuando enlaces otro numero, usa una sesion diferente. La app separa cuenta, agente y reglas para que las respuestas no se mezclen entre lineas de WhatsApp.
+                Cuando enlaces otro numero por Baileys, usa una sesion diferente. La app separa cuenta, agente y reglas para que las respuestas no se mezclen con Meta Cloud API ni con otras lineas QR.
               </p>
             </div>
 
             <div className="grid grid-cols-3 gap-3 min-w-full xl:min-w-[420px]">
               <div className="rounded-xl border border-emerald-500/20 bg-slate-950/50 p-3">
                 <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Cuentas</p>
-                <p className="mt-1 text-2xl font-bold text-white">{whatsappAccounts.length}</p>
+                <p className="mt-1 text-2xl font-bold text-white">{baileysWhatsAppAccounts.length}</p>
               </div>
               <div className="rounded-xl border border-cyan-500/20 bg-slate-950/50 p-3">
                 <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Agentes</p>
-                <p className="mt-1 text-2xl font-bold text-white">{new Set(whatsappAccounts.map(account => account.agentId)).size}</p>
+                <p className="mt-1 text-2xl font-bold text-white">{new Set(baileysWhatsAppAccounts.map(account => account.agentId)).size}</p>
               </div>
               <div className="rounded-xl border border-blue-500/20 bg-slate-950/50 p-3">
                 <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Sesiones</p>
-                <p className="mt-1 text-2xl font-bold text-white">{new Set(whatsappAccounts.map(getAccountIsolationKey)).size}</p>
+                <p className="mt-1 text-2xl font-bold text-white">{new Set(baileysWhatsAppAccounts.map(getAccountIsolationKey)).size}</p>
               </div>
             </div>
           </div>
 
-          {whatsappAccounts.length > 0 && (
+          {baileysWhatsAppAccounts.length > 0 && (
             <div className="mt-4 grid grid-cols-1 lg:grid-cols-2 gap-3">
-              {whatsappAccounts.map(account => {
+              {baileysWhatsAppAccounts.map(account => {
                 const agent = getAssignedAgent(account.agentId);
                 return (
                   <div key={`isolation-${account.id}`} className="rounded-xl border border-white/5 bg-slate-950/45 p-3">
@@ -1262,6 +1339,26 @@ export function WhatsAppAccounts() {
               </div>
             )}
 
+            {account.type === "whatsapp_meta" && (
+              <div className="mb-4 rounded-xl border border-teal-500/20 bg-teal-500/5 p-3">
+                <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-teal-300">
+                  <Shield className="w-3.5 h-3.5" />
+                  Meta Cloud aislado
+                </div>
+                <p className="mt-2 text-xs leading-5 text-slate-300">
+                  Esta cuenta recibe por webhook oficial de Meta y responde usando WhatsApp Cloud API. No usa QR, no usa sesiones Baileys y no comparte reglas con WhatsApp QR.
+                </p>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <span className="rounded-lg border border-teal-500/20 bg-slate-950/70 px-2 py-1 text-[10px] font-mono text-teal-300">
+                    WHATSAPP_PHONE_NUMBER_ID
+                  </span>
+                  <span className="rounded-lg border border-cyan-500/20 bg-slate-950/70 px-2 py-1 text-[10px] text-cyan-300">
+                    Agente: {account.agentPersonalName || getAssignedAgent(account.agentId)?.name || "Sin asignar"}
+                  </span>
+                </div>
+              </div>
+            )}
+
             <div className="mt-auto pt-4 border-t border-slate-700/50 flex flex-col gap-3">
               <div className="flex flex-col gap-1.5">
                 <label className="text-xs text-slate-400 font-medium uppercase tracking-wider flex items-center gap-1">
@@ -1348,7 +1445,8 @@ export function WhatsAppAccounts() {
                       onChange={(e) => setNewAccountName(e.target.value)}
                       className="w-full bg-slate-800 border border-slate-700/80 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-505 transition-all"
                       placeholder={
-                        activeTab === 'whatsapp_personal' ? "Ej: WhatsApp personal de reclutamiento" :
+                        activeTab === 'whatsapp_meta' ? "Ej: WhatsApp Business Meta Oficial" :
+                        activeTab === 'whatsapp_personal' ? "Ej: WhatsApp Baileys reclutamiento QR" :
                         activeTab === 'indeed' ? "Ej: Indeed Apply Operaciones MX" :
                         activeTab === 'computrabajo' ? "Ej: Computrabajo CDMX Ventas" :
                         activeTab === 'facebook' ? "Ej: Facebook Lead Ads México" :
@@ -1410,6 +1508,25 @@ export function WhatsAppAccounts() {
                           {baileysError}
                         </div>
                       )}
+                    </div>
+                  )}
+
+                  {activeTab === 'whatsapp_meta' && (
+                    <div className="rounded-xl border border-teal-500/20 bg-teal-500/5 px-3 py-3">
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-teal-300">Conexion oficial Meta Cloud API</p>
+                      <p className="mt-1 text-[11px] leading-5 text-slate-400">
+                        Este modulo no genera QR. Para funcionar necesita que el servidor tenga token oficial y Phone Number ID, y que Meta envie los mensajes a este webhook.
+                      </p>
+                      <p className="mt-2 break-all rounded-lg bg-slate-950/70 px-2 py-2 font-mono text-[10px] text-cyan-200">
+                        {getWebhookUrl('whatsapp_meta')}
+                      </p>
+                      <div className="mt-3 grid grid-cols-1 gap-2 text-[10px] text-slate-300">
+                        {["WHATSAPP_CLOUD_ACCESS_TOKEN", "WHATSAPP_PHONE_NUMBER_ID", "META_APP_SECRET", "META_WEBHOOK_VERIFY_TOKEN"].map((key) => (
+                          <span key={key} className="rounded-lg border border-teal-500/15 bg-slate-950/60 px-2 py-1 font-mono text-teal-200">
+                            {key}
+                          </span>
+                        ))}
+                      </div>
                     </div>
                   )}
 
@@ -1477,7 +1594,7 @@ export function WhatsAppAccounts() {
                     disabled={!newAccountName || !selectedAgent || isStartingBaileys}
                     className="bg-cyan-500 hover:bg-cyan-600 text-slate-900 font-semibold px-6 py-2.5 rounded-xl text-sm transition-all shadow-[0_0_15px_rgba(34,211,238,0.2)] disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    {isStartingBaileys ? 'Iniciando...' : activeTab === 'whatsapp_personal' ? 'Generar Código QR' : activeTab === 'indeed' || activeTab === 'computrabajo' ? 'Crear entrada sin API' : 'Conectar con API oficial'}
+                    {isStartingBaileys ? 'Iniciando...' : activeTab === 'whatsapp_personal' ? 'Generar Código QR' : activeTab === 'whatsapp_meta' ? 'Registrar modulo Meta API' : activeTab === 'indeed' || activeTab === 'computrabajo' ? 'Crear entrada sin API' : 'Conectar con API oficial'}
                   </button>
                 </div>
               </>

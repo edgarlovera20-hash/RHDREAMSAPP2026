@@ -2,6 +2,7 @@ export type IntegrationProvider =
   | "indeed"
   | "computrabajo"
   | "whatsapp_personal"
+  | "whatsapp_meta"
   | "facebook"
   | "messenger"
   | "instagram"
@@ -51,7 +52,7 @@ export const INTEGRATION_CATALOG = {
   },
   whatsapp_personal: {
     id: "whatsapp_personal",
-    name: "WhatsApp Normal",
+    name: "WhatsApp Baileys QR",
     category: "messaging",
     mode: "baileys_local_socket",
     capabilities: [
@@ -63,6 +64,26 @@ export const INTEGRATION_CATALOG = {
     requiredConfig: [],
     notes:
       "Baileys es un conector no oficial de WhatsApp Web. Usar solo con consentimiento, sin spam y respetando limites/ToS.",
+  },
+  whatsapp_meta: {
+    id: "whatsapp_meta",
+    name: "WhatsApp Meta Cloud API",
+    category: "messaging",
+    mode: "meta_whatsapp_cloud_api",
+    capabilities: [
+      "Recibir mensajes entrantes por webhook oficial de Meta",
+      "Responder con el agente IA por WhatsApp Cloud API",
+      "Mantener conversaciones separadas de Baileys",
+      "Usar Phone Number ID y token oficial de WhatsApp Business",
+    ],
+    requiredConfig: [
+      "META_WEBHOOK_VERIFY_TOKEN",
+      "META_APP_SECRET",
+      "WHATSAPP_CLOUD_ACCESS_TOKEN",
+      "WHATSAPP_PHONE_NUMBER_ID",
+    ],
+    notes:
+      "Modulo oficial de Meta. No usa QR ni sesiones Baileys. Para iniciar conversaciones fuera de la ventana activa requiere plantillas aprobadas por Meta.",
   },
   facebook: {
     id: "facebook",
