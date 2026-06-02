@@ -255,8 +255,8 @@ export function Dashboard() {
             </h1>
             <p className="text-slate-400 mt-2 font-medium tracking-wide text-sm uppercase">Autonomous matching and conversion analysis</p>
           </div>
-          <div className="flex items-center gap-3 rounded-full border border-emerald-400/20 bg-emerald-400/10 px-5 py-3 text-xs font-bold uppercase tracking-[0.22em] text-emerald-300 shadow-[0_0_28px_rgba(16,185,129,0.08)]">
-            <div className="w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-[0_0_12px_#34d399] animate-pulse" />
+          <div className="flex items-center gap-3 rounded-full border border-emerald-400/20 bg-emerald-400/10 px-5 py-3 text-xs font-bold uppercase tracking-[0.22em] text-emerald-300 shadow-[0_0_28px_rgba(163,163,163,0.08)]">
+            <div className="w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-[0_0_12px_#a3a3a3] animate-pulse" />
             System Active
           </div>
         </div>
@@ -350,8 +350,8 @@ export function Dashboard() {
           const styles = {
             cyan: { text: "text-cyan-400", bgLine: "via-cyan-500/40", shadow: "group-hover:drop-shadow-[0_0_12px_rgba(163,163,163,0.8)]", dot: "bg-cyan-400", hoverBorder: "hover:border-cyan-500/50" },
             purple: { text: "text-purple-400", bgLine: "via-purple-500/40", shadow: "group-hover:drop-shadow-[0_0_12px_rgba(163,163,163,0.8)]", dot: "bg-purple-400", hoverBorder: "hover:border-purple-500/50" },
-            emerald: { text: "text-emerald-400", bgLine: "via-emerald-500/40", shadow: "group-hover:drop-shadow-[0_0_12px_rgba(16,185,129,0.8)]", dot: "bg-emerald-400", hoverBorder: "hover:border-emerald-500/50" },
-            rose: { text: "text-rose-400", bgLine: "via-rose-500/40", shadow: "group-hover:drop-shadow-[0_0_12px_rgba(244,63,94,0.8)]", dot: "bg-rose-400", hoverBorder: "hover:border-rose-500/50" },
+            emerald: { text: "text-emerald-400", bgLine: "via-emerald-500/40", shadow: "group-hover:drop-shadow-[0_0_12px_rgba(163,163,163,0.8)]", dot: "bg-emerald-400", hoverBorder: "hover:border-emerald-500/50" },
+            rose: { text: "text-rose-400", bgLine: "via-rose-500/40", shadow: "group-hover:drop-shadow-[0_0_12px_rgba(163,163,163,0.8)]", dot: "bg-rose-400", hoverBorder: "hover:border-rose-500/50" },
           }[stat.color];
 
           return (
@@ -402,7 +402,7 @@ export function Dashboard() {
                     </linearGradient>
                   </defs>
                 </Bar>
-                <Line type="monotone" dataKey="conversion" stroke="#a855f7" strokeWidth={3} dot={{ r: 5, fill: '#0F172A', strokeWidth: 2, stroke: '#a855f7' }} activeDot={{ r: 7, fill: '#a855f7', strokeWidth: 0, className: "drop-shadow-[0_0_12px_#a855f7]" }} name="Conversión %" />
+                <Line type="monotone" dataKey="conversion" stroke="#a3a3a3" strokeWidth={3} dot={{ r: 5, fill: '#0F172A', strokeWidth: 2, stroke: '#a3a3a3' }} activeDot={{ r: 7, fill: '#a3a3a3', strokeWidth: 0, className: "drop-shadow-[0_0_12px_#a3a3a3]" }} name="Conversión %" />
               </ComposedChart>
             </ResponsiveContainer>
           </div>
@@ -411,7 +411,7 @@ export function Dashboard() {
         <div className="glass-panel p-6 rounded-2xl flex flex-col relative overflow-hidden group border-white/10 bg-slate-950/75 hover:border-indigo-500/30 transition-all duration-300">
           <div className="absolute top-0 right-0 p-32 bg-indigo-500/8 blur-3xl rounded-full opacity-60 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"></div>
           <h2 className="text-[11px] font-bold text-slate-300 mb-6 uppercase tracking-[0.2em] flex items-center gap-3">
-            <span className="w-2 h-2 bg-indigo-400 rounded-sm shadow-[0_0_8px_#818cf8]"></span> Candidatos por Oferta Activa
+            <span className="w-2 h-2 bg-indigo-400 rounded-sm shadow-[0_0_8px_#a3a3a3]"></span> Candidatos por Oferta Activa
           </h2>
           <div className="h-[320px] w-full relative z-10">
             <ResponsiveContainer width="100%" height="100%">
@@ -444,7 +444,7 @@ export function Dashboard() {
         <div className="glass-panel p-6 rounded-2xl flex flex-col lg:col-span-2 relative overflow-hidden group border-white/10 bg-slate-950/75 hover:border-sky-500/30 transition-all duration-300">
           <div className="absolute top-0 right-0 p-32 bg-sky-500/8 blur-3xl rounded-full opacity-60 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"></div>
           <h2 className="text-[11px] font-bold text-slate-300 mb-6 uppercase tracking-[0.2em] flex items-center gap-3">
-            <span className="w-2 h-2 bg-sky-400 rounded-sm shadow-[0_0_8px_#38bdf8]"></span> Rendimiento de Contratación (y Tiempo al Contratar)
+            <span className="w-2 h-2 bg-sky-400 rounded-sm shadow-[0_0_8px_#a3a3a3]"></span> Rendimiento de Contratación (y Tiempo al Contratar)
           </h2>
           <div className="h-[340px] w-full relative z-10">
             <ResponsiveContainer width="100%" height="100%">
@@ -463,7 +463,7 @@ export function Dashboard() {
                   contentStyle={{ borderRadius: '12px', border: '1px solid rgba(163,163,163,0.3)', backgroundColor: 'rgba(15, 17, 21, 0.9)', color: '#e2e8f0', boxShadow: '0 8px 32px rgba(0, 0, 0, 0.5)', backdropFilter: 'blur(12px)', fontFamily: 'Inter', fontSize: '12px' }}
                 />
                 <Area yAxisId="left" type="monotone" dataKey="hires" name="Contrataciones" stroke="#737373" strokeWidth={3} fillOpacity={1} fill="url(#colorHires)" activeDot={{ r: 6, fill: '#737373', strokeWidth: 0, className: "drop-shadow-[0_0_12px_#737373]" }} />
-                <Line yAxisId="right" type="monotone" dataKey="timeToHire" name="Tiempo (días)" stroke="#8B5CF6" strokeWidth={3} dot={{ fill: '#0F172A', strokeWidth: 2, stroke: '#8B5CF6' }} activeDot={{ r: 7, fill: '#8B5CF6', strokeWidth: 0, className: "drop-shadow-[0_0_12px_#8B5CF6]" }} />
+                <Line yAxisId="right" type="monotone" dataKey="timeToHire" name="Tiempo (días)" stroke="#a3a3a3" strokeWidth={3} dot={{ fill: '#171717', strokeWidth: 2, stroke: '#a3a3a3' }} activeDot={{ r: 7, fill: '#a3a3a3', strokeWidth: 0, className: "drop-shadow-[0_0_12px_#a3a3a3]" }} />
               </AreaChart>
             </ResponsiveContainer>
           </div>

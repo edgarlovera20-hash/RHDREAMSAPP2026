@@ -660,11 +660,28 @@ export function WorkspaceHub() {
     triggerEvent("Nota eliminada", "Se removió de Google Keep.");
   };
 
+  const neutralToolState = "bg-slate-200/10 border-slate-200/35 text-white shadow-[inset_3px_0_0_rgba(226,232,240,0.55)]";
+  const workspaceTools = [
+    { id: "sheets", name: "Google Sheets", desc: "Base de candidatos", icon: FileSpreadsheet },
+    { id: "calendar", name: "Google Calendar", desc: "Agendar entrevistas", icon: CalendarIcon },
+    { id: "gmail", name: "Gmail", desc: "Comunicaciones", icon: Mail },
+    { id: "forms", name: "Google Forms", desc: "Postulantes nuevos", icon: FormInput },
+    { id: "picker", name: "Google Drive Picker", desc: "PDFs, imagenes y CVs", icon: FolderOpen },
+    { id: "photos", name: "Google Photos", desc: "Fotos autorizadas", icon: ImageIcon },
+    { id: "keep", name: "Google Keep", desc: "Apuntes y notas rápidas", icon: StickyNote }
+  ] as const;
+
+  const workspaceSummaryCards = [
+    { label: "Candidatos", value: candidates.length, detail: "base local" },
+    { label: "Eventos", value: calendarEvents.length, detail: "agenda" },
+    { label: "Logs", value: apiLogs.length, detail: "API" }
+  ] as const;
+
   return (
     <div className="flex flex-col gap-6 h-full pb-8">
       
       {/* Visual Header */}
-      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 border-b border-white/5 pb-4">
+      <div className="glass-panel flex flex-col lg:flex-row justify-between items-start lg:items-center gap-5 p-5 rounded-2xl border border-white/5">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight text-white mt-1 flex items-center gap-2">
             <Sparkles className="w-6 h-6 text-cyan-400 drop-shadow-[0_0_10px_rgba(212,212,212,0.5)]" />
@@ -681,8 +698,8 @@ export function WorkspaceHub() {
         </div>
 
         {/* OAuth Integration Status Banner */}
-        <div className="flex items-center gap-3 bg-slate-900/80 p-3 rounded-xl border border-white/5">
-          <div className="flex flex-col text-right">
+        <div className="w-full lg:w-auto lg:min-w-[330px] flex items-center justify-between gap-3 bg-slate-950/70 p-4 rounded-xl border border-white/10 shadow-inner">
+          <div className="flex flex-col text-left lg:text-right">
             <span className="text-xs text-slate-450 font-bold uppercase tracking-wider">Estado de Conexión</span>
             <span className={cn("text-xs font-semibold", isLoggedInWithGoogle ? "text-emerald-400" : "text-amber-400")}>
               {isLoggedInWithGoogle ? "✓ Autenticado con Google" : "Conexión requerida"}
@@ -696,13 +713,13 @@ export function WorkspaceHub() {
           {!isLoggedInWithGoogle ? (
             <button 
               onClick={signInWithGoogle}
-              className="bg-white hover:bg-slate-100 text-slate-900 font-bold text-xs px-3.5 py-2 rounded-lg cursor-pointer transition-all flex items-center gap-2 shadow-[0_0_15px_rgba(255,255,255,0.1)]"
+              className="bg-slate-100 hover:bg-white text-slate-950 font-bold text-xs px-3.5 py-2 rounded-lg cursor-pointer transition-all flex items-center gap-2 shadow-[0_0_15px_rgba(255,255,255,0.08)] border border-slate-300"
             >
               <svg viewBox="0 0 24 24" className="w-4 h-4 text-current">
-                 <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
-                 <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-                 <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
-                 <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+                <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#a3a3a3"/>
+                <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#737373"/>
+                <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#525252"/>
+                <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#d4d4d4"/>
               </svg>
               Conectar Google
             </button>
@@ -718,51 +735,52 @@ export function WorkspaceHub() {
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 items-start">
         
         {/* Navigation Left Sidebar */}
-        <div className="xl:col-span-3 flex flex-col gap-2">
+        <div className="xl:col-span-3 flex flex-col gap-4">
           
-          <div className="text-[10px] font-bold text-slate-500 uppercase tracking-widest pl-2 mb-1">Herramientas Workspace</div>
-          
-          {[
-            { id: "sheets", name: "Google Sheets", desc: "Base de candidatos", icon: FileSpreadsheet, color: "text-emerald-400 hover:bg-emerald-500/5", activeBg: "bg-emerald-500/10 border-emerald-500/30 text-emerald-300" },
-            { id: "calendar", name: "Google Calendar", desc: "Agendar entrevistas", icon: CalendarIcon, color: "text-blue-400 hover:bg-blue-500/5", activeBg: "bg-blue-500/10 border-blue-500/30 text-blue-300" },
-            { id: "gmail", name: "Gmail", desc: "Comunicaciones", icon: Mail, color: "text-red-400 hover:bg-red-500/5", activeBg: "bg-red-500/10 border-red-500/30 text-red-300" },
-            { id: "forms", name: "Google Forms", desc: "Postulantes nuevos", icon: FormInput, color: "text-purple-400 hover:bg-purple-500/5", activeBg: "bg-purple-500/10 border-purple-500/30 text-purple-300" },
-            { id: "picker", name: "Google Drive Picker", desc: "PDFs, imagenes y CVs", icon: FolderOpen, color: "text-amber-400 hover:bg-amber-500/5", activeBg: "bg-amber-500/10 border-amber-500/30 text-amber-300" },
-            { id: "photos", name: "Google Photos", desc: "Fotos autorizadas", icon: ImageIcon, color: "text-pink-400 hover:bg-pink-500/5", activeBg: "bg-pink-500/10 border-pink-500/30 text-pink-300" },
-            { id: "keep", name: "Google Keep", desc: "Apuntes y notas rápidas", icon: StickyNote, color: "text-yellow-400 hover:bg-yellow-500/5", activeBg: "bg-yellow-500/10 border-yellow-500/30 text-yellow-300" }
-          ].map(tool => (
-            <button
-              key={tool.id}
-              onClick={() => setActiveTab(tool.id as any)}
-              className={cn(
-                "p-3.5 rounded-xl border text-left flex items-center gap-3 transition-all cursor-pointer group",
-                activeTab === tool.id 
-                  ? tool.activeBg
-                  : "bg-slate-900/40 border-white/5 text-slate-400 hover:text-white"
-              )}
-            >
-              <div className={cn("p-2 rounded-lg bg-slate-950 border border-white/5 transition-transform group-hover:scale-105", activeTab === tool.id ? "border-current/25" : "")}>
-                <tool.icon className={cn("w-4 h-4", tool.color)} />
-              </div>
-              <div className="flex-1">
-                <div className="font-bold text-xs tracking-wide uppercase">{tool.name}</div>
-                <div className="text-[11px] text-slate-500">{tool.desc}</div>
-              </div>
-            </button>
-          ))}
+          <div className="glass-panel p-3 rounded-2xl border border-white/5">
+            <div className="text-[10px] font-bold text-slate-500 uppercase tracking-widest px-1 mb-3">Paneles Workspace</div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-1 gap-2">
+              {workspaceTools.map(tool => (
+                <button
+                  key={tool.id}
+                  onClick={() => setActiveTab(tool.id)}
+                  className={cn(
+                    "min-h-[74px] p-3.5 rounded-xl border text-left flex items-center gap-3 transition-all cursor-pointer group",
+                    activeTab === tool.id 
+                      ? neutralToolState
+                      : "bg-slate-950/45 border-white/5 text-slate-400 hover:text-white hover:bg-slate-900/70 hover:border-slate-300/20"
+                  )}
+                >
+                  <div className={cn(
+                    "p-2 rounded-lg bg-slate-950 border border-white/5 transition-transform group-hover:scale-105",
+                    activeTab === tool.id ? "border-slate-200/25 bg-slate-800/80" : ""
+                  )}>
+                    <tool.icon className="w-4 h-4 text-slate-300" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="font-bold text-xs tracking-wide uppercase truncate">{tool.name}</div>
+                    <div className="text-[11px] text-slate-500 truncate">{tool.desc}</div>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
 
           {/* Quick Stats Panel */}
-          <div className="glass-panel p-4 rounded-2xl border border-white/5 space-y-3 mt-4">
+          <div className="glass-panel p-4 rounded-2xl border border-white/5 space-y-3">
             <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest block">Resumen de sincronizaciones</span>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="bg-slate-950 p-2.5 rounded-lg border border-white/5">
-                <div className="text-[10px] text-slate-500">Candidatos</div>
-                <div className="text-lg font-bold text-white">{candidates.length}</div>
-              </div>
-              <div className="bg-slate-950 p-2.5 rounded-lg border border-white/5">
-                <div className="text-[10px] text-slate-500">Eventos</div>
-                <div className="text-lg font-bold text-white">{calendarEvents.length}</div>
-              </div>
+            <div className="grid grid-cols-1 sm:grid-cols-3 xl:grid-cols-1 gap-3">
+              {workspaceSummaryCards.map((card) => (
+                <div key={card.label} className="bg-slate-950/70 p-3 rounded-xl border border-white/5">
+                  <div className="flex items-center justify-between gap-3">
+                    <div>
+                      <div className="text-[10px] text-slate-500 uppercase tracking-wider">{card.label}</div>
+                      <div className="text-[10px] text-slate-600">{card.detail}</div>
+                    </div>
+                    <div className="text-lg font-bold text-white">{card.value}</div>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         </div>
@@ -1517,13 +1535,13 @@ export function WorkspaceHub() {
         </div>
 
         {/* API Logs Output Terminal Side Panel */}
-        <div className="xl:col-span-3 flex flex-col gap-4">
+        <div className="xl:col-span-3 flex flex-col gap-4 xl:sticky xl:top-0">
           <div className="glass-panel p-4 rounded-2xl border border-white/5 space-y-4">
             <div className="flex justify-between items-center border-b border-white/5 pb-2">
               <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest block">Consola de Respuestas de API</span>
               <button 
                 onClick={() => setApiLogs([])}
-                className="text-[9px] text-slate-550 hover:text-rose-400 uppercase tracking-wider font-bold transition-colors"
+                className="text-[9px] text-slate-550 hover:text-slate-200 uppercase tracking-wider font-bold transition-colors"
               >
                 Limpiar
               </button>

@@ -205,9 +205,9 @@ export const canvaCallback = async (req: Request, res: Response) => {
     <meta charset="utf-8" />
     <title>Canva conectado</title>
     <style>
-      body { font-family: system-ui, sans-serif; background: #020617; color: white; display: grid; min-height: 100vh; place-items: center; margin: 0; }
+      body { font-family: system-ui, sans-serif; background: #171717; color: white; display: grid; min-height: 100vh; place-items: center; margin: 0; }
       main { max-width: 560px; padding: 32px; border: 1px solid rgba(34,211,238,.35); border-radius: 18px; background: rgba(15,23,42,.92); text-align: center; }
-      a { color: #22d3ee; font-weight: 700; }
+      a { color: #a3a3a3; font-weight: 700; }
     </style>
   </head>
   <body>

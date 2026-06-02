@@ -813,14 +813,14 @@ Escribenos por mensaje para recibir requisitos, horarios y siguientes pasos.
           />
           <button
             onClick={() => agentsImportRef.current?.click()}
-            className="border border-slate-700 bg-[#0a0b0d]/90 hover:border-cyan-500/50 text-slate-300 hover:text-white font-semibold px-4 py-2 rounded-xl flex items-center justify-center gap-2 transition-all"
+            className="border border-slate-700 bg-[#0a0a0a]/90 hover:border-cyan-500/50 text-slate-300 hover:text-white font-semibold px-4 py-2 rounded-xl flex items-center justify-center gap-2 transition-all"
           >
             <Upload className="w-4 h-4" />
             Importar datos
           </button>
           <button
             onClick={handleExportAgents}
-            className="border border-slate-700 bg-[#0a0b0d]/90 hover:border-cyan-500/50 text-slate-300 hover:text-white font-semibold px-4 py-2 rounded-xl flex items-center justify-center gap-2 transition-all"
+            className="border border-slate-700 bg-[#0a0a0a]/90 hover:border-cyan-500/50 text-slate-300 hover:text-white font-semibold px-4 py-2 rounded-xl flex items-center justify-center gap-2 transition-all"
           >
             <Download className="w-4 h-4" />
             Exportar datos
@@ -836,7 +836,7 @@ Escribenos por mensaje para recibir requisitos, horarios y siguientes pasos.
       </div>
 
       {/* Tabs */}
-      <div className="flex bg-[#07080a]/95 p-1 rounded-xl glass-panel w-fit border border-slate-700/50">
+      <div className="flex bg-[#0a0a0a]/95 p-1 rounded-xl glass-panel w-fit border border-slate-700/50">
         <button
           onClick={() => setActiveTab('agents')}
           className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
@@ -913,7 +913,7 @@ Escribenos por mensaje para recibir requisitos, horarios y siguientes pasos.
               <div 
                 key={agent.id} 
                 onClick={() => openChat(agent)} 
-                className={`glass-panel bg-[#050609]/95 p-6 rounded-2xl flex flex-col border transition-all hover:-translate-y-1 group cursor-pointer ${activeChatAgent?.id === agent.id ? 'border-cyan-500 shadow-[0_0_20px_rgba(212,212,212,0.16)]' : 'border-slate-700/50 hover:border-cyan-500/30 hover:shadow-[0_8px_30px_rgba(212,212,212,0.04)]'}`}
+                className={`glass-panel bg-[#0a0a0a]/95 p-6 rounded-2xl flex flex-col border transition-all hover:-translate-y-1 group cursor-pointer ${activeChatAgent?.id === agent.id ? 'border-cyan-500 shadow-[0_0_20px_rgba(212,212,212,0.16)]' : 'border-slate-700/50 hover:border-cyan-500/30 hover:shadow-[0_8px_30px_rgba(212,212,212,0.04)]'}`}
               >
                 <div className="flex justify-between items-start mb-4">
                   <div className="flex items-center gap-3">

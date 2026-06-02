@@ -41,7 +41,7 @@ const getStageColor = (stage: string) => {
 // Helper for source icon & color
 const SourceIcon = ({ source }: { source: string }) => {
   const s = source?.toLowerCase() || '';
-  if (s.includes('linkedin')) return <Linkedin className="w-3 h-3 text-[#0a66c2]" />;
+  if (s.includes('linkedin')) return <Linkedin className="w-3 h-3 text-[#737373]" />;
   if (s.includes('facebook') || s.includes('messenger')) return <Facebook className="w-3 h-3 text-blue-400" />;
   if (s.includes('whatsapp')) return <MessageCircle className="w-3 h-3 text-emerald-400" />;
   if (s.includes('job board') || s.includes('portal')) return <Globe className="w-3 h-3 text-amber-500" />;
@@ -237,7 +237,7 @@ export function Candidates() {
                 type: 'info'
               });
             }}
-            className="bg-[#0a66c2]/20 border border-[#0a66c2]/50 hover:bg-[#0a66c2]/40 text-[#0a66c2] hover:text-white px-4 py-2.5 rounded-lg font-bold text-xs flex items-center gap-2 transition-all shadow-[0_0_15px_rgba(10,102,194,0.1)]">
+            className="bg-[#737373]/20 border border-[#737373]/50 hover:bg-[#737373]/40 text-[#737373] hover:text-white px-4 py-2.5 rounded-lg font-bold text-xs flex items-center gap-2 transition-all shadow-[0_0_15px_rgba(10,102,194,0.1)]">
             <Linkedin className="w-4 h-4" />
             Importar/Sincronizar
           </button>
@@ -614,7 +614,7 @@ export function Candidates() {
                         
                         <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity shadow-sm">
                           {candidate.linkedin && (
-                            <button onClick={(e) => { e.stopPropagation(); window.open(candidate.linkedin.startsWith('http') ? candidate.linkedin : `https://${candidate.linkedin}`, '_blank'); }} className="p-1.5 bg-[#0a66c2]/10 text-[#0a66c2] hover:bg-[#0a66c2]/30 hover:text-[#0a66c2]/80 rounded-md transition-colors" title="Ver LinkedIn">
+                            <button onClick={(e) => { e.stopPropagation(); window.open(candidate.linkedin.startsWith('http') ? candidate.linkedin : `https://${candidate.linkedin}`, '_blank'); }} className="p-1.5 bg-[#737373]/10 text-[#737373] hover:bg-[#737373]/30 hover:text-[#737373]/80 rounded-md transition-colors" title="Ver LinkedIn">
                               <Linkedin className="w-3.5 h-3.5" />
                             </button>
                           )}
@@ -953,7 +953,7 @@ export function Candidates() {
                       {candidate.linkedin && (
                         <button 
                           onClick={(e) => { e.stopPropagation(); window.open(candidate.linkedin.startsWith('http') ? candidate.linkedin : `https://${candidate.linkedin}`, '_blank'); }}
-                          className="text-[#0a66c2] hover:text-[#0a66c2]/80 transition-colors p-1 bg-[#0a66c2]/10 hover:bg-[#0a66c2]/20 rounded" title="Contactar por LinkedIn"
+                          className="text-[#737373] hover:text-[#737373]/80 transition-colors p-1 bg-[#737373]/10 hover:bg-[#737373]/20 rounded" title="Contactar por LinkedIn"
                         >
                           <Linkedin className="w-4 h-4" />
                         </button>

@@ -1695,7 +1695,7 @@ export function WhatsAppAccounts() {
               </button>
               <button 
                 onClick={removeAccount}
-                className="bg-rose-650 hover:bg-rose-600 text-white font-semibold px-4 py-2 rounded-xl text-sm transition-colors shadow-[0_0_15px_rgba(244,63,94,0.2)]"
+                className="bg-rose-650 hover:bg-rose-600 text-white font-semibold px-4 py-2 rounded-xl text-sm transition-colors shadow-[0_0_15px_rgba(163,163,163,0.2)]"
               >
                 Sí, Desconectar
               </button>

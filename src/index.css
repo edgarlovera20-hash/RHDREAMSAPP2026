@@ -184,6 +184,30 @@
   --color-violet-800: #262626;
   --color-violet-900: #171717;
   --color-violet-950: #0a0a0a;
+
+  --color-teal-50: #fafafa;
+  --color-teal-100: #f5f5f5;
+  --color-teal-200: #e5e5e5;
+  --color-teal-300: #d4d4d4;
+  --color-teal-400: #a3a3a3;
+  --color-teal-500: #737373;
+  --color-teal-600: #525252;
+  --color-teal-700: #404040;
+  --color-teal-800: #262626;
+  --color-teal-900: #171717;
+  --color-teal-950: #0a0a0a;
+
+  --color-lime-50: #fafafa;
+  --color-lime-100: #f5f5f5;
+  --color-lime-200: #e5e5e5;
+  --color-lime-300: #d4d4d4;
+  --color-lime-400: #a3a3a3;
+  --color-lime-500: #737373;
+  --color-lime-600: #525252;
+  --color-lime-700: #404040;
+  --color-lime-800: #262626;
+  --color-lime-900: #171717;
+  --color-lime-950: #0a0a0a;
 }
 
 body {
@@ -199,11 +223,13 @@ body {
 
 #root {
   height: 100%;
+  filter: grayscale(1);
+  transition: filter 0.3s ease;
 }
 
 @layer components {
   .light-theme {
-    filter: invert(1) hue-rotate(180deg);
+    filter: grayscale(1) invert(1) hue-rotate(180deg);
   }
   .light-theme img, 
   .light-theme svg.lucide,

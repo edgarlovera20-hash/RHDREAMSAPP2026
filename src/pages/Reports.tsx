@@ -278,7 +278,7 @@ export function Reports() {
                 <XAxis type="number" stroke="#94a3b8" fontSize={10} tickFormatter={(val) => `${val}`} />
                 <YAxis dataKey="stage" type="category" stroke="#94a3b8" fontSize={11} width={90} />
                 <RechartsTooltip 
-                  contentStyle={{ backgroundColor: '#0f172a', borderColor: '#1e293b', borderRadius: '8px', color: '#f8fafc' }}
+                  contentStyle={{ backgroundColor: '#171717', borderColor: '#262626', borderRadius: '8px', color: '#fafafa' }}
                   itemStyle={{ color: '#737373' }}
                 />
                 <Bar dataKey="count" fill="#737373" radius={[0, 4, 4, 0]} barSize={20}>
@@ -305,7 +305,7 @@ export function Reports() {
                 <YAxis yAxisId="left" stroke="#94a3b8" fontSize={12} orientation="left" />
                 <YAxis yAxisId="right" stroke="#94a3b8" fontSize={12} orientation="right" />
                 <RechartsTooltip 
-                  contentStyle={{ backgroundColor: '#0f172a', borderColor: '#1e293b', borderRadius: '8px', color: '#f8fafc' }}
+                  contentStyle={{ backgroundColor: '#171717', borderColor: '#262626', borderRadius: '8px', color: '#fafafa' }}
                 />
                 <Legend wrapperStyle={{ fontSize: '12px' }} />
                 <Bar yAxisId="left" dataKey="hires" name="Contratados" fill="#737373" radius={[4, 4, 0, 0]} barSize={30} />
@@ -334,7 +334,7 @@ export function Reports() {
                 <YAxis stroke="#94a3b8" fontSize={12} />
                 <CartesianGrid strokeDasharray="3 3" stroke="#334155" opacity={0.3} vertical={false} />
                 <RechartsTooltip 
-                  contentStyle={{ backgroundColor: '#0f172a', borderColor: '#1e293b', borderRadius: '8px', color: '#f8fafc' }}
+                  contentStyle={{ backgroundColor: '#171717', borderColor: '#262626', borderRadius: '8px', color: '#fafafa' }}
                 />
                 <Area type="monotone" dataKey="count" stroke="#737373" fillOpacity={1} fill="url(#colorHires)" />
               </AreaChart>

@@ -511,7 +511,7 @@ export function Settings() {
                             onClick={() => toggleAutomation(auto.id)}
                             className={cn("px-4 py-2 rounded-lg text-[10px] uppercase font-bold tracking-widest border transition-colors", 
                               auto.active 
-                                ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20 hover:bg-emerald-500/20 shadow-[inset_0_0_8px_rgba(16,185,129,0.2)]" 
+                                ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20 hover:bg-emerald-500/20 shadow-[inset_0_0_8px_rgba(163,163,163,0.2)]" 
                                 : "bg-slate-800/50 text-slate-500 border-white/5 hover:bg-slate-800 hover:text-white"
                             )}
                           >
@@ -1275,7 +1275,7 @@ export function Settings() {
                               />
                               <div className={cn(
                                 "w-9 h-5 rounded-full peer-focus:outline-none transition-all",
-                                alert.enabled ? "bg-rose-500 shadow-[0_0_10px_rgba(244,63,94,0.5)]" : "bg-slate-700"
+                                alert.enabled ? "bg-rose-500 shadow-[0_0_10px_rgba(163,163,163,0.5)]" : "bg-slate-700"
                               )}></div>
                               <div className={cn(
                                 "absolute left-[2px] top-[2px] bg-white border-gray-300 border rounded-full h-4 w-4 transition-all",
