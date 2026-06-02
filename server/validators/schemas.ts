@@ -27,6 +27,8 @@ export const GeminiReplyRequestSchema = z.object({
 
 // Agent reply request validation
 export const AgentReplyRequestSchema = z.object({
+  companyId: z.string().min(1).optional(),
+  agentId: z.string().optional(),
   agentName: z.string().min(1, "El nombre del agente es requerido"),
   systemPrompt: z.string().min(1, "El prompt del sistema es requerido"),
   conversationHistory: z.array(ChatMessageSchema).default([]),

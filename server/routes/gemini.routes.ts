@@ -4,6 +4,8 @@ import {
   handleAgentReply,
   handleAudioTranscription,
   healthCheck,
+  deleteAgentMemory,
+  listAgentMemory,
   queueHealthCheck,
 } from "../controllers/gemini.controller";
 import {
@@ -18,6 +20,8 @@ export const createGeminiRoutes = (): Router => {
   // Health check - no auth required
   router.get("/health", healthCheck);
   router.get("/agent/queue", authMiddleware, queueHealthCheck);
+  router.get("/agent/memory", authMiddleware, listAgentMemory);
+  router.delete("/agent/memory", authMiddleware, deleteAgentMemory);
 
   /**
    * POST /api/gemini/reply

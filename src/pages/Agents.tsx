@@ -170,17 +170,27 @@ export function Agents() {
   const [testerConversation, setTesterConversation] = useState<{ role: 'candidate' | 'agent'; text: string }[]>([]);
   const [testerResult, setTesterResult] = useState<{ expected: string; reply: string } | null>(null);
   const [isTestingConversation, setIsTestingConversation] = useState(false);
+  const [persistentAgentMemories, setPersistentAgentMemories] = useState<any[]>([]);
 
   const selectedCanvaFormat = CANVA_FORMATS.find(format => format.id === canvaFormat) || CANVA_FORMATS[0];
   const selectedCanvaTemplate = CANVA_TEMPLATE_PACKS.find(template => template.id === selectedCanvaTemplateId) || CANVA_TEMPLATE_PACKS[0];
   const filteredCanvaTemplates = CANVA_TEMPLATE_PACKS.filter(template => canvaTemplateCategory === 'Todas' || template.category === canvaTemplateCategory);
-  const allLearningMemories = agents.flatMap(agent =>
+  const localLearningMemories = agents.flatMap(agent =>
     (Array.isArray(agent.learningMemory) ? agent.learningMemory : []).map((memory: any) => ({
       ...memory,
       agentId: agent.id,
       agentName: agent.name,
+      source: memory.source || 'Memoria local',
     }))
-  ).sort((a, b) => String(b.createdAt || '').localeCompare(String(a.createdAt || '')));
+  );
+  const allLearningMemories = [
+    ...persistentAgentMemories.map((memory: any) => ({
+      ...memory,
+      source: memory.source || 'Memoria persistente',
+      createdAt: typeof memory.createdAt === 'number' ? new Date(memory.createdAt).toISOString() : memory.createdAt,
+    })),
+    ...localLearningMemories,
+  ].sort((a, b) => String(b.createdAt || '').localeCompare(String(a.createdAt || '')));
   const canvaBrief = `Campaña: ${canvaCampaign}
 Audiencia: ${canvaAudience}
 Oferta principal: ${canvaOffer}
@@ -242,6 +252,20 @@ Escribenos por mensaje para recibir requisitos, horarios y siguientes pasos.
   useEffect(() => {
     localStorage.setItem(AGENTS_STORAGE_KEY, JSON.stringify(agents));
   }, [agents]);
+
+  const loadPersistentAgentMemories = async () => {
+    try {
+      const response = await apiFetch('/api/gemini/agent/memory');
+      const payload = await readApiJson(response);
+      setPersistentAgentMemories(Array.isArray(payload?.data) ? payload.data : []);
+    } catch (error) {
+      console.warn('No se pudo leer la memoria persistente de agentes:', error);
+    }
+  };
+
+  useEffect(() => {
+    loadPersistentAgentMemories();
+  }, []);
 
   useEffect(() => {
     localStorage.setItem(INTERVIEW_SCHEDULE_STORAGE_KEY, JSON.stringify(interviewSlots));
@@ -494,6 +518,7 @@ Escribenos por mensaje para recibir requisitos, horarios y siguientes pasos.
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          agentId: agent.id,
           agentName: agent.name,
           systemPrompt: buildAgentSystemPrompt(agent, interviewSlots),
           conversationHistory: historyForApi,
@@ -511,6 +536,7 @@ Escribenos por mensaje para recibir requisitos, horarios y siguientes pasos.
         expected,
         conversationSize: testerConversation.length + 1,
       });
+      loadPersistentAgentMemories();
       setTesterMessage('');
     } catch (error) {
       const reply = error instanceof Error ? error.message : 'No se pudo ejecutar la prueba.';
@@ -523,6 +549,7 @@ Escribenos por mensaje para recibir requisitos, horarios y siguientes pasos.
         expected,
         conversationSize: testerConversation.length + 1,
       });
+      loadPersistentAgentMemories();
     } finally {
       setIsTestingConversation(false);
     }
@@ -562,6 +589,7 @@ Escribenos por mensaje para recibir requisitos, horarios y siguientes pasos.
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          agentId: activeChatAgent.id,
           agentName: activeChatAgent.name,
           systemPrompt: buildAgentSystemPrompt(activeChatAgent, interviewSlots),
           conversationHistory: chatMessages.map(message => ({
@@ -581,6 +609,7 @@ Escribenos por mensaje para recibir requisitos, horarios y siguientes pasos.
           reply,
           conversationSize: chatMessages.length + 1,
         });
+        loadPersistentAgentMemories();
       } else {
         const fallbackReply = "Lo siento, ha ocurrido un problema al procesar la respuesta del agente virtual.";
         setChatMessages(prev => [...prev, { role: 'agent', text: fallbackReply }]);
@@ -590,6 +619,7 @@ Escribenos por mensaje para recibir requisitos, horarios y siguientes pasos.
           reply: fallbackReply,
           conversationSize: chatMessages.length + 1,
         });
+        loadPersistentAgentMemories();
       }
     } catch (err) {
       console.error("Error communicating with agent:", err);
@@ -601,6 +631,7 @@ Escribenos por mensaje para recibir requisitos, horarios y siguientes pasos.
         reply: errorReply,
         conversationSize: chatMessages.length + 1,
       });
+      loadPersistentAgentMemories();
     } finally {
       setIsGenerating(false);
     }
@@ -1650,6 +1681,12 @@ Escribenos por mensaje para recibir requisitos, horarios y siguientes pasos.
                  >
                    <Download className="w-4 h-4" /> Exportar CSV
                  </button>
+                  <button
+                  onClick={loadPersistentAgentMemories}
+                  className="mr-3 px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-lg text-xs font-semibold transition-colors border border-slate-700 flex items-center gap-2"
+                 >
+                   <BrainCircuit className="w-4 h-4" /> Sincronizar memoria
+                 </button>
                  <button
                   onClick={() => downloadJson(`rhdreams_autoconocimiento_${new Date().toISOString().split('T')[0]}.json`, {
                     app: 'RHDreams',
@@ -1674,9 +1711,9 @@ Escribenos por mensaje para recibir requisitos, horarios y siguientes pasos.
                 <div>
                   <h4 className="text-sm font-semibold text-white flex items-center gap-2">
                     <BrainCircuit className="h-4 w-4 text-cyan-300" />
-                    Memoria aprendida por los agentes
+                    Memoria persistente aprendida por los agentes
                   </h4>
-                  <p className="mt-1 text-xs text-slate-400">Cada respuesta genera una lección breve que el agente consulta en futuras conversaciones.</p>
+                  <p className="mt-1 text-xs text-slate-400">Cada respuesta genera una lección breve guardada en el servidor y consultada en futuras conversaciones.</p>
                 </div>
                 <span className="rounded-lg border border-cyan-500/20 bg-cyan-500/10 px-3 py-1 text-xs font-bold text-cyan-200">
                   {allLearningMemories.length} aprendizajes

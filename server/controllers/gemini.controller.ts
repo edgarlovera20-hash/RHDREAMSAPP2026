@@ -3,7 +3,18 @@ import { logger } from "../utils/logger";
 import { GeminiReplyRequestSchema, AgentReplyRequestSchema, AudioTranscriptionRequestSchema } from "../validators/schemas";
 import { getGeminiService } from "../services/gemini.service";
 import { enqueueAgentReplyJob, getAgentQueueStats } from "../services/agentQueue.service";
+import {
+  clearAgentMemories,
+  formatAgentMemoryContext,
+  getRelevantAgentMemories,
+  listAgentMemories,
+  rememberAgentInteraction,
+} from "../services/agentMemory.service";
+import { DEFAULT_COMPANY_ID } from "../services/conversation.service";
 import { ZodError } from "zod";
+
+const getCompanyId = (req: Request) =>
+  String((req as any).user?.companyId || req.body?.companyId || req.query?.companyId || DEFAULT_COMPANY_ID);
 
 /**
  * Handle candidate recruitment reply
@@ -67,24 +78,52 @@ export const handleAgentReply = async (req: Request, res: Response) => {
     // Validate request body
     const validatedData = AgentReplyRequestSchema.parse(req.body);
 
-    const { agentName, systemPrompt, conversationHistory, userPrompt } =
+    const { agentId, agentName, systemPrompt, conversationHistory, userPrompt } =
       validatedData;
+    const companyId = getCompanyId(req);
 
     logger.info("Processing agent reply", {
+      agentId,
       agentName,
       ip: req.ip,
     });
 
-    const result = await enqueueAgentReplyJob({
+    const memories = await getRelevantAgentMemories({
+      companyId,
+      agentId,
       agentName,
-      systemPrompt,
+      userPrompt,
+      conversationHistory,
+    });
+    const memoryContext = formatAgentMemoryContext(memories);
+    const result = await enqueueAgentReplyJob({
+      companyId,
+      agentId,
+      agentName,
+      systemPrompt: `${systemPrompt}\n\n${memoryContext}`,
       conversationHistory,
       userPrompt,
+    });
+    const savedMemory = await rememberAgentInteraction({
+      companyId,
+      agentId,
+      agentName,
+      source: "api-gemini-agent-reply",
+      userText: userPrompt,
+      reply: result.reply,
+      conversationHistory,
     });
 
     res.json({
       success: true,
-      data: result,
+      data: {
+        ...result,
+        memory: {
+          used: memories.length,
+          saved: Boolean(savedMemory),
+          savedId: savedMemory?.id,
+        },
+      },
     });
   } catch (error) {
     if (error instanceof ZodError) {
@@ -105,6 +144,42 @@ export const handleAgentReply = async (req: Request, res: Response) => {
     res.status(500).json({
       success: false,
       error: "Error procesando la solicitud",
+      code: 500,
+    });
+  }
+};
+
+export const listAgentMemory = async (req: Request, res: Response) => {
+  try {
+    const companyId = getCompanyId(req);
+    const agentId = typeof req.query.agentId === "string" ? req.query.agentId : undefined;
+    res.json({
+      success: true,
+      data: await listAgentMemories(companyId, agentId),
+    });
+  } catch (error) {
+    logger.error("Error listing agent memory", error);
+    res.status(500).json({
+      success: false,
+      error: "Error leyendo memoria persistente",
+      code: 500,
+    });
+  }
+};
+
+export const deleteAgentMemory = async (req: Request, res: Response) => {
+  try {
+    const companyId = getCompanyId(req);
+    const agentId = typeof req.query.agentId === "string" ? req.query.agentId : undefined;
+    res.json({
+      success: true,
+      data: await clearAgentMemories(companyId, agentId),
+    });
+  } catch (error) {
+    logger.error("Error clearing agent memory", error);
+    res.status(500).json({
+      success: false,
+      error: "Error limpiando memoria persistente",
       code: 500,
     });
   }

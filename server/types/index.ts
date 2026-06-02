@@ -115,6 +115,8 @@ export interface GeminiReplyRequest {
 }
 
 export interface AgentReplyRequest {
+  companyId?: string;
+  agentId?: string;
   agentName: string;
   systemPrompt: string;
   conversationHistory: ChatMessage[];

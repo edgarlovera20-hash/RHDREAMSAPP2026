@@ -6,6 +6,11 @@ import { DEFAULT_COMPANY_ID, getConversation } from "./conversation.service";
 import { createMessage, listMessages } from "./message.service";
 import { getGeminiService } from "./gemini.service";
 import { HDRS_SERVER_PROMPT_CONTEXT, HDRS_SCORE_GUIDE } from "../config/hdrs.config";
+import {
+  formatAgentMemoryContext,
+  getRelevantAgentMemories,
+  rememberAgentInteraction,
+} from "./agentMemory.service";
 
 type AiDraftInput = {
   companyId?: string;
@@ -47,7 +52,8 @@ const needsHumanApproval = (reply: string, intent: StructuredAiOutput["intent"],
 const buildAgentPrompt = (
   input: AiDraftInput,
   history: ChatMessage[],
-  firstContact: boolean
+  firstContact: boolean,
+  memoryContext?: string
 ) => {
   const agentName = input.agentName || "Agente de Heavenly Dreams";
   const lastInbound = [...history].reverse().find((message) => message.sender !== "me");
@@ -83,6 +89,8 @@ Reglas operativas:
 
 ${firstContactInstruction}
 
+${memoryContext || "Memoria persistente del agente: sin aprendizajes previos relevantes."}
+
 Ultimo mensaje del candidato:
 ${lastInbound?.body || lastInbound?.text || input.customInstruction || "Sin mensaje entrante registrado."}
   `.trim();
@@ -106,11 +114,19 @@ export async function createAiDraft(input: AiDraftInput, actorId?: string) {
     input.customInstruction ||
     [...messages].reverse().find((message) => message.direction === "inbound")?.body ||
     "Inicia una conversacion de reclutamiento y ofrece ayuda.";
+  const memories = await getRelevantAgentMemories({
+    companyId,
+    agentId: input.agentId || conversation.assignedAgentId,
+    agentName: input.agentName,
+    userPrompt: lastUserMessage,
+    conversationHistory: history,
+  });
+  const memoryContext = formatAgentMemoryContext(memories);
 
   const geminiService = getGeminiService();
   const result = await geminiService.generateCandidateResponse(
     input.candidate as any,
-    buildAgentPrompt(input, history, firstContact),
+    buildAgentPrompt(input, history, firstContact, memoryContext),
     history,
     lastUserMessage
   );
@@ -147,6 +163,15 @@ export async function createAiDraft(input: AiDraftInput, actorId?: string) {
     sentiment: structured.sentiment,
     requiresApproval: structured.requiresApproval,
   }, actorId);
+  await rememberAgentInteraction({
+    companyId,
+    agentId: input.agentId || conversation.assignedAgentId,
+    agentName: input.agentName,
+    source: "conversation-ai-draft",
+    userText: lastUserMessage,
+    reply: structured.reply,
+    conversationHistory: history,
+  });
 
   await appendAuditLog({
     companyId,
