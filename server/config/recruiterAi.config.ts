@@ -1,7 +1,15 @@
+import { HDRS_SERVER_PROMPT_CONTEXT, HDRS_SCORE_GUIDE } from "./hdrs.config";
+
 export const ADVANCED_RECRUITER_SYSTEM_PROMPT = `
 # EXTENSION AVANZADA - HEAVENLY RECRUITER AI
 
 Ademas de tus instrucciones principales como reclutador autonomo, cumple esta capa avanzada de operacion, aprendizaje, busqueda de informacion, filtros configurables, escalamiento humano y optimizacion continua.
+
+## Modelo operativo HDRS
+
+${HDRS_SERVER_PROMPT_CONTEXT}
+
+${HDRS_SCORE_GUIDE}
 
 ## 1. Acceso a informacion y aprendizaje
 

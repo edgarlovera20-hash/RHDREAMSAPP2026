@@ -28,6 +28,42 @@ export const RH_PROMPT_CATEGORIES = [
 
 export const RH_PROMPT_LIBRARY: RhPromptTemplate[] = [
   {
+    id: "hdrs-master-recruitment-flow",
+    category: "Reclutamiento y seleccion",
+    title: "HDRS flujo maestro 72 horas",
+    useCase: "Crear un flujo completo de captacion, precalificacion, scoring, agenda y seguimiento.",
+    variables: ["job_name", "job_target_profile", "offer_details", "work_schedule", "candidate_location"],
+    prompt:
+      "Disena un flujo HDRS para contratar {{job_name}} en 72 horas. Incluye captacion omnicanal, saludo IA humano, captura de datos, arbol de edad, scoring 0-100, entrevista IA, agenda, recordatorios, recuperacion de abandonos, talent pool y KPIs. Usa solo una pregunta por mensaje y no copies plantillas fijas.",
+  },
+  {
+    id: "hdrs-prequalification-score",
+    category: "Reclutamiento y seleccion",
+    title: "HDRS precalificacion y scoring",
+    useCase: "Evaluar candidatos con rubrica trazable y no discriminatoria.",
+    variables: ["candidate_name", "job_name", "required_experience", "education_level", "work_schedule"],
+    prompt:
+      "Precalifica a {{candidate_name}} para {{job_name}} con HDRS. Captura nombre, edad, ciudad, telefono, correo, horario, transporte, inicio inmediato, ultimo empleo, tiempo laborado, funciones, escolaridad y puesto deseado. Calcula experiencia, disponibilidad, cercania, habilidades y actitud de 0 a 20. Clasifica prioridad A, B, C o talent pool, sin mostrar puntaje al candidato.",
+  },
+  {
+    id: "hdrs-recovery-ghosting",
+    category: "Reclutamiento y seleccion",
+    title: "HDRS recuperacion de candidatos",
+    useCase: "Reactivar ghosting, indecisos y finalistas sin presionar.",
+    variables: ["candidate_name", "job_name", "offer_details"],
+    prompt:
+      "Crea una secuencia HDRS para recuperar a {{candidate_name}} en la vacante {{job_name}}. Genera mensajes breves, naturales y diferentes para ghosting, indecision y finalistas. Cada mensaje debe ofrecer una opcion clara para continuar o cerrar, respetando consentimiento y sin insistencia invasiva.",
+  },
+  {
+    id: "hdrs-talent-pool",
+    category: "Reclutamiento y seleccion",
+    title: "HDRS talent pool",
+    useCase: "Clasificar candidatos para futuras vacantes y reactivarlos.",
+    variables: ["candidate_name", "job_name", "candidate_location"],
+    prompt:
+      "Clasifica a {{candidate_name}} dentro del talent pool HDRS despues de evaluar {{job_name}}. Usa categorias Ventas, Operativos, Administrativos o Especializados. Propone motivo interno, proxima accion, fecha de reactivacion y mensaje humano para mantener contacto sin prometer contratacion.",
+  },
+  {
     id: "recruiting-time-to-hire",
     category: "Reclutamiento y seleccion",
     title: "Reducir tiempo de contratacion",

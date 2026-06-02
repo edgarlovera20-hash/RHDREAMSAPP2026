@@ -27,6 +27,7 @@ import {
 import { cn } from "@/lib/utils";
 import { apiFetch, readApiJson } from "@/lib/api";
 import { RH_PROMPT_CATEGORIES, RH_PROMPT_LIBRARY, RH_PROMPT_LIBRARY_META, type RhPromptTemplate } from "@/data/rhPromptLibrary";
+import { HDRS_GOALS, HDRS_KPIS, HDRS_PHASES, HDRS_SCORING_RULES, HDRS_TALENT_POOL } from "@/data/hdrsRecruitmentSystem";
 
 type VariableType = "texto" | "numero" | "fecha" | "opcion" | "booleano" | "lista" | "json";
 type VariableSource = "Candidato" | "Vacante" | "Canal" | "Calendario" | "Documento" | "Manual" | "Sistema";
@@ -90,22 +91,29 @@ type AiWorkflow = {
 
 const VARIABLE_TYPES: VariableType[] = ["texto", "numero", "fecha", "opcion", "booleano", "lista", "json"];
 const VARIABLE_SOURCES: VariableSource[] = ["Candidato", "Vacante", "Canal", "Calendario", "Documento", "Manual", "Sistema"];
-const CHANNELS = ["WhatsApp Normal", "Gmail", "Google Calendar", "Indeed", "Computrabajo", "Facebook Leads", "Instagram DM", "TikTok Leads", "Webhook"];
-const AGENTS = ["Agente de recepción", "Agente de agenda", "Candidate Sourcer", "Creador de Anuncios", "Especialista en políticas", "Supervisor Humano"];
+const CHANNELS = ["WhatsApp Normal", "WhatsApp Business", "Messenger", "Gmail", "Google Calendar", "Indeed", "Computrabajo", "OCC", "Facebook Leads", "Facebook Jobs", "Marketplace", "Instagram DM", "TikTok Leads", "Referidos", "Universidades", "Ferias de empleo", "Webhook"];
+const AGENTS = ["IA Reclutadora HDRS", "Agente de recepción", "Agente de agenda", "Agente de recuperacion", "Agente de talent pool", "Candidate Sourcer", "Creador de Anuncios", "Especialista en políticas", "Reclutador Humano", "Coordinador de Reclutamiento", "Supervisor Humano"];
 const TRIGGER_EVENTS = [
+  "Lead omnicanal captado",
   "Nueva postulación recibida",
   "Mensaje entrante sin responder",
   "Candidato pasa a entrevista",
   "Candidato no responde",
+  "Candidato abandona proceso",
+  "Recordatorio 24 horas antes",
+  "Confirmacion 2 horas antes",
+  "Ultimo aviso 30 minutos antes",
+  "Nueva vacante compatible con talent pool",
   "CV o PDF nuevo en Google Drive",
   "Lead nuevo desde Indeed",
   "Lead nuevo desde Computrabajo",
+  "Lead nuevo desde OCC",
   "Lead nuevo desde Facebook",
   "Lead nuevo desde TikTok",
   "Ejecución programada",
   "Webhook recibido"
 ];
-const TRIGGER_SOURCES = ["CRM", "Formulario", "WhatsApp Normal", "Gmail", "Google Calendar", "Indeed", "Computrabajo", "Facebook", "Instagram", "TikTok", "Webhook"];
+const TRIGGER_SOURCES = ["CRM", "Formulario", "WhatsApp Normal", "WhatsApp Business", "Messenger", "Gmail", "Google Calendar", "Indeed", "Computrabajo", "OCC", "Facebook", "Instagram", "TikTok", "Referidos", "Universidades", "Webhook"];
 
 const DEFAULT_VARIABLES: WorkflowVariable[] = [
   { id: "var-candidate-name", key: "candidate_name", label: "Nombre candidato", type: "texto", source: "Candidato", fallback: "", required: true, description: "Nombre visible del candidato." },
@@ -117,67 +125,193 @@ const DEFAULT_VARIABLES: WorkflowVariable[] = [
   { id: "var-education", key: "education_level", label: "Preparacion academica", type: "texto", source: "Vacante", fallback: "", required: false, description: "Nivel academico requerido." },
   { id: "var-schedule", key: "work_schedule", label: "Horario", type: "texto", source: "Vacante", fallback: "", required: false, description: "Horario y disponibilidad." },
   { id: "var-offer", key: "offer_details", label: "Que se ofrece", type: "texto", source: "Vacante", fallback: "", required: false, description: "Oferta, beneficios y salario." },
-  { id: "var-interview-date", key: "interview_date", label: "Fecha entrevista", type: "fecha", source: "Calendario", fallback: "", required: false, description: "Fecha propuesta o confirmada." }
+  { id: "var-interview-date", key: "interview_date", label: "Fecha entrevista", type: "fecha", source: "Calendario", fallback: "", required: false, description: "Fecha propuesta o confirmada." },
+  { id: "var-candidate-age", key: "candidate_age", label: "Edad", type: "numero", source: "Candidato", fallback: "", required: true, description: "Edad para aplicar arbol legal HDRS." },
+  { id: "var-candidate-email", key: "candidate_email", label: "Correo", type: "texto", source: "Candidato", fallback: "", required: false, description: "Correo para seguimiento y agenda." },
+  { id: "var-transport", key: "candidate_transport", label: "Transporte", type: "texto", source: "Candidato", fallback: "", required: false, description: "Medio de traslado y cercania real." },
+  { id: "var-start-availability", key: "start_availability", label: "Inicio inmediato", type: "texto", source: "Candidato", fallback: "", required: false, description: "Disponibilidad para iniciar o asistir a entrevista." },
+  { id: "var-last-job", key: "last_job", label: "Ultimo empleo", type: "texto", source: "Candidato", fallback: "", required: false, description: "Ultima empresa o puesto reportado." },
+  { id: "var-time-worked", key: "time_worked", label: "Tiempo laborado", type: "texto", source: "Candidato", fallback: "", required: false, description: "Duracion en el ultimo empleo." },
+  { id: "var-functions", key: "job_functions", label: "Funciones", type: "texto", source: "Candidato", fallback: "", required: false, description: "Funciones o responsabilidades previas." },
+  { id: "var-desired-role", key: "desired_role", label: "Puesto deseado", type: "texto", source: "Candidato", fallback: "", required: true, description: "Vacante o area que desea el candidato." },
+  { id: "var-score-experience", key: "score_experience", label: "Score experiencia", type: "numero", source: "Sistema", fallback: "0", required: false, description: "0 a 20 puntos." },
+  { id: "var-score-availability", key: "score_availability", label: "Score disponibilidad", type: "numero", source: "Sistema", fallback: "0", required: false, description: "0 a 20 puntos." },
+  { id: "var-score-proximity", key: "score_proximity", label: "Score cercania", type: "numero", source: "Sistema", fallback: "0", required: false, description: "0 a 20 puntos." },
+  { id: "var-score-skills", key: "score_skills", label: "Score habilidades", type: "numero", source: "Sistema", fallback: "0", required: false, description: "0 a 20 puntos." },
+  { id: "var-score-attitude", key: "score_attitude", label: "Score actitud", type: "numero", source: "Sistema", fallback: "0", required: false, description: "0 a 20 puntos." },
+  { id: "var-candidate-score", key: "candidate_fit_score", label: "Score total", type: "numero", source: "Sistema", fallback: "0", required: false, description: "Score total HDRS de 0 a 100." },
+  { id: "var-priority", key: "candidate_priority", label: "Prioridad", type: "opcion", source: "Sistema", fallback: "Prioridad C", required: false, description: "Prioridad A, B, C o descartado." },
+  { id: "var-talent-pool", key: "talent_pool_category", label: "Talent pool", type: "opcion", source: "Sistema", fallback: "Ventas", required: false, description: "Ventas, Operativos, Administrativos o Especializados." }
 ];
 
 const DEFAULT_CONDITIONS: WorkflowCondition[] = [
   { id: "cond-phone", field: "candidate_phone", operator: "existe", value: "", actionOnFail: "escalar" },
-  { id: "cond-job", field: "job_name", operator: "existe", value: "", actionOnFail: "detener" }
+  { id: "cond-job", field: "job_name", operator: "existe", value: "", actionOnFail: "detener" },
+  { id: "cond-age", field: "candidate_age", operator: "existe", value: "", actionOnFail: "escalar" },
+  { id: "cond-score", field: "candidate_fit_score", operator: "mayor que", value: "49", actionOnFail: "continuar" }
 ];
 
 const INITIAL_WORKFLOWS: AiWorkflow[] = [
   {
-    id: "flow-welcome-screening",
-    name: "Nuevo flujo de reclutamiento",
-    status: "Borrador",
+    id: "flow-hdrs-master-72h",
+    name: "HDRS Flujo Maestro 72h",
+    status: "Activo",
     channel: "WhatsApp Normal",
     autonomous: true,
     approvalMode: "Solo escalar excepciones",
     trigger: {
-      event: "Nueva postulación recibida",
+      event: "Lead omnicanal captado",
       source: "CRM",
       schedule: "Inmediato",
-      debounceMinutes: 5,
-      runWindow: "Lunes a viernes 08:00-20:00"
+      debounceMinutes: 1,
+      runWindow: "Lunes a sabado 08:00-21:00"
     },
     conditions: DEFAULT_CONDITIONS,
     variables: DEFAULT_VARIABLES,
     steps: [
       {
-        id: "step-1",
-        name: "Analizar perfil",
+        id: "step-capture",
+        name: "1. Captacion omnicanal",
         type: "ai",
-        agent: "Agente de recepción",
-        instruction: "Evalua a {{candidate_name}} para la vacante {{job_name}}. Compara con {{job_target_profile}}, {{required_experience}}, {{education_level}} y {{work_schedule}}. Devuelve score, riesgos y pregunta clave.",
+        agent: "IA Reclutadora HDRS",
+        instruction: "Registra la fuente del candidato, vacante de interes y canal. Fuentes gratuitas: Facebook Jobs, grupos locales, Marketplace, TikTok, Instagram, referidos, universidades y ferias. Fuentes pagadas: OCC, Computrabajo e Indeed. Devuelve lead normalizado y dato faltante mas importante.",
+        output: "normalized_lead",
+        channel: "Sistema",
+        waitMinutes: 0,
+        requiresApproval: false,
+        successCriteria: "Lead capturado con fuente, canal, vacante y siguiente accion."
+      },
+      {
+        id: "step-greeting",
+        name: "2. Contacto IA humano",
+        type: "message",
+        agent: "IA Reclutadora HDRS",
+        instruction: "Redacta un saludo breve y natural. Usa el nombre personal del agente, agradece el interes y ofrece ayuda. Si no hay nombre, pide solo el nombre. No uses plantilla fija ni parrafo largo.",
+        output: "outbound_message",
+        channel: "WhatsApp Normal",
+        waitMinutes: 0,
+        requiresApproval: false,
+        successCriteria: "Mensaje inicial humano, breve y con una sola pregunta."
+      },
+      {
+        id: "step-prequal",
+        name: "3. Precalificacion",
+        type: "ai",
+        agent: "IA Reclutadora HDRS",
+        instruction: "Solicita y ordena datos minimos: nombre, edad, ciudad, telefono, correo, horario, transporte, inicio inmediato, ultimo empleo, tiempo laborado, funciones, escolaridad y puesto deseado. Pide un dato por mensaje y guarda avance.",
+        output: "prequalification_profile",
+        channel: "Sistema",
+        waitMinutes: 0,
+        requiresApproval: false,
+        successCriteria: "Perfil con datos minimos o lista clara de faltantes."
+      },
+      {
+        id: "step-age-tree",
+        name: "4. Arbol de edad",
+        type: "condition",
+        agent: "Especialista en políticas",
+        instruction: "Aplica arbol legal: menor de 15 = rechazado respetuoso; 16-17 = solicitar carta responsiva, tutor legal, INE tutor y comprobante domicilio; edad valida = continuar evaluacion. No avanzar a agenda si falta edad.",
+        output: "age_decision",
+        channel: "Sistema",
+        waitMinutes: 0,
+        requiresApproval: false,
+        successCriteria: "Edad validada y rama legal aplicada sin discriminacion indebida."
+      },
+      {
+        id: "step-score",
+        name: "5. Scoring 0-100",
+        type: "ai",
+        agent: "IA Reclutadora HDRS",
+        instruction: "Calcula score HDRS: experiencia 0-20, disponibilidad 0-20, cercania 0-20, habilidades 0-20 y actitud 0-20. Clasifica: 90-100 Prioridad A, 70-89 B, 50-69 C, menor 50 descartado respetuoso o talent pool. Devuelve score por dimension, total, prioridad y razon.",
         output: "candidate_fit_score",
         channel: "Sistema",
         waitMinutes: 0,
         requiresApproval: false,
-        successCriteria: "Score y siguiente pregunta generados sin inventar datos."
+        successCriteria: "Score trazable, prioridad y siguiente accion."
       },
       {
-        id: "step-2",
-        name: "Enviar primer contacto",
-        type: "message",
-        agent: "Agente de recepción",
-        instruction: "Redacta un mensaje breve para {{candidate_name}}. Explica {{job_name}}, que se hace, {{offer_details}} y pregunta disponibilidad para {{work_schedule}}.",
-        output: "outbound_message",
+        id: "step-interview-ia",
+        name: "6. Entrevista IA",
+        type: "ai",
+        agent: "IA Reclutadora HDRS",
+        instruction: "Si el score permite avanzar, realiza preguntas conductuales una por una: cuentame sobre ti, por que te interesa trabajar aqui, como manejas clientes dificiles y describe un problema que hayas resuelto. Resume respuestas y riesgos.",
+        output: "ai_interview_summary",
         channel: "WhatsApp Normal",
         waitMinutes: 0,
-        requiresApproval: true,
-        successCriteria: "Mensaje claro, sin lenguaje discriminatorio y listo para copiar/enviar."
+        requiresApproval: false,
+        successCriteria: "Entrevista conversacional sin interrogatorio ni mensajes extensos."
       },
       {
-        id: "step-3",
-        name: "Escalar si faltan datos",
-        type: "condition",
-        agent: "Supervisor Humano",
-        instruction: "Si faltan telefono, ubicacion, experiencia o disponibilidad, solicita datos faltantes antes de agendar.",
-        output: "missing_data_check",
-        channel: "Sistema",
-        waitMinutes: 15,
+        id: "step-calendar",
+        name: "7. Agenda automatica",
+        type: "calendar",
+        agent: "Agente de agenda",
+        instruction: "Agenda solo con horarios reales de Google Calendar, Outlook o Calendly. Ofrece maximo 3 opciones, confirma antes de registrar y guarda fecha, hora, ubicacion y documentos.",
+        output: "interview_event",
+        channel: "Google Calendar",
+        waitMinutes: 0,
+        requiresApproval: true,
+        successCriteria: "Entrevista propuesta o confirmada con datos completos."
+      },
+      {
+        id: "step-reminders",
+        name: "8. Recordatorios",
+        type: "message",
+        agent: "Agente de agenda",
+        instruction: "Programa seguimiento: 24 horas antes recordatorio, 2 horas antes confirmacion, 30 minutos antes ultimo aviso. Si responde REPROGRAMAR, conserva interes y ofrece nuevas opciones.",
+        output: "reminder_sequence",
+        channel: "WhatsApp Normal",
+        waitMinutes: 0,
         requiresApproval: false,
-        successCriteria: "No avanzar a entrevista con datos obligatorios incompletos."
+        successCriteria: "Recordatorios claros con CONFIRMO, REPROGRAMAR o CANCELAR."
+      },
+      {
+        id: "step-recovery",
+        name: "9. Recuperacion",
+        type: "message",
+        agent: "Agente de recuperacion",
+        instruction: "Si el candidato no responde, usa recuperacion respetuosa: ghosting = seguimos interesados, indeciso = cerrar vacante esta semana, finalista = nuevas oportunidades compatibles. No presiones ni envies spam.",
+        output: "recovery_message",
+        channel: "WhatsApp Normal",
+        waitMinutes: 1440,
+        requiresApproval: false,
+        successCriteria: "Mensaje breve con opcion clara de continuar o cerrar."
+      },
+      {
+        id: "step-talent-pool",
+        name: "10. Talent Pool",
+        type: "task",
+        agent: "Agente de talent pool",
+        instruction: "Clasifica automaticamente: Ventas, Operativos, Administrativos o Especializados. Guarda consentimiento, fuente, score, vacante compatible y fecha sugerida de reactivacion.",
+        output: "talent_pool_update",
+        channel: "Sistema",
+        waitMinutes: 0,
+        requiresApproval: false,
+        successCriteria: "Candidato clasificado para futuras vacantes sin perder contexto."
+      },
+      {
+        id: "step-kpis",
+        name: "11. KPIs HDRS",
+        type: "task",
+        agent: "Coordinador de Reclutamiento",
+        instruction: "Actualiza KPIs: tiempo de contratacion, costo por contratacion, conversion por fuente, tasa respuesta, recuperacion, agendamiento, entrevistas IA, contrataciones, retencion 30/90 dias y rotacion.",
+        output: "hdrs_kpi_update",
+        channel: "Sistema",
+        waitMinutes: 0,
+        requiresApproval: false,
+        successCriteria: "Dashboard alimentado con metricas de reclutamiento, WhatsApp, IA y calidad."
+      },
+      {
+        id: "step-handoff",
+        name: "12. Escalamiento humano",
+        type: "handoff",
+        agent: "Reclutador Humano",
+        instruction: "Escala si el candidato pasa filtros, hay negociacion salarial, vacante especializada, entrevista final, duda legal, baja certeza, queja o solicitud de hablar con una persona.",
+        output: "human_handoff",
+        channel: "Sistema",
+        waitMinutes: 0,
+        requiresApproval: false,
+        successCriteria: "Caso escalado con resumen, prioridad y motivo."
       }
     ]
   }
@@ -273,12 +407,15 @@ function createWorkflowFromPrompt(prompt: string): AiWorkflow {
   const needsFollowUp = containsAny(normalized, ["seguimiento", "follow", "no responde", "recordatorio", "reactivar"]);
   const needsScoring = containsAny(normalized, ["calificar", "score", "filtrar", "evaluar", "perfil", "embudo"]);
   const needsDocuments = containsAny(normalized, ["cv", "documento", "ine", "pdf", "archivo"]);
+  const needsRecovery = needsFollowUp || containsAny(normalized, ["ghosting", "abandono", "recuperar", "indeciso", "finalista"]);
+  const needsTalentPool = containsAny(normalized, ["talent pool", "base de talento", "futuras vacantes", "reactivar"]);
 
   const extraVariables: WorkflowVariable[] = [
     { id: "var-channel-source", key: "channel_source", label: "Canal origen", type: "texto", source: "Canal", fallback: channel, required: true, description: "Canal o integracion que disparo el flujo." },
     { id: "var-funnel-stage", key: "funnel_stage", label: "Etapa del embudo", type: "opcion", source: "Sistema", fallback: "contacto", required: true, description: "contacto, calificacion, entrevista, seguimiento o cierre." },
     { id: "var-agent-personality", key: "agent_personality", label: "Personalidad del agente", type: "texto", source: "Manual", fallback: "Humano, profesional, amable, directo y orientado a conversion.", required: false, description: "Forma de responder durante este flujo." },
     { id: "var-branch-result", key: "branch_result", label: "Resultado de rama", type: "texto", source: "Sistema", fallback: "", required: false, description: "Guarda si el candidato avanza, se escala o se pausa." },
+    { id: "var-recovery-reason", key: "recovery_reason", label: "Motivo recuperacion", type: "opcion", source: "Sistema", fallback: "ghosting", required: false, description: "ghosting, indeciso o finalista." },
   ];
 
   const variables = [
@@ -292,7 +429,8 @@ function createWorkflowFromPrompt(prompt: string): AiWorkflow {
     { id: "cond-phone", field: "candidate_phone", operator: "existe", value: "", actionOnFail: "escalar" },
     { id: "cond-job", field: "job_name", operator: "existe", value: "", actionOnFail: "detener" },
     { id: "cond-channel", field: "channel_source", operator: "existe", value: "", actionOnFail: "detener" },
-    ...(needsScoring ? [{ id: "cond-score", field: "candidate_fit_score", operator: "mayor que" as ConditionOperator, value: "70", actionOnFail: "escalar" as const }] : []),
+    { id: "cond-age-hdrs", field: "candidate_age", operator: "existe" as ConditionOperator, value: "", actionOnFail: "escalar" as const },
+    { id: "cond-score", field: "candidate_fit_score", operator: "mayor que" as ConditionOperator, value: needsScoring ? "69" : "49", actionOnFail: "continuar" as const },
     ...(needsInterview ? [{ id: "cond-availability", field: "work_schedule", operator: "existe" as ConditionOperator, value: "", actionOnFail: "continuar" as const }] : []),
   ];
 
@@ -311,10 +449,10 @@ function createWorkflowFromPrompt(prompt: string): AiWorkflow {
     },
     {
       id: "step-score",
-      name: "2. Calificar perfil",
+      name: "2. Precalificar y calificar perfil",
       type: "ai",
-      agent: "Agente de recepción",
-      instruction: "Evalua a {{candidate_name}} para {{job_name}} contra {{job_target_profile}}, {{required_experience}}, {{education_level}}, {{work_schedule}} y {{offer_details}}. Devuelve score 0-100, objeciones, datos faltantes y rama sugerida: avanza, nutrir, descartar o escalar.",
+      agent: "IA Reclutadora HDRS",
+      instruction: "Aplica HDRS. Captura nombre, edad, ciudad, telefono, correo, horario, transporte, inicio inmediato, ultimo empleo, tiempo laborado, funciones, escolaridad y puesto deseado. Despues evalua {{candidate_name}} para {{job_name}} contra {{job_target_profile}}, {{required_experience}}, {{education_level}}, {{work_schedule}} y {{offer_details}}. Calcula experiencia 0-20, disponibilidad 0-20, cercania 0-20, habilidades 0-20 y actitud 0-20. Devuelve score 0-100, prioridad A/B/C/descartado, talent pool, objeciones, datos faltantes y rama sugerida.",
       output: "candidate_fit_score",
       channel: "Sistema",
       waitMinutes: 0,
@@ -323,10 +461,10 @@ function createWorkflowFromPrompt(prompt: string): AiWorkflow {
     },
     {
       id: "step-branch",
-      name: "3. Rama del embudo",
+      name: "3. Arbol de decision HDRS",
       type: "condition",
       agent: "Supervisor Humano",
-      instruction: "Si candidate_fit_score >= 70, avanzar a entrevista. Si faltan datos, pedir datos. Si hay alerta legal/salarial o molestia, escalar. Si no cumple, enviar cierre amable.",
+      instruction: "Aplica arbol de edad y score. Menor de 15: cierre respetuoso. 16-17: solicitar tutor/carta/INE tutor/comprobante. Score 90-100 Prioridad A, 70-89 B, 50-69 C, menor 50 cerrar con respeto o enviar a talent pool. Si hay alerta legal, salario no confirmado, molestia o baja certeza, escalar.",
       output: "branch_result",
       channel: "Sistema",
       waitMinutes: 0,
@@ -357,17 +495,29 @@ function createWorkflowFromPrompt(prompt: string): AiWorkflow {
       requiresApproval: true,
       successCriteria: "Entrevista propuesta o agendada con fecha, hora e instrucciones.",
     }] : []),
-    ...(needsFollowUp ? [{
+    ...(needsFollowUp || needsRecovery ? [{
       id: "step-follow-up",
-      name: "Seguimiento automatico",
+      name: "Seguimiento y recuperacion",
       type: "message" as StepType,
-      agent: "Agente de agenda",
-      instruction: "Si no hay respuesta despues del tiempo definido, envia seguimiento amable a {{candidate_name}} preguntando si desea continuar con {{job_name}}.",
+      agent: "Agente de recuperacion",
+      instruction: "Si no hay respuesta despues del tiempo definido, envia recuperacion segun {{recovery_reason}}. Ghosting: seguimos interesados. Indeciso: cerrar vacante esta semana. Finalista: nuevas oportunidades compatibles. Siempre deja opcion de continuar o cerrar.",
       output: "follow_up_message",
       channel,
       waitMinutes: 1440,
       requiresApproval: false,
       successCriteria: "Seguimiento sin presion, con opcion clara de continuar o cerrar.",
+    }] : []),
+    ...(needsTalentPool ? [{
+      id: "step-talent-pool",
+      name: "Clasificar talent pool",
+      type: "task" as StepType,
+      agent: "Agente de talent pool",
+      instruction: "Clasifica a {{candidate_name}} en Ventas, Operativos, Administrativos o Especializados. Guarda score, fuente, consentimiento, vacante compatible y fecha de reactivacion.",
+      output: "talent_pool_update",
+      channel: "Sistema",
+      waitMinutes: 0,
+      requiresApproval: false,
+      successCriteria: "Candidato listo para reactivacion futura con categoria correcta.",
     }] : []),
     {
       id: "step-crm",
@@ -613,6 +763,7 @@ export function AIWorkflows() {
             <div className="space-y-2 text-xs text-slate-400">
               <p className="font-semibold text-white">Crea automaticamente:</p>
               <p>Disparadores, ramas, reglas, embudo, variables, pasos, aprobaciones, webhooks y payload de prueba.</p>
+              <p className="text-cyan-200">{HDRS_PHASES.length} fases HDRS y {HDRS_KPIS.length} KPIs listos para medir.</p>
             </div>
             <button
               onClick={generateWorkflowFromPrompt}
@@ -622,6 +773,49 @@ export function AIWorkflows() {
               <Sparkles className="h-4 w-4" />
               Crear flujo con IA
             </button>
+          </div>
+        </div>
+      </div>
+
+      <div className="grid gap-3 xl:grid-cols-4">
+        <div className="glass-panel rounded-lg border border-emerald-500/20 bg-emerald-500/5 p-4 xl:col-span-2">
+          <div className="flex items-center gap-2 text-sm font-bold uppercase tracking-[0.18em] text-emerald-200">
+            <ShieldCheck className="h-4 w-4" />
+            Modelo HDRS
+          </div>
+          <p className="mt-2 text-sm leading-6 text-slate-300">
+            Sistema Heavenly Dreams para contratar en 72 horas, automatizar 80% del primer contacto, recuperar abandonos y mantener talent pool propio.
+          </p>
+          <div className="mt-3 grid gap-2 sm:grid-cols-2">
+            {HDRS_GOALS.slice(0, 4).map((goal) => (
+              <div key={goal} className="rounded-lg border border-emerald-400/15 bg-slate-950/35 px-3 py-2 text-xs leading-5 text-slate-300">
+                {goal}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="glass-panel rounded-lg border border-cyan-500/20 bg-slate-950/25 p-4">
+          <div className="text-xs font-bold uppercase tracking-[0.18em] text-cyan-200">Scoring IA</div>
+          <div className="mt-3 space-y-2">
+            {HDRS_SCORING_RULES.map((rule) => (
+              <div key={rule.id} className="flex items-center justify-between gap-3 rounded-lg border border-slate-700/60 bg-slate-950/35 px-3 py-2 text-xs">
+                <span className="text-slate-300">{rule.label}</span>
+                <span className="font-mono font-bold text-cyan-200">{rule.maxPoints}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="glass-panel rounded-lg border border-purple-500/20 bg-slate-950/25 p-4">
+          <div className="text-xs font-bold uppercase tracking-[0.18em] text-purple-200">Talent pool</div>
+          <div className="mt-3 space-y-2">
+            {HDRS_TALENT_POOL.map((pool) => (
+              <div key={pool.category} className="rounded-lg border border-slate-700/60 bg-slate-950/35 px-3 py-2">
+                <p className="text-xs font-semibold text-white">{pool.category}</p>
+                <p className="mt-1 truncate text-[11px] text-slate-400">{pool.profiles.join(", ")}</p>
+              </div>
+            ))}
           </div>
         </div>
       </div>

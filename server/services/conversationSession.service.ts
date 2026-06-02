@@ -2,6 +2,7 @@ import path from "path";
 import fs from "fs/promises";
 import { ChatMessage } from "../types";
 import { logger } from "../utils/logger";
+import { HDRS_SERVER_PROMPT_CONTEXT, HDRS_SCORE_GUIDE } from "../config/hdrs.config";
 
 export type ConversationStage =
   | "WELCOME"
@@ -11,9 +12,11 @@ export type ConversationStage =
   | "PREQUALIFICATION"
   | "AGE_VALIDATION"
   | "EXPERIENCE_VALIDATION"
+  | "SCORING"
   | "INTERVIEW_SCHEDULING"
   | "INTERVIEW_CONFIRMED"
   | "FOLLOW_UP"
+  | "TALENT_POOL"
   | "HIRED"
   | "REJECTED";
 
@@ -28,6 +31,10 @@ export type ConversationIntent =
   | "PROVIDE_NAME"
   | "PROVIDE_AGE"
   | "PROVIDE_EXPERIENCE"
+  | "PROVIDE_AVAILABILITY"
+  | "PROVIDE_TRANSPORT"
+  | "PROVIDE_EDUCATION"
+  | "PROVIDE_CONTACT"
   | "CONFIRM_INTERVIEW"
   | "REJECT_INTERVIEW"
   | "GOODBYE"
@@ -40,6 +47,15 @@ type MemoryMessage = {
   createdAt: string;
 };
 
+type HdrsScoreBreakdown = {
+  experience: number;
+  availability: number;
+  proximity: number;
+  skills: number;
+  attitude: number;
+  total: number;
+};
+
 export type ConversationMemory = {
   id: string;
   sessionId: string;
@@ -47,12 +63,24 @@ export type ConversationMemory = {
   phone: string;
   channel?: "WhatsApp";
   leadId?: string;
-  crmStatus?: "Nuevo" | "Interesado" | "Datos Capturados" | "Evaluacion" | "Entrevista Programada" | "Contratado" | "Rechazado";
+  crmStatus?: "Nuevo" | "Interesado" | "Datos Capturados" | "Evaluacion" | "Entrevista Programada" | "Talent Pool" | "Contratado" | "Rechazado";
   name?: string;
   lastName?: string;
   vacancy?: string;
   email?: string;
   city?: string;
+  availability?: string;
+  transport?: string;
+  education?: string;
+  lastJob?: string;
+  timeWorked?: string;
+  jobFunctions?: string;
+  desiredRole?: string;
+  minorDocumentation?: "pending" | "reported";
+  hdrsScore?: HdrsScoreBreakdown;
+  candidateScore?: number;
+  candidatePriority?: "Prioridad A" | "Prioridad B" | "Prioridad C" | "Descartado";
+  talentPoolCategory?: "Ventas" | "Operativos" | "Administrativos" | "Especializados";
   stage: ConversationStage;
   status: "active" | "follow_up" | "interview_confirmed" | "hired" | "rejected";
   age?: number;
@@ -96,9 +124,11 @@ const stageOrder: ConversationStage[] = [
   "PREQUALIFICATION",
   "AGE_VALIDATION",
   "EXPERIENCE_VALIDATION",
+  "SCORING",
   "INTERVIEW_SCHEDULING",
   "INTERVIEW_CONFIRMED",
   "FOLLOW_UP",
+  "TALENT_POOL",
   "HIRED",
   "REJECTED",
 ];
@@ -115,8 +145,9 @@ const getTimeGreeting = (date = new Date()) => {
 const toCrmStatus = (stage: ConversationStage, intent: ConversationIntent): ConversationMemory["crmStatus"] => {
   if (stage === "REJECTED") return "Rechazado";
   if (stage === "HIRED") return "Contratado";
+  if (stage === "TALENT_POOL") return "Talent Pool";
   if (stage === "INTERVIEW_CONFIRMED" || stage === "INTERVIEW_SCHEDULING") return "Entrevista Programada";
-  if (stage === "EXPERIENCE_VALIDATION" || stage === "AGE_VALIDATION") return "Evaluacion";
+  if (stage === "SCORING" || stage === "EXPERIENCE_VALIDATION" || stage === "AGE_VALIDATION") return "Evaluacion";
   if (stage === "VACANCY_INFO" || stage === "PREQUALIFICATION") return "Datos Capturados";
   if (stage === "VACANCY_SELECTION" || intent === "ASK_VACANCY" || intent === "SELECT_VACANCY") return "Interesado";
   return "Nuevo";
@@ -166,12 +197,22 @@ export function detectIntent(message: string, stage: ConversationStage = "WELCOM
 
   if (!text) return "UNKNOWN";
   if (/\b(adios|gracias|muchas gracias|bye|hasta luego)\b/.test(text)) return "GOODBYE";
+  if (/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i.test(message)) return "PROVIDE_CONTACT";
   if (/^(hola|buenas|buen dia|buenos dias|buenas tardes|buenas noches)$/.test(text)) return "GREETING";
   if (/^(si|ok|claro|va|vale|perfecto|confirmo|confirmado)$/.test(text)) {
     return stage === "INTERVIEW_SCHEDULING" ? "CONFIRM_INTERVIEW" : "UNKNOWN";
   }
   if (/\b(no puedo|no gracias|ya no|cancelar|rechazo|no me interesa)\b/.test(text)) return "REJECT_INTERVIEW";
   if (hasAge || /\b(tengo|edad|anos|años)\b/.test(text)) return "PROVIDE_AGE";
+  if (/\b(disponible|disponibilidad|inmediato|puedo empezar|empiezo|turno|horario|tiempo completo|medio tiempo|lunes|martes|miercoles|miércoles|jueves|viernes|sabado|sábado|domingo)\b/.test(text)) {
+    return "PROVIDE_AVAILABILITY";
+  }
+  if (/\b(transporte|metro|metrobus|camion|camión|combi|auto|coche|moto|cerca|lejos|traslado|vivo cerca)\b/.test(text)) {
+    return "PROVIDE_TRANSPORT";
+  }
+  if (/\b(primaria|secundaria|prepa|preparatoria|bachillerato|licenciatura|universidad|carrera|trunca|terminada|escolaridad)\b/.test(text)) {
+    return "PROVIDE_EDUCATION";
+  }
   if (/\b(me llamo|mi nombre es|soy)\b/.test(text) && text.split(" ").length <= 8) return "PROVIDE_NAME";
   if (/\b(experiencia|trabaje|trabajo en|he trabajado|supervise|atiendo|ventas|atencion)\b/.test(text)) {
     return "PROVIDE_EXPERIENCE";
@@ -193,7 +234,9 @@ const extractName = (message: string) => {
   const normalized = normalizeCandidateInput(message);
   const explicit = original.match(/\b(?:me llamo|mi nombre es|soy)\s+([a-zA-ZÁÉÍÓÚÜÑáéíóúüñ ]{2,40})/i);
   if (explicit?.[1]) {
-    return explicit[1].replace(/[^\p{L}\s]/gu, "").trim().split(" ").slice(0, 3).join(" ");
+    const candidateName = explicit[1].replace(/[^\p{L}\s]/gu, "").trim();
+    if (/^(de|del|la|el|en|zona)\b/i.test(candidateName)) return undefined;
+    return candidateName.split(" ").slice(0, 3).join(" ");
   }
   const firstWord = original.match(/^([A-ZÁÉÍÓÚÜÑ][a-zA-ZÁÉÍÓÚÜÑáéíóúüñ]{1,24})\b/)?.[1];
   const looksLikeVacancySelection = /\b(supervisor|ayudante|asesor|promotor|atencion|ventas|embajador|volantero|vacante|empleo|trabajo)\b/i.test(original);
@@ -262,11 +305,157 @@ const extractVacancy = (message: string) => {
   return options.find(([pattern]) => pattern.test(text))?.[1];
 };
 
+const extractAvailability = (message: string) => {
+  const text = normalizeCandidateInput(message);
+  if (!/\b(disponible|disponibilidad|inmediato|puedo empezar|empiezo|turno|horario|tiempo completo|medio tiempo|lunes|martes|miercoles|miércoles|jueves|viernes|sabado|sábado|domingo|manana|mañana|hoy)\b/.test(text)) {
+    return undefined;
+  }
+  return message.trim().slice(0, 180);
+};
+
+const extractTransport = (message: string) => {
+  const text = normalizeCandidateInput(message);
+  if (!/\b(transporte|metro|metrobus|camion|camión|combi|auto|coche|moto|cerca|lejos|traslado|vivo cerca|sin problema)\b/.test(text)) {
+    return undefined;
+  }
+  return message.trim().slice(0, 180);
+};
+
+const extractEducation = (message: string) => {
+  const text = normalizeCandidateInput(message);
+  if (!/\b(primaria|secundaria|prepa|preparatoria|bachillerato|licenciatura|universidad|carrera|trunca|terminada|escolaridad)\b/.test(text)) {
+    return undefined;
+  }
+  return message.trim().slice(0, 180);
+};
+
+const extractLastJob = (message: string) => {
+  const text = normalizeCandidateInput(message);
+  if (!/\b(ultimo empleo|ultimo trabajo|trabaje en|trabajaba en|mi empleo anterior|mi ultimo|experiencia)\b/.test(text)) {
+    return undefined;
+  }
+  return message.trim().slice(0, 220);
+};
+
+const extractTimeWorked = (message: string) => {
+  const match = normalizeCandidateInput(message).match(/\b(\d{1,2}\s*(?:meses|mes|anos|año|años|semanas|semana)|medio ano|medio año|un ano|un año)\b/);
+  return match?.[0];
+};
+
+const extractJobFunctions = (message: string) => {
+  const text = normalizeCandidateInput(message);
+  if (!/\b(funciones|actividades|hacia|hacía|me encargaba|atendia|atendía|vendia|vendía|supervisaba|repartia|repartía|limpieza|caja|inventario)\b/.test(text)) {
+    return undefined;
+  }
+  return message.trim().slice(0, 240);
+};
+
+const extractMinorDocumentation = (message: string) => {
+  const text = normalizeCandidateInput(message);
+  return /\b(carta responsiva|permiso|tutor|tutora|ine de mi|ine del tutor|acta|comprobante|mis papas|mi mama|mi papa|padre|madre)\b/.test(text)
+    ? "reported" as const
+    : undefined;
+};
+
+const clampScore = (score: number) => Math.max(0, Math.min(20, Math.round(score)));
+
+const scoreHdrsCandidate = (conversation: ConversationMemory, latestMessage: string): HdrsScoreBreakdown => {
+  const text = normalizeCandidateInput([
+    latestMessage,
+    conversation.vacancy,
+    conversation.experience,
+    conversation.availability,
+    conversation.transport,
+    conversation.education,
+    conversation.jobFunctions,
+  ].filter(Boolean).join(" "));
+
+  if (conversation.age !== undefined && conversation.age < 16) {
+    return { experience: 0, availability: 0, proximity: 0, skills: 0, attitude: 0, total: 0 };
+  }
+
+  let experience = conversation.experience || conversation.lastJob ? 12 : 5;
+  if (/\b(experiencia|trabaje|trabajaba|supervisaba|ventas|atencion|caja|inventario|ayudante|promotor)\b/.test(text)) experience += 5;
+  if (conversation.timeWorked) experience += 2;
+
+  let availability = conversation.availability ? 13 : 6;
+  if (/\b(inmediato|hoy|manana|mañana|tiempo completo|disponible)\b/.test(text)) availability += 6;
+  if (/\b(no puedo|solo fines|limitado)\b/.test(text)) availability -= 4;
+
+  let proximity = conversation.city || conversation.transport ? 12 : 6;
+  if (/\b(cerca|sin problema|metro|metrobus|transporte|auto|moto|iztapalapa|tlahuac|nezahualcoyotl)\b/.test(text)) proximity += 6;
+  if (/\b(lejos|muy lejos|no tengo transporte)\b/.test(text)) proximity -= 4;
+
+  let skills = conversation.vacancy ? 10 : 6;
+  if (/\b(ventas|atencion|cliente|supervisor|equipo|inventario|caja|limpieza|responsable|puntual)\b/.test(text)) skills += 6;
+  if (conversation.education) skills += 2;
+
+  let attitude = 11;
+  if (/\b(me interesa|si|claro|disponible|gracias|por favor|quiero|puedo)\b/.test(text)) attitude += 5;
+  if (conversation.name && conversation.vacancy) attitude += 2;
+  if (/\b(no gracias|no me interesa|cancelar|ya no)\b/.test(text)) attitude -= 6;
+
+  const breakdown = {
+    experience: clampScore(experience),
+    availability: clampScore(availability),
+    proximity: clampScore(proximity),
+    skills: clampScore(skills),
+    attitude: clampScore(attitude),
+    total: 0,
+  };
+  breakdown.total = breakdown.experience + breakdown.availability + breakdown.proximity + breakdown.skills + breakdown.attitude;
+  return breakdown;
+};
+
+const classifyPriority = (score: number): ConversationMemory["candidatePriority"] => {
+  if (score >= 90) return "Prioridad A";
+  if (score >= 70) return "Prioridad B";
+  if (score >= 50) return "Prioridad C";
+  return "Descartado";
+};
+
+const classifyTalentPool = (conversation: ConversationMemory): ConversationMemory["talentPoolCategory"] => {
+  const text = normalizeCandidateInput([
+    conversation.vacancy,
+    conversation.desiredRole,
+    conversation.experience,
+    conversation.jobFunctions,
+  ].filter(Boolean).join(" "));
+  if (/\b(ventas|asesor|promotor|embajador|cliente)\b/.test(text)) return "Ventas";
+  if (/\b(admin|capturista|oficina|recepcion|archivo|datos)\b/.test(text)) return "Administrativos";
+  if (/\b(tecnico|especialista|licenciatura|ingenieria|programador|diseno|diseño)\b/.test(text)) return "Especializados";
+  return "Operativos";
+};
+
+const isPrequalificationComplete = (conversation: ConversationMemory) =>
+  Boolean(
+    conversation.name &&
+      conversation.vacancy &&
+      conversation.age !== undefined &&
+      conversation.email &&
+      conversation.city &&
+      conversation.availability &&
+      conversation.transport &&
+      conversation.education &&
+      conversation.experience
+  );
+
+const nextHdrsField = (conversation: ConversationMemory) => {
+  if (!conversation.email) return "correo electronico";
+  if (!conversation.city) return "ciudad o zona donde vive";
+  if (!conversation.availability) return "disponibilidad de horario e inicio";
+  if (!conversation.transport) return "medio de transporte o facilidad de traslado";
+  if (!conversation.education) return "escolaridad";
+  if (!conversation.experience) return "ultimo empleo o experiencia relacionada";
+  if (!conversation.jobFunctions) return "funciones principales de su ultimo empleo";
+  return "disponibilidad para entrevista";
+};
+
 const inferStage = (conversation: ConversationMemory, intent: ConversationIntent): ConversationStage => {
   if (conversation.status === "rejected") return "REJECTED";
   if (conversation.status === "interview_confirmed") return "INTERVIEW_CONFIRMED";
   if (conversation.age !== undefined && conversation.age < 16) return "REJECTED";
-  if (conversation.age === 16 || conversation.age === 17) return "AGE_VALIDATION";
+  if ((conversation.age === 16 || conversation.age === 17) && conversation.minorDocumentation !== "reported") return "AGE_VALIDATION";
   if (intent === "GOODBYE") return "FOLLOW_UP";
   if (intent === "CONFIRM_INTERVIEW") return "INTERVIEW_CONFIRMED";
   if (intent === "REJECT_INTERVIEW") return "FOLLOW_UP";
@@ -276,7 +465,11 @@ const inferStage = (conversation: ConversationMemory, intent: ConversationIntent
     return "VACANCY_INFO";
   }
   if (conversation.age === undefined) return "AGE_VALIDATION";
-  if (!conversation.experience) return "EXPERIENCE_VALIDATION";
+  if (!isPrequalificationComplete(conversation)) return "PREQUALIFICATION";
+  if ((conversation.candidateScore || 0) < 50) return "TALENT_POOL";
+  if (stageOrder.indexOf(conversation.stage) < stageOrder.indexOf("SCORING")) {
+    return "SCORING";
+  }
   if (stageOrder.indexOf(conversation.stage) < stageOrder.indexOf("INTERVIEW_SCHEDULING")) {
     return "INTERVIEW_SCHEDULING";
   }
@@ -291,22 +484,28 @@ const stageInstruction = (conversation: ConversationMemory) => {
       return "Objetivo del siguiente mensaje: explicar brevemente que hay vacantes y pedir cual puesto le interesa.";
     case "VACANCY_INFO":
       return "Objetivo del siguiente mensaje: responder la duda especifica sobre la vacante sin inventar datos, y avanzar al siguiente dato faltante.";
+    case "PREQUALIFICATION":
+      return `Objetivo del siguiente mensaje: continuar la precalificacion HDRS y pedir solamente ${nextHdrsField(conversation)}.`;
     case "AGE_VALIDATION":
       if (conversation.age !== undefined && conversation.age < 16) {
         return "Objetivo del siguiente mensaje: agradecer el interes, explicar con respeto que por edad no se puede continuar y cerrar el proceso.";
       }
       if (conversation.age === 16 || conversation.age === 17) {
-        return "Objetivo del siguiente mensaje: explicar que se requiere permiso de tutor y carta responsiva antes de continuar.";
+        return "Objetivo del siguiente mensaje: explicar que para continuar se requiere carta responsiva, tutor legal, INE del tutor y comprobante de domicilio; pregunta si cuenta con esos documentos.";
       }
       return "Objetivo del siguiente mensaje: pedir solamente la edad del candidato.";
     case "EXPERIENCE_VALIDATION":
       return "Objetivo del siguiente mensaje: pedir solamente experiencia breve relacionada con la vacante.";
+    case "SCORING":
+      return "Objetivo del siguiente mensaje: resumir brevemente que el perfil va avanzando, mantener tono humano y pedir disponibilidad para entrevista.";
     case "INTERVIEW_SCHEDULING":
       return "Objetivo del siguiente mensaje: proponer avanzar a entrevista y pedir disponibilidad de dia u horario.";
     case "INTERVIEW_CONFIRMED":
       return "Objetivo del siguiente mensaje: confirmar que la entrevista quedo en seguimiento y mantener tono profesional.";
     case "FOLLOW_UP":
       return "Objetivo del siguiente mensaje: dar seguimiento sin presionar y preguntar si desea continuar.";
+    case "TALENT_POOL":
+      return "Objetivo del siguiente mensaje: cerrar con respeto o dejar al candidato en bolsa de talento para futuras vacantes, sin hacerlo sentir rechazado.";
     case "REJECTED":
       return "Objetivo del siguiente mensaje: cerrar con respeto, sin insistir.";
     default:
@@ -380,6 +579,15 @@ Ficha CRM del lead:
 - Vacante: ${conversation.vacancy || "pendiente"}
 - Edad: ${conversation.age ?? "pendiente"}
 - Experiencia: ${conversation.experience || "pendiente"}
+- Disponibilidad: ${conversation.availability || "pendiente"}
+- Transporte: ${conversation.transport || "pendiente"}
+- Escolaridad: ${conversation.education || "pendiente"}
+- Ultimo empleo: ${conversation.lastJob || "pendiente"}
+- Tiempo laborado: ${conversation.timeWorked || "pendiente"}
+- Funciones: ${conversation.jobFunctions || "pendiente"}
+- Score HDRS: ${conversation.candidateScore ?? "pendiente"}
+- Prioridad HDRS: ${conversation.candidatePriority || "pendiente"}
+- Talent Pool: ${conversation.talentPoolCategory || "pendiente"}
 - Pipeline CRM: ${conversation.crmStatus || "Nuevo"}
 - Etapa conversacional: ${conversation.stage}
 - Fecha registro: ${conversation.createdAt}
@@ -388,28 +596,32 @@ Ficha CRM del lead:
 - Empresa/cuenta: ${companyName}
 - Nombre visible del agente: ${agentName}
 
+Modelo HDRS obligatorio:
+${HDRS_SERVER_PROMPT_CONTEXT}
+
+${HDRS_SCORE_GUIDE}
+
 Reglas obligatorias de respuesta:
 - Responder en maximo 2 o 3 lineas.
 - No enviar parrafos largos.
 - Hacer una sola pregunta por mensaje.
 - Mantener tono profesional, amable y natural.
 - Evitar repetir informacion o copiar exactamente el mensaje anterior.
-- Si el usuario escribe vacantes, empleo, trabajo o contratacion, responde: "Tenemos varias vacantes disponibles. ¿Para que area buscas empleo?"
+- Si el usuario escribe vacantes, empleo, trabajo o contratacion, explica con tus propias palabras que puedes ayudarle a revisar opciones y pregunta por el area o puesto que busca.
 - Si falta nombre, pide solamente el nombre completo.
 - No inventes sueldo, horario, direccion, prestaciones ni promesas de contratacion si no estan confirmadas.
+- Aplica scoring HDRS internamente, pero no muestres puntajes al candidato salvo que un reclutador lo solicite.
 
 Reglas de saludo:
-- Si es primer contacto (${firstAssistantContact ? "si" : "no"}), usa exactamente este inicio:
-"${getTimeGreeting()}
-Soy ${agentName}, reclutador de ${companyName}.
-¿En que puedo servirte hoy?"
+- Si es primer contacto (${firstAssistantContact ? "si" : "no"}), inicia con ${getTimeGreeting()}, menciona que eres ${agentName} de ${companyName}, ofrece ayuda y haz una pregunta simple para avanzar.
+- No copies un texto fijo; varia la redaccion manteniendo claridad.
 - No vuelvas a presentarte si ya hay mensajes del asistente en el historial.
 - Interpreta respuestas cortas como "si", "ok" o "claro" segun la etapa actual; no reinicies la conversacion.
 - Si falta un dato, pide el siguiente dato necesario y guarda el contexto.
 - Menores de 16: agradecer, explicar requisito de edad y cerrar.
 - 16 o 17: pedir tutor/carta responsiva antes de continuar.
-- 18 a 35: proceso normal.
-- Mayores de 35: pasar a revision manual sin rechazar automaticamente.
+- Edad valida: continuar evaluacion segun vacante y cumplimiento laboral.
+- Nunca rechaces por edad, genero, origen, religion, discapacidad u otra condicion protegida. Solo aplica requisitos legales y operativos confirmados.
 
 ${stageInstruction(conversation)}
 `.trim();
@@ -426,6 +638,13 @@ export async function prepareRecruitmentConversationTurn(input: ConversationTurn
   const extractedVacancy = extractVacancy(input.inboundBody);
   const extractedEmail = extractEmail(input.inboundBody);
   const extractedCity = extractCity(input.inboundBody);
+  const extractedAvailability = extractAvailability(input.inboundBody);
+  const extractedTransport = extractTransport(input.inboundBody);
+  const extractedEducation = extractEducation(input.inboundBody);
+  const extractedLastJob = extractLastJob(input.inboundBody);
+  const extractedTimeWorked = extractTimeWorked(input.inboundBody);
+  const extractedJobFunctions = extractJobFunctions(input.inboundBody);
+  const extractedMinorDocumentation = extractMinorDocumentation(input.inboundBody);
 
   if (!conversation.channel) conversation.channel = "WhatsApp";
   if (!conversation.leadId) conversation.leadId = `lead-${conversation.id}`;
@@ -437,9 +656,23 @@ export async function prepareRecruitmentConversationTurn(input: ConversationTurn
   }
   if (extractedAge !== undefined) conversation.age = extractedAge;
   if (extractedVacancy) conversation.vacancy = extractedVacancy;
+  if (extractedVacancy) conversation.desiredRole = extractedVacancy;
   if (extractedEmail) conversation.email = extractedEmail;
   if (extractedCity) conversation.city = extractedCity;
+  if (extractedAvailability) conversation.availability = extractedAvailability;
+  if (extractedTransport) conversation.transport = extractedTransport;
+  if (extractedEducation) conversation.education = extractedEducation;
+  if (extractedLastJob) conversation.lastJob = extractedLastJob;
+  if (extractedTimeWorked) conversation.timeWorked = extractedTimeWorked;
+  if (extractedJobFunctions) conversation.jobFunctions = extractedJobFunctions;
+  if (extractedMinorDocumentation) conversation.minorDocumentation = extractedMinorDocumentation;
   if (intent === "PROVIDE_EXPERIENCE" && !conversation.experience) conversation.experience = input.inboundBody.trim().slice(0, 240);
+  if (!conversation.experience && (extractedLastJob || extractedJobFunctions)) conversation.experience = input.inboundBody.trim().slice(0, 240);
+
+  conversation.hdrsScore = scoreHdrsCandidate(conversation, input.inboundBody);
+  conversation.candidateScore = conversation.hdrsScore.total;
+  conversation.candidatePriority = classifyPriority(conversation.candidateScore);
+  conversation.talentPoolCategory = classifyTalentPool(conversation);
 
   conversation.lastIntent = intent;
   conversation.stage = inferStage(conversation, intent);
@@ -449,6 +682,9 @@ export async function prepareRecruitmentConversationTurn(input: ConversationTurn
     `Etapa: ${conversation.crmStatus}`,
     conversation.name ? "Nombre capturado" : "Nombre pendiente",
     conversation.vacancy ? `Vacante: ${conversation.vacancy}` : "Vacante pendiente",
+    `Score HDRS: ${conversation.candidateScore}`,
+    conversation.candidatePriority ? `Prioridad: ${conversation.candidatePriority}` : "Prioridad pendiente",
+    conversation.talentPoolCategory ? `Talent pool: ${conversation.talentPoolCategory}` : "Talent pool pendiente",
   ].join(" | ");
   conversation.status =
     conversation.stage === "REJECTED"
@@ -492,6 +728,8 @@ Mensaje recibido del candidato:
 Intencion detectada: ${intent}
 Pipeline CRM: ${conversation.crmStatus}
 Etapa actual: ${conversation.stage}
+Score HDRS interno: ${conversation.candidateScore ?? "pendiente"} (${conversation.candidatePriority || "sin prioridad"})
+Siguiente dato HDRS si falta informacion: ${nextHdrsField(conversation)}
 Responde como ${input.agentName} en maximo 2 o 3 lineas. Haz una sola pregunta y no repitas el mensaje anterior.
 `.trim(),
   };
@@ -530,6 +768,15 @@ export async function getRecruitmentLeadProfile(sessionId: string, contactId: st
     correo: conversation.email || "",
     ciudad: conversation.city || "",
     vacante_interes: conversation.vacancy || "",
+    disponibilidad: conversation.availability || "",
+    transporte: conversation.transport || "",
+    escolaridad: conversation.education || "",
+    ultimo_empleo: conversation.lastJob || "",
+    tiempo_laborado: conversation.timeWorked || "",
+    funciones: conversation.jobFunctions || "",
+    score_hdrs: conversation.candidateScore ?? "",
+    prioridad_hdrs: conversation.candidatePriority || "",
+    talent_pool: conversation.talentPoolCategory || "",
     canal: conversation.channel || "WhatsApp",
     estatus: conversation.crmStatus || "Nuevo",
     etapa: conversation.crmStatus || "Nuevo",

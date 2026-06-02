@@ -5,6 +5,7 @@ import { appendAuditLog } from "./audit-log.service";
 import { DEFAULT_COMPANY_ID, getConversation } from "./conversation.service";
 import { createMessage, listMessages } from "./message.service";
 import { getGeminiService } from "./gemini.service";
+import { HDRS_SERVER_PROMPT_CONTEXT, HDRS_SCORE_GUIDE } from "../config/hdrs.config";
 
 type AiDraftInput = {
   companyId?: string;
@@ -59,13 +60,18 @@ const buildAgentPrompt = (
         : "Hola, buenas noches.";
 
   const firstContactInstruction = firstContact
-    ? `Si es tu primer mensaje, empieza con: "${greeting} Soy ${agentName}. ¿En que puedo ayudarte hoy?"`
+    ? `Si es tu primer mensaje, saluda segun la hora con "${greeting}", di que eres ${agentName}, ofrece ayuda de reclutamiento y haz una sola pregunta para iniciar. No copies una plantilla fija.`
     : "Continua la conversacion de forma natural segun el ultimo mensaje.";
 
   return `
 ${input.agentPrompt || "Eres un agente de reclutamiento de Heavenly Dreams. Atiendes candidatos con claridad, calidez y precision."}
 
 Identidad visible del agente: ${agentName}
+
+Modelo operativo obligatorio:
+${HDRS_SERVER_PROMPT_CONTEXT}
+
+${HDRS_SCORE_GUIDE}
 
 Reglas operativas:
 - Responde en espanol, breve y humano.
@@ -162,4 +168,3 @@ export async function createAiDraft(input: AiDraftInput, actorId?: string) {
     decision: structured,
   };
 }
-
