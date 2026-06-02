@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNotifications } from "@/contexts/NotificationContext";
 import { useDb } from "@/hooks/useDb";
-import { GOOGLE_WORKSPACE_CAPABILITIES } from "@/config/googleWorkspace";
+import { ALLOWED_GOOGLE_WORKSPACE_EMAILS, GOOGLE_WORKSPACE_CAPABILITIES } from "@/config/googleWorkspace";
 import { 
   FileSpreadsheet, Calendar as CalendarIcon, Mail, FormInput, FolderOpen, 
   StickyNote, Plus, Search, Check, Loader2, Sparkles, RefreshCw, 
@@ -687,6 +687,11 @@ export function WorkspaceHub() {
             <span className={cn("text-xs font-semibold", isLoggedInWithGoogle ? "text-emerald-400" : "text-amber-400")}>
               {isLoggedInWithGoogle ? "✓ Autenticado con Google" : "Conexión requerida"}
             </span>
+            {!isLoggedInWithGoogle && (
+              <span className="mt-1 max-w-[260px] text-[9px] leading-3 text-slate-500">
+                Solo se puede integrar con: {ALLOWED_GOOGLE_WORKSPACE_EMAILS.join(", ")}
+              </span>
+            )}
           </div>
           {!isLoggedInWithGoogle ? (
             <button 

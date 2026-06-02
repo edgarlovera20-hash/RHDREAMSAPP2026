@@ -1,37 +1,152 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Global support for unauthenticated seeding and multi-role shared guest sessions
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function role() {
+      return request.auth.token.role;
+    }
+
+    function companyId() {
+      return request.auth.token.companyId;
+    }
+
+    function hasCompanyField(data) {
+      return data.keys().hasAll(["companyId"]);
+    }
+
+    function canAccessCompany(data) {
+      return signedIn()
+        && (
+          !hasCompanyField(data)
+          || companyId() == null
+          || role() == "Admin"
+          || data.companyId == companyId()
+        );
+    }
+
+    function canCreateForCompany(data) {
+      return signedIn()
+        && hasCompanyField(data)
+        && (
+          companyId() == null
+          || role() == "Admin"
+          || data.companyId == companyId()
+        );
+    }
+
+    function canWriteRole() {
+      return signedIn()
+        && (
+          role() == null
+          || role() in ["Admin", "Manager", "Recruiter", "Supervisor"]
+        );
+    }
+
+    function canDeleteRole() {
+      return signedIn()
+        && (
+          role() == null
+          || role() in ["Admin", "Manager"]
+        );
+    }
+
+    function canReadDoc() {
+      return signedIn() && canAccessCompany(resource.data);
+    }
+
+    function canCreateDoc() {
+      return canWriteRole() && canCreateForCompany(request.resource.data);
+    }
+
+    function canUpdateDoc() {
+      return canWriteRole()
+        && canAccessCompany(resource.data)
+        && canCreateForCompany(request.resource.data);
+    }
+
+    function canDeleteDoc() {
+      return canDeleteRole() && canAccessCompany(resource.data);
+    }
+
+    // Production baseline: recruiting data is no longer public. New documents
+    // must include companyId. Existing legacy documents without companyId stay
+    // readable to authenticated users during the migration window.
     match /candidates/{candidateId} {
-      allow read, write: if true;
+      allow read: if canReadDoc();
+      allow create: if canCreateDoc();
+      allow update: if canUpdateDoc();
+      allow delete: if canDeleteDoc();
     }
 
     match /jobs/{jobId} {
-      allow read, write: if true;
+      allow read: if canReadDoc();
+      allow create: if canCreateDoc();
+      allow update: if canUpdateDoc();
+      allow delete: if canDeleteDoc();
     }
 
     match /appointments/{appointmentId} {
-      allow read, write: if true;
+      allow read: if canReadDoc();
+      allow create: if canCreateDoc();
+      allow update: if canUpdateDoc();
+      allow delete: if canDeleteDoc();
     }
 
     match /messages/{messageId} {
-      allow read, write: if true;
+      allow read: if canReadDoc();
+      allow create: if canCreateDoc();
+      allow update: if canUpdateDoc();
+      allow delete: if canDeleteDoc();
+    }
+
+    match /conversations/{conversationId} {
+      allow read: if canReadDoc();
+      allow create: if canCreateDoc();
+      allow update: if canUpdateDoc();
+      allow delete: if canDeleteDoc();
+    }
+
+    match /workflowRuns/{workflowRunId} {
+      allow read: if canReadDoc();
+      allow create: if canCreateDoc();
+      allow update: if canUpdateDoc();
+      allow delete: if canDeleteDoc();
     }
 
     match /automations/{automationId} {
-      allow read, write: if true;
+      allow read: if canReadDoc();
+      allow create: if canCreateDoc();
+      allow update: if canUpdateDoc();
+      allow delete: if canDeleteDoc();
     }
 
     match /notifications/{notificationId} {
-      allow read, write: if true;
+      allow read: if canReadDoc();
+      allow create: if canCreateDoc();
+      allow update: if canUpdateDoc();
+      allow delete: if canDeleteDoc();
     }
 
     match /agents/{agentId} {
-      allow read, write: if true;
+      allow read: if canReadDoc();
+      allow create: if canCreateDoc();
+      allow update: if canUpdateDoc();
+      allow delete: if canDeleteDoc();
       
       match /knowledge/{knowledgeId} {
-        allow read, write: if true;
+        allow read: if canAccessCompany(get(/databases/$(database)/documents/agents/$(agentId)).data);
+        allow create, update: if canWriteRole()
+          && canAccessCompany(get(/databases/$(database)/documents/agents/$(agentId)).data);
+        allow delete: if canDeleteRole()
+          && canAccessCompany(get(/databases/$(database)/documents/agents/$(agentId)).data);
       }
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
     }
   }
 }

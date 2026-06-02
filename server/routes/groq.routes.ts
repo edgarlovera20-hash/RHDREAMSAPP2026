@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { handleGroqChat, groqHealthCheck } from "../controllers/groq.controller";
-import { optionalAuthMiddleware } from "../middleware/auth";
+import { authMiddleware } from "../middleware/auth";
 import { geminiLimiter } from "../middleware/rateLimiter";
 import { logger } from "../utils/logger";
 
@@ -11,7 +11,7 @@ export const createGroqRoutes = (): Router => {
 
   router.post(
     "/chat",
-    optionalAuthMiddleware,
+    authMiddleware,
     geminiLimiter,
     async (req, res) => {
       logger.debug("POST /api/groq/chat", {

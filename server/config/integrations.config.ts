@@ -2,6 +2,10 @@ export type IntegrationProvider =
   | "indeed"
   | "computrabajo"
   | "whatsapp_personal"
+  | "facebook"
+  | "messenger"
+  | "instagram"
+  | "tiktok"
   | "facebook_ads"
   | "canva";
 
@@ -59,6 +63,84 @@ export const INTEGRATION_CATALOG = {
     requiredConfig: [],
     notes:
       "Baileys es un conector no oficial de WhatsApp Web. Usar solo con consentimiento, sin spam y respetando limites/ToS.",
+  },
+  facebook: {
+    id: "facebook",
+    name: "Facebook Lead Ads",
+    category: "social_leads",
+    mode: "meta_webhooks",
+    capabilities: [
+      "Verificar webhook oficial de Meta",
+      "Recibir eventos leadgen de formularios de Facebook",
+      "Consultar datos del lead con Page Access Token",
+      "Enviar el candidato al inbox de RH Dreams",
+    ],
+    requiredConfig: [
+      "META_WEBHOOK_VERIFY_TOKEN",
+      "META_PAGE_ACCESS_TOKEN",
+      "META_APP_SECRET",
+      "META_PAGE_ID",
+    ],
+    notes:
+      "Requiere una Meta App con Webhooks para Page y permisos pages_manage_metadata, pages_read_engagement y leads_retrieval aprobados cuando se use en produccion.",
+  },
+  messenger: {
+    id: "messenger",
+    name: "Messenger",
+    category: "messaging",
+    mode: "meta_messenger_api",
+    capabilities: [
+      "Recibir mensajes entrantes por webhook de Meta",
+      "Registrar conversaciones en el inbox",
+      "Responder con el agente IA por Messenger Send API",
+      "Mantener memoria conversacional por PSID",
+    ],
+    requiredConfig: [
+      "META_WEBHOOK_VERIFY_TOKEN",
+      "META_PAGE_ACCESS_TOKEN",
+      "META_APP_SECRET",
+      "META_PAGE_ID",
+    ],
+    notes:
+      "Para responder mensajes se necesita Page Access Token y permisos pages_messaging/pages_manage_metadata segun revision de Meta.",
+  },
+  instagram: {
+    id: "instagram",
+    name: "Instagram DM",
+    category: "messaging",
+    mode: "meta_instagram_messaging_api",
+    capabilities: [
+      "Recibir mensajes entrantes por webhook de Meta/Instagram",
+      "Registrar conversaciones en el inbox",
+      "Responder con el agente IA por Instagram Messaging API",
+      "Mantener memoria conversacional por usuario de Instagram",
+    ],
+    requiredConfig: [
+      "META_WEBHOOK_VERIFY_TOKEN",
+      "META_PAGE_ACCESS_TOKEN",
+      "META_APP_SECRET",
+      "INSTAGRAM_APP_ID",
+      "INSTAGRAM_APP_SECRET",
+    ],
+    notes:
+      "Requiere cuenta profesional de Instagram conectada a la pagina de Facebook y permisos de Instagram Messaging aprobados cuando se use en produccion.",
+  },
+  tiktok: {
+    id: "tiktok",
+    name: "TikTok Leads",
+    category: "social_leads",
+    mode: "managed_import",
+    capabilities: [
+      "Registrar fuente de candidatos TikTok",
+      "Importar leads por CSV, webhook intermedio o proveedor autorizado",
+      "Mapear campana, vacante, ciudad y contacto",
+      "Enviar candidatos al inbox unificado",
+    ],
+    requiredConfig: [
+      "TIKTOK_IMPORT_SECRET",
+    ],
+    notes:
+      "Usa integracion autorizada o importacion administrada. No se asume scraping ni acceso no oficial.",
   },
   facebook_ads: {
     id: "facebook_ads",

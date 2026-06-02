@@ -1,9 +1,11 @@
 import { lazy, Suspense } from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { AppLayout } from '@/components/layout/AppLayout';
 import { NotificationProvider } from '@/contexts/NotificationContext';
-import { AuthProvider } from '@/contexts/AuthContext';
+import { AuthProvider, useAuth } from '@/contexts/AuthContext';
+import { getAppBasePath } from '@/lib/basePath';
 
+const Login = lazy(() => import("@/pages/Login").then((module) => ({ default: module.Login })));
 const Dashboard = lazy(() => import("@/pages/Dashboard").then((module) => ({ default: module.Dashboard })));
 const Candidates = lazy(() => import("@/pages/Candidates").then((module) => ({ default: module.Candidates })));
 const Jobs = lazy(() => import("@/pages/Jobs").then((module) => ({ default: module.Jobs })));
@@ -22,14 +24,25 @@ const RouteFallback = () => (
   </div>
 );
 
+function ProtectedLayout() {
+  const { user } = useAuth();
+
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
+
+  return <AppLayout />;
+}
+
 export default function App() {
   return (
     <AuthProvider>
       <NotificationProvider>
-        <Router>
+        <Router basename={getAppBasePath()}>
           <Suspense fallback={<RouteFallback />}>
             <Routes>
-              <Route element={<AppLayout />}>
+              <Route path="/login" element={<Login />} />
+              <Route element={<ProtectedLayout />}>
                 <Route path="/" element={<Dashboard />} />
                 <Route path="/candidates" element={<Candidates />} />
                 <Route path="/jobs" element={<Jobs />} />
@@ -42,6 +55,7 @@ export default function App() {
                 <Route path="/reports" element={<Reports />} />
                 <Route path="/settings" element={<Settings />} />
               </Route>
+              <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </Suspense>
         </Router>

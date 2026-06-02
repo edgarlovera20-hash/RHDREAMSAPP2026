@@ -10,7 +10,7 @@ import { logger } from "../utils/logger";
  */
 export const apiLimiter: RateLimitRequestHandler = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // Limit each IP to 100 requests per windowMs
+  max: Number(process.env.API_RATE_LIMIT_MAX || 300), // Limit each IP to N requests per windowMs
   message: {
     success: false,
     error: "Demasiadas solicitudes. Intenta de nuevo más tarde.",
@@ -47,7 +47,7 @@ export const apiLimiter: RateLimitRequestHandler = rateLimit({
  */
 export const geminiLimiter: RateLimitRequestHandler = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 30, // Limit each IP/user to 30 requests per windowMs
+  max: Number(process.env.GEMINI_RATE_LIMIT_MAX || 75), // 200/hour needs at least 50 per 15 min plus margin
   message: {
     success: false,
     error: "Has alcanzado el límite de solicitudes de IA. Intenta de nuevo en 15 minutos.",

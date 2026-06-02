@@ -12,7 +12,14 @@ declare global {
   }
 }
 
-const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key-change-in-production";
+const requireJwtSecret = () => {
+  const JWT_SECRET = process.env.JWT_SECRET;
+  if (!JWT_SECRET) {
+    throw new Error("JWT_SECRET no esta configurado.");
+  }
+
+  return JWT_SECRET;
+};
 
 export interface AuthRequest extends Request {
   user?: JWTPayload;
@@ -44,7 +51,7 @@ export const authMiddleware = (
     const token = authHeader.substring(7);
 
     try {
-      const decoded = jwt.verify(token, JWT_SECRET) as JWTPayload;
+      const decoded = jwt.verify(token, requireJwtSecret()) as JWTPayload;
       req.user = decoded;
       logger.debug("Token verified successfully", { userId: decoded.userId });
       next();
@@ -119,7 +126,7 @@ export const generateToken = (
   role: string,
   expiresIn: string = "24h"
 ): string => {
-  return jwt.sign({ userId, role }, JWT_SECRET, { expiresIn });
+  return jwt.sign({ userId, role }, requireJwtSecret(), { expiresIn });
 };
 
 /**
@@ -137,7 +144,7 @@ export const optionalAuthMiddleware = (
       const token = authHeader.substring(7);
 
       try {
-        const decoded = jwt.verify(token, JWT_SECRET) as JWTPayload;
+        const decoded = jwt.verify(token, requireJwtSecret()) as JWTPayload;
         req.user = decoded;
         logger.debug("Optional token verified", { userId: decoded.userId });
       } catch (error) {

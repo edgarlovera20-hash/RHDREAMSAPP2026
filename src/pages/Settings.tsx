@@ -1,9 +1,9 @@
-import { useState } from "react";
-import ReactQuill from 'react-quill';
-import 'react-quill/dist/quill.snow.css';
-import { Shield, Users, Mail, Bell, BellRing, Key, Plus, Trash2, Zap, Settings as SettingsIcon, MessageSquare, Video, Globe, Calendar, CheckCircle2, Lock, Smartphone, History, Edit3, Linkedin, X, Check, Facebook, Instagram, Send } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Shield, Users, Mail, Bell, BellRing, Key, Plus, Trash2, Zap, Settings as SettingsIcon, MessageSquare, Video, Globe, Calendar, CheckCircle2, Lock, Smartphone, History, Edit3, Linkedin, X, Check, Facebook, Instagram, Send, Loader2, Copy, AlertCircle, Eye, EyeOff } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useNotifications } from "@/contexts/NotificationContext";
+import { useAuth } from "@/contexts/AuthContext";
+import { apiFetch, apiUrl, readApiJson } from "@/lib/api";
 
 const ROLES = [
   { id: 'admin', name: 'Administrador', description: 'Acceso total al sistema, reportes y facturación.' },
@@ -19,19 +19,42 @@ const AUTOMATIONS = [
   { id: 3, name: 'Aviso Cambio Estado', trigger: 'Candidato es Rechazado', action: 'Enviar plantilla "Feedback constructivo"', active: false },
 ];
 
+const INTEGRATION_ICON_IMAGES: Record<string, string> = {
+  indeed: "/assets/integrations/indeed.svg",
+  computrabajo: "/assets/integrations/computrabajo.svg",
+  whatsapp_personal: "/assets/integrations/whatsapp.svg",
+  facebook_ads: "/assets/integrations/facebook.svg",
+  facebook: "/assets/integrations/facebook.svg",
+  messenger: "/assets/integrations/messenger.svg",
+  instagram: "/assets/integrations/instagram.svg",
+  tiktok: "/assets/integrations/tiktok.svg",
+};
+
 const INTEGRATIONS = [
-  { id: 'google_workspace', name: 'Google Workspace', category: 'Productividad', description: 'Sincroniza Gmail y Google Calendar para agendar entrevistas.', icon: Globe, connected: true },
-  { id: 'indeed', name: 'Indeed Partner API', category: 'Bolsa de empleo', description: 'Sincroniza vacantes, postulaciones, candidatos y estados del proceso desde Indeed.', icon: MessageSquare, connected: false },
-  { id: 'computrabajo', name: 'Computrabajo', category: 'Bolsa de empleo', description: 'Importa candidatos por feed autorizado, CSV, email parser o webhook empresarial.', icon: Users, connected: false },
-  { id: 'whatsapp_personal', name: 'WhatsApp Normal', category: 'Comunicación asistida', description: 'Abre chats y registra conversaciones manuales con apoyo del agente IA.', icon: Smartphone, connected: false },
-  { id: 'facebook_ads', name: 'Facebook Recruitment Ads', category: 'Paid social', description: 'Analiza gasto, CPL, mejores horas y presupuesto de campañas de reclutamiento en Meta Ads.', icon: Facebook, connected: false },
-  { id: 'slack', name: 'Slack', category: 'Comunicación', description: 'Recibe notificaciones y menciona al equipo en canales de Slack.', icon: MessageSquare, connected: true },
-  { id: 'zoom', name: 'Zoom', category: 'Videollamadas', description: 'Genera enlaces de videollamada automáticamente para entrevistas.', icon: Video, connected: false },
-  { id: 'linkedin', name: 'LinkedIn Recruiter', category: 'Sourcing', description: 'Importa perfiles y sincroniza InMails con tus candidatos.', icon: Linkedin, connected: true },
-  { id: 'canva', name: 'Canva Content Studio', category: 'Creatividad', description: 'Crea publicaciones, historias, reels y videos de reclutamiento desde briefs generados por tus agentes AI.', icon: Edit3, connected: true },
-  { id: 'facebook', name: 'Facebook Lead Ads & Messenger', category: 'Sourcing & Chat', description: 'Atrae candidatos desde campañas de Facebook Ads y mantén conversaciones automatizadas por Messenger.', icon: Facebook, connected: true },
-  { id: 'instagram', name: 'Instagram Direct Message', category: 'Comunicación', description: 'Captura postulantes que comenten en tus publicaciones y automatiza respuestas personalizadas en tus DMs.', icon: Instagram, connected: false },
-  { id: 'tiktok', name: 'TikTok Instant Forms & Chat', category: 'Sourcing & Lead Gen', description: 'Sincroniza instantáneamente candidatos que se registren en tus anuncios de TikTok y asocia tu Agente AI.', icon: Video, connected: false },
+  { id: 'google_workspace', name: 'Google Workspace', category: 'Productividad', description: 'OAuth real para Gmail, Calendar, Sheets, Forms y Drive desde el modulo Google Workspace.', icon: Globe, provider: null, actionPath: '/workspace' },
+  { id: 'indeed', name: 'Indeed CSV / Correo / Webhook', category: 'Bolsa de empleo', description: 'Importa candidatos por CSV, correo parser, feed autorizado, Indeed Apply empresarial o webhook intermedio.', icon: MessageSquare, provider: 'indeed' },
+  { id: 'computrabajo', name: 'Computrabajo CSV / Correo / Webhook', category: 'Bolsa de empleo', description: 'Importa candidatos por exportacion CSV, correo parser, feed autorizado o webhook intermedio.', icon: Users, provider: 'computrabajo' },
+  { id: 'whatsapp_personal', name: 'WhatsApp Normal', category: 'Comunicación asistida', description: 'Conexion real por QR usando Baileys desde Canales de Chat.', icon: Smartphone, provider: 'whatsapp_personal', actionPath: '/whatsapp' },
+  { id: 'facebook_ads', name: 'Facebook Recruitment Ads', category: 'Paid social', description: 'Analiza gasto, CPL, mejores horas y presupuesto de campañas de reclutamiento en Meta Ads.', icon: Facebook, provider: 'facebook_ads' },
+  { id: 'canva', name: 'Canva Content Studio', category: 'Creatividad', description: 'Crea piezas reales con Canva Connect API cuando exista token OAuth valido.', icon: Edit3, provider: 'canva' },
+  { id: 'facebook', name: 'Facebook Lead Ads & Messenger', category: 'Sourcing & Chat', description: 'Requiere Meta App, permisos aprobados, Page Access Token y webhooks de Meta.', icon: Facebook, provider: null, actionPath: '/whatsapp' },
+  { id: 'instagram', name: 'Instagram Direct Message', category: 'Comunicación', description: 'Requiere Instagram Messaging API, cuenta profesional conectada a Facebook y permisos aprobados.', icon: Instagram, provider: null, actionPath: '/whatsapp' },
+  { id: 'tiktok', name: 'TikTok Instant Forms & Chat', category: 'Sourcing & Lead Gen', description: 'Requiere TikTok Lead Generation API o exportacion autorizada hacia webhook.', icon: Video, provider: null, actionPath: '/whatsapp' },
+];
+
+const API_INTEGRATION_IDS = [
+  "google_workspace",
+  "whatsapp_personal",
+  "facebook_ads",
+  "canva",
+  "facebook",
+  "instagram",
+  "tiktok",
+];
+
+const WEBHOOK_INTEGRATION_IDS = [
+  "indeed",
+  "computrabajo",
 ];
 
 const EMAIL_TEMPLATES = [
@@ -48,6 +71,50 @@ const SECURITY_ALERTS_PREFS = [
   { id: 'role_changes', label: 'Cambios en roles de usuario', enabled: false },
 ];
 
+const API_VAULT_OWNER_EMAILS = [
+  "edgar.lovera@sociomax.com.mx",
+  "edgarlovera20@gmail.com",
+  "edgarloveraj20@gmail.com",
+];
+
+const API_VAULT_PRESETS = [
+  "Google Gemini",
+  "OpenAI",
+  "Groq",
+  "OpenRouter",
+  "Meta / Facebook",
+  "Instagram",
+  "TikTok",
+  "Indeed",
+  "Computrabajo",
+  "Canva",
+  "WhatsApp / Baileys",
+  "Otro",
+];
+
+type ApiVaultEntry = {
+  id: string;
+  provider: string;
+  label: string;
+  kind: string;
+  model: string;
+  apiKey: string;
+  endpoint: string;
+  notes: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+const emptyVaultDraft = {
+  provider: "Google Gemini",
+  label: "",
+  kind: "Modelo IA",
+  model: "",
+  apiKey: "",
+  endpoint: "",
+  notes: "",
+};
+
 const CUSTOM_FIELDS = [
   { id: '1', name: 'candidate_level', description: 'Nivel del candidato (Ej. Junior, Senior)' },
   { id: '2', name: 'interview_date', description: 'Fecha de la entrevista' }
@@ -56,6 +123,7 @@ const CUSTOM_FIELDS = [
 export function Settings() {
   const [activeTab, setActiveTab] = useState('workflows');
   const [automations, setAutomations] = useState(AUTOMATIONS);
+  const { accessToken, user } = useAuth();
   const {
     prefs: notificationPrefs,
     updatePref: toggleNotificationPref,
@@ -66,6 +134,28 @@ export function Settings() {
     sendTestPushNotification,
   } = useNotifications();
   const [integrationsList, setIntegrationsList] = useState(INTEGRATIONS);
+  const [integrationCatalog, setIntegrationCatalog] = useState<Record<string, any>>({});
+  const [integrationStatus, setIntegrationStatus] = useState<Record<string, any>>({});
+  const [integrationConfigs, setIntegrationConfigs] = useState<Record<string, Record<string, string>>>(() => {
+    try {
+      const stored = localStorage.getItem("rhdreams_integration_configs");
+      return stored ? JSON.parse(stored) : {};
+    } catch (_error) {
+      return {};
+    }
+  });
+  const [configuringIntegration, setConfiguringIntegration] = useState<any>(null);
+  const [testingIntegration, setTestingIntegration] = useState<string | null>(null);
+  const [webhookTestStatus, setWebhookTestStatus] = useState<any>(null);
+  const [webhookSecret, setWebhookSecret] = useState("");
+  const currentUserEmail = user?.email?.trim().toLowerCase() || "";
+  const isApiVaultOwner = Boolean(
+    currentUserEmail && API_VAULT_OWNER_EMAILS.includes(currentUserEmail)
+  );
+  const vaultStorageKey = `rhdreams_api_vault_${user?.uid || currentUserEmail || "no_user"}`;
+  const [vaultEntries, setVaultEntries] = useState<ApiVaultEntry[]>([]);
+  const [vaultDraft, setVaultDraft] = useState(emptyVaultDraft);
+  const [visibleVaultSecrets, setVisibleVaultSecrets] = useState<Record<string, boolean>>({});
   const [securityAlerts, setSecurityAlerts] = useState(SECURITY_ALERTS_PREFS);
   const [templates, setTemplates] = useState(EMAIL_TEMPLATES);
   const [editingTemplate, setEditingTemplate] = useState<any>(null);
@@ -89,8 +179,253 @@ export function Settings() {
     setAutomations(autos => autos.map(a => a.id === id ? { ...a, active: !a.active } : a));
   };
 
-  const toggleIntegration = (id: string) => {
-    setIntegrationsList(ints => ints.map(i => i.id === id ? { ...i, connected: !i.connected } : i));
+  useEffect(() => {
+    localStorage.setItem("rhdreams_integration_configs", JSON.stringify(integrationConfigs));
+  }, [integrationConfigs]);
+
+  useEffect(() => {
+    if (!isApiVaultOwner) {
+      setVaultEntries([]);
+      return;
+    }
+
+    try {
+      const stored = localStorage.getItem(vaultStorageKey);
+      setVaultEntries(stored ? JSON.parse(stored) : []);
+    } catch (_error) {
+      setVaultEntries([]);
+    }
+  }, [isApiVaultOwner, vaultStorageKey]);
+
+  useEffect(() => {
+    if (!isApiVaultOwner) return;
+    localStorage.setItem(vaultStorageKey, JSON.stringify(vaultEntries));
+  }, [isApiVaultOwner, vaultEntries, vaultStorageKey]);
+
+  useEffect(() => {
+    const loadCatalog = async () => {
+      try {
+        const response = await apiFetch("/api/integrations/catalog");
+        const payload = await readApiJson(response);
+        setIntegrationCatalog(payload.data || {});
+      } catch (_error) {
+        setIntegrationCatalog({});
+      }
+    };
+
+    loadCatalog();
+  }, []);
+
+  const testIntegration = async (integration: any) => {
+    if (!integration.provider) return;
+    setTestingIntegration(integration.id);
+    try {
+      const response = await apiFetch("/api/integrations/test", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          provider: integration.provider,
+          config: integrationConfigs[integration.id] || {},
+        }),
+      });
+      const payload = await readApiJson(response);
+      setIntegrationStatus((current) => ({
+        ...current,
+        [integration.id]: payload.data || payload,
+      }));
+    } catch (error: any) {
+      setIntegrationStatus((current) => ({
+        ...current,
+        [integration.id]: {
+          ok: false,
+          message: error.message || "No se pudo probar la integracion.",
+        },
+      }));
+    } finally {
+      setTestingIntegration(null);
+    }
+  };
+
+  const getIntegrationStatus = (integration: any) => {
+    if (integration.id === "google_workspace") {
+      return {
+        ok: Boolean(accessToken),
+        message: accessToken ? "OAuth Google activo en esta sesion." : "Conecta Google Workspace desde su modulo.",
+      };
+    }
+
+    if (!integration.provider) {
+      return {
+        ok: false,
+        message: "Requiere configuracion oficial del proveedor o webhook.",
+      };
+    }
+
+    return integrationStatus[integration.id] || {
+      ok: false,
+      message: "Pendiente de prueba real.",
+      missing: integrationCatalog[integration.provider]?.requiredConfig || [],
+    };
+  };
+
+  const saveIntegrationConfig = () => {
+    if (!configuringIntegration) return;
+    setConfiguringIntegration(null);
+    testIntegration(configuringIntegration);
+  };
+
+  const toAbsoluteApiUrl = (path: string) => {
+    const url = apiUrl(path);
+    return url.startsWith("http") ? url : `${window.location.origin}${url}`;
+  };
+
+  const getWebhookUrl = (source: string) => toAbsoluteApiUrl(`/api/integrations/webhooks/${source}`);
+
+  const copyText = async (text: string) => {
+    await navigator.clipboard?.writeText(text);
+  };
+
+  const maskSecret = (value: string) => {
+    if (!value) return "Sin clave guardada";
+    if (value.length <= 8) return "••••••••";
+    return `${value.slice(0, 4)}••••••••${value.slice(-4)}`;
+  };
+
+  const saveVaultEntry = () => {
+    if (!isApiVaultOwner || !vaultDraft.provider || !vaultDraft.apiKey.trim()) return;
+    const now = new Date().toISOString();
+    const entry: ApiVaultEntry = {
+      id: `vault_${Date.now()}`,
+      provider: vaultDraft.provider,
+      label: vaultDraft.label.trim() || vaultDraft.provider,
+      kind: vaultDraft.kind,
+      model: vaultDraft.model.trim(),
+      apiKey: vaultDraft.apiKey.trim(),
+      endpoint: vaultDraft.endpoint.trim(),
+      notes: vaultDraft.notes.trim(),
+      createdAt: now,
+      updatedAt: now,
+    };
+
+    setVaultEntries((current) => [entry, ...current]);
+    setVaultDraft(emptyVaultDraft);
+    triggerEvent("api_vault_key_added", {
+      title: "Clave guardada en bóveda",
+      message: `${entry.label} quedó guardada solo para ${currentUserEmail}.`,
+      type: "success",
+    });
+  };
+
+  const deleteVaultEntry = (id: string) => {
+    setVaultEntries((current) => current.filter((entry) => entry.id !== id));
+    setVisibleVaultSecrets((current) => {
+      const next = { ...current };
+      delete next[id];
+      return next;
+    });
+  };
+
+  const sendWebhookTest = async (source: string) => {
+    setWebhookTestStatus({ source, loading: true });
+    try {
+      const response = await apiFetch(`/api/integrations/webhooks/${source}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(webhookSecret ? { "x-rhdreams-webhook-secret": webhookSecret } : {}),
+        },
+        body: JSON.stringify({
+          event: "candidate.created",
+          payload: {
+            id: `test-${Date.now()}`,
+            name: "Candidato Demo Webhook",
+            email: "demo@heavenlydreams.com.mx",
+            phone: "+52 55 0000 0000",
+            jobTitle: "Ejecutivo de ventas",
+          },
+        }),
+      });
+      const payload = await readApiJson(response);
+      setWebhookTestStatus({ source, ok: true, message: "Webhook real recibido por el backend.", data: payload.data });
+    } catch (error: any) {
+      setWebhookTestStatus({ source, ok: false, message: error.message || "No se pudo enviar el webhook." });
+    }
+  };
+
+  const renderIntegrationCard = (integration: any) => {
+    const status = getIntegrationStatus(integration);
+    const catalogItem = integration.provider ? integrationCatalog[integration.provider] : null;
+    const missing = status.missing || catalogItem?.requiredConfig || [];
+    const iconImage = INTEGRATION_ICON_IMAGES[integration.id];
+
+    return (
+      <div key={integration.id} className="glass-panel glass-panel-hover p-5 rounded-xl border border-white/10 group">
+        <div className="flex items-start justify-between mb-3">
+          <div className={cn("w-12 h-12 rounded-xl flex items-center justify-center shrink-0 transition-all overflow-hidden", status.ok ? "bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 shadow-[inset_0_0_10px_rgba(6,182,212,0.3)]" : "bg-slate-800 text-slate-500 border border-slate-700")}>
+            {iconImage ? (
+              <img
+                src={iconImage}
+                alt={`${integration.name} icono`}
+                className="h-9 w-9 object-contain"
+                loading="lazy"
+              />
+            ) : (
+              <integration.icon className="w-6 h-6" />
+            )}
+          </div>
+          <div className={cn("px-2.5 py-1 rounded-lg text-[10px] uppercase tracking-widest font-bold border", status.ok ? "text-emerald-300 border-emerald-500/30 bg-emerald-500/10" : "text-amber-300 border-amber-500/30 bg-amber-500/10")}>
+            {status.ok ? "Real conectado" : "Requiere datos"}
+          </div>
+        </div>
+        <h4 className={cn("font-semibold text-sm mb-1 transition-colors", status.ok ? "text-white" : "text-slate-300")}>{integration.name}</h4>
+        <div className="text-[10px] text-cyan-500 uppercase tracking-widest font-bold mb-2">{integration.category}</div>
+        <p className="text-xs text-slate-400 leading-relaxed font-light">{integration.description}</p>
+
+        <div className="mt-4 rounded-lg border border-white/5 bg-slate-950/40 p-3">
+          <p className="text-[11px] text-slate-300">{status.message}</p>
+          {missing.length > 0 && (
+            <p className="mt-2 text-[10px] text-amber-200">
+              Faltan: {missing.join(", ")}
+            </p>
+          )}
+        </div>
+
+        <div className="mt-4 pt-4 border-t border-white/5 flex flex-wrap items-center justify-between gap-2">
+          <span className={cn("flex items-center gap-1.5 text-[10px] uppercase tracking-wider font-bold", status.ok ? "text-emerald-400" : "text-slate-500")}>
+            {status.ok ? <CheckCircle2 className="w-3.5 h-3.5" /> : <AlertCircle className="w-3.5 h-3.5" />}
+            {status.ok ? "Validado" : "No validado"}
+          </span>
+          <div className="flex items-center gap-2">
+            {integration.actionPath && (
+              <button
+                onClick={() => { window.location.href = integration.actionPath; }}
+                className="text-xs text-slate-400 hover:text-cyan-400 transition-colors flex items-center gap-1"
+              >
+                <SettingsIcon className="w-3.5 h-3.5" /> Abrir modulo
+              </button>
+            )}
+            {integration.provider && (
+              <>
+                <button
+                  onClick={() => setConfiguringIntegration(integration)}
+                  className="text-xs text-slate-400 hover:text-cyan-400 transition-colors flex items-center gap-1"
+                >
+                  <SettingsIcon className="w-3.5 h-3.5" /> Credenciales
+                </button>
+                <button
+                  onClick={() => testIntegration(integration)}
+                  disabled={testingIntegration === integration.id}
+                  className="text-xs text-cyan-300 hover:text-white transition-colors flex items-center gap-1 disabled:opacity-60"
+                >
+                  {testingIntegration === integration.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Shield className="w-3.5 h-3.5" />}
+                  Probar real
+                </button>
+              </>
+            )}
+          </div>
+        </div>
+      </div>
+    );
   };
 
   const toggleSecurityAlert = (id: string) => {
@@ -111,7 +446,8 @@ export function Settings() {
             { id: 'users', label: 'Usuarios y Roles', icon: Users },
             { id: 'security', label: 'Seguridad', icon: Shield },
             { id: 'notifications', label: 'Notificaciones', icon: Bell },
-            { id: 'integrations', label: 'Integraciones API', icon: Key },
+            { id: 'integrations', label: 'Canales e integraciones', icon: Key },
+            { id: 'vault', label: 'Bóveda API', icon: Lock },
             { id: 'templates', label: 'Plantillas Correo', icon: Mail },
           ].map(tab => (
             <button
@@ -419,58 +755,314 @@ export function Settings() {
               <div>
                 <div className="p-6 border-b border-white/5 flex justify-between items-center bg-slate-900/30">
                   <div>
-                    <h2 className="text-lg font-semibold text-white">Integraciones API y Apps</h2>
-                    <p className="text-sm text-slate-400 font-light">Conecta tu CRM con las herramientas que ya usas.</p>
+                    <h2 className="text-lg font-semibold text-white">Canales, APIs y webhooks reales</h2>
+                    <p className="text-sm text-slate-400 font-light">El estado se valida con credenciales o endpoints reales; no se activa por simulacion.</p>
                   </div>
-                  <button className="bg-cyan-600/20 border border-cyan-500/50 hover:bg-cyan-600/40 text-cyan-50 hover:text-white px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wide flex items-center gap-2 transition-all shadow-[0_0_15px_rgba(6,182,212,0.2)]">
-                    <Plus className="w-4 h-4" /> Nueva Integración
+                  <button
+                    onClick={() => setConfiguringIntegration(integrationsList.find(item => item.provider) || null)}
+                    className="bg-cyan-600/20 border border-cyan-500/50 hover:bg-cyan-600/40 text-cyan-50 hover:text-white px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wide flex items-center gap-2 transition-all shadow-[0_0_15px_rgba(6,182,212,0.2)]"
+                  >
+                    <Plus className="w-4 h-4" /> Nueva Integracion
                   </button>
                 </div>
                 
-                <div className="p-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {integrationsList.map(integration => (
-                      <div key={integration.id} className="glass-panel glass-panel-hover p-5 rounded-xl border border-white/10 group">
-                        <div className="flex items-start justify-between mb-3">
-                          <div className={cn("w-12 h-12 rounded-xl flex items-center justify-center shrink-0 transition-all", integration.connected ? "bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 shadow-[inset_0_0_10px_rgba(6,182,212,0.3)]" : "bg-slate-800 text-slate-500 border border-slate-700")}>
-                            <integration.icon className="w-6 h-6" />
+                <div className="p-6 space-y-6">
+                  <section className="space-y-3">
+                    <div>
+                      <h3 className="text-sm font-semibold text-white flex items-center gap-2">
+                        <Key className="w-4 h-4 text-cyan-300" />
+                        Apps que ocupan API oficial
+                      </h3>
+                      <p className="mt-1 text-xs text-slate-400">
+                        Estas necesitan OAuth, token, permisos aprobados o credenciales del proveedor.
+                      </p>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {integrationsList
+                        .filter((integration) => API_INTEGRATION_IDS.includes(integration.id))
+                        .map(renderIntegrationCard)}
+                    </div>
+                  </section>
+
+                  <section className="space-y-3">
+                    <div>
+                      <h3 className="text-sm font-semibold text-white flex items-center gap-2">
+                        <Send className="w-4 h-4 text-sky-300" />
+                        Apps por webhook, CSV o correo
+                      </h3>
+                      <p className="mt-1 text-xs text-slate-400">
+                        Estas reciben candidatos por endpoint, exportacion autorizada, correo parser o archivo CSV.
+                      </p>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {integrationsList
+                        .filter((integration) => WEBHOOK_INTEGRATION_IDS.includes(integration.id))
+                        .map(renderIntegrationCard)}
+                    </div>
+                  </section>
+
+                  <div className="glass-panel rounded-xl border border-cyan-500/20 overflow-hidden">
+                    <div className="p-5 border-b border-white/5 bg-slate-950/40">
+                      <h3 className="text-sm font-semibold text-white flex items-center gap-2">
+                        <Send className="w-4 h-4 text-cyan-300" />
+                        Modulo de Webhooks
+                      </h3>
+                      <p className="mt-1 text-xs text-slate-400">Usa estas URLs para recibir candidatos reales desde formularios, bolsas de trabajo, Make, Zapier o sistemas externos.</p>
+                    </div>
+                    <div className="p-5 space-y-4">
+                      <div>
+                        <label className="block text-xs font-medium text-slate-400 mb-1.5">Secreto para prueba local del webhook</label>
+                        <input
+                          type="password"
+                          value={webhookSecret}
+                          onChange={(event) => setWebhookSecret(event.target.value)}
+                          placeholder="Debe coincidir con RHDREAMS_WEBHOOK_SECRET si esta configurado"
+                          className="w-full bg-slate-900/50 border border-slate-700/80 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-cyan-500/50"
+                        />
+                      </div>
+
+                      {["indeed", "computrabajo", "formularios", "externo"].map((source) => {
+                        const url = source === "indeed" || source === "computrabajo"
+                          ? toAbsoluteApiUrl(`/api/integrations/webhooks/job-board/${source}`)
+                          : getWebhookUrl(source);
+
+                        return (
+                          <div key={source} className="rounded-xl border border-white/5 bg-slate-950/40 p-4">
+                            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+                              <div>
+                                <p className="text-xs font-bold uppercase tracking-widest text-cyan-300">{source}</p>
+                                <p className="mt-1 break-all font-mono text-[11px] text-slate-300">{url}</p>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <button
+                                  onClick={() => copyText(url)}
+                                  className="rounded-lg border border-white/10 px-3 py-2 text-xs text-slate-300 hover:text-white hover:bg-white/5 flex items-center gap-1"
+                                >
+                                  <Copy className="w-3.5 h-3.5" /> Copiar
+                                </button>
+                                <button
+                                  onClick={() => sendWebhookTest(source)}
+                                  disabled={webhookTestStatus?.source === source && webhookTestStatus?.loading}
+                                  className="rounded-lg border border-cyan-500/30 bg-cyan-500/10 px-3 py-2 text-xs text-cyan-200 hover:bg-cyan-500/20 flex items-center gap-1 disabled:opacity-60"
+                                >
+                                  {webhookTestStatus?.source === source && webhookTestStatus?.loading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
+                                  Probar
+                                </button>
+                              </div>
+                            </div>
                           </div>
-                          <div>
-                             <label className="relative inline-flex items-center cursor-pointer">
-                                <input 
-                                  type="checkbox" 
-                                  className="sr-only peer"
-                                  checked={integration.connected}
-                                  onChange={() => toggleIntegration(integration.id)}
-                                />
-                                <div className={cn(
-                                  "w-9 h-5 rounded-full peer-focus:outline-none transition-all",
-                                  integration.connected ? "bg-cyan-500 shadow-[0_0_10px_rgba(6,182,212,0.5)]" : "bg-slate-700"
-                                )}></div>
-                                <div className={cn(
-                                  "absolute left-[2px] top-[2px] bg-white border-gray-300 border rounded-full h-4 w-4 transition-all",
-                                  integration.connected ? "translate-x-full border-white" : ""
-                                )}></div>
-                              </label>
-                          </div>
+                        );
+                      })}
+
+                      {webhookTestStatus && !webhookTestStatus.loading && (
+                        <div className={cn("rounded-xl border px-4 py-3 text-xs", webhookTestStatus.ok ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-200" : "border-rose-500/30 bg-rose-500/10 text-rose-200")}>
+                          {webhookTestStatus.message}
                         </div>
-                        <h4 className={cn("font-semibold text-sm mb-1 transition-colors", integration.connected ? "text-white" : "text-slate-300")}>{integration.name}</h4>
-                        <div className="text-[10px] text-cyan-500 uppercase tracking-widest font-bold mb-2">{integration.category}</div>
-                        <p className="text-xs text-slate-400 leading-relaxed font-light">{integration.description}</p>
-                        
-                        {integration.connected && (
-                          <div className="mt-4 pt-4 border-t border-white/5 flex items-center justify-between">
-                            <span className="flex items-center gap-1.5 text-[10px] text-emerald-400 uppercase tracking-wider font-bold">
-                              <CheckCircle2 className="w-3.5 h-3.5" /> Conectado
-                            </span>
-                            <button className="text-xs text-slate-400 hover:text-cyan-400 transition-colors flex items-center gap-1">
-                              <SettingsIcon className="w-3.5 h-3.5" /> Configurar
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : activeTab === 'vault' ? (
+              <div>
+                <div className="p-6 border-b border-white/5 flex justify-between items-center bg-slate-900/30">
+                  <div>
+                    <h2 className="text-lg font-semibold text-white">Bóveda privada de claves API</h2>
+                    <p className="text-sm text-slate-400 font-light">Guarda claves de apps y modelos de IA separadas por tu cuenta.</p>
+                  </div>
+                  <div className={cn(
+                    "rounded-lg border px-3 py-2 text-[10px] font-bold uppercase tracking-widest",
+                    isApiVaultOwner ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-300" : "border-amber-500/30 bg-amber-500/10 text-amber-300"
+                  )}>
+                    {isApiVaultOwner ? "Acceso privado activo" : "Cuenta no autorizada"}
+                  </div>
+                </div>
+
+                <div className="p-6 space-y-6">
+                  {!isApiVaultOwner ? (
+                    <div className="rounded-2xl border border-amber-500/20 bg-amber-500/10 p-6 text-sm text-amber-100">
+                      <div className="flex items-start gap-3">
+                        <Lock className="mt-0.5 h-5 w-5 shrink-0" />
+                        <div>
+                          <h3 className="font-semibold text-white">Bóveda bloqueada</h3>
+                          <p className="mt-1 text-xs leading-relaxed text-amber-100/80">
+                            Esta bóveda solo se abre con las cuentas autorizadas: {API_VAULT_OWNER_EMAILS.join(", ")}.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+                      <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.2fr] gap-5">
+                        <div className="glass-panel rounded-xl border border-cyan-500/20 p-5">
+                          <div className="flex items-center gap-2 mb-4">
+                            <Key className="h-4 w-4 text-cyan-300" />
+                            <h3 className="text-sm font-semibold text-white">Agregar nueva clave</h3>
+                          </div>
+
+                          <div className="space-y-3">
+                            <div>
+                              <label className="block text-xs font-medium text-slate-400 mb-1.5">App o proveedor</label>
+                              <select
+                                value={vaultDraft.provider}
+                                onChange={(event) => setVaultDraft({ ...vaultDraft, provider: event.target.value })}
+                                className="w-full bg-slate-900/50 border border-slate-700/80 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-cyan-500/50 appearance-none"
+                              >
+                                {API_VAULT_PRESETS.map((provider) => (
+                                  <option key={provider} value={provider}>{provider}</option>
+                                ))}
+                              </select>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                              <div>
+                                <label className="block text-xs font-medium text-slate-400 mb-1.5">Nombre interno</label>
+                                <input
+                                  value={vaultDraft.label}
+                                  onChange={(event) => setVaultDraft({ ...vaultDraft, label: event.target.value })}
+                                  placeholder="Ej: Gemini producción"
+                                  className="w-full bg-slate-900/50 border border-slate-700/80 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-cyan-500/50"
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-xs font-medium text-slate-400 mb-1.5">Tipo</label>
+                                <select
+                                  value={vaultDraft.kind}
+                                  onChange={(event) => setVaultDraft({ ...vaultDraft, kind: event.target.value })}
+                                  className="w-full bg-slate-900/50 border border-slate-700/80 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-cyan-500/50 appearance-none"
+                                >
+                                  <option>Modelo IA</option>
+                                  <option>API App</option>
+                                  <option>OAuth Token</option>
+                                  <option>Webhook Secret</option>
+                                  <option>Servicio externo</option>
+                                </select>
+                              </div>
+                            </div>
+
+                            <div>
+                              <label className="block text-xs font-medium text-slate-400 mb-1.5">Modelo o alcance</label>
+                              <input
+                                value={vaultDraft.model}
+                                onChange={(event) => setVaultDraft({ ...vaultDraft, model: event.target.value })}
+                                placeholder="Ej: gemini-1.5-pro, gpt-4.1, ads_read"
+                                className="w-full bg-slate-900/50 border border-slate-700/80 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-cyan-500/50"
+                              />
+                            </div>
+
+                            <div>
+                              <label className="block text-xs font-medium text-slate-400 mb-1.5">Clave API / Token / Secret</label>
+                              <input
+                                type="password"
+                                value={vaultDraft.apiKey}
+                                onChange={(event) => setVaultDraft({ ...vaultDraft, apiKey: event.target.value })}
+                                placeholder="Pega la clave aquí"
+                                className="w-full bg-slate-900/50 border border-slate-700/80 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-cyan-500/50"
+                              />
+                            </div>
+
+                            <div>
+                              <label className="block text-xs font-medium text-slate-400 mb-1.5">Endpoint opcional</label>
+                              <input
+                                value={vaultDraft.endpoint}
+                                onChange={(event) => setVaultDraft({ ...vaultDraft, endpoint: event.target.value })}
+                                placeholder="https://api.proveedor.com/v1/..."
+                                className="w-full bg-slate-900/50 border border-slate-700/80 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-cyan-500/50"
+                              />
+                            </div>
+
+                            <div>
+                              <label className="block text-xs font-medium text-slate-400 mb-1.5">Notas</label>
+                              <textarea
+                                value={vaultDraft.notes}
+                                onChange={(event) => setVaultDraft({ ...vaultDraft, notes: event.target.value })}
+                                placeholder="Dónde se usa, permisos, límites, fecha de renovación..."
+                                className="min-h-[82px] w-full resize-none bg-slate-900/50 border border-slate-700/80 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-cyan-500/50"
+                              />
+                            </div>
+
+                            <button
+                              onClick={saveVaultEntry}
+                              disabled={!vaultDraft.apiKey.trim()}
+                              className="w-full rounded-lg bg-cyan-500 px-4 py-2.5 text-sm font-bold text-slate-950 transition-colors hover:bg-cyan-400 disabled:cursor-not-allowed disabled:opacity-50"
+                            >
+                              Guardar en bóveda
                             </button>
                           </div>
-                        )}
+                        </div>
+
+                        <div className="space-y-4">
+                          <div className="rounded-xl border border-cyan-500/20 bg-cyan-500/5 p-4">
+                            <div className="flex items-start gap-3">
+                              <Shield className="mt-0.5 h-5 w-5 shrink-0 text-cyan-300" />
+                              <div>
+                                <h3 className="text-sm font-semibold text-white">Propietario de la bóveda</h3>
+                                <p className="mt-1 text-xs leading-relaxed text-slate-400">
+                                  Sesión actual: <span className="font-mono text-cyan-200">{currentUserEmail}</span>. Las claves se guardan bajo esta cuenta y no aparecen para otros usuarios.
+                                </p>
+                                <p className="mt-2 text-[11px] leading-relaxed text-amber-200/80">
+                                  Para producción real, copia las claves al servidor como variables de entorno cuando quieras que el backend las use.
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="grid gap-3">
+                            {vaultEntries.length === 0 ? (
+                              <div className="rounded-xl border border-dashed border-white/10 bg-slate-950/30 p-6 text-center text-sm text-slate-400">
+                                Todavía no hay claves guardadas en esta bóveda.
+                              </div>
+                            ) : vaultEntries.map((entry) => (
+                              <div key={entry.id} className="glass-panel rounded-xl border border-white/10 p-4">
+                                <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+                                  <div>
+                                    <div className="flex flex-wrap items-center gap-2">
+                                      <h4 className="font-semibold text-white">{entry.label}</h4>
+                                      <span className="rounded-md border border-cyan-500/20 bg-cyan-500/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest text-cyan-300">{entry.provider}</span>
+                                      <span className="rounded-md border border-white/10 bg-slate-800/80 px-2 py-0.5 text-[10px] text-slate-300">{entry.kind}</span>
+                                    </div>
+                                    {entry.model && <p className="mt-1 text-xs text-slate-400">Modelo/alcance: {entry.model}</p>}
+                                  </div>
+
+                                  <div className="flex items-center gap-2">
+                                    <button
+                                      onClick={() => setVisibleVaultSecrets((current) => ({ ...current, [entry.id]: !current[entry.id] }))}
+                                      className="rounded-lg border border-white/10 p-2 text-slate-400 transition-colors hover:text-cyan-300 hover:bg-white/5"
+                                      title="Mostrar u ocultar clave"
+                                    >
+                                      {visibleVaultSecrets[entry.id] ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                                    </button>
+                                    <button
+                                      onClick={() => copyText(entry.apiKey)}
+                                      className="rounded-lg border border-white/10 p-2 text-slate-400 transition-colors hover:text-cyan-300 hover:bg-white/5"
+                                      title="Copiar clave"
+                                    >
+                                      <Copy className="h-4 w-4" />
+                                    </button>
+                                    <button
+                                      onClick={() => deleteVaultEntry(entry.id)}
+                                      className="rounded-lg border border-white/10 p-2 text-slate-400 transition-colors hover:text-rose-300 hover:bg-rose-500/10"
+                                      title="Eliminar clave"
+                                    >
+                                      <Trash2 className="h-4 w-4" />
+                                    </button>
+                                  </div>
+                                </div>
+
+                                <div className="mt-3 rounded-lg border border-white/5 bg-slate-950/50 p-3">
+                                  <p className="break-all font-mono text-[11px] text-slate-300">
+                                    {visibleVaultSecrets[entry.id] ? entry.apiKey : maskSecret(entry.apiKey)}
+                                  </p>
+                                  {entry.endpoint && <p className="mt-2 break-all text-[11px] text-slate-500">Endpoint: {entry.endpoint}</p>}
+                                  {entry.notes && <p className="mt-2 text-xs leading-relaxed text-slate-400">{entry.notes}</p>}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
                       </div>
-                    ))}
-                  </div>
+                    </>
+                  )}
                 </div>
               </div>
             ) : activeTab === 'templates' ? (
@@ -516,9 +1108,11 @@ export function Settings() {
                          </div>
                          <div>
                            <label className="block text-xs font-medium text-slate-400 mb-1.5">Cuerpo del Correo</label>
-                           <div className="bg-white rounded-lg overflow-hidden [&_.ql-toolbar]:border-none [&_.ql-toolbar]:bg-slate-50 [&_.ql-container]:border-none [&_.ql-editor]:min-h-[150px] [&_.ql-editor]:text-slate-800">
-                             <ReactQuill theme="snow" value={editingTemplate.body} onChange={(val: string) => setEditingTemplate({...editingTemplate, body: val})} />
-                           </div>
+                           <textarea
+                             value={editingTemplate.body}
+                             onChange={(event) => setEditingTemplate({ ...editingTemplate, body: event.target.value })}
+                             className="min-h-40 w-full rounded-lg border border-slate-700 bg-slate-950/70 p-3 text-sm text-slate-100 outline-none focus:border-cyan-400"
+                           />
                            <p className="text-[10px] text-slate-500 mt-2">Variables disponibles: {'{{candidate_name}}'}, {'{{job_name}}'}, {'{{company_name}}'}, {customFields.map(cf => `{{${cf.name}}}`).join(', ')}</p>
                          </div>
                       </div>
@@ -769,6 +1363,65 @@ export function Settings() {
                       className="w-full bg-cyan-500 hover:bg-cyan-600 text-slate-900 font-semibold py-2 rounded-lg text-sm mt-2 transition-colors"
                     >
                       Enviar Invitación
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Integration Credentials Modal */}
+            {configuringIntegration && (
+              <div className="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+                <div className="bg-slate-900 border border-slate-700/50 p-6 rounded-2xl w-full max-w-lg relative glass-panel shadow-2xl">
+                  <button onClick={() => setConfiguringIntegration(null)} className="absolute top-4 right-4 text-slate-400 hover:text-white p-1">
+                    <X className="w-5 h-5" />
+                  </button>
+                  <h3 className="text-lg font-bold text-white mb-1">Credenciales reales</h3>
+                  <p className="text-xs text-slate-400 mb-5">
+                    {configuringIntegration.name}. Estos datos se guardan en este navegador para probar contra el backend real.
+                  </p>
+
+                  <div className="space-y-3">
+                    {(integrationCatalog[configuringIntegration.provider]?.requiredConfig || []).map((key: string) => (
+                      <div key={key}>
+                        <label className="text-xs text-slate-400 block mb-1">{key}</label>
+                        <input
+                          type={key.toLowerCase().includes("secret") || key.toLowerCase().includes("token") ? "password" : "text"}
+                          value={integrationConfigs[configuringIntegration.id]?.[key] || ""}
+                          onChange={(event) => {
+                            const value = event.target.value;
+                            setIntegrationConfigs((current) => ({
+                              ...current,
+                              [configuringIntegration.id]: {
+                                ...(current[configuringIntegration.id] || {}),
+                                [key]: value,
+                              },
+                            }));
+                          }}
+                          className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:border-cyan-500 outline-none"
+                        />
+                      </div>
+                    ))}
+                  </div>
+
+                  {integrationCatalog[configuringIntegration.provider]?.notes && (
+                    <div className="mt-4 rounded-xl border border-amber-500/20 bg-amber-500/10 px-3 py-2 text-xs text-amber-100">
+                      {integrationCatalog[configuringIntegration.provider].notes}
+                    </div>
+                  )}
+
+                  <div className="mt-6 flex justify-end gap-2">
+                    <button
+                      onClick={() => setConfiguringIntegration(null)}
+                      className="px-4 py-2 rounded-lg text-xs font-medium text-slate-400 hover:text-white transition-colors"
+                    >
+                      Cancelar
+                    </button>
+                    <button
+                      onClick={saveIntegrationConfig}
+                      className="bg-cyan-500 hover:bg-cyan-600 text-slate-900 font-semibold px-4 py-2 rounded-lg text-xs transition-colors flex items-center gap-2"
+                    >
+                      <Shield className="w-4 h-4" /> Guardar y probar
                     </button>
                   </div>
                 </div>

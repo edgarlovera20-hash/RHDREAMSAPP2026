@@ -1,4 +1,4 @@
-import { sleep } from "workflow";
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 type AutomationStep = {
   order: number;
@@ -88,13 +88,13 @@ export async function recruitmentAutomationWorkflow(payload: AutomationPayload) 
   }
 
   if (payload.trigger.debounceMinutes > 0) {
-    await sleep(`${payload.trigger.debounceMinutes}m`);
+    await sleep(payload.trigger.debounceMinutes * 60 * 1000);
   }
 
   const results: StepResult[] = [];
   for (const step of payload.steps) {
     if (step.waitMinutes > 0) {
-      await sleep(`${step.waitMinutes}m`);
+      await sleep(step.waitMinutes * 60 * 1000);
     }
     results.push(await executeAutomationStep(step, payload));
   }

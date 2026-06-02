@@ -1,3 +1,5 @@
+import { appUrl } from './basePath';
+
 export type BrowserPushStatus = NotificationPermission | 'unsupported';
 
 export interface BrowserNotificationPayload {
@@ -8,8 +10,8 @@ export interface BrowserNotificationPayload {
   tag?: string;
 }
 
-const SERVICE_WORKER_PATH = '/sw.js';
-const APP_ICON = '/assets/heavenly-dreams-logo.svg';
+const SERVICE_WORKER_PATH = appUrl('/sw.js');
+const APP_ICON = appUrl('/assets/heavenly-dreams-logo.svg');
 
 export const isBrowserPushSupported = () => (
   typeof window !== 'undefined' &&

@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { logger } from "../utils/logger";
 import { GeminiReplyRequestSchema, AgentReplyRequestSchema, AudioTranscriptionRequestSchema } from "../validators/schemas";
 import { getGeminiService } from "../services/gemini.service";
+import { enqueueAgentReplyJob, getAgentQueueStats } from "../services/agentQueue.service";
 import { ZodError } from "zod";
 
 /**
@@ -74,16 +75,12 @@ export const handleAgentReply = async (req: Request, res: Response) => {
       ip: req.ip,
     });
 
-    // Get Gemini service
-    const geminiService = getGeminiService();
-
-    // Generate response
-    const result = await geminiService.generateAgentResponse(
+    const result = await enqueueAgentReplyJob({
       agentName,
       systemPrompt,
       conversationHistory,
-      userPrompt
-    );
+      userPrompt,
+    });
 
     res.json({
       success: true,
@@ -166,7 +163,7 @@ export const handleAudioTranscription = async (req: Request, res: Response) => {
 /**
  * Health check endpoint
  */
-export const healthCheck = (req: Request, res: Response) => {
+export const healthCheck = async (req: Request, res: Response) => {
   const geminiService = getGeminiService();
   res.json({
     success: true,
@@ -175,6 +172,14 @@ export const healthCheck = (req: Request, res: Response) => {
       timestamp: new Date().toISOString(),
       geminiConfigured: geminiService.isConfigured(),
       gemini: geminiService.getConfigurationStatus(),
+      queue: await getAgentQueueStats(),
     },
+  });
+};
+
+export const queueHealthCheck = async (_req: Request, res: Response) => {
+  res.json({
+    success: true,
+    data: await getAgentQueueStats(),
   });
 };

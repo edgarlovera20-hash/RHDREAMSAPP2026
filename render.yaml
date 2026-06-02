@@ -1,0 +1,62 @@
+services:
+  - type: web
+    name: rhdreamsapp2026
+    runtime: node
+    plan: starter
+    region: ohio
+    branch: main
+    buildCommand: npm ci && npm run build
+    startCommand: npm run start
+    healthCheckPath: /health
+    autoDeploy: yes
+    envVars:
+      - key: NODE_VERSION
+        value: 22
+      - key: NODE_ENV
+        value: production
+      - key: JWT_SECRET
+        generateValue: true
+      - key: APP_URL
+        sync: false
+      - key: GEMINI_FREE_API_KEY
+        sync: false
+      - key: GEMINI_PAID_API_KEY
+        sync: false
+      - key: GEMINI_DEFAULT_TIER
+        value: free
+      - key: GEMINI_TEXT_MODEL
+        value: gemini-3.5-flash
+      - key: GEMINI_AUDIO_MODEL
+        value: gemini-2.5-flash
+      - key: GROQ_API_KEY
+        sync: false
+      - key: GROQ_MODEL
+        value: llama-3.1-8b-instant
+      - key: OPENROUTER_API_KEY
+        sync: false
+      - key: OPENROUTER_MODEL
+        value: openrouter/auto
+      - key: CANVA_ACCESS_TOKEN
+        sync: false
+      - key: META_GRAPH_VERSION
+        value: v24.0
+      - key: META_ADS_ACCESS_TOKEN
+        sync: false
+      - key: META_AD_ACCOUNT_ID
+        sync: false
+      - key: META_ADS_PAGE_ID
+        sync: false
+      - key: INDEED_CLIENT_ID
+        sync: false
+      - key: INDEED_CLIENT_SECRET
+        sync: false
+      - key: INDEED_EMPLOYER_ID
+        sync: false
+      - key: INDEED_WEBHOOK_SECRET
+        sync: false
+      - key: COMPUTRABAJO_COUNTRY_PORTAL
+        value: computrabajo.com.mx
+      - key: COMPUTRABAJO_COMPANY_ACCOUNT
+        sync: false
+      - key: COMPUTRABAJO_IMPORT_SECRET
+        sync: false

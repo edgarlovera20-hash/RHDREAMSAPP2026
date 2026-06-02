@@ -2,11 +2,11 @@ import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
 import {defineConfig} from 'vite';
-import {workflow} from 'workflow/vite';
 
 export default defineConfig(() => {
   return {
-    plugins: [react(), tailwindcss(), workflow()],
+    base: './',
+    plugins: [react(), tailwindcss()],
     resolve: {
       alias: {
         '@': path.resolve(__dirname, './src'),
@@ -24,7 +24,6 @@ export default defineConfig(() => {
           manualChunks: {
             firebase: ['firebase/app', 'firebase/auth', 'firebase/firestore'],
             charts: ['recharts'],
-            editor: ['react-quill'],
             calendar: ['react-big-calendar'],
             motion: ['motion/react'],
           },

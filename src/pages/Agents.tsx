@@ -1,10 +1,20 @@
 import { useState, useRef, useEffect } from 'react';
-import { Bot, Plus, Search, BrainCircuit, Activity, Zap, MessageSquare, Briefcase, FileText, CheckCircle2, XCircle, Settings2, Code, Users, Download, Filter, Send, Copy, Loader2, Sparkles, Video, Image as ImageIcon, ExternalLink, Mic, Volume2 } from 'lucide-react';
+import { Bot, Plus, Search, BrainCircuit, Activity, Zap, MessageSquare, Briefcase, FileText, CheckCircle2, XCircle, Settings2, Code, Users, Download, Upload, Filter, Send, Copy, Loader2, Sparkles, Video, Image as ImageIcon, ExternalLink, Mic, Volume2, CalendarClock, Trash2, PlayCircle, ShieldCheck } from 'lucide-react';
 import { EMPTY_AGENTS, EMPTY_AGENT_LOGS, EMPTY_AGENT_TEMPLATES } from '@/data/appDefaults';
 import { CANVA_TEMPLATE_CATEGORIES, CANVA_TEMPLATE_PACKS, type CanvaTemplatePack } from '@/data/canvaTemplateLibrary';
 import { AgentConfigModal } from '@/components/AgentConfigModal';
-import { apiUrl, readApiJson } from '@/lib/api';
+import { apiFetch, readApiJson } from '@/lib/api';
 import { cn } from '@/lib/utils';
+import {
+  buildRecruiterAgentPrompt,
+  DEFAULT_ACCOUNT_CHANNEL,
+  DEFAULT_ACCOUNT_NAME,
+  DEFAULT_COMPANY_NAME,
+  DEFAULT_INTERVIEW_SLOTS,
+  INTERVIEW_SCHEDULE_STORAGE_KEY,
+  formatInterviewSlotsForPrompt,
+  type InterviewSlot,
+} from '@/lib/recruiterAgentPrompt';
 
 const CANVA_FORMATS = [
   { id: 'instagram_post', label: 'Post Instagram', size: '1080 x 1080', icon: ImageIcon },
@@ -14,20 +24,65 @@ const CANVA_FORMATS = [
   { id: 'tiktok_video', label: 'Video TikTok', size: '1080 x 1920', icon: Video }
 ];
 
-const DEFAULT_AGENT_PERSONALITY = `Eres un agente de reclutamiento de Heavenly Dreams.
-Hablas en español claro, cercano y profesional.
-Tu prioridad es ayudar al candidato, pedir solo los datos necesarios y escalar a una persona cuando falte información o el tema sea sensible.`;
+const DEFAULT_AGENT_PERSONALITY = buildRecruiterAgentPrompt({
+  agentName: 'Asistente RH',
+  companyName: DEFAULT_COMPANY_NAME,
+  accountName: DEFAULT_ACCOUNT_NAME,
+  accountChannel: DEFAULT_ACCOUNT_CHANNEL,
+});
 
-const buildAgentSystemPrompt = (agent: any) => {
+const loadInterviewSlots = (): InterviewSlot[] => {
+  try {
+    const stored = localStorage.getItem(INTERVIEW_SCHEDULE_STORAGE_KEY);
+    if (!stored) return DEFAULT_INTERVIEW_SLOTS;
+    const parsed = JSON.parse(stored);
+    return Array.isArray(parsed) ? parsed : DEFAULT_INTERVIEW_SLOTS;
+  } catch (_error) {
+    return DEFAULT_INTERVIEW_SLOTS;
+  }
+};
+
+const buildAgentSystemPrompt = (agent: any, interviewSlots: InterviewSlot[] = loadInterviewSlots()) => {
+  const companyName = agent.companyName || DEFAULT_COMPANY_NAME;
+  const accountName = agent.accountName || DEFAULT_ACCOUNT_NAME;
+  const accountChannel = agent.accountChannel || DEFAULT_ACCOUNT_CHANNEL;
+  const personality = buildRecruiterAgentPrompt({
+    agentName: agent.name,
+    companyName,
+    accountName,
+    accountChannel,
+    customPrompt: agent.personalityPrompt || agent.basePrompt || agent.systemPrompt,
+  });
+  const knowledgeItems = Array.isArray(agent.knowledgeBase) ? agent.knowledgeBase : [];
+  const knowledgeSection = knowledgeItems.length
+    ? `Base de consulta del agente:
+${knowledgeItems.map((item: any, index: number) => `${index + 1}. [${item.type || 'text'}] ${item.title || 'Sin titulo'}\n${item.content || ''}`).join('\n\n')}`
+    : 'Base de consulta del agente: sin documentos cargados. Si falta informacion, pregunta o escala antes de inventar.';
+  const learningItems = Array.isArray(agent.learningMemory) ? agent.learningMemory.slice(0, 12) : [];
+  const learningSection = learningItems.length
+    ? `Autoconocimiento aprendido de conversaciones previas:
+${learningItems.map((item: any, index: number) => `${index + 1}. ${item.lesson || item.summary || 'Interaccion registrada'}\nContexto: ${item.intent || 'Sin intencion'} / ${item.channel || accountChannel}\nEntrada: ${item.userText || ''}\nRespuesta usada: ${item.reply || ''}`).join('\n\n')}
+
+Usa este autoconocimiento como referencia, pero no repitas respuestas palabra por palabra si el contexto cambia.`
+    : 'Autoconocimiento aprendido: aun no hay experiencias registradas. Aprende de cada respuesta y evita inventar.';
+
   return `
 Nombre del agente: ${agent.name}
 Rol principal: ${agent.role}
+Empresa/cuenta: ${companyName} / ${accountName}
+Canal asignado: ${accountChannel}
 Personalidad:
-${agent.personalityPrompt || agent.basePrompt || DEFAULT_AGENT_PERSONALITY}
+${personality}
 
 Tono: ${agent.tone || 'Cercano, profesional y directo.'}
 Estilo de respuesta: ${agent.responseStyle || 'Respuestas breves, útiles, con pasos claros y sin inventar información.'}
 Reglas de escalamiento: ${agent.escalationRules || 'Escala si el candidato pregunta por temas legales, pagos, quejas, datos que no estén confirmados o situaciones delicadas.'}
+
+${knowledgeSection}
+
+${learningSection}
+
+${formatInterviewSlotsForPrompt(interviewSlots)}
 
 Audio:
 - Si el candidato manda un audio y hay transcripción, responde usando la transcripción como mensaje original.
@@ -38,10 +93,18 @@ Audio:
 
 const AGENTS_STORAGE_KEY = 'rhdreams_agents';
 
+const mergeDefaultAgents = (storedAgents: any[]) => {
+  const storedIds = new Set(storedAgents.map(agent => agent.id));
+  const missingDefaults = EMPTY_AGENTS.filter(agent => !storedIds.has(agent.id));
+  return [...missingDefaults, ...storedAgents];
+};
+
 const loadStoredAgents = () => {
   try {
     const stored = localStorage.getItem(AGENTS_STORAGE_KEY);
-    return stored ? JSON.parse(stored) : EMPTY_AGENTS;
+    if (!stored) return EMPTY_AGENTS;
+    const parsed = JSON.parse(stored);
+    return Array.isArray(parsed) && parsed.length > 0 ? mergeDefaultAgents(parsed) : EMPTY_AGENTS;
   } catch (_error) {
     return EMPTY_AGENTS;
   }
@@ -49,11 +112,15 @@ const loadStoredAgents = () => {
 
 export function Agents() {
   const [agents, setAgents] = useState<any[]>(loadStoredAgents);
-  const [activeTab, setActiveTab] = useState<'agents' | 'templates' | 'canva' | 'memory'>('agents');
+  const [activeTab, setActiveTab] = useState<'agents' | 'templates' | 'tester' | 'schedule' | 'canva' | 'memory'>('agents');
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const agentsImportRef = useRef<HTMLInputElement>(null);
   const [newAgentName, setNewAgentName] = useState('');
   const [newAgentRole, setNewAgentRole] = useState('Sourcing');
   const [newAgentPersonality, setNewAgentPersonality] = useState(DEFAULT_AGENT_PERSONALITY);
+  const [newAgentCompanyName, setNewAgentCompanyName] = useState(DEFAULT_COMPANY_NAME);
+  const [newAgentAccountName, setNewAgentAccountName] = useState(DEFAULT_ACCOUNT_NAME);
+  const [newAgentAccountChannel, setNewAgentAccountChannel] = useState(DEFAULT_ACCOUNT_CHANNEL);
   const [newAgentTone, setNewAgentTone] = useState('Cercano, profesional y directo');
   const [newAgentTranscribeAudio, setNewAgentTranscribeAudio] = useState(true);
   const [newAgentAudioAutoReply, setNewAgentAudioAutoReply] = useState(true);
@@ -80,10 +147,40 @@ export function Agents() {
   const [selectedCanvaTemplateId, setSelectedCanvaTemplateId] = useState(CANVA_TEMPLATE_PACKS[0].id);
   const [canvaResult, setCanvaResult] = useState<any>(null);
   const [isCreatingCanva, setIsCreatingCanva] = useState(false);
+  const [aiImageResult, setAiImageResult] = useState<any>(null);
+  const [isCreatingAiImage, setIsCreatingAiImage] = useState(false);
+  const [metaPrimaryText, setMetaPrimaryText] = useState('');
+  const [metaDailyBudget, setMetaDailyBudget] = useState(40);
+  const [metaDurationDays, setMetaDurationDays] = useState(4);
+  const [metaDestination, setMetaDestination] = useState<'whatsapp' | 'whatsapp_business' | 'messenger' | 'instagram'>('whatsapp_business');
+  const [metaWhatsappNumber, setMetaWhatsappNumber] = useState('+52 1 56 2026 7412');
+  const [metaPackageCopied, setMetaPackageCopied] = useState(false);
+  const [interviewSlots, setInterviewSlots] = useState<InterviewSlot[]>(loadInterviewSlots);
+  const [slotDraft, setSlotDraft] = useState<InterviewSlot>({
+    id: '',
+    date: '2026-06-01',
+    startTime: '10:00',
+    endTime: '12:00',
+    capacity: 8,
+    location: 'Oficina RH Heavenly Dreams',
+    notes: '',
+  });
+  const [testerAgentId, setTesterAgentId] = useState('agent-principal-1');
+  const [testerMessage, setTesterMessage] = useState('Hola inf');
+  const [testerConversation, setTesterConversation] = useState<{ role: 'candidate' | 'agent'; text: string }[]>([]);
+  const [testerResult, setTesterResult] = useState<{ expected: string; reply: string } | null>(null);
+  const [isTestingConversation, setIsTestingConversation] = useState(false);
 
   const selectedCanvaFormat = CANVA_FORMATS.find(format => format.id === canvaFormat) || CANVA_FORMATS[0];
   const selectedCanvaTemplate = CANVA_TEMPLATE_PACKS.find(template => template.id === selectedCanvaTemplateId) || CANVA_TEMPLATE_PACKS[0];
   const filteredCanvaTemplates = CANVA_TEMPLATE_PACKS.filter(template => canvaTemplateCategory === 'Todas' || template.category === canvaTemplateCategory);
+  const allLearningMemories = agents.flatMap(agent =>
+    (Array.isArray(agent.learningMemory) ? agent.learningMemory : []).map((memory: any) => ({
+      ...memory,
+      agentId: agent.id,
+      agentName: agent.name,
+    }))
+  ).sort((a, b) => String(b.createdAt || '').localeCompare(String(a.createdAt || '')));
   const canvaBrief = `Campaña: ${canvaCampaign}
 Audiencia: ${canvaAudience}
 Oferta principal: ${canvaOffer}
@@ -97,6 +194,47 @@ Copy sugerido:
 - Beneficio: ${canvaOffer || selectedCanvaTemplate.defaultOffer}
 - CTA: ${selectedCanvaTemplate.cta}`;
 
+  const defaultMetaPrimaryText = `${selectedCanvaTemplate.hook || 'Nueva oportunidad laboral'}
+
+${canvaOffer || selectedCanvaTemplate.defaultOffer}
+
+Escribenos por mensaje para recibir requisitos, horarios y siguientes pasos.
+
+#TrabajoSiHay #EmpleosMexico #Reclutamiento #ContratacionInmediata`;
+
+  const metaAdText = metaPrimaryText.trim() || defaultMetaPrimaryText;
+  const metaAdPackage = {
+    platform: 'Meta Ads',
+    objective: 'Recibir mas mensajes',
+    specialAdCategory: 'Empleo',
+    campaign: canvaCampaign || 'Campana de reclutamiento',
+    format: selectedCanvaFormat.label,
+    creative: {
+      primaryText: metaAdText,
+      headline: 'Mas informacion',
+      callToAction: 'Enviar mensaje',
+      imageSource: aiImageResult?.image?.dataUrl ? 'Imagen IA generada en RHDreams' : 'Subir imagen o diseno descargado de Canva',
+    },
+    destination: {
+      app: metaDestination,
+      whatsappNumber: metaDestination === 'whatsapp' || metaDestination === 'whatsapp_business' ? metaWhatsappNumber : undefined,
+      whatsappType: metaDestination === 'whatsapp_business' ? 'WhatsApp Business' : metaDestination === 'whatsapp' ? 'WhatsApp normal' : undefined,
+    },
+    budget: {
+      dailyBudgetMxn: metaDailyBudget,
+      durationDays: metaDurationDays,
+      totalBudgetMxn: metaDailyBudget * metaDurationDays,
+    },
+    checklist: [
+      'Seleccionar objetivo Mensajes.',
+      'Activar categoria especial de anuncio: Empleo.',
+      'Subir imagen o video generado desde RHDreams/Canva.',
+      'Pegar el texto principal y revisar vista previa.',
+      'Seleccionar WhatsApp, Messenger o Instagram como destino.',
+      'Confirmar presupuesto y publicar.',
+    ],
+  };
+
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [chatMessages]);
@@ -104,6 +242,10 @@ Copy sugerido:
   useEffect(() => {
     localStorage.setItem(AGENTS_STORAGE_KEY, JSON.stringify(agents));
   }, [agents]);
+
+  useEffect(() => {
+    localStorage.setItem(INTERVIEW_SCHEDULE_STORAGE_KEY, JSON.stringify(interviewSlots));
+  }, [interviewSlots]);
 
   const getIcon = (name: string) => {
     switch (name) {
@@ -152,7 +294,10 @@ Copy sugerido:
       role: newAgentRole,
       status: 'Active',
       description: 'Agente recién creado. Configuración pendiente.',
-      channels: ['Email', 'LinkedIn'], // Default from checkbox visually
+      companyName: newAgentCompanyName.trim() || DEFAULT_COMPANY_NAME,
+      accountName: newAgentAccountName.trim() || DEFAULT_ACCOUNT_NAME,
+      accountChannel: newAgentAccountChannel.trim() || DEFAULT_ACCOUNT_CHANNEL,
+      channels: [newAgentAccountChannel.trim() || DEFAULT_ACCOUNT_CHANNEL],
       memory: '0 GB',
       conversations: 0,
       successRate: '-',
@@ -172,6 +317,9 @@ Copy sugerido:
     setIsCreateModalOpen(false);
     setNewAgentName('');
     setNewAgentPersonality(DEFAULT_AGENT_PERSONALITY);
+    setNewAgentCompanyName(DEFAULT_COMPANY_NAME);
+    setNewAgentAccountName(DEFAULT_ACCOUNT_NAME);
+    setNewAgentAccountChannel(DEFAULT_ACCOUNT_CHANNEL);
     setNewAgentTone('Cercano, profesional y directo');
     setNewAgentTranscribeAudio(true);
     setNewAgentAudioAutoReply(true);
@@ -182,6 +330,208 @@ Copy sugerido:
     setAgents(current => current.map(agent => agent.id === agentId ? { ...agent, ...patch } : agent));
     setAgentToConfig(current => current?.id === agentId ? { ...current, ...patch } : current);
     setActiveChatAgent(current => current?.id === agentId ? { ...current, ...patch } : current);
+  };
+
+  const buildLearningLesson = (analysis: any, reply: string, source: string) => {
+    const missingText = analysis.missing.length ? `faltaban ${analysis.missing.join(', ')}` : 'la informacion venia completa';
+    const nextStep =
+      analysis.intent === 'Agendar entrevista' ? 'validar datos y ofrecer solo horarios disponibles' :
+      analysis.intent === 'Reagendar entrevista' ? 'reagendar con empatia sin inventar espacios' :
+      analysis.intent === 'Primer contacto' ? 'abrir flujo desde cero y pedir un dato a la vez' :
+      analysis.intent.includes('información') ? 'resolver la duda y llevar al siguiente paso del embudo' :
+      'mantener respuesta breve, confirmar datos y avanzar el flujo';
+
+    return `${source}: cuando detectes "${analysis.intent}" (${analysis.vacancy}), recuerda que ${missingText}; conviene ${nextStep}. Respuesta previa ${reply ? 'sirvio como referencia' : 'no genero respuesta valida'}.`;
+  };
+
+  const recordAgentLearning = (agentId: string, event: {
+    source: string;
+    userText: string;
+    reply: string;
+    expected?: string;
+    conversationSize?: number;
+  }) => {
+    const analysis = analyzeTestMessage(event.userText);
+    const now = new Date().toISOString();
+    const learningEntry = {
+      id: `learn-${Date.now()}`,
+      createdAt: now,
+      source: event.source,
+      channel: analysis.source === 'No detectada' ? undefined : analysis.source,
+      intent: analysis.intent,
+      vacancy: analysis.vacancy,
+      missing: analysis.missing,
+      userText: event.userText.slice(0, 500),
+      reply: event.reply.slice(0, 700),
+      expected: event.expected,
+      lesson: buildLearningLesson(analysis, event.reply, event.source),
+      conversationSize: event.conversationSize || 1,
+    };
+
+    setAgents(current => current.map(agent => {
+      if (agent.id !== agentId) return agent;
+      const previousMemory = Array.isArray(agent.learningMemory) ? agent.learningMemory : [];
+      const nextMemory = [learningEntry, ...previousMemory].slice(0, 50);
+      const nextAgent = {
+        ...agent,
+        learningMemory: nextMemory,
+        memory: `${(Array.isArray(agent.knowledgeBase) ? agent.knowledgeBase.length : 0) + nextMemory.length} memorias`,
+        lastLearningAt: now,
+      };
+      setAgentToConfig(currentConfig => currentConfig?.id === agentId ? nextAgent : currentConfig);
+      setActiveChatAgent(currentChat => currentChat?.id === agentId ? nextAgent : currentChat);
+      return nextAgent;
+    }));
+  };
+
+  const handleAddInterviewSlot = () => {
+    if (!slotDraft.date || !slotDraft.startTime || !slotDraft.endTime) return;
+    const nextSlot = {
+      ...slotDraft,
+      id: `slot-${Date.now()}`,
+      capacity: Math.max(1, Number(slotDraft.capacity) || 1),
+    };
+    setInterviewSlots(current => [...current, nextSlot].sort((a, b) => `${a.date} ${a.startTime}`.localeCompare(`${b.date} ${b.startTime}`)));
+    setSlotDraft(current => ({ ...current, notes: '' }));
+  };
+
+  const updateInterviewSlot = (slotId: string, patch: Partial<InterviewSlot>) => {
+    setInterviewSlots(current => current.map(slot => slot.id === slotId ? { ...slot, ...patch } : slot));
+  };
+
+  const removeInterviewSlot = (slotId: string) => {
+    setInterviewSlots(current => current.filter(slot => slot.id !== slotId));
+  };
+
+  const analyzeTestMessage = (message: string) => {
+    const normalized = message.toLowerCase();
+    const ageMatch = normalized.match(/\b(1[0-9]|[2-9][0-9])\b/);
+    const age = ageMatch ? Number(ageMatch[1]) : null;
+    const vacancy =
+      containsAny(normalized, ['ayudante', 'operativo']) ? 'Ayudante general' :
+      containsAny(normalized, ['asesor', 'comercial', 'ventas']) ? 'Asesor comercial' :
+      containsAny(normalized, ['supervisor', 'lider', 'líder']) ? 'Supervisor' :
+      containsAny(normalized, ['atencion', 'atención', 'cliente']) ? 'Atención a clientes' :
+      containsAny(normalized, ['promotor']) ? 'Promotor de ventas' :
+      'No detectada';
+    const intent =
+      containsAny(normalized, ['reagendar', 'cambiar', 'no puedo asistir', 'otro horario']) ? 'Reagendar entrevista' :
+      containsAny(normalized, ['entrevista', 'agendar', 'cita']) ? 'Agendar entrevista' :
+      containsAny(normalized, ['requisitos', 'documentos', 'qué necesito', 'que necesito']) ? 'Pedir información/documentos' :
+      containsAny(normalized, ['sueldo', 'pago', 'comision', 'comisión', 'horario', 'ubicacion', 'ubicación']) ? 'Pedir información de vacante' :
+      containsAny(normalized, ['quiero trabajar', 'busco trabajo', 'trabajar']) ? 'Interés en trabajar' :
+      containsAny(normalized, ['hola', 'informes', 'informacion', 'información', 'info', 'inf', 'vacante', 'trabajo']) ? 'Primer contacto' :
+      'Conversación general';
+    const availability =
+      containsAny(normalized, ['mañana', 'manana']) ? 'Mañana' :
+      containsAny(normalized, ['hoy']) ? 'Hoy' :
+      containsAny(normalized, ['tarde']) ? 'Tarde' :
+      containsAny(normalized, ['mañana temprano', 'manana temprano']) ? 'Mañana temprano' :
+      containsAny(normalized, ['semana']) ? 'Esta semana' :
+      'No detectada';
+    const source =
+      containsAny(normalized, ['facebook']) ? 'Facebook' :
+      containsAny(normalized, ['instagram']) ? 'Instagram' :
+      containsAny(normalized, ['whatsapp']) ? 'WhatsApp' :
+      containsAny(normalized, ['tiktok']) ? 'TikTok' :
+      containsAny(normalized, ['computrabajo']) ? 'Computrabajo' :
+      containsAny(normalized, ['indeed']) ? 'Indeed' :
+      'No detectada';
+    const missing = [
+      age === null ? 'edad' : '',
+      vacancy === 'No detectada' ? 'vacante' : '',
+      availability === 'No detectada' && intent.includes('entrevista') ? 'disponibilidad' : '',
+      !containsAny(normalized, ['me llamo', 'soy ', 'nombre']) ? 'nombre' : '',
+      !containsAny(normalized, ['vivo', 'zona', 'alcaldia', 'alcaldía', 'municipio', 'colonia']) ? 'ubicación' : '',
+    ].filter(Boolean);
+
+    return { age, vacancy, intent, availability, source, missing };
+  };
+
+  const containsAny = (text: string, words: string[]) => words.some(word => text.includes(word));
+
+  const testerConversationText = [...testerConversation.map(item => item.text), testerMessage].join('\n');
+  const detectedTestVariables = analyzeTestMessage(testerConversationText);
+
+  const inferExpectedTestFlow = (message: string) => {
+    const analysis = analyzeTestMessage(message);
+    const age = analysis.age;
+
+    if (age !== null && age < 16) {
+      return 'Debe rechazar con respeto: menor de 16 años, sin pedir documentos adicionales.';
+    }
+    if (age === 16 || age === 17) {
+      return 'Debe pedir permiso firmado del tutor, carta responsiva, identificación del tutor, acta de nacimiento y comprobante.';
+    }
+    if (analysis.intent === 'Reagendar entrevista') {
+      return 'Debe reagendar con empatía y ofrecer solo horarios disponibles configurados.';
+    }
+    if (analysis.intent === 'Agendar entrevista') {
+      return 'Debe validar datos básicos y ofrecer únicamente horarios de la agenda configurada.';
+    }
+    if (analysis.intent.includes('información') || analysis.intent === 'Primer contacto' || analysis.intent === 'Interés en trabajar') {
+      return 'Debe iniciar desde cero: saludar humano, explicar que hay vacantes, preguntar qué puesto le interesa y pedir un dato a la vez.';
+    }
+    return 'Debe seguir el flujo normal: resolver duda, pedir un dato a la vez y guiar al siguiente paso.';
+  };
+
+  const handleRunConversationTest = async () => {
+    const agent = agents.find(item => item.id === testerAgentId) || agents[0];
+    if (!agent || !testerMessage.trim() || isTestingConversation) return;
+
+    setIsTestingConversation(true);
+    setTesterResult(null);
+    const userText = testerMessage.trim();
+    const expected = inferExpectedTestFlow(testerConversationText);
+    const historyForApi = testerConversation.map(message => ({
+      sender: message.role === 'candidate' ? 'user' : 'me',
+      text: message.text
+    }));
+    setTesterConversation(current => [...current, { role: 'candidate', text: userText }]);
+
+    try {
+      const res = await apiFetch('/api/gemini/agent/reply', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          agentName: agent.name,
+          systemPrompt: buildAgentSystemPrompt(agent, interviewSlots),
+          conversationHistory: historyForApi,
+          userPrompt: userText
+        })
+      });
+      const data = await readApiJson(res);
+      const reply = data?.data?.reply || data?.reply || 'Sin respuesta del agente.';
+      setTesterConversation(current => [...current, { role: 'agent', text: reply }]);
+      setTesterResult({ expected, reply });
+      recordAgentLearning(agent.id, {
+        source: 'Probador de agente',
+        userText,
+        reply,
+        expected,
+        conversationSize: testerConversation.length + 1,
+      });
+      setTesterMessage('');
+    } catch (error) {
+      const reply = error instanceof Error ? error.message : 'No se pudo ejecutar la prueba.';
+      setTesterConversation(current => [...current, { role: 'agent', text: reply }]);
+      setTesterResult({ expected, reply });
+      recordAgentLearning(agent.id, {
+        source: 'Error en probador',
+        userText,
+        reply,
+        expected,
+        conversationSize: testerConversation.length + 1,
+      });
+    } finally {
+      setIsTestingConversation(false);
+    }
+  };
+
+  const resetTesterConversation = () => {
+    setTesterConversation([]);
+    setTesterResult(null);
+    setTesterMessage('Hola inf');
   };
 
   const toggleAgentStatus = (id: string, e: React.MouseEvent) => {
@@ -208,12 +558,12 @@ Copy sugerido:
     setIsGenerating(true);
 
     try {
-      const res = await fetch(apiUrl('/api/gemini/agent/reply'), {
+      const res = await apiFetch('/api/gemini/agent/reply', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           agentName: activeChatAgent.name,
-          systemPrompt: buildAgentSystemPrompt(activeChatAgent),
+          systemPrompt: buildAgentSystemPrompt(activeChatAgent, interviewSlots),
           conversationHistory: chatMessages.map(message => ({
             sender: message.role === 'user' ? 'user' : 'me',
             text: message.text
@@ -225,12 +575,32 @@ Copy sugerido:
       const reply = data?.data?.reply || data?.reply;
       if (reply) {
         setChatMessages(prev => [...prev, { role: 'agent', text: reply }]);
+        recordAgentLearning(activeChatAgent.id, {
+          source: 'Chat de prueba',
+          userText,
+          reply,
+          conversationSize: chatMessages.length + 1,
+        });
       } else {
-        setChatMessages(prev => [...prev, { role: 'agent', text: "Lo siento, ha ocurrido un problema al procesar la respuesta del agente virtual." }]);
+        const fallbackReply = "Lo siento, ha ocurrido un problema al procesar la respuesta del agente virtual.";
+        setChatMessages(prev => [...prev, { role: 'agent', text: fallbackReply }]);
+        recordAgentLearning(activeChatAgent.id, {
+          source: 'Chat de prueba sin respuesta',
+          userText,
+          reply: fallbackReply,
+          conversationSize: chatMessages.length + 1,
+        });
       }
     } catch (err) {
       console.error("Error communicating with agent:", err);
-      setChatMessages(prev => [...prev, { role: 'agent', text: "Ocurrió un error al intentar comunicar con el agente virtual." }]);
+      const errorReply = "Ocurrió un error al intentar comunicar con el agente virtual.";
+      setChatMessages(prev => [...prev, { role: 'agent', text: errorReply }]);
+      recordAgentLearning(activeChatAgent.id, {
+        source: 'Error en chat de prueba',
+        userText,
+        reply: errorReply,
+        conversationSize: chatMessages.length + 1,
+      });
     } finally {
       setIsGenerating(false);
     }
@@ -240,7 +610,7 @@ Copy sugerido:
     setIsCreatingCanva(true);
     setCanvaResult(null);
     try {
-      const res = await fetch(apiUrl('/api/integrations/canva/designs'), {
+      const res = await apiFetch('/api/integrations/canva/designs', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -259,6 +629,121 @@ Copy sugerido:
       setCanvaResult({ error: err.message || 'No se pudo conectar con Canva.' });
     } finally {
       setIsCreatingCanva(false);
+    }
+  };
+
+  const handleCreateAiImage = async () => {
+    if (!canvaCampaign.trim() || isCreatingAiImage) return;
+
+    setIsCreatingAiImage(true);
+    setAiImageResult(null);
+
+    try {
+      const res = await apiFetch('/api/integrations/images/recruitment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          format: canvaFormat,
+          brief: canvaBrief,
+          prompt: `${canvaCampaign}. ${canvaAudience}. ${canvaOffer}. ${selectedCanvaTemplate.visualDirection}`,
+        })
+      });
+      const data = await readApiJson(res);
+      setAiImageResult(data.data || data);
+    } catch (err: any) {
+      setAiImageResult({ error: err.message || 'No se pudo generar la imagen IA.' });
+    } finally {
+      setIsCreatingAiImage(false);
+    }
+  };
+
+  const downloadJson = (fileName: string, payload: unknown) => {
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = fileName;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
+  const handleCopyMetaAdPackage = async () => {
+    const text = [
+      `Campana: ${metaAdPackage.campaign}`,
+      `Objetivo: ${metaAdPackage.objective}`,
+      `Categoria especial: ${metaAdPackage.specialAdCategory}`,
+      `Destino: ${metaDestination === 'whatsapp_business' ? 'WhatsApp Business' : metaDestination === 'whatsapp' ? 'WhatsApp normal' : metaDestination}${metaDestination === 'whatsapp' || metaDestination === 'whatsapp_business' ? ` (${metaWhatsappNumber})` : ''}`,
+      `Presupuesto: MX$${metaDailyBudget} por dia durante ${metaDurationDays} dias. Total: MX$${metaDailyBudget * metaDurationDays}`,
+      '',
+      'Texto del anuncio:',
+      metaAdText,
+      '',
+      'Checklist:',
+      ...metaAdPackage.checklist.map((item) => `- ${item}`),
+    ].join('\n');
+
+    await navigator.clipboard.writeText(text);
+    setMetaPackageCopied(true);
+    window.setTimeout(() => setMetaPackageCopied(false), 1800);
+  };
+
+  const handleDownloadMetaAdPackage = () => {
+    downloadJson(`meta_ads_${(canvaCampaign || 'campana').toLowerCase().replace(/[^a-z0-9]+/g, '_')}.json`, metaAdPackage);
+  };
+
+  const handleExportAgents = () => {
+    downloadJson(`rhdreams_agentes_${new Date().toISOString().split('T')[0]}.json`, {
+      app: 'RHDreams',
+      type: 'agents_export',
+      version: 1,
+      exportedAt: new Date().toISOString(),
+      agents,
+      interviewSlots,
+    });
+  };
+
+  const handleImportAgentsFile = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    event.target.value = '';
+    if (!file) return;
+
+    try {
+      const text = await file.text();
+      const payload = JSON.parse(text);
+      const importedAgents = Array.isArray(payload) ? payload : payload.agents;
+      const importedSlots = Array.isArray(payload?.interviewSlots) ? payload.interviewSlots : null;
+      if (!Array.isArray(importedAgents)) {
+        throw new Error('El archivo no contiene una lista de agentes.');
+      }
+
+      const normalizedAgents = importedAgents.map((agent: any) => ({
+        ...agent,
+        id: agent.id || `ag-import-${Date.now()}-${Math.random().toString(16).slice(2)}`,
+        channels: Array.isArray(agent.channels) ? agent.channels : [agent.accountChannel || DEFAULT_ACCOUNT_CHANNEL],
+      }));
+
+      const byId = new Map(agents.map(agent => [agent.id, agent]));
+      normalizedAgents.forEach((agent: any) => byId.set(agent.id, { ...(byId.get(agent.id) || {}), ...agent }));
+      setAgents(mergeDefaultAgents(Array.from(byId.values())));
+      if (importedSlots) setInterviewSlots(importedSlots);
+      setActiveTab('agents');
+      window.alert(`Importados ${normalizedAgents.length} agentes.`);
+    } catch (error: any) {
+      window.alert(error.message || 'No se pudo importar el archivo de agentes.');
+    }
+  };
+
+  const handleConnectCanva = async () => {
+    try {
+      const response = await apiFetch('/api/integrations/canva/connect');
+      const payload = await readApiJson(response);
+      const url = payload?.data?.url || payload?.url;
+      if (!url) throw new Error('Canva no devolvio URL de autorizacion.');
+      window.open(url, '_blank', 'noopener,noreferrer');
+    } catch (err: any) {
+      setCanvaResult({ error: err.message || 'No se pudo iniciar la conexion con Canva.' });
     }
   };
 
@@ -287,13 +772,36 @@ Copy sugerido:
           <p className="text-slate-400 mt-1">Crea, entrena y monitorea los agentes de reclutamiento autónomo.</p>
         </div>
         
-        <button 
-          onClick={() => setIsCreateModalOpen(true)}
-          className="bg-cyan-500 hover:bg-cyan-600 text-slate-900 font-semibold px-4 py-2 rounded-xl flex items-center justify-center gap-2 transition-all shadow-[0_0_15px_rgba(34,211,238,0.2)] hover:shadow-[0_0_20px_rgba(34,211,238,0.4)]"
-        >
-          <Plus className="w-4 h-4" />
-          Crear Nuevo Agente
-        </button>
+        <div className="flex flex-wrap items-center gap-2">
+          <input
+            ref={agentsImportRef}
+            type="file"
+            accept="application/json,.json"
+            className="hidden"
+            onChange={handleImportAgentsFile}
+          />
+          <button
+            onClick={() => agentsImportRef.current?.click()}
+            className="border border-slate-700 bg-slate-900/70 hover:border-cyan-500/50 text-slate-300 hover:text-white font-semibold px-4 py-2 rounded-xl flex items-center justify-center gap-2 transition-all"
+          >
+            <Upload className="w-4 h-4" />
+            Importar datos
+          </button>
+          <button
+            onClick={handleExportAgents}
+            className="border border-slate-700 bg-slate-900/70 hover:border-cyan-500/50 text-slate-300 hover:text-white font-semibold px-4 py-2 rounded-xl flex items-center justify-center gap-2 transition-all"
+          >
+            <Download className="w-4 h-4" />
+            Exportar datos
+          </button>
+          <button 
+            onClick={() => setIsCreateModalOpen(true)}
+            className="bg-cyan-500 hover:bg-cyan-600 text-slate-900 font-semibold px-4 py-2 rounded-xl flex items-center justify-center gap-2 transition-all shadow-[0_0_15px_rgba(34,211,238,0.2)] hover:shadow-[0_0_20px_rgba(34,211,238,0.4)]"
+          >
+            <Plus className="w-4 h-4" />
+            Crear Nuevo Agente
+          </button>
+        </div>
       </div>
 
       {/* Tabs */}
@@ -317,6 +825,28 @@ Copy sugerido:
           }`}
         >
           Plantillas
+        </button>
+        <button
+          onClick={() => setActiveTab('tester')}
+          className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+            activeTab === 'tester'
+              ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 shadow-[0_0_10px_rgba(34,211,238,0.1)]'
+              : 'text-slate-400 hover:text-slate-200 hover:bg-white/5'
+          }`}
+        >
+          <PlayCircle className="w-4 h-4" />
+          Probador
+        </button>
+        <button
+          onClick={() => setActiveTab('schedule')}
+          className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+            activeTab === 'schedule'
+              ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 shadow-[0_0_10px_rgba(34,211,238,0.1)]'
+              : 'text-slate-400 hover:text-slate-200 hover:bg-white/5'
+          }`}
+        >
+          <CalendarClock className="w-4 h-4" />
+          Agenda
         </button>
         <button
           onClick={() => setActiveTab('canva')}
@@ -360,8 +890,18 @@ Copy sugerido:
                       <Bot className="w-6 h-6" />
                     </div>
                     <div>
-                      <h3 className="font-semibold text-white tracking-tight">{agent.name}</h3>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <h3 className="font-semibold text-white tracking-tight">{agent.name}</h3>
+                        {agent.isPrincipal && (
+                          <span className="rounded-full border border-cyan-400/30 bg-cyan-400/10 px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest text-cyan-200">
+                            Principal
+                          </span>
+                        )}
+                      </div>
                       <span className="text-xs text-slate-400">{agent.role}</span>
+                      <span className="mt-1 block text-[10px] font-semibold uppercase tracking-widest text-cyan-300">
+                        {agent.companyName || DEFAULT_COMPANY_NAME} · {agent.accountName || DEFAULT_ACCOUNT_NAME}
+                      </span>
                     </div>
                   </div>
                     <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
@@ -437,6 +977,12 @@ Copy sugerido:
                       <p className="text-sm font-semibold text-cyan-400">{agent.successRate}</p>
                     </div>
                   </div>
+                  <div className="rounded-lg border border-cyan-500/10 bg-cyan-500/5 px-3 py-2">
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-cyan-300">Datos para consultar</p>
+                    <p className="mt-1 text-xs text-slate-400">
+                      {Array.isArray(agent.knowledgeBase) ? agent.knowledgeBase.length : 0} fuentes · {Array.isArray(agent.learningMemory) ? agent.learningMemory.length : 0} aprendizajes
+                    </p>
+                  </div>
                 </div>
                 
                 <div className="mt-6 flex gap-2 border-t border-slate-700/50 pt-4">
@@ -473,6 +1019,231 @@ Copy sugerido:
           </div>
         )}
 
+        {activeTab === 'tester' && (
+          <div className="grid grid-cols-1 xl:grid-cols-[1fr_360px] gap-6">
+            <div className="glass-panel border border-slate-700/50 rounded-2xl overflow-hidden">
+              <div className="p-5 border-b border-slate-700/50 bg-slate-900/70">
+                <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+                  <PlayCircle className="w-5 h-5 text-cyan-400" />
+                  Conversación de prueba desde cero
+                </h3>
+                <p className="text-sm text-slate-400 mt-1">Escribe como llegan los candidatos reales: "hola", "inf", "información", "quiero trabajar". El agente debe abrir el flujo sin que le digas el caso.</p>
+              </div>
+
+              <div className="p-6 space-y-5">
+                <div className="grid grid-cols-1 md:grid-cols-[1fr_1.4fr] gap-4">
+                  <div>
+                    <label className="text-sm text-slate-300 mb-2 block">Agente a probar</label>
+                    <select
+                      value={testerAgentId}
+                      onChange={(e) => setTesterAgentId(e.target.value)}
+                      className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-cyan-500"
+                    >
+                      {agents.map(agent => (
+                        <option key={agent.id} value={agent.id}>{agent.name} - {agent.role}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="rounded-xl border border-cyan-500/20 bg-cyan-500/10 p-4">
+                    <p className="text-[10px] uppercase tracking-widest text-cyan-200 font-bold">Lectura automática del mensaje</p>
+                    <div className="mt-3 grid grid-cols-2 lg:grid-cols-3 gap-2">
+                      {[
+                        ['Intención', detectedTestVariables.intent],
+                        ['Edad', detectedTestVariables.age === null ? 'No detectada' : `${detectedTestVariables.age} años`],
+                        ['Vacante', detectedTestVariables.vacancy],
+                        ['Disponibilidad', detectedTestVariables.availability],
+                        ['Fuente', detectedTestVariables.source],
+                        ['Falta', detectedTestVariables.missing.length ? detectedTestVariables.missing.join(', ') : 'Completo'],
+                      ].map(([label, value]) => (
+                        <div key={label} className="rounded-lg border border-white/10 bg-slate-950/40 px-3 py-2">
+                          <p className="text-[9px] uppercase tracking-widest text-slate-500 font-bold">{label}</p>
+                          <p className="mt-1 text-xs text-slate-100 leading-4">{value}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {testerConversation.length > 0 && (
+                  <div className="rounded-xl border border-slate-700/60 bg-slate-950/40 p-4 space-y-3 max-h-80 overflow-y-auto">
+                    <div className="flex items-center justify-between gap-3">
+                      <p className="text-[10px] uppercase tracking-widest text-slate-400 font-bold">Conversación simulada</p>
+                      <button type="button" onClick={resetTesterConversation} className="text-xs text-slate-400 hover:text-rose-300 transition-colors">
+                        Reiniciar
+                      </button>
+                    </div>
+                    {testerConversation.map((message, index) => (
+                      <div key={`${message.role}-${index}`} className={`flex ${message.role === 'candidate' ? 'justify-end' : 'justify-start'}`}>
+                        <div className={`max-w-[85%] rounded-2xl px-4 py-3 text-sm leading-relaxed whitespace-pre-wrap ${
+                          message.role === 'candidate'
+                            ? 'bg-cyan-500 text-slate-950 rounded-br-sm'
+                            : 'bg-slate-800 text-slate-100 border border-slate-700 rounded-bl-sm'
+                        }`}>
+                          {message.text}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                <div>
+                  <label className="text-sm text-slate-300 mb-2 block">Mensaje entrante del candidato</label>
+                  <textarea
+                    value={testerMessage}
+                    onChange={(e) => setTesterMessage(e.target.value)}
+                    placeholder="Ej: hola inf / información / quiero trabajar / me interesa una vacante"
+                    className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-cyan-500 resize-none min-h-28"
+                  />
+                  <p className="mt-2 text-xs text-slate-500 leading-5">
+                    Empieza con mensajes casuales y cortos. Después responde como candidato con datos sueltos: edad, zona, vacante, horario, documentos o cambio de cita.
+                  </p>
+                </div>
+
+                <div className="flex flex-wrap gap-3">
+                  <button
+                    type="button"
+                    onClick={handleRunConversationTest}
+                    disabled={isTestingConversation || !testerMessage.trim()}
+                    className="bg-cyan-500 hover:bg-cyan-600 disabled:bg-slate-700 disabled:text-slate-500 text-slate-900 font-semibold px-5 py-3 rounded-xl flex items-center justify-center gap-2 transition-all"
+                  >
+                    {isTestingConversation ? <Loader2 className="w-4 h-4 animate-spin" /> : <PlayCircle className="w-4 h-4" />}
+                    Enviar mensaje
+                  </button>
+                  {testerConversation.length > 0 && (
+                    <button
+                      type="button"
+                      onClick={resetTesterConversation}
+                      className="border border-slate-700 hover:border-rose-500/50 text-slate-300 hover:text-white px-5 py-3 rounded-xl flex items-center justify-center gap-2 transition-all"
+                    >
+                      <XCircle className="w-4 h-4" />
+                      Reiniciar conversación
+                    </button>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const agent = agents.find(item => item.id === testerAgentId) || agents[0];
+                      if (agent) openChat(agent);
+                    }}
+                    className="border border-slate-700 hover:border-cyan-500/50 text-slate-300 hover:text-white px-5 py-3 rounded-xl flex items-center justify-center gap-2 transition-all"
+                  >
+                    <MessageSquare className="w-4 h-4" />
+                    Abrir chat manual
+                  </button>
+                </div>
+
+                {testerResult && (
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    <div className="rounded-xl border border-amber-500/20 bg-amber-500/10 p-4">
+                      <p className="text-[10px] uppercase tracking-widest text-amber-200 font-bold">Resultado esperado</p>
+                      <p className="mt-2 text-sm text-amber-50 leading-relaxed">{testerResult.expected}</p>
+                    </div>
+                    <div className="rounded-xl border border-cyan-500/20 bg-slate-950/60 p-4">
+                      <div className="flex items-center justify-between gap-2">
+                        <p className="text-[10px] uppercase tracking-widest text-cyan-200 font-bold">Respuesta del agente</p>
+                        <button type="button" onClick={() => navigator.clipboard.writeText(testerResult.reply)} className="text-xs text-cyan-300 hover:text-cyan-200 flex items-center gap-1">
+                          <Copy className="w-3.5 h-3.5" />
+                          Copiar
+                        </button>
+                      </div>
+                      <p className="mt-2 whitespace-pre-wrap text-sm text-slate-100 leading-relaxed">{testerResult.reply}</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="glass-panel border border-slate-700/50 rounded-2xl p-5 h-fit">
+              <h3 className="font-semibold text-white flex items-center gap-2">
+                <ShieldCheck className="w-4 h-4 text-emerald-400" />
+                Checklist de flujo
+              </h3>
+              <div className="mt-5 space-y-3">
+                {[
+                  'Menor de 16: rechazar con respeto y cerrar proceso.',
+                  '16 o 17: pedir permiso firmado del tutor y documentos.',
+                  '18 o más: continuar filtro normal.',
+                  'Agenda: ofrecer solo horarios configurados.',
+                  'Reagenda: confirmar nuevo horario antes de cambiar cita.',
+                ].map(item => (
+                  <div key={item} className="flex gap-3 rounded-xl border border-slate-700/50 bg-slate-950/40 p-3">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                    <p className="text-sm text-slate-300 leading-relaxed">{item}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'schedule' && (
+          <div className="grid grid-cols-1 xl:grid-cols-[1fr_360px] gap-6">
+            <div className="glass-panel border border-slate-700/50 rounded-2xl overflow-hidden">
+              <div className="p-5 border-b border-slate-700/50 bg-slate-900/70">
+                <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+                  <CalendarClock className="w-5 h-5 text-cyan-400" />
+                  Horarios disponibles para entrevistas
+                </h3>
+                <p className="text-sm text-slate-400 mt-1">Estos horarios entran al prompt del agente para citar y reagendar sin inventar disponibilidad.</p>
+              </div>
+
+              <div className="p-6 space-y-5">
+                <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
+                  <input type="date" value={slotDraft.date} onChange={(e) => setSlotDraft(current => ({ ...current, date: e.target.value }))} className="bg-slate-900 border border-slate-700 rounded-xl px-3 py-3 text-white text-sm [color-scheme:dark] focus:outline-none focus:border-cyan-500" />
+                  <input type="time" value={slotDraft.startTime} onChange={(e) => setSlotDraft(current => ({ ...current, startTime: e.target.value }))} className="bg-slate-900 border border-slate-700 rounded-xl px-3 py-3 text-white text-sm [color-scheme:dark] focus:outline-none focus:border-cyan-500" />
+                  <input type="time" value={slotDraft.endTime} onChange={(e) => setSlotDraft(current => ({ ...current, endTime: e.target.value }))} className="bg-slate-900 border border-slate-700 rounded-xl px-3 py-3 text-white text-sm [color-scheme:dark] focus:outline-none focus:border-cyan-500" />
+                  <input type="number" min={1} value={slotDraft.capacity} onChange={(e) => setSlotDraft(current => ({ ...current, capacity: Number(e.target.value) }))} className="bg-slate-900 border border-slate-700 rounded-xl px-3 py-3 text-white text-sm focus:outline-none focus:border-cyan-500" />
+                  <button type="button" onClick={handleAddInterviewSlot} className="bg-cyan-500 hover:bg-cyan-600 text-slate-900 font-semibold px-4 py-3 rounded-xl flex items-center justify-center gap-2 transition-all">
+                    <Plus className="w-4 h-4" />
+                    Agregar
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <input value={slotDraft.location} onChange={(e) => setSlotDraft(current => ({ ...current, location: e.target.value }))} placeholder="Lugar o enlace de entrevista" className="bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-cyan-500" />
+                  <input value={slotDraft.notes} onChange={(e) => setSlotDraft(current => ({ ...current, notes: e.target.value }))} placeholder="Notas internas para el agente" className="bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-cyan-500" />
+                </div>
+
+                <div className="space-y-3">
+                  {interviewSlots.map(slot => (
+                    <div key={slot.id} className="rounded-xl border border-slate-700/60 bg-slate-950/40 p-4">
+                      <div className="grid grid-cols-1 md:grid-cols-[1.1fr_.8fr_.8fr_.6fr_auto] gap-3 items-center">
+                        <input type="date" value={slot.date} onChange={(e) => updateInterviewSlot(slot.id, { date: e.target.value })} className="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm [color-scheme:dark]" />
+                        <input type="time" value={slot.startTime} onChange={(e) => updateInterviewSlot(slot.id, { startTime: e.target.value })} className="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm [color-scheme:dark]" />
+                        <input type="time" value={slot.endTime} onChange={(e) => updateInterviewSlot(slot.id, { endTime: e.target.value })} className="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm [color-scheme:dark]" />
+                        <input type="number" min={1} value={slot.capacity} onChange={(e) => updateInterviewSlot(slot.id, { capacity: Number(e.target.value) })} className="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm" />
+                        <button type="button" onClick={() => removeInterviewSlot(slot.id)} className="text-slate-500 hover:text-rose-300 p-2 rounded-lg hover:bg-rose-500/10 transition-colors" title="Eliminar horario">
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                      <div className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <input value={slot.location} onChange={(e) => updateInterviewSlot(slot.id, { location: e.target.value })} placeholder="Lugar" className="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm" />
+                        <input value={slot.notes} onChange={(e) => updateInterviewSlot(slot.id, { notes: e.target.value })} placeholder="Notas" className="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm" />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="glass-panel border border-slate-700/50 rounded-2xl p-5 h-fit">
+              <h3 className="font-semibold text-white flex items-center gap-2">
+                <BrainCircuit className="w-4 h-4 text-cyan-400" />
+                Memoria que verá el agente
+              </h3>
+              <pre className="mt-4 whitespace-pre-wrap rounded-xl border border-slate-700/60 bg-black/20 p-4 text-xs leading-relaxed text-slate-300">{formatInterviewSlotsForPrompt(interviewSlots)}</pre>
+              <button
+                type="button"
+                onClick={() => setInterviewSlots(DEFAULT_INTERVIEW_SLOTS)}
+                className="mt-4 w-full border border-slate-700 hover:border-cyan-500/50 text-slate-300 hover:text-white px-4 py-3 rounded-xl flex items-center justify-center gap-2 transition-all text-sm"
+              >
+                <CalendarClock className="w-4 h-4" />
+                Restaurar ejemplo
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Canva Studio Tab */}
         {activeTab === 'canva' && (
           <div className="grid grid-cols-1 xl:grid-cols-[1fr_360px] gap-6">
@@ -485,9 +1256,18 @@ Copy sugerido:
                   </h3>
                   <p className="text-sm text-slate-400 mt-1">Genera briefs para publicaciones, stories, reels y videos de reclutamiento.</p>
                 </div>
-                <span className="text-[10px] uppercase tracking-widest text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-1 rounded-md font-bold">
-                  Integrado
-                </span>
+                <div className="flex flex-wrap items-center justify-end gap-2">
+                  <button
+                    type="button"
+                    onClick={handleConnectCanva}
+                    className="border border-cyan-500/30 bg-cyan-500/10 px-3 py-2 rounded-xl text-xs font-bold uppercase tracking-widest text-cyan-200 hover:bg-cyan-500/15 transition-all"
+                  >
+                    Conectar Canva
+                  </button>
+                  <span className="text-[10px] uppercase tracking-widest text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-1 rounded-md font-bold">
+                    Integrado
+                  </span>
+                </div>
               </div>
 
               <div className="p-6 space-y-6">
@@ -611,7 +1391,128 @@ Copy sugerido:
                   <pre className="text-xs text-slate-300 whitespace-pre-wrap leading-relaxed font-mono">{canvaBrief}</pre>
                 </div>
 
+                <div className="rounded-xl border border-blue-500/25 bg-blue-500/5 p-4">
+                  <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+                    <div>
+                      <h4 className="flex items-center gap-2 text-sm font-semibold text-white">
+                        <Send className="h-4 w-4 text-blue-300" />
+                        Paquete para publicar en Meta
+                      </h4>
+                      <p className="mt-1 text-xs leading-5 text-slate-400">
+                        Prepara el anuncio para Facebook/Instagram con objetivo de mensajes. Copia el texto, descarga el paquete y abre Ads Manager para publicarlo.
+                      </p>
+                    </div>
+                    <span className="rounded-lg border border-amber-500/25 bg-amber-500/10 px-3 py-2 text-[10px] font-bold uppercase tracking-widest text-amber-200">
+                      Categoria: Empleo
+                    </span>
+                  </div>
+
+                  <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-3">
+                    <label className="rounded-xl border border-slate-700/70 bg-slate-950/40 p-3">
+                      <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Destino</span>
+                      <select
+                        value={metaDestination}
+                        onChange={(event) => setMetaDestination(event.target.value as typeof metaDestination)}
+                        className="mt-2 w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-blue-400"
+                      >
+                        <option value="whatsapp_business">WhatsApp Business</option>
+                        <option value="whatsapp">WhatsApp normal</option>
+                        <option value="messenger">Messenger</option>
+                        <option value="instagram">Instagram DM</option>
+                      </select>
+                    </label>
+
+                    <label className="rounded-xl border border-slate-700/70 bg-slate-950/40 p-3">
+                      <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Presupuesto diario</span>
+                      <input
+                        type="number"
+                        min={1}
+                        value={metaDailyBudget}
+                        onChange={(event) => setMetaDailyBudget(Number(event.target.value))}
+                        className="mt-2 w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-blue-400"
+                      />
+                    </label>
+
+                    <label className="rounded-xl border border-slate-700/70 bg-slate-950/40 p-3">
+                      <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Duracion</span>
+                      <input
+                        type="number"
+                        min={1}
+                        value={metaDurationDays}
+                        onChange={(event) => setMetaDurationDays(Number(event.target.value))}
+                        className="mt-2 w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-blue-400"
+                      />
+                    </label>
+                  </div>
+
+                  {(metaDestination === 'whatsapp' || metaDestination === 'whatsapp_business') && (
+                    <label className="mt-4 block rounded-xl border border-slate-700/70 bg-slate-950/40 p-3">
+                      <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Numero WhatsApp del anuncio</span>
+                      <input
+                        value={metaWhatsappNumber}
+                        onChange={(event) => setMetaWhatsappNumber(event.target.value)}
+                        className="mt-2 w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-blue-400"
+                      />
+                    </label>
+                  )}
+
+                  <div className="mt-4">
+                    <label className="mb-2 block text-sm text-slate-300">Texto del anuncio</label>
+                    <textarea
+                      value={metaAdText}
+                      onChange={(event) => setMetaPrimaryText(event.target.value)}
+                      className="min-h-44 w-full resize-none rounded-xl border border-slate-700 bg-slate-950/70 px-4 py-3 text-sm leading-6 text-white outline-none focus:border-blue-400"
+                    />
+                  </div>
+
+                  <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-3">
+                    <div className="rounded-xl border border-slate-700/60 bg-slate-950/40 p-3">
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Objetivo</p>
+                      <p className="mt-1 text-sm font-semibold text-white">Recibir mas mensajes</p>
+                    </div>
+                    <div className="rounded-xl border border-slate-700/60 bg-slate-950/40 p-3">
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500">CTA</p>
+                      <p className="mt-1 text-sm font-semibold text-white">Enviar mensaje</p>
+                    </div>
+                    <div className="rounded-xl border border-slate-700/60 bg-slate-950/40 p-3">
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Total</p>
+                      <p className="mt-1 text-sm font-semibold text-white">MX${metaDailyBudget * metaDurationDays}</p>
+                    </div>
+                  </div>
+
+                  <div className="mt-4 flex flex-col gap-3 sm:flex-row">
+                    <button
+                      type="button"
+                      onClick={handleCopyMetaAdPackage}
+                      className="flex items-center justify-center gap-2 rounded-xl bg-blue-500 px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-blue-400"
+                    >
+                      <Copy className="h-4 w-4" />
+                      {metaPackageCopied ? 'Copiado' : 'Copiar para publicar'}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleDownloadMetaAdPackage}
+                      className="flex items-center justify-center gap-2 rounded-xl border border-slate-700 px-5 py-3 text-sm font-semibold text-slate-300 transition-colors hover:border-blue-400/60 hover:text-white"
+                    >
+                      <Download className="h-4 w-4" />
+                      Descargar paquete
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => window.open('https://www.facebook.com/adsmanager/creation', '_blank', 'noopener,noreferrer')}
+                      className="flex items-center justify-center gap-2 rounded-xl border border-slate-700 px-5 py-3 text-sm font-semibold text-slate-300 transition-colors hover:border-blue-400/60 hover:text-white"
+                    >
+                      <ExternalLink className="h-4 w-4" />
+                      Abrir Ads Manager
+                    </button>
+                  </div>
+                </div>
+
                 <div className="flex flex-col sm:flex-row gap-3">
+                  <button type="button" onClick={handleCreateAiImage} disabled={isCreatingAiImage || !canvaCampaign.trim()} className="bg-emerald-400 hover:bg-emerald-500 disabled:bg-slate-700 disabled:text-slate-500 text-slate-950 font-semibold px-5 py-3 rounded-xl flex items-center justify-center gap-2 transition-all">
+                    {isCreatingAiImage ? <Loader2 className="w-4 h-4 animate-spin" /> : <ImageIcon className="w-4 h-4" />}
+                    Crear imagen IA
+                  </button>
                   <button type="button" onClick={handleCreateCanvaDesign} disabled={isCreatingCanva || !canvaCampaign.trim()} className="bg-cyan-500 hover:bg-cyan-600 disabled:bg-slate-700 disabled:text-slate-500 text-slate-900 font-semibold px-5 py-3 rounded-xl flex items-center justify-center gap-2 transition-all">
                     {isCreatingCanva ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
                     Crear en Canva
@@ -621,6 +1522,48 @@ Copy sugerido:
                     Abrir plantilla
                   </button>
                 </div>
+
+                {aiImageResult && (
+                  <div className="border border-emerald-500/25 rounded-xl p-4 bg-emerald-500/5">
+                    {'error' in aiImageResult || aiImageResult.ok === false ? (
+                      <p className="text-sm text-rose-300">{String(aiImageResult.error || 'No se pudo generar la imagen IA.')}</p>
+                    ) : (
+                      <div className="space-y-3">
+                        <div className="flex items-center gap-2 text-sm">
+                          <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                          <span className="text-slate-200">Imagen IA generada con {aiImageResult.provider === 'replicate' ? 'Replicate / FLUX' : 'Gemini'}.</span>
+                        </div>
+                        {aiImageResult.image?.dataUrl && (
+                          <div className="space-y-3">
+                            <img
+                              src={aiImageResult.image.dataUrl}
+                              alt="Imagen IA de reclutamiento"
+                              className="max-h-[520px] w-full rounded-xl border border-white/10 object-contain bg-slate-950"
+                            />
+                            <div className="flex flex-wrap gap-2">
+                              <a
+                                href={aiImageResult.image.dataUrl}
+                                download={`rhdreams-ai-${Date.now()}.png`}
+                                className="text-xs bg-emerald-500/10 text-emerald-200 border border-emerald-500/20 px-3 py-2 rounded-lg flex items-center gap-1 hover:bg-emerald-500/15 transition-colors"
+                              >
+                                <Download className="w-3.5 h-3.5" />
+                                Descargar imagen
+                              </a>
+                              <button
+                                type="button"
+                                onClick={() => navigator.clipboard.writeText(aiImageResult.prompt || canvaBrief)}
+                                className="text-xs bg-slate-800 text-slate-300 border border-slate-700 px-3 py-2 rounded-lg flex items-center gap-1 hover:border-slate-500 transition-colors"
+                              >
+                                <Copy className="w-3.5 h-3.5" />
+                                Copiar prompt
+                              </button>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                )}
 
                 {canvaResult && (
                   <div className="border border-slate-700/60 rounded-xl p-4 bg-slate-900/70">
@@ -685,7 +1628,7 @@ Copy sugerido:
           <div className="glass-panel border border-slate-700/50 rounded-2xl overflow-hidden flex flex-col">
             <div className="bg-slate-900/80 p-4 border-b border-slate-700/50 flex flex-col md:flex-row md:items-center justify-between gap-4">
               <h3 className="text-sm font-semibold flex items-center gap-2 text-slate-200">
-                <Activity className="w-4 h-4 text-cyan-400" /> Monitor en Tiempo Real
+                <Activity className="w-4 h-4 text-cyan-400" /> Autoconocimiento y Monitor
               </h3>
               <div className="flex flex-wrap items-center gap-2">
                  <div className="flex items-center gap-1 bg-slate-800 border border-slate-700 px-3 py-1.5 rounded-lg text-xs mr-2">
@@ -707,6 +1650,18 @@ Copy sugerido:
                  >
                    <Download className="w-4 h-4" /> Exportar CSV
                  </button>
+                 <button
+                  onClick={() => downloadJson(`rhdreams_autoconocimiento_${new Date().toISOString().split('T')[0]}.json`, {
+                    app: 'RHDreams',
+                    type: 'agent_learning_memory_export',
+                    version: 1,
+                    exportedAt: new Date().toISOString(),
+                    memories: allLearningMemories,
+                  })}
+                  className="mr-3 px-3 py-1.5 bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-300 hover:text-white rounded-lg text-xs font-semibold transition-colors border border-cyan-500/30 flex items-center gap-2"
+                 >
+                   <BrainCircuit className="w-4 h-4" /> Exportar aprendizajes
+                 </button>
                  <span className="flex h-2 w-2 relative">
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                     <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
@@ -714,6 +1669,53 @@ Copy sugerido:
                  <span className="text-xs text-slate-400">Sistema Conectado</span>
               </div>
             </div>
+            <div className="border-b border-slate-700/50 bg-slate-950/30 p-4">
+              <div className="mb-3 flex items-center justify-between gap-3">
+                <div>
+                  <h4 className="text-sm font-semibold text-white flex items-center gap-2">
+                    <BrainCircuit className="h-4 w-4 text-cyan-300" />
+                    Memoria aprendida por los agentes
+                  </h4>
+                  <p className="mt-1 text-xs text-slate-400">Cada respuesta genera una lección breve que el agente consulta en futuras conversaciones.</p>
+                </div>
+                <span className="rounded-lg border border-cyan-500/20 bg-cyan-500/10 px-3 py-1 text-xs font-bold text-cyan-200">
+                  {allLearningMemories.length} aprendizajes
+                </span>
+              </div>
+
+              {allLearningMemories.length === 0 ? (
+                <div className="rounded-xl border border-dashed border-slate-700 bg-slate-900/50 p-5 text-center text-sm text-slate-500">
+                  Aún no hay autoconocimiento. Usa el chat o el probador de agentes y aquí aparecerá lo aprendido.
+                </div>
+              ) : (
+                <div className="grid gap-3">
+                  {allLearningMemories.slice(0, 20).map((memory: any) => (
+                    <div key={memory.id} className="rounded-xl border border-slate-700/60 bg-slate-900/70 p-4">
+                      <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
+                        <div>
+                          <p className="text-xs font-bold uppercase tracking-widest text-cyan-300">{memory.agentName} · {memory.intent || 'Sin intención'}</p>
+                          <p className="mt-2 text-sm leading-relaxed text-slate-200">{memory.lesson}</p>
+                        </div>
+                        <span className="shrink-0 rounded-md border border-white/10 bg-slate-950/60 px-2 py-1 text-[10px] text-slate-400">
+                          {memory.source}
+                        </span>
+                      </div>
+                      <div className="mt-3 grid gap-2 md:grid-cols-2">
+                        <div className="rounded-lg bg-black/20 p-3">
+                          <p className="text-[10px] uppercase tracking-widest text-slate-500">Mensaje recibido</p>
+                          <p className="mt-1 line-clamp-2 text-xs text-slate-300">{memory.userText}</p>
+                        </div>
+                        <div className="rounded-lg bg-black/20 p-3">
+                          <p className="text-[10px] uppercase tracking-widest text-slate-500">Respuesta aprendida</p>
+                          <p className="mt-1 line-clamp-2 text-xs text-slate-300">{memory.reply}</p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
             <div className="p-4 space-y-4 bg-black/20 font-mono">
               {getFilteredLogs().map((log, i) => (
                 <div key={i} className="flex gap-4 p-3 hover:bg-white/5 rounded-lg transition-colors border border-transparent hover:border-white/5">
@@ -806,9 +1808,42 @@ Copy sugerido:
                 </div>
               </div>
 
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <div>
+                  <label className="text-sm text-slate-300 mb-2 block">Empresa</label>
+                  <input
+                    type="text"
+                    value={newAgentCompanyName}
+                    onChange={e => setNewAgentCompanyName(e.target.value)}
+                    placeholder="Ej: Heavenly Dreams"
+                    className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition-all"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm text-slate-300 mb-2 block">Cuenta / línea</label>
+                  <input
+                    type="text"
+                    value={newAgentAccountName}
+                    onChange={e => setNewAgentAccountName(e.target.value)}
+                    placeholder="Ej: WhatsApp RH 1"
+                    className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition-all"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm text-slate-300 mb-2 block">Canal</label>
+                  <input
+                    type="text"
+                    value={newAgentAccountChannel}
+                    onChange={e => setNewAgentAccountChannel(e.target.value)}
+                    placeholder="WhatsApp"
+                    className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition-all"
+                  />
+                </div>
+              </div>
+
               <div>
                 <label className="text-sm text-slate-300 block mb-1">Prompt / Personalidad base</label>
-                <p className="text-xs text-slate-500 mb-2">Define cómo actuará y qué tono usará este agente.</p>
+                <p className="text-xs text-slate-500 mb-2">Puedes dejar la plantilla maestra o agregar instrucciones específicas de esa cuenta.</p>
                 <textarea 
                   className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition-all resize-none font-mono text-sm leading-relaxed h-28"
                   placeholder="Actúa como un reclutador tech amigable pero directo. Tu objetivo es encontrar desarrolladores frontend con React."

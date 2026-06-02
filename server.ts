@@ -1,4 +1,5 @@
 import express from "express";
+import type { ServeStaticOptions } from "serve-static";
 import path from "path";
 import { createServer as createViteServer } from "vite";
 import dotenv from "dotenv";
@@ -7,10 +8,14 @@ import { createGeminiRoutes } from "./server/routes/gemini.routes";
 import { createGroqRoutes } from "./server/routes/groq.routes";
 import { createOpenRouterRoutes } from "./server/routes/openrouter.routes";
 import { createIntegrationRoutes } from "./server/routes/integrations.routes";
+import { createAuthRoutes } from "./server/routes/auth.routes";
+import { createWorkflowRoutes } from "./server/routes/workflows.routes";
+import { createConversationRoutes } from "./server/routes/conversations.routes";
 import { apiLimiter } from "./server/middleware/rateLimiter";
 import { initializeGeminiService } from "./server/services/gemini.service";
 import { initializeGroqService } from "./server/services/groq.service";
 import { initializeOpenRouterService } from "./server/services/openrouter.service";
+import { restoreSavedBaileysSessions } from "./server/services/baileys.service";
 
 dotenv.config();
 
@@ -19,10 +24,24 @@ async function startServer() {
     const app = express();
     const PORT = parseInt(process.env.PORT || "3000", 10);
     const NODE_ENV = process.env.NODE_ENV || "development";
+    app.set("trust proxy", 1);
 
     // Middleware
-    app.use(express.json({ limit: "10mb" }));
+    app.use(express.json({
+      limit: "10mb",
+      verify: (req, _res, buf) => {
+        (req as any).rawBody = buf;
+      },
+    }));
     app.use(express.urlencoded({ limit: "10mb", extended: true }));
+    app.disable("x-powered-by");
+    app.use((_req, res, next) => {
+      res.setHeader("X-Content-Type-Options", "nosniff");
+      res.setHeader("X-Frame-Options", "DENY");
+      res.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");
+      res.setHeader("Permissions-Policy", "camera=(), microphone=(), geolocation=()");
+      next();
+    });
 
     // Request logging middleware
     app.use((req, res, next) => {
@@ -79,11 +98,14 @@ async function startServer() {
     app.use("/api/", apiLimiter);
 
     // Mount API routes
+    app.use("/api/auth", createAuthRoutes());
     const geminiRoutes = createGeminiRoutes();
     app.use("/api/gemini", geminiRoutes);
     app.use("/api/groq", createGroqRoutes());
     app.use("/api/openrouter", createOpenRouterRoutes());
     app.use("/api/integrations", createIntegrationRoutes());
+    app.use("/api/conversations", createConversationRoutes());
+    app.use("/api/workflows", createWorkflowRoutes());
     app.use("/api", (_req, res) => {
       res.status(404).json({
         success: false,
@@ -115,8 +137,26 @@ async function startServer() {
     } else {
       logInfo("Starting in production mode with static serving");
       const distPath = path.join(process.cwd(), "dist");
-      app.use(express.static(distPath));
+      const staticOptions: ServeStaticOptions = {
+        immutable: true,
+        maxAge: "1y",
+        setHeaders: (res, filePath) => {
+          if (filePath.endsWith("index.html")) {
+            res.setHeader("Cache-Control", "no-cache");
+          }
+        },
+      };
+
+      app.use("/rh", express.static(distPath, staticOptions));
+      app.use(express.static(distPath, staticOptions));
+
+      app.get(["/rh", "/rh/*"], (_req, res) => {
+        res.setHeader("Cache-Control", "no-cache");
+        res.sendFile(path.join(distPath, "index.html"));
+      });
+
       app.get("*", (req, res) => {
+        res.setHeader("Cache-Control", "no-cache");
         res.sendFile(path.join(distPath, "index.html"));
       });
     }
@@ -143,6 +183,9 @@ async function startServer() {
       logInfo(`🚀 Server running on http://localhost:${PORT}`, {
         port: PORT,
         environment: NODE_ENV,
+      });
+      restoreSavedBaileysSessions().catch((error) => {
+        logError("Baileys saved sessions restore failed", error);
       });
     });
   } catch (err) {

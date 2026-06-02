@@ -4,9 +4,9 @@ import {
   handleAgentReply,
   handleAudioTranscription,
   healthCheck,
+  queueHealthCheck,
 } from "../controllers/gemini.controller";
 import {
-  optionalAuthMiddleware,
   authMiddleware,
 } from "../middleware/auth";
 import { geminiLimiter } from "../middleware/rateLimiter";
@@ -17,6 +17,7 @@ export const createGeminiRoutes = (): Router => {
 
   // Health check - no auth required
   router.get("/health", healthCheck);
+  router.get("/agent/queue", authMiddleware, queueHealthCheck);
 
   /**
    * POST /api/gemini/reply
@@ -35,7 +36,7 @@ export const createGeminiRoutes = (): Router => {
    */
   router.post(
     "/reply",
-    optionalAuthMiddleware,
+    authMiddleware,
     geminiLimiter,
     async (req, res, next) => {
       logger.debug("POST /api/gemini/reply", {
@@ -62,7 +63,7 @@ export const createGeminiRoutes = (): Router => {
    */
   router.post(
     "/agent/reply",
-    optionalAuthMiddleware,
+    authMiddleware,
     geminiLimiter,
     async (req, res, next) => {
       logger.debug("POST /api/gemini/agent/reply", {
@@ -79,7 +80,7 @@ export const createGeminiRoutes = (): Router => {
    */
   router.post(
     "/audio/transcribe",
-    optionalAuthMiddleware,
+    authMiddleware,
     geminiLimiter,
     async (req, res, next) => {
       logger.debug("POST /api/gemini/audio/transcribe", {

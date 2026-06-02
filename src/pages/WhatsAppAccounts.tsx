@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import { Plus, Search, Smartphone, Shield, Zap, QrCode, Trash2, CheckCircle2, RotateCcw, X, SmartphoneNfc, MessageSquare, Clock, Facebook, Instagram, Video, Loader2, Settings2, Sparkles, AlertCircle, DollarSign, TrendingUp, Target, BarChart3, CalendarClock } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { apiUrl, readApiJson } from "@/lib/api";
+import { apiFetch, apiUrl, readApiJson } from "@/lib/api";
 import { EMPTY_AGENTS } from "@/data/appDefaults";
 import { WHATSAPP_RECRUITMENT_TEMPLATES } from "@/data/recruitmentKnowledge";
+import { DEFAULT_COMPANY_NAME } from "@/lib/recruiterAgentPrompt";
 
 type ChannelType =
   | 'whatsapp_personal'
@@ -24,6 +25,9 @@ type ChannelAccount = {
   type: ChannelType;
   mode?: string;
   webhookUrl?: string;
+  isolationKey?: string;
+  companyName?: string;
+  agentPersonalName?: string;
 };
 
 type FacebookAdsAnalysis = {
@@ -60,16 +64,101 @@ type BaileysStatus = {
   updatedAt?: number;
 };
 
+const CHANNEL_AGENT_RULES: Record<ChannelType, {
+  defaultAgentId: string;
+  label: string;
+  matches: string[];
+  helper: string;
+}> = {
+  whatsapp_personal: {
+    defaultAgentId: "ag-whatsapp-recruiter-elite",
+    label: "WhatsApp y CRM",
+    matches: ["whatsapp", "crm", "calendar"],
+    helper: "Solo agentes WhatsApp/CRM pueden responder por este numero.",
+  },
+  indeed: {
+    defaultAgentId: "ag-indeed-recruiting",
+    label: "Indeed",
+    matches: ["indeed", "ats", "bolsa de trabajo"],
+    helper: "Usa agentes de Indeed o bolsas para clasificar postulantes de este portal.",
+  },
+  computrabajo: {
+    defaultAgentId: "ag-computrabajo-recruiting",
+    label: "Computrabajo",
+    matches: ["computrabajo", "bolsa de trabajo", "ats"],
+    helper: "Usa agentes de Computrabajo o bolsas para candidatos de este portal.",
+  },
+  facebook: {
+    defaultAgentId: "ag-facebook-recruiting",
+    label: "Facebook / Meta",
+    matches: ["facebook", "meta", "messenger", "marketplace"],
+    helper: "Activa agentes de Facebook, Meta y Messenger para leads de Facebook.",
+  },
+  messenger: {
+    defaultAgentId: "ag-facebook-recruiting",
+    label: "Messenger",
+    matches: ["messenger", "facebook", "meta"],
+    helper: "Messenger usa agentes conversacionales de Meta/Facebook.",
+  },
+  instagram: {
+    defaultAgentId: "ag-instagram-recruiting",
+    label: "Instagram DM",
+    matches: ["instagram", "dm", "reels", "stories"],
+    helper: "Instagram solo muestra agentes preparados para DM, Reels y Stories.",
+  },
+  tiktok: {
+    defaultAgentId: "ag-tiktok-recruiting",
+    label: "TikTok",
+    matches: ["tiktok", "video", "lead"],
+    helper: "TikTok usa agentes de videos, hooks y formularios lead.",
+  },
+};
+
+const CHANNEL_ICON_IMAGES: Partial<Record<ChannelType, string>> = {
+  indeed: "/assets/integrations/indeed.svg",
+  computrabajo: "/assets/integrations/computrabajo.svg",
+  whatsapp_personal: "/assets/integrations/whatsapp.svg",
+  facebook: "/assets/integrations/facebook.svg",
+  messenger: "/assets/integrations/messenger.svg",
+  instagram: "/assets/integrations/instagram.svg",
+  tiktok: "/assets/integrations/tiktok.svg",
+};
+
+const normalizeAgentText = (agent: any) =>
+  [agent?.id, agent?.name, agent?.role, agent?.description, ...(Array.isArray(agent?.channels) ? agent.channels : [])]
+    .filter(Boolean)
+    .join(" ")
+    .toLowerCase();
+
 export function WhatsAppAccounts() {
   const [activeTab, setActiveTab] = useState<ChannelType>('whatsapp_personal');
   
-  const [accounts, setAccounts] = useState<ChannelAccount[]>([]);
+  const [accounts, setAccounts] = useState<ChannelAccount[]>(() => {
+    try {
+      const stored = localStorage.getItem("rhdreams_channel_accounts");
+      const parsed = stored ? JSON.parse(stored) : [];
+      return Array.isArray(parsed) ? parsed : [];
+    } catch (_error) {
+      return [];
+    }
+  });
+  const [availableAgents, setAvailableAgents] = useState<any[]>(() => {
+    try {
+      const stored = localStorage.getItem("rhdreams_agents");
+      const parsed = stored ? JSON.parse(stored) : [];
+      return Array.isArray(parsed) && parsed.length > 0 ? parsed : EMPTY_AGENTS;
+    } catch (_error) {
+      return EMPTY_AGENTS;
+    }
+  });
 
   const [searchFilter, setSearchFilter] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalStep, setModalStep] = useState<'info' | 'qr' | 'oauth_connecting' | 'success'>('info');
   
   const [newAccountName, setNewAccountName] = useState('');
+  const [newAccountCompanyName, setNewAccountCompanyName] = useState(DEFAULT_COMPANY_NAME);
+  const [newAgentPersonalName, setNewAgentPersonalName] = useState('');
   const [selectedAgent, setSelectedAgent] = useState('');
 
   const [accountToUnlink, setAccountToUnlink] = useState<any>(null);
@@ -88,22 +177,134 @@ export function WhatsAppAccounts() {
   const [baileysError, setBaileysError] = useState("");
   const [isStartingBaileys, setIsStartingBaileys] = useState(false);
   const baileysCompletedRef = useRef(false);
+  const baileysLoggedOutResetRef = useRef(false);
+  const restoredBaileysSessionsRef = useRef<Set<string>>(new Set());
 
-  const getDefaultAgentId = (type: ChannelType) => {
-    switch (type) {
-      case 'facebook': return 'ag-facebook-leads';
-      case 'messenger': return 'ag-messenger-dm';
-      case 'instagram': return 'ag-instagram-dm';
-      case 'tiktok': return 'ag-tiktok-leads';
-      case 'indeed':
-      case 'computrabajo':
-        return 'ag-ad-creator-jobs';
-      default:
-        return 'ag-messenger-dm';
+  const getCompatibleAgents = (type: ChannelType) => {
+    const rule = CHANNEL_AGENT_RULES[type];
+    const activeAgents = availableAgents.filter((agent) => agent.status !== "Draft");
+    const compatible = activeAgents.filter((agent) => {
+      const text = normalizeAgentText(agent);
+      return rule.matches.some((match) => text.includes(match));
+    });
+
+    if (compatible.some((agent) => agent.id === "agent-principal-1")) {
+      return compatible;
     }
+
+    const principal = activeAgents.find((agent) => agent.id === "agent-principal-1");
+    return principal && ["whatsapp_personal", "messenger"].includes(type)
+      ? [principal, ...compatible]
+      : compatible;
   };
 
-  const getAssignedAgent = (agentId: string) => EMPTY_AGENTS.find(agent => agent.id === agentId);
+  const getDefaultAgentId = (type: ChannelType) => {
+    const compatible = getCompatibleAgents(type);
+    const preferred = CHANNEL_AGENT_RULES[type].defaultAgentId;
+    return compatible.find((agent) => agent.id === preferred)?.id || compatible[0]?.id || "";
+  };
+
+  const getChannelAgentGroupLabel = (type: ChannelType) => CHANNEL_AGENT_RULES[type].label;
+
+  const isAgentCompatibleWithChannel = (agentId: string, type: ChannelType) =>
+    !agentId || getCompatibleAgents(type).some((agent) => agent.id === agentId);
+
+  useEffect(() => {
+    localStorage.setItem("rhdreams_channel_accounts", JSON.stringify(accounts));
+  }, [accounts]);
+
+  useEffect(() => {
+    setConnectionTest(null);
+  }, [activeTab]);
+
+  useEffect(() => {
+    const compatibleDefault = getDefaultAgentId(activeTab);
+    if (!selectedAgent || !isAgentCompatibleWithChannel(selectedAgent, activeTab)) {
+      setSelectedAgent(compatibleDefault);
+    }
+  }, [activeTab, availableAgents]);
+
+  useEffect(() => {
+    let changed = false;
+    const normalizedAccounts = accounts.map((account) => {
+      if (isAgentCompatibleWithChannel(account.agentId, account.type)) return account;
+      const nextAgentId = getDefaultAgentId(account.type);
+      if (!nextAgentId) return account;
+      changed = true;
+      return { ...account, agentId: nextAgentId, lastSync: "Agente ajustado por canal" };
+    });
+
+    if (changed) {
+      setAccounts(normalizedAccounts);
+    }
+  }, [availableAgents]);
+
+  useEffect(() => {
+    const syncAgents = () => {
+      try {
+        const stored = localStorage.getItem("rhdreams_agents");
+        const parsed = stored ? JSON.parse(stored) : [];
+        setAvailableAgents(Array.isArray(parsed) && parsed.length > 0 ? parsed : EMPTY_AGENTS);
+      } catch (_error) {
+        setAvailableAgents(EMPTY_AGENTS);
+      }
+    };
+
+    syncAgents();
+    window.addEventListener("storage", syncAgents);
+    window.addEventListener("focus", syncAgents);
+    return () => {
+      window.removeEventListener("storage", syncAgents);
+      window.removeEventListener("focus", syncAgents);
+    };
+  }, []);
+
+  const getAssignedAgent = (agentId: string) => availableAgents.find(agent => agent.id === agentId) || EMPTY_AGENTS.find(agent => agent.id === agentId);
+
+  const whatsappAccounts = accounts.filter(account => account.type === "whatsapp_personal");
+
+  const getNextWhatsAppSessionId = () => {
+    const nextNumber = whatsappAccounts.length + 1;
+    return nextNumber === 1 ? "whatsapp-rh-1" : `whatsapp-rh-${nextNumber}`;
+  };
+
+  const getAccountIsolationKey = (account: ChannelAccount) => {
+    if (account.isolationKey) return account.isolationKey;
+    if (account.type === "whatsapp_personal") {
+      return account.phone.replace(/^Sesion Baileys:\s*/i, "").trim() || account.id;
+    }
+    return account.id;
+  };
+
+  const hasDuplicateWhatsAppSession = (sessionId: string) => {
+    const normalized = sessionId.trim().toLowerCase();
+    return whatsappAccounts.some(account => getAccountIsolationKey(account).toLowerCase() === normalized);
+  };
+
+  useEffect(() => {
+    accounts
+      .filter((account) => account.type === "whatsapp_personal" && account.status === "connected")
+      .forEach((account) => {
+        const sessionId = getAccountIsolationKey(account);
+        if (!sessionId || restoredBaileysSessionsRef.current.has(sessionId)) return;
+
+        restoredBaileysSessionsRef.current.add(sessionId);
+        const assignedAgent = getAssignedAgent(account.agentId);
+        apiFetch("/api/integrations/baileys/start", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            sessionId,
+            agentName: account.agentPersonalName || assignedAgent?.name || "Agente de Heavenly Dreams",
+            companyName: account.companyName || DEFAULT_COMPANY_NAME,
+            agentPrompt: assignedAgent?.basePrompt || assignedAgent?.description || "",
+            autoReplyEnabled: true,
+          }),
+        }).catch(() => {
+          restoredBaileysSessionsRef.current.delete(sessionId);
+        });
+      });
+  }, [accounts, availableAgents]);
   
   // Advanced Rules State
   const [automationRules, setAutomationRules] = useState<any[]>([]);
@@ -135,24 +336,38 @@ export function WhatsAppAccounts() {
 
   const providerForActiveTab = () => {
     if (activeTab === 'whatsapp_personal') return 'whatsapp_personal';
-    if (activeTab === 'indeed') return 'indeed';
-    if (activeTab === 'computrabajo') return 'computrabajo';
     return null;
   };
 
   const testCurrentIntegration = async () => {
+    if (activeTab === 'indeed' || activeTab === 'computrabajo') {
+      setConnectionTest({
+        ok: true,
+        message: `${getPlatformLabel(activeTab)} no requiere API directa aqui. Queda listo para recibir candidatos por CSV, correo parser, feed autorizado o webhook intermedio.`,
+      });
+      return;
+    }
+
+    if (activeTab === 'facebook' || activeTab === 'messenger' || activeTab === 'instagram' || activeTab === 'tiktok') {
+      setConnectionTest({
+        ok: false,
+        message: `${getPlatformLabel(activeTab)} requiere credenciales oficiales del proveedor y permisos aprobados antes de activar la conexion real.`,
+      });
+      return;
+    }
+
     const provider = providerForActiveTab();
     if (!provider) {
       setConnectionTest({
         ok: false,
-        message: "Configura la API específica del proveedor Meta/TikTok antes de probar este canal.",
+        message: "Selecciona un canal compatible para probar la conexion.",
       });
       return;
     }
 
     setTestingProvider(provider);
     try {
-      const response = await fetch(apiUrl("/api/integrations/test"), {
+      const response = await apiFetch("/api/integrations/test", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ provider }),
@@ -172,7 +387,7 @@ export function WhatsAppAccounts() {
   const analyzeFacebookRecruitmentAds = async () => {
     setIsAnalyzingFacebookAds(true);
     try {
-      const response = await fetch(apiUrl("/api/integrations/facebook-ads/analyze"), {
+      const response = await apiFetch("/api/integrations/facebook-ads/analyze", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -202,20 +417,40 @@ export function WhatsAppAccounts() {
 
   const startLinking = async () => {
     if (!newAccountName || !selectedAgent) return;
+    if (!isAgentCompatibleWithChannel(selectedAgent, activeTab)) {
+      setSelectedAgent(getDefaultAgentId(activeTab));
+      setBaileysError(`Ese agente no pertenece a ${getPlatformLabel(activeTab)}. Seleccione un agente del grupo ${getChannelAgentGroupLabel(activeTab)}.`);
+      return;
+    }
     
     if (activeTab === 'whatsapp_personal') {
       const sessionId = baileysSessionId.trim() || "default";
+      if (hasDuplicateWhatsAppSession(sessionId)) {
+        setBaileysError("Ya existe una cuenta de WhatsApp usando esta sesión. Usa otra sesión para que sus agentes y conversaciones queden separados.");
+        return;
+      }
+
       baileysCompletedRef.current = false;
+      baileysLoggedOutResetRef.current = false;
       setBaileysError("");
       setBaileysStatus(null);
       setIsStartingBaileys(true);
       setModalStep('qr');
 
       try {
-        const response = await fetch(apiUrl("/api/integrations/baileys/start"), {
+        const assignedAgent = getAssignedAgent(selectedAgent);
+        const agentName = newAgentPersonalName.trim() || assignedAgent?.name || "Agente de Heavenly Dreams";
+        const response = await apiFetch("/api/integrations/baileys/start", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ sessionId }),
+          body: JSON.stringify({
+            sessionId,
+            agentName,
+            companyName: newAccountCompanyName.trim() || DEFAULT_COMPANY_NAME,
+            agentPrompt: assignedAgent?.basePrompt || assignedAgent?.description || "",
+            autoReplyEnabled: true,
+            resetSession: true,
+          }),
         });
         const payload = await readApiJson(response);
         if (!response.ok || !payload.success) {
@@ -233,12 +468,17 @@ export function WhatsAppAccounts() {
       } catch (error: any) {
         setBaileysError(
           error.message === "API endpoint no encontrado"
-            ? "Baileys solo puede generar QR en localhost o en un servidor persistente. En Vercel no se puede mantener la sesion WhatsApp Web activa."
+            ? "Baileys necesita el backend Express activo en un servidor persistente. En DigitalOcean podra generar QR si la API esta desplegada junto con la app."
             : error.message || "No se pudo generar el QR de Baileys."
         );
       } finally {
         setIsStartingBaileys(false);
       }
+    } else if (activeTab === 'indeed' || activeTab === 'computrabajo') {
+      setModalStep('success');
+      setTimeout(() => {
+        handleCreateAccount();
+      }, 900);
     } else {
       setModalStep('oauth_connecting');
       setTimeout(() => {
@@ -255,9 +495,9 @@ export function WhatsAppAccounts() {
     if (activeTab === 'whatsapp_personal') {
       phoneIdText = baileysStatus?.phone || `Sesion Baileys: ${baileysSessionId.trim() || "default"}`;
     } else if (activeTab === 'indeed') {
-      phoneIdText = `Employer ID: indeed_${Math.floor(100000 + Math.random() * 900000)}`;
+      phoneIdText = `Entrada: CSV/correo/webhook Indeed`;
     } else if (activeTab === 'computrabajo') {
-      phoneIdText = "Portal: Computrabajo LATAM";
+      phoneIdText = "Entrada: CSV/correo/webhook Computrabajo";
     } else if (activeTab === 'facebook') {
       phoneIdText = `ID: pg_${Math.floor(10000000 + Math.random() * 90000000)}`;
     } else if (activeTab === 'messenger') {
@@ -277,13 +517,18 @@ export function WhatsAppAccounts() {
       lastSync: "Justo ahora",
       type: activeTab,
       mode: getPlatformMode(activeTab),
-      webhookUrl: getWebhookUrl(activeTab)
+      webhookUrl: getWebhookUrl(activeTab),
+      isolationKey: activeTab === 'whatsapp_personal' ? baileysSessionId.trim() || "default" : undefined,
+      companyName: newAccountCompanyName.trim() || DEFAULT_COMPANY_NAME,
+      agentPersonalName: newAgentPersonalName.trim() || undefined,
     };
     
     setAccounts([...accounts, added]);
     setIsModalOpen(false);
     setModalStep('info');
     setNewAccountName('');
+    setNewAccountCompanyName(DEFAULT_COMPANY_NAME);
+    setNewAgentPersonalName('');
     setSelectedAgent('');
     setBaileysStatus(null);
     setBaileysError('');
@@ -295,15 +540,45 @@ export function WhatsAppAccounts() {
     const sessionId = baileysSessionId.trim() || "default";
     const interval = window.setInterval(async () => {
       try {
-        const response = await fetch(apiUrl(`/api/integrations/baileys/status/${encodeURIComponent(sessionId)}`));
+        const response = await apiFetch(`/api/integrations/baileys/status/${encodeURIComponent(sessionId)}`);
         const payload = await readApiJson(response);
         if (!response.ok || !payload.success) {
           throw new Error(payload.error || "No se pudo leer el estado de Baileys.");
         }
 
         setBaileysStatus(payload.data);
+        if (!payload.data?.lastError) {
+          setBaileysError("");
+        }
         if (payload.data?.lastError) {
-          setBaileysError(payload.data.lastError);
+          const friendlyError =
+            payload.data.state === "logged_out" || /connection failure/i.test(payload.data.lastError)
+              ? "La sesion anterior expiro. Estamos generando un QR nuevo para volver a vincular WhatsApp."
+              : payload.data.lastError;
+          setBaileysError(friendlyError);
+        }
+
+        if (payload.data?.state === "logged_out" && !baileysLoggedOutResetRef.current) {
+          baileysLoggedOutResetRef.current = true;
+          setBaileysError("La sesion anterior expiro o fue desvinculada. Generando un QR nuevo...");
+          const assignedAgent = getAssignedAgent(selectedAgent);
+          const agentName = newAgentPersonalName.trim() || assignedAgent?.name || "Agente de Heavenly Dreams";
+          const restartResponse = await apiFetch("/api/integrations/baileys/start", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              sessionId,
+              agentName,
+              companyName: newAccountCompanyName.trim() || DEFAULT_COMPANY_NAME,
+              agentPrompt: assignedAgent?.basePrompt || assignedAgent?.description || "",
+              autoReplyEnabled: true,
+              resetSession: true,
+            }),
+          });
+          const restartPayload = await readApiJson(restartResponse);
+          if (restartPayload?.data) {
+            setBaileysStatus(restartPayload.data);
+          }
         }
 
         if (payload.data?.state === "connected" && !baileysCompletedRef.current) {
@@ -316,7 +591,7 @@ export function WhatsAppAccounts() {
       } catch (error: any) {
         setBaileysError(
           error.message === "API endpoint no encontrado"
-            ? "Baileys no esta disponible en Vercel serverless. Usa localhost para vincular WhatsApp normal."
+            ? "Baileys no esta disponible porque el backend Express no respondio. Revisa que el servicio de DigitalOcean este corriendo."
             : error.message || "No se pudo actualizar el estado de Baileys."
         );
       }
@@ -339,16 +614,17 @@ export function WhatsAppAccounts() {
   const getDefaultWelcomeMessage = (account: ChannelAccount) => {
     const agent = getAssignedAgent(account.agentId);
     const agentName = agent?.name || "tu asistente de reclutamiento";
+    const companyName = account.companyName || agent?.companyName || DEFAULT_COMPANY_NAME;
 
     switch (account.type) {
       case 'whatsapp_personal':
         return WHATSAPP_RECRUITMENT_TEMPLATES.find((template) => template.id === "wa-saludo-precalificacion")?.body || "";
       case 'facebook':
-        return `Hola, soy ${agentName} de Heavenly Dreams. Gracias por tu interés en nuestras vacantes. ¿Qué puesto te interesa y en qué ciudad estás para darte la información correcta?`;
+        return `Hola, soy ${agentName} de ${companyName}. Gracias por tu interés en nuestras vacantes. ¿Qué puesto te interesa y en qué ciudad estás para darte la información correcta?`;
       case 'messenger':
         return `Hola, soy ${agentName}. Con gusto te ayudo por Messenger. Para orientarte mejor dime tu nombre, ciudad y la vacante que te interesa.`;
       case 'instagram':
-        return `¡Hola! Soy ${agentName} de Heavenly Dreams. Si buscas empleo, dime la palabra VACANTE y tu ciudad para enviarte opciones disponibles.`;
+        return `¡Hola! Soy ${agentName} de ${companyName}. Si buscas empleo, dime la palabra VACANTE y tu ciudad para enviarte opciones disponibles.`;
       case 'tiktok':
         return `Hola, soy ${agentName}. Recibimos tu registro desde TikTok. ¿Confirmas que sigues interesado y que podemos contactarte para una entrevista?`;
       default:
@@ -453,7 +729,11 @@ export function WhatsAppAccounts() {
   };
 
   const assignAgent = (accountId: string, agentId: string) => {
-    setAccounts(accounts.map(a => a.id === accountId ? { ...a, agentId } : a));
+    setAccounts(accounts.map((account) => {
+      if (account.id !== accountId) return account;
+      if (!isAgentCompatibleWithChannel(agentId, account.type)) return account;
+      return { ...account, agentId, lastSync: "Justo ahora" };
+    }));
   };
 
   const getPlatformLabel = (type: string) => {
@@ -483,6 +763,18 @@ export function WhatsAppAccounts() {
   };
 
   const getPlatformIcon = (type: string) => {
+    const image = CHANNEL_ICON_IMAGES[type as ChannelType];
+    if (image) {
+      return (
+        <img
+          src={image}
+          alt={`${getPlatformLabel(type)} icono`}
+          className="h-5 w-5 object-contain drop-shadow-[0_0_10px_rgba(34,211,238,0.35)]"
+          loading="lazy"
+        />
+      );
+    }
+
     switch(type) {
       case 'whatsapp_personal': return <Smartphone className="w-5 h-5 text-emerald-400" />;
       case 'indeed': return <MessageSquare className="w-5 h-5 text-blue-300" />;
@@ -498,7 +790,7 @@ export function WhatsAppAccounts() {
   const getPlatformMode = (type: string) => {
     switch(type) {
       case 'whatsapp_personal': return 'Baileys WhatsApp Web';
-      case 'indeed': return 'Indeed Partner API';
+      case 'indeed': return 'CSV / Email parser / Feed autorizado / Webhook';
       case 'computrabajo': return 'Feed autorizado / CSV / Webhook';
       case 'facebook': return 'Meta Graph API / Lead Ads';
       case 'messenger': return 'Meta Messenger API';
@@ -521,9 +813,9 @@ export function WhatsAppAccounts() {
       case 'whatsapp_personal':
         return "Conector local Baileys: genera QR real, vincula WhatsApp Web, recibe mensajes y permite al agente responder desde el dispositivo enlazado.";
       case 'indeed':
-        return "Integración ATS/partner: Indeed Apply, Candidate Sync, Job Sync y estados de proceso.";
+        return "Entrada sin API directa obligatoria: importa postulantes desde CSV, correo parser, feed autorizado, Indeed Apply empresarial o webhook intermedio.";
       case 'computrabajo':
-        return "Entrada autorizada por CSV, email parser, feed empresarial o webhook intermedio para postulantes.";
+        return "Entrada sin API directa obligatoria: captura candidatos por CSV, correo parser, exportacion del portal, feed empresarial o webhook intermedio.";
       case 'facebook':
         return "Captura leads y comentarios desde Facebook; Aurora responde dudas, precalifica y envía candidatos al CRM.";
       case 'messenger':
@@ -553,7 +845,12 @@ export function WhatsAppAccounts() {
           onClick={() => {
             setModalStep('info');
             setSelectedAgent(getDefaultAgentId(activeTab));
-            setBaileysSessionId("default");
+            setNewAccountName(
+              activeTab === 'whatsapp_personal'
+                ? 'WhatsApp Baileys Reclutamiento'
+                : ''
+            );
+            setBaileysSessionId(activeTab === 'whatsapp_personal' ? getNextWhatsAppSessionId() : "default");
             setBaileysStatus(null);
             setBaileysError("");
             baileysCompletedRef.current = false;
@@ -596,7 +893,16 @@ export function WhatsAppAccounts() {
                 : "text-slate-400 hover:text-white hover:bg-white/5"
             )}
           >
-            <tab.icon className={cn("w-4 h-4", tab.color)} />
+            {CHANNEL_ICON_IMAGES[tab.id as ChannelType] ? (
+              <img
+                src={CHANNEL_ICON_IMAGES[tab.id as ChannelType]}
+                alt={`${tab.name} icono`}
+                className="h-4 w-4 object-contain"
+                loading="lazy"
+              />
+            ) : (
+              <tab.icon className={cn("w-4 h-4", tab.color)} />
+            )}
             {tab.name}
           </button>
         ))}
@@ -622,9 +928,22 @@ export function WhatsAppAccounts() {
           <div>
             <h2 className="text-sm font-bold text-white">{getPlatformLabel(activeTab)}</h2>
             <p className="text-xs text-slate-400 mt-1 max-w-3xl">{getCaptureDescription(activeTab)}</p>
+            <div className="mt-2 inline-flex items-center gap-2 rounded-lg border border-cyan-500/15 bg-cyan-500/5 px-2 py-1 text-[10px] font-bold uppercase tracking-widest text-cyan-200">
+              <Zap className="h-3 w-3" />
+              Agentes activos: {getChannelAgentGroupLabel(activeTab)}
+            </div>
             {getWebhookUrl(activeTab) && (
               <div className="mt-2 text-[10px] text-cyan-300 font-mono bg-slate-950 border border-cyan-500/10 rounded-lg px-2 py-1 inline-block">
                 Webhook: {getWebhookUrl(activeTab)}
+              </div>
+            )}
+            {(activeTab === 'indeed' || activeTab === 'computrabajo') && (
+              <div className="mt-2 flex flex-wrap gap-2">
+                {["CSV", "Correo parser", "Feed autorizado", "Webhook"].map((method) => (
+                  <span key={method} className="rounded-lg border border-sky-400/20 bg-sky-400/10 px-2 py-1 text-[10px] font-bold uppercase tracking-widest text-sky-200">
+                    {method}
+                  </span>
+                ))}
               </div>
             )}
           </div>
@@ -644,10 +963,70 @@ export function WhatsAppAccounts() {
             className="px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wide bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 hover:bg-cyan-500/20 disabled:opacity-50 flex items-center gap-2"
           >
             {testingProvider ? <Loader2 className="w-4 h-4 animate-spin" /> : <Shield className="w-4 h-4" />}
-            Probar conexión
+            {activeTab === 'indeed' || activeTab === 'computrabajo' ? "Ver forma correcta" : "Probar conexión"}
           </button>
         </div>
       </div>
+
+      {activeTab === 'whatsapp_personal' && (
+        <div className="glass-panel rounded-2xl border border-emerald-500/20 bg-emerald-500/5 p-5">
+          <div className="flex flex-col xl:flex-row xl:items-center xl:justify-between gap-5">
+            <div className="max-w-3xl">
+              <div className="flex items-center gap-2 text-emerald-300 text-xs font-bold uppercase tracking-[0.18em]">
+                <Shield className="w-4 h-4" />
+                Modulo extra: aislamiento por cuenta
+              </div>
+              <h3 className="mt-2 text-xl font-bold text-white">Cada WhatsApp trabaja con su propio agente</h3>
+              <p className="mt-1 text-sm leading-6 text-slate-400">
+                Cuando enlaces otro numero, usa una sesion diferente. La app separa cuenta, agente y reglas para que las respuestas no se mezclen entre lineas de WhatsApp.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-3 gap-3 min-w-full xl:min-w-[420px]">
+              <div className="rounded-xl border border-emerald-500/20 bg-slate-950/50 p-3">
+                <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Cuentas</p>
+                <p className="mt-1 text-2xl font-bold text-white">{whatsappAccounts.length}</p>
+              </div>
+              <div className="rounded-xl border border-cyan-500/20 bg-slate-950/50 p-3">
+                <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Agentes</p>
+                <p className="mt-1 text-2xl font-bold text-white">{new Set(whatsappAccounts.map(account => account.agentId)).size}</p>
+              </div>
+              <div className="rounded-xl border border-blue-500/20 bg-slate-950/50 p-3">
+                <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Sesiones</p>
+                <p className="mt-1 text-2xl font-bold text-white">{new Set(whatsappAccounts.map(getAccountIsolationKey)).size}</p>
+              </div>
+            </div>
+          </div>
+
+          {whatsappAccounts.length > 0 && (
+            <div className="mt-4 grid grid-cols-1 lg:grid-cols-2 gap-3">
+              {whatsappAccounts.map(account => {
+                const agent = getAssignedAgent(account.agentId);
+                return (
+                  <div key={`isolation-${account.id}`} className="rounded-xl border border-white/5 bg-slate-950/45 p-3">
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <p className="text-sm font-bold text-white">{account.name}</p>
+                        <p className="mt-1 text-[11px] font-mono text-emerald-300">Sesion aislada: {getAccountIsolationKey(account)}</p>
+                      </div>
+                      <span className="rounded-full border border-emerald-500/20 bg-emerald-500/10 px-2 py-1 text-[10px] font-bold uppercase tracking-widest text-emerald-300">
+                        No mezcla
+                      </span>
+                    </div>
+                    <div className="mt-3 rounded-lg border border-cyan-500/10 bg-cyan-500/5 px-3 py-2">
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-cyan-300">Agente asignado a esta cuenta</p>
+                      <p className="mt-1 text-xs text-slate-200">{account.agentPersonalName || agent?.name || "Sin agente asignado"}</p>
+                      {account.agentPersonalName && (
+                        <p className="mt-1 text-[10px] text-slate-500">Base IA: {agent?.name || "Agente seleccionado"}</p>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      )}
 
       {activeTab === 'facebook' && (
         <div className="glass-panel rounded-2xl border border-blue-500/20 p-5 overflow-hidden relative">
@@ -799,43 +1178,50 @@ export function WhatsAppAccounts() {
       )}
 
       {/* Main Grid Accounts */}
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 2xl:grid-cols-2 gap-5 xl:gap-6">
         {filteredAccounts.map(account => (
           <div 
             key={account.id} 
             className={cn(
-              "glass-panel rounded-2xl flex flex-col p-6 border transition-all duration-300 group hover:scale-[1.01] hover:shadow-xl",
+              "glass-panel rounded-2xl flex min-w-0 flex-col p-5 lg:p-6 border transition-all duration-300 group hover:shadow-xl",
               account.status === 'connected' ? "hover:border-cyan-500/30 border-white/5" : "border-rose-500/20"
             )}
           >
-            <div className="flex justify-between items-start mb-4">
-              <div className="flex items-center gap-3">
+            <div className="mb-4 flex flex-col gap-4">
+              <div className="flex min-w-0 items-start justify-between gap-4">
+                <div className="flex min-w-0 items-center gap-4">
                 <div className={cn(
                   "w-12 h-12 rounded-xl flex items-center justify-center shrink-0 border",
                   account.status === 'connected' ? "bg-cyan-500/10 text-cyan-400 border-cyan-500/20" : "bg-rose-500/20 text-rose-400 border-rose-500/30"
                 )}>
                   {getPlatformIcon(account.type)}
                 </div>
-                <div>
-                  <h3 className="font-bold text-white text-lg tracking-tight group-hover:text-cyan-300 transition-colors">{account.name}</h3>
-                  <p className="text-slate-450 text-xs font-mono">{account.phone}</p>
+                <div className="min-w-0">
+                  <h3 className="break-words text-lg font-bold leading-tight tracking-tight text-white transition-colors group-hover:text-cyan-300">{account.name}</h3>
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-cyan-300">{account.companyName || DEFAULT_COMPANY_NAME}</p>
+                  {account.agentPersonalName && (
+                    <p className="mt-0.5 text-xs font-semibold text-emerald-300">Atiende: {account.agentPersonalName}</p>
+                  )}
+                  <p className="break-words text-xs font-mono text-slate-400">{account.phone}</p>
                 </div>
-                {getAssignedAgent(account.agentId) && (
-                  <div className="mt-2 rounded-lg border border-cyan-500/10 bg-cyan-500/5 px-3 py-2">
-                    <div className="text-[10px] font-bold uppercase tracking-widest text-cyan-300">Sabe responder sobre</div>
-                    <p className="mt-1 text-[11px] leading-5 text-slate-300">
-                      {getAssignedAgent(account.agentId)?.description}
-                    </p>
-                  </div>
-                )}
+                </div>
+                <div className={cn(
+                  "shrink-0 px-2.5 py-1 flex items-center gap-1 rounded-full text-[9px] uppercase tracking-wider font-bold border",
+                  account.status === "connected" ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" : "bg-rose-500/10 text-rose-400 border-rose-500/20"
+                )}>
+                  {account.status === "connected" ? <CheckCircle2 className="w-3 h-3" /> : <RotateCcw className="w-3 h-3" />}
+                  {account.status === "connected" ? "Conectado" : "Desvinculado"}
+                </div>
               </div>
-              <div className={cn(
-                "px-2 py-0.5 flex items-center gap-1 rounded-full text-[9px] uppercase tracking-wider font-bold border",
-                account.status === "connected" ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" : "bg-rose-500/10 text-rose-400 border-rose-500/20"
-              )}>
-                {account.status === "connected" ? <CheckCircle2 className="w-3 h-3" /> : <RotateCcw className="w-3 h-3" />}
-                {account.status === "connected" ? "Conectado" : "Desvinculado"}
-              </div>
+
+              {getAssignedAgent(account.agentId) && (
+                <div className="rounded-xl border border-cyan-500/10 bg-cyan-500/5 px-4 py-3">
+                  <div className="text-[10px] font-bold uppercase tracking-widest text-cyan-300">Sabe responder sobre</div>
+                  <p className="mt-1 text-sm leading-6 text-slate-300">
+                    {getAssignedAgent(account.agentId)?.description}
+                  </p>
+                </div>
+              )}
             </div>
 
             {/* Campaign info section dynamically shown per platform */}
@@ -856,6 +1242,26 @@ export function WhatsAppAccounts() {
               </div>
             </div>
 
+            {account.type === "whatsapp_personal" && (
+              <div className="mb-4 rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-3">
+                <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-emerald-300">
+                  <Shield className="w-3.5 h-3.5" />
+                  Aislamiento activo
+                </div>
+                <p className="mt-2 text-xs leading-5 text-slate-300">
+                  Esta cuenta usa su propia sesion, agente y reglas. Los mensajes entrantes se enrutan solo al agente seleccionado aqui.
+                </p>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <span className="rounded-lg border border-emerald-500/20 bg-slate-950/70 px-2 py-1 text-[10px] font-mono text-emerald-300">
+                    {getAccountIsolationKey(account)}
+                  </span>
+                  <span className="rounded-lg border border-cyan-500/20 bg-slate-950/70 px-2 py-1 text-[10px] text-cyan-300">
+                    Agente: {account.agentPersonalName || getAssignedAgent(account.agentId)?.name || "Sin asignar"}
+                  </span>
+                </div>
+              </div>
+            )}
+
             <div className="mt-auto pt-4 border-t border-slate-700/50 flex flex-col gap-3">
               <div className="flex flex-col gap-1.5">
                 <label className="text-xs text-slate-400 font-medium uppercase tracking-wider flex items-center gap-1">
@@ -868,7 +1274,7 @@ export function WhatsAppAccounts() {
                     onChange={(e) => assignAgent(account.id, e.target.value)}
                   >
                     <option value="">-- Sin asignar --</option>
-                    {EMPTY_AGENTS.map(agent => (
+                    {getCompatibleAgents(account.type).map(agent => (
                       <option key={agent.id} value={agent.id}>{agent.name} ({agent.role})</option>
                     ))}
                   </select>
@@ -876,6 +1282,9 @@ export function WhatsAppAccounts() {
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
                   </div>
                 </div>
+                <p className="mt-2 text-[11px] leading-5 text-slate-500">
+                  {CHANNEL_AGENT_RULES[account.type].helper}
+                </p>
               </div>
 
               <div className="flex items-center justify-between mt-2">
@@ -912,23 +1321,25 @@ export function WhatsAppAccounts() {
 
       {/* Link Account Tab Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 bg-slate-900/95 backdrop-blur-md z-50 flex items-center justify-center p-4">
-          <div className="bg-slate-900 border border-slate-700/50 p-6 md:p-8 rounded-2xl w-full max-w-md relative flex flex-col glass-panel shadow-2xl">
+        <div className="fixed inset-0 bg-slate-900/95 backdrop-blur-md z-50 flex items-start justify-center overflow-y-auto px-4 py-6 md:py-10">
+          <div className="bg-slate-900 border border-slate-700/50 rounded-2xl w-full max-w-2xl relative flex max-h-[calc(100vh-3rem)] flex-col glass-panel shadow-2xl">
             <button 
               onClick={() => setIsModalOpen(false)}
-              className="absolute top-4 right-4 text-slate-400 hover:text-white p-2 transition-colors"
+              className="absolute top-4 right-4 z-20 text-slate-400 hover:text-white p-2 transition-colors"
             >
               <X className="w-5 h-5" />
             </button>
             
             {modalStep === 'info' && (
               <>
-                <h2 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-blue-500 mb-6 flex items-center gap-2">
+                <div className="shrink-0 border-b border-white/5 px-5 py-5 pr-14 md:px-7">
+                  <h2 className="flex items-center gap-2 bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-2xl font-bold text-transparent">
                    {getPlatformIcon(activeTab)}
                    Vincular {getPlatformLabel(activeTab)}
-                </h2>
+                  </h2>
+                </div>
                 
-                <div className="space-y-4">
+                <div className="flex-1 space-y-4 overflow-y-auto px-5 py-5 md:px-7 styled-scrollbar">
                   <div>
                     <label className="text-sm text-slate-300 mb-1.5 block">Nombre Identificador</label>
                     <input 
@@ -947,6 +1358,34 @@ export function WhatsAppAccounts() {
                     />
                   </div>
 
+                  <div>
+                    <label className="text-sm text-slate-300 mb-1.5 block">Empresa que atenderá esta cuenta</label>
+                    <input
+                      type="text"
+                      value={newAccountCompanyName}
+                      onChange={(e) => setNewAccountCompanyName(e.target.value)}
+                      className="w-full bg-slate-800 border border-slate-700/80 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition-all"
+                      placeholder="Ej: Heavenly Dreams, Cliente A, Restaurante Norte"
+                    />
+                    <p className="mt-2 text-xs text-slate-500">
+                      Este nombre entra al prompt para que el agente no mezcle empresas ni cuentas.
+                    </p>
+                  </div>
+
+                  <div>
+                    <label className="text-sm text-slate-300 mb-1.5 block">Nombre personal del agente</label>
+                    <input
+                      type="text"
+                      value={newAgentPersonalName}
+                      onChange={(e) => setNewAgentPersonalName(e.target.value)}
+                      className="w-full bg-slate-800 border border-slate-700/80 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition-all"
+                      placeholder="Ej: Laura de RH, Edgar Reclutamiento, Asesor Heavenly"
+                    />
+                    <p className="mt-2 text-xs leading-5 text-slate-500">
+                      Este alias se usará como nombre visible y personalidad del agente al responder por esta cuenta.
+                    </p>
+                  </div>
+
                   {activeTab === 'whatsapp_personal' && (
                     <div>
                       <label className="text-sm text-slate-300 mb-1.5 block">Sesión Baileys</label>
@@ -960,13 +1399,38 @@ export function WhatsAppAccounts() {
                       <p className="text-xs text-slate-500 mt-2 font-light">
                         Usa una sesión por número. El QR se guarda localmente para reutilizar la conexión.
                       </p>
+                      <div className="mt-3 rounded-xl border border-emerald-500/20 bg-emerald-500/5 px-3 py-2">
+                        <p className="text-[10px] font-bold uppercase tracking-widest text-emerald-300">Separación de agentes</p>
+                        <p className="mt-1 text-[11px] leading-5 text-slate-400">
+                          Si abres otra cuenta de WhatsApp, cambia este nombre de sesión. Así cada número queda aislado con su propio agente y no comparte conversaciones.
+                        </p>
+                      </div>
+                      {baileysError && (
+                        <div className="mt-3 rounded-xl border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-xs text-amber-200">
+                          {baileysError}
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {(activeTab === 'indeed' || activeTab === 'computrabajo') && (
+                    <div className="rounded-xl border border-sky-500/20 bg-sky-500/5 px-3 py-3">
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-sky-300">Conexion sin API directa</p>
+                      <p className="mt-1 text-[11px] leading-5 text-slate-400">
+                        Este canal se alimenta por exportacion CSV, correo parser, feed autorizado o webhook. La cuenta queda separada con su agente para clasificar candidatos y dar seguimiento sin mezclar portales.
+                      </p>
+                      {getWebhookUrl(activeTab) && (
+                        <p className="mt-2 break-all rounded-lg bg-slate-950/70 px-2 py-2 font-mono text-[10px] text-cyan-200">
+                          {getWebhookUrl(activeTab)}
+                        </p>
+                      )}
                     </div>
                   )}
 
                   <div>
                     <label className="text-sm text-slate-300 mb-1.5 block flex items-center gap-1">
                       <Zap className="w-4 h-4 text-cyan-400 animate-pulse" /> 
-                      Vincular con Agente AI
+                      Vincular con Agente AI ({getChannelAgentGroupLabel(activeTab)})
                     </label>
                     <div className="relative">
                       <select 
@@ -975,7 +1439,7 @@ export function WhatsAppAccounts() {
                         className="w-full bg-slate-800 border border-slate-700/80 rounded-xl px-4 py-2.5 pr-10 text-sm text-white focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition-all appearance-none"
                       >
                         <option value="">Selecciona un Agente...</option>
-                        {EMPTY_AGENTS.map(agent => (
+                        {getCompatibleAgents(activeTab).map(agent => (
                           <option key={agent.id} value={agent.id}>{agent.name} - {agent.role}</option>
                         ))}
                       </select>
@@ -983,10 +1447,17 @@ export function WhatsAppAccounts() {
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
                       </div>
                     </div>
-                    <p className="text-xs text-slate-500 mt-2 font-light">Este agente responderá de forma inteligente las interacciones provenientes de este canal.</p>
+                    <p className="text-xs text-slate-500 mt-2 font-light">
+                      {CHANNEL_AGENT_RULES[activeTab].helper} Los agentes de otros canales quedan ocultos para evitar respuestas cruzadas.
+                    </p>
+                    {getCompatibleAgents(activeTab).length === 0 && (
+                      <div className="mt-3 rounded-xl border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-xs text-amber-200">
+                        No hay agentes compatibles activos para este canal. Activa o crea un agente con canal {getChannelAgentGroupLabel(activeTab)}.
+                      </div>
+                    )}
                     {getAssignedAgent(selectedAgent) && (
                       <div className="mt-3 rounded-xl border border-cyan-500/10 bg-slate-950/50 p-3">
-                        <p className="text-[10px] font-bold uppercase tracking-widest text-cyan-300">Agente recomendado</p>
+                        <p className="text-[10px] font-bold uppercase tracking-widest text-cyan-300">Agente activo para este canal</p>
                         <p className="mt-1 text-xs font-semibold text-white">{getAssignedAgent(selectedAgent)?.name}</p>
                         <p className="mt-1 text-[11px] leading-5 text-slate-400">{getAssignedAgent(selectedAgent)?.description}</p>
                       </div>
@@ -994,7 +1465,7 @@ export function WhatsAppAccounts() {
                   </div>
                 </div>
 
-                <div className="mt-8 flex justify-end gap-3 pt-6 border-t border-white/5">
+                <div className="shrink-0 flex justify-end gap-3 border-t border-white/5 bg-slate-950/30 px-5 py-4 md:px-7">
                   <button 
                     onClick={() => setIsModalOpen(false)}
                     className="px-5 py-2 rounded-xl font-medium text-sm text-slate-300 hover:bg-white/5 transition-colors"
@@ -1006,7 +1477,7 @@ export function WhatsAppAccounts() {
                     disabled={!newAccountName || !selectedAgent || isStartingBaileys}
                     className="bg-cyan-500 hover:bg-cyan-600 text-slate-900 font-semibold px-6 py-2.5 rounded-xl text-sm transition-all shadow-[0_0_15px_rgba(34,211,238,0.2)] disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    {isStartingBaileys ? 'Iniciando...' : activeTab === 'whatsapp_personal' ? 'Generar Código QR' : 'Conectar con API Externa'}
+                    {isStartingBaileys ? 'Iniciando...' : activeTab === 'whatsapp_personal' ? 'Generar Código QR' : activeTab === 'indeed' || activeTab === 'computrabajo' ? 'Crear entrada sin API' : 'Conectar con API oficial'}
                   </button>
                 </div>
               </>
@@ -1031,13 +1502,22 @@ export function WhatsAppAccounts() {
 
                 <div className="flex items-center gap-2 text-sm text-cyan-400 animate-pulse">
                   <Loader2 className="w-4 h-4 animate-spin" />
-                  {baileysStatus?.state === "qr" ? "Esperando escaneo desde tu dispositivo móvil..." : "Preparando sesión Baileys..."}
+                  {baileysStatus?.state === "qr"
+                    ? "Esperando escaneo desde tu dispositivo móvil..."
+                    : baileysStatus?.state === "logged_out"
+                      ? "QR anterior vencido. Preparando uno nuevo..."
+                      : "Preparando sesión Baileys..."}
                 </div>
                 <p className="mt-3 text-[11px] uppercase tracking-widest text-slate-500">
                   Sesión: {baileysStatus?.id || baileysSessionId || "default"} · Estado: {baileysStatus?.state || "connecting"}
                 </p>
                 {baileysError && (
-                  <div className="mt-4 rounded-xl border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-xs text-rose-200">
+                  <div className={cn(
+                    "mt-4 rounded-xl border px-4 py-3 text-xs",
+                    baileysStatus?.state === "logged_out"
+                      ? "border-amber-500/30 bg-amber-500/10 text-amber-200"
+                      : "border-rose-500/30 bg-rose-500/10 text-rose-200"
+                  )}>
                     {baileysError}
                   </div>
                 )}
@@ -1053,8 +1533,8 @@ export function WhatsAppAccounts() {
                   </div>
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold text-white mb-1">Verificando Credenciales de API</h3>
-                  <p className="text-xs text-slate-400 max-w-xs">Estableciendo túnel seguro y concediendo permisos de webhook para {getPlatformLabel(activeTab)} de forma automática...</p>
+                  <h3 className="text-xl font-bold text-white mb-1">Verificando credenciales oficiales</h3>
+                  <p className="text-xs text-slate-400 max-w-xs">Preparando permisos del proveedor para {getPlatformLabel(activeTab)}. Estos canales requieren credenciales aprobadas antes de recibir datos reales.</p>
                 </div>
                 <div className="bg-slate-950 px-4 py-2 rounded-lg border border-white/5 font-mono text-[10px] text-zinc-500 max-w-xs overflow-hidden text-ellipsis">
                   CONNECTING_METADATA_STREAM_ENDPOINT...
@@ -1068,7 +1548,7 @@ export function WhatsAppAccounts() {
                   <CheckCircle2 className="w-10 h-10 text-emerald-400" />
                 </div>
                 <h3 className="text-2xl font-bold text-white mb-2">¡Canal Sincronizado!</h3>
-                <p className="text-slate-400 text-sm">La integración con {getPlatformLabel(activeTab)} se ha activado exitosamente y fue vinculada con el Agente AI.</p>
+                <p className="text-slate-400 text-sm">El canal {getPlatformLabel(activeTab)} quedo vinculado con su Agente AI y su metodo correcto de entrada.</p>
               </div>
             )}
           </div>

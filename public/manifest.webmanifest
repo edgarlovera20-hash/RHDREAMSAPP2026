@@ -2,13 +2,13 @@
   "name": "RHDreams - Heavenly Dreams",
   "short_name": "RHDreams",
   "description": "CRM de reclutamiento de Heavenly Dreams.",
-  "start_url": "/",
+  "start_url": ".",
   "display": "standalone",
   "background_color": "#020617",
   "theme_color": "#020617",
   "icons": [
     {
-      "src": "/assets/heavenly-dreams-logo.svg",
+      "src": "assets/heavenly-dreams-logo.svg",
       "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "any maskable"

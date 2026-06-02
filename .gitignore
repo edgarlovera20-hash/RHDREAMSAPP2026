@@ -4,6 +4,8 @@ dist/
 coverage/
 .DS_Store
 *.log
+*.tmp
+logs/
+.sessions/
 .env*
 !.env.example
-.vercel

@@ -19,12 +19,13 @@ import {
   Search,
   Settings2,
   ShieldCheck,
+  Sparkles,
   Trash2,
   UserCheck,
   Zap
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { apiUrl, readApiJson } from "@/lib/api";
+import { apiFetch, readApiJson } from "@/lib/api";
 import { RH_PROMPT_CATEGORIES, RH_PROMPT_LIBRARY, RH_PROMPT_LIBRARY_META, type RhPromptTemplate } from "@/data/rhPromptLibrary";
 
 type VariableType = "texto" | "numero" | "fecha" | "opcion" | "booleano" | "lista" | "json";
@@ -234,6 +235,186 @@ function createCondition(): WorkflowCondition {
   };
 }
 
+const containsAny = (text: string, words: string[]) => words.some((word) => text.includes(word));
+
+function inferChannel(prompt: string) {
+  if (containsAny(prompt, ["instagram", "ig", "dm"])) return "Instagram DM";
+  if (containsAny(prompt, ["messenger", "facebook chat"])) return "Messenger";
+  if (containsAny(prompt, ["facebook", "meta", "lead ads"])) return "Facebook Leads";
+  if (containsAny(prompt, ["tiktok", "tik tok"])) return "TikTok Leads";
+  if (containsAny(prompt, ["indeed"])) return "Indeed";
+  if (containsAny(prompt, ["computrabajo"])) return "Computrabajo";
+  if (containsAny(prompt, ["gmail", "correo", "email"])) return "Gmail";
+  if (containsAny(prompt, ["webhook", "formulario", "externo"])) return "Webhook";
+  return "WhatsApp Normal";
+}
+
+function inferTrigger(prompt: string, channel: string): TriggerConfig {
+  if (containsAny(prompt, ["no responde", "seguimiento", "follow up", "recordatorio"])) {
+    return { event: "Candidato no responde", source: channel, schedule: "Despues de 24 horas sin respuesta", debounceMinutes: 1440, runWindow: "Lunes a sabado 09:00-19:00" };
+  }
+  if (containsAny(prompt, ["entrevista", "agenda", "agendar", "cita"])) {
+    return { event: "Candidato pasa a entrevista", source: channel, schedule: "Inmediato", debounceMinutes: 10, runWindow: "Lunes a viernes 08:00-20:00" };
+  }
+  if (containsAny(prompt, ["webhook", "formulario", "externo"])) {
+    return { event: "Webhook recibido", source: "Webhook", schedule: "Inmediato", debounceMinutes: 1, runWindow: "24/7" };
+  }
+  if (containsAny(prompt, ["mensaje", "inbox", "dm", "whatsapp"])) {
+    return { event: "Mensaje entrante sin responder", source: channel, schedule: "Inmediato", debounceMinutes: 3, runWindow: "Lunes a sabado 08:00-21:00" };
+  }
+  return { event: "Nueva postulación recibida", source: channel === "Webhook" ? "Webhook" : channel, schedule: "Inmediato", debounceMinutes: 5, runWindow: "Lunes a viernes 08:00-20:00" };
+}
+
+function createWorkflowFromPrompt(prompt: string): AiWorkflow {
+  const normalized = prompt.toLowerCase();
+  const channel = inferChannel(normalized);
+  const needsInterview = containsAny(normalized, ["entrevista", "agenda", "agendar", "calendar", "cita"]);
+  const needsWebhook = containsAny(normalized, ["webhook", "api", "externo", "formulario"]);
+  const needsFollowUp = containsAny(normalized, ["seguimiento", "follow", "no responde", "recordatorio", "reactivar"]);
+  const needsScoring = containsAny(normalized, ["calificar", "score", "filtrar", "evaluar", "perfil", "embudo"]);
+  const needsDocuments = containsAny(normalized, ["cv", "documento", "ine", "pdf", "archivo"]);
+
+  const extraVariables: WorkflowVariable[] = [
+    { id: "var-channel-source", key: "channel_source", label: "Canal origen", type: "texto", source: "Canal", fallback: channel, required: true, description: "Canal o integracion que disparo el flujo." },
+    { id: "var-funnel-stage", key: "funnel_stage", label: "Etapa del embudo", type: "opcion", source: "Sistema", fallback: "contacto", required: true, description: "contacto, calificacion, entrevista, seguimiento o cierre." },
+    { id: "var-agent-personality", key: "agent_personality", label: "Personalidad del agente", type: "texto", source: "Manual", fallback: "Humano, profesional, amable, directo y orientado a conversion.", required: false, description: "Forma de responder durante este flujo." },
+    { id: "var-branch-result", key: "branch_result", label: "Resultado de rama", type: "texto", source: "Sistema", fallback: "", required: false, description: "Guarda si el candidato avanza, se escala o se pausa." },
+  ];
+
+  const variables = [
+    ...DEFAULT_VARIABLES,
+    ...extraVariables,
+    ...(needsInterview ? [{ id: "var-interview-link", key: "interview_link", label: "Link entrevista", type: "texto" as VariableType, source: "Calendario" as VariableSource, fallback: "", required: false, description: "Link de Google Meet o direccion de entrevista." }] : []),
+    ...(needsDocuments ? [{ id: "var-required-documents", key: "required_documents", label: "Documentos requeridos", type: "lista" as VariableType, source: "Documento" as VariableSource, fallback: "CV, identificacion, comprobante", required: false, description: "Lista de documentos solicitados al candidato." }] : []),
+  ];
+
+  const conditions: WorkflowCondition[] = [
+    { id: "cond-phone", field: "candidate_phone", operator: "existe", value: "", actionOnFail: "escalar" },
+    { id: "cond-job", field: "job_name", operator: "existe", value: "", actionOnFail: "detener" },
+    { id: "cond-channel", field: "channel_source", operator: "existe", value: "", actionOnFail: "detener" },
+    ...(needsScoring ? [{ id: "cond-score", field: "candidate_fit_score", operator: "mayor que" as ConditionOperator, value: "70", actionOnFail: "escalar" as const }] : []),
+    ...(needsInterview ? [{ id: "cond-availability", field: "work_schedule", operator: "existe" as ConditionOperator, value: "", actionOnFail: "continuar" as const }] : []),
+  ];
+
+  const steps: WorkflowStep[] = [
+    {
+      id: "step-receive",
+      name: "1. Capturar entrada",
+      type: needsWebhook ? "webhook" : "ai",
+      agent: "Agente de recepción",
+      instruction: `Lee la entrada del canal {{channel_source}} y normaliza datos del candidato. Prompt original del usuario: ${prompt}`,
+      output: "normalized_lead",
+      channel: channel === "Webhook" ? "Webhook" : "Sistema",
+      waitMinutes: 0,
+      requiresApproval: false,
+      successCriteria: "Datos base normalizados: nombre, telefono, vacante, fuente y etapa inicial del embudo.",
+    },
+    {
+      id: "step-score",
+      name: "2. Calificar perfil",
+      type: "ai",
+      agent: "Agente de recepción",
+      instruction: "Evalua a {{candidate_name}} para {{job_name}} contra {{job_target_profile}}, {{required_experience}}, {{education_level}}, {{work_schedule}} y {{offer_details}}. Devuelve score 0-100, objeciones, datos faltantes y rama sugerida: avanza, nutrir, descartar o escalar.",
+      output: "candidate_fit_score",
+      channel: "Sistema",
+      waitMinutes: 0,
+      requiresApproval: false,
+      successCriteria: "Score, rama y razones trazables sin inventar informacion.",
+    },
+    {
+      id: "step-branch",
+      name: "3. Rama del embudo",
+      type: "condition",
+      agent: "Supervisor Humano",
+      instruction: "Si candidate_fit_score >= 70, avanzar a entrevista. Si faltan datos, pedir datos. Si hay alerta legal/salarial o molestia, escalar. Si no cumple, enviar cierre amable.",
+      output: "branch_result",
+      channel: "Sistema",
+      waitMinutes: 0,
+      requiresApproval: false,
+      successCriteria: "Cada candidato queda en una rama unica del embudo.",
+    },
+    {
+      id: "step-message",
+      name: "4. Mensaje personalizado",
+      type: "message",
+      agent: "Agente de recepción",
+      instruction: "Redacta respuesta para {{candidate_name}} con personalidad {{agent_personality}}. Usa la rama {{branch_result}}, explica {{job_name}}, confirma interes, pide solo un dato faltante por mensaje y evita prometer contratacion.",
+      output: "outbound_message",
+      channel,
+      waitMinutes: 0,
+      requiresApproval: channel !== "WhatsApp Normal" && channel !== "Webhook",
+      successCriteria: "Mensaje breve, humano, claro, sin discriminacion y listo para enviar.",
+    },
+    ...(needsInterview ? [{
+      id: "step-calendar",
+      name: "5. Agendar entrevista",
+      type: "calendar" as StepType,
+      agent: "Agente de agenda",
+      instruction: "Si la rama es avanza, ofrece horarios compatibles con {{work_schedule}}, crea evento y guarda {{interview_date}} y {{interview_link}}.",
+      output: "interview_event",
+      channel: "Google Calendar",
+      waitMinutes: 0,
+      requiresApproval: true,
+      successCriteria: "Entrevista propuesta o agendada con fecha, hora e instrucciones.",
+    }] : []),
+    ...(needsFollowUp ? [{
+      id: "step-follow-up",
+      name: "Seguimiento automatico",
+      type: "message" as StepType,
+      agent: "Agente de agenda",
+      instruction: "Si no hay respuesta despues del tiempo definido, envia seguimiento amable a {{candidate_name}} preguntando si desea continuar con {{job_name}}.",
+      output: "follow_up_message",
+      channel,
+      waitMinutes: 1440,
+      requiresApproval: false,
+      successCriteria: "Seguimiento sin presion, con opcion clara de continuar o cerrar.",
+    }] : []),
+    {
+      id: "step-crm",
+      name: "Actualizar CRM y embudo",
+      type: "task",
+      agent: "Agente de recepción",
+      instruction: "Actualiza etapa {{funnel_stage}}, guarda score, rama, ultimo mensaje, siguiente accion y alerta si requiere humano.",
+      output: "crm_update",
+      channel: "Sistema",
+      waitMinutes: 0,
+      requiresApproval: false,
+      successCriteria: "CRM actualizado con estado del embudo y proxima accion.",
+    },
+    {
+      id: "step-escalate",
+      name: "Escalar excepciones",
+      type: "handoff",
+      agent: "Supervisor Humano",
+      instruction: "Escala cuando falten datos criticos, haya queja, duda legal, solicitud fuera de politica, candidato molesto, salario fuera de rango o autorizacion humana requerida.",
+      output: "human_handoff",
+      channel: "Sistema",
+      waitMinutes: 0,
+      requiresApproval: false,
+      successCriteria: "Excepciones visibles para supervisor con resumen y recomendacion.",
+    },
+  ];
+
+  const nameFromPrompt = prompt
+    .split(/[.?\n]/)[0]
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, 70);
+
+  return {
+    id: `flow-ai-${Date.now()}`,
+    name: nameFromPrompt || "Flujo generado por IA",
+    status: "Borrador",
+    channel,
+    autonomous: true,
+    approvalMode: "Solo escalar excepciones",
+    trigger: inferTrigger(normalized, channel),
+    conditions,
+    variables,
+    steps,
+  };
+}
+
 export function AIWorkflows() {
   const [workflows, setWorkflows] = useState<AiWorkflow[]>(INITIAL_WORKFLOWS);
   const [activeWorkflowId, setActiveWorkflowId] = useState(INITIAL_WORKFLOWS[0].id);
@@ -245,6 +426,8 @@ export function AIWorkflows() {
   const [isStartingWorkflow, setIsStartingWorkflow] = useState(false);
   const [workflowRun, setWorkflowRun] = useState<{ runId: string; status: string } | null>(null);
   const [workflowRunError, setWorkflowRunError] = useState<string | null>(null);
+  const [flowPrompt, setFlowPrompt] = useState("");
+  const [generatedNotice, setGeneratedNotice] = useState("");
 
   const activeWorkflow = workflows.find((workflow) => workflow.id === activeWorkflowId) || workflows[0];
   const activeStep = activeWorkflow.steps.find((step) => step.id === activeStepId) || activeWorkflow.steps[0];
@@ -324,6 +507,18 @@ export function AIWorkflows() {
     setActiveStepId(workflow.steps[0].id);
   };
 
+  const generateWorkflowFromPrompt = () => {
+    const prompt = flowPrompt.trim();
+    if (!prompt) return;
+    const workflow = createWorkflowFromPrompt(prompt);
+    setWorkflows((items) => [workflow, ...items]);
+    setActiveWorkflowId(workflow.id);
+    setActiveStepId(workflow.steps[0].id);
+    setActiveTab("preview");
+    setGeneratedNotice(`Flujo creado con ${workflow.variables.length} variables, ${workflow.conditions.length} reglas/ramas y ${workflow.steps.length} pasos de embudo.`);
+    window.setTimeout(() => setGeneratedNotice(""), 4000);
+  };
+
   const removeStep = (stepId: string) => {
     if (activeWorkflow.steps.length === 1) return;
     const nextSteps = activeWorkflow.steps.filter((step) => step.id !== stepId);
@@ -360,7 +555,7 @@ export function AIWorkflows() {
     setWorkflowRun(null);
     setWorkflowRunError(null);
     try {
-      const response = await fetch(apiUrl("/api/workflows/start"), {
+      const response = await apiFetch("/api/workflows/start", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(executionPayload),
@@ -394,6 +589,40 @@ export function AIWorkflows() {
             <Save className="h-4 w-4" />
             Guardar
           </button>
+        </div>
+      </div>
+
+      <div className="glass-panel rounded-lg border border-cyan-500/20 bg-cyan-500/5 p-4">
+        <div className="grid gap-3 xl:grid-cols-[minmax(0,1fr)_220px]">
+          <div>
+            <div className="mb-2 flex items-center gap-2">
+              <Sparkles className="h-4 w-4 text-cyan-300" />
+              <h2 className="text-sm font-bold uppercase tracking-[0.18em] text-cyan-100">Generador automatico por prompt</h2>
+            </div>
+            <textarea
+              value={flowPrompt}
+              onChange={(event) => setFlowPrompt(event.target.value)}
+              placeholder="Ej: Crea un flujo para Facebook Leads que califique candidatos, los separe por score, pida datos faltantes, agende entrevista en Google Calendar, mande seguimiento si no responden y escale excepciones legales o salariales."
+              className="min-h-[104px] w-full resize-none rounded-lg border border-slate-700 bg-slate-950/60 px-4 py-3 text-sm leading-6 text-slate-100 outline-none transition-colors placeholder:text-slate-500 focus:border-cyan-400/60"
+            />
+            {generatedNotice && (
+              <p className="mt-2 text-xs font-semibold text-emerald-300">{generatedNotice}</p>
+            )}
+          </div>
+          <div className="flex flex-col justify-between gap-3 rounded-lg border border-white/5 bg-slate-950/40 p-3">
+            <div className="space-y-2 text-xs text-slate-400">
+              <p className="font-semibold text-white">Crea automaticamente:</p>
+              <p>Disparadores, ramas, reglas, embudo, variables, pasos, aprobaciones, webhooks y payload de prueba.</p>
+            </div>
+            <button
+              onClick={generateWorkflowFromPrompt}
+              disabled={!flowPrompt.trim()}
+              className="flex h-11 items-center justify-center gap-2 rounded-lg bg-cyan-500 px-4 text-sm font-bold text-slate-950 transition-colors hover:bg-cyan-400 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              <Sparkles className="h-4 w-4" />
+              Crear flujo con IA
+            </button>
+          </div>
         </div>
       </div>
 

@@ -240,11 +240,12 @@ export function Dashboard() {
         </div>
       )}
 
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mt-4 mb-6">
+      <div className="flex flex-col md:flex-row md:items-start justify-between gap-6 mt-2 mb-6">
         <div>
-          <h1 className="text-3xl md:text-4xl font-bold tracking-tighter text-white flex items-center gap-3">
-             <Cpu className="w-8 h-8 text-cyan-400" />
-             Heavenly Dreams <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500 font-bold ml-2">Metrics</span>
+          <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-white flex flex-wrap items-center gap-x-3 gap-y-1 leading-tight">
+             <Cpu className="w-8 h-8 text-cyan-400 shrink-0" />
+             <span>Heavenly Dreams</span>
+             <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500 font-bold">Metrics</span>
           </h1>
           <p className="text-slate-400 mt-2 font-light tracking-wide text-sm opacity-80 uppercase">Autonomous matching and conversion analysis</p>
         </div>
@@ -255,17 +256,17 @@ export function Dashboard() {
       </div>
 
       {/* Dynamic Date Filter Toolbar */}
-      <div className="flex flex-col 2xl:flex-row items-stretch 2xl:items-center justify-between gap-5 p-5 md:p-6 glass-panel rounded-2xl border border-white/5 bg-slate-900/45 shadow-lg relative overflow-hidden group mb-6">
-        <div className="absolute top-0 left-0 w-2 h-full bg-gradient-to-b from-cyan-500 to-blue-500"></div>
-        <div className="flex items-start gap-4 relative z-10 w-full min-w-0 2xl:max-w-[460px]">
-          <div className="shrink-0 p-2.5 border border-cyan-500/20 bg-cyan-500/10 rounded-xl">
+      <div className="flex min-h-[76px] flex-col 2xl:flex-row items-stretch 2xl:items-center justify-between gap-4 p-4 md:p-5 glass-panel rounded-2xl border border-white/5 bg-slate-900/45 shadow-lg relative overflow-visible group mb-6">
+        <div className="absolute inset-y-0 left-0 w-2 rounded-l-2xl bg-gradient-to-b from-cyan-500 to-blue-500"></div>
+        <div className="flex items-center gap-4 relative z-10 w-full min-w-0 2xl:max-w-[460px]">
+          <div className="grid h-11 w-11 shrink-0 place-items-center border border-cyan-500/20 bg-cyan-500/10 rounded-xl">
             <Calendar className="w-5 h-5 text-cyan-400" />
           </div>
           <div className="min-w-0">
-            <h4 className="text-sm md:text-base font-semibold tracking-wide text-slate-100 flex items-center gap-2">
+            <h4 className="text-sm md:text-base font-semibold tracking-wide text-slate-100 leading-tight">
               Rango de Tiempo
             </h4>
-            <p className="text-xs md:text-sm text-slate-400 font-sans mt-1 leading-relaxed">Filtra métricas por rango específico o selecciona presets rápidos</p>
+            <p className="text-xs md:text-sm text-slate-400 font-sans mt-1 leading-snug">Filtra métricas por rango específico o selecciona presets rápidos</p>
           </div>
         </div>
         

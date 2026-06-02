@@ -1,14 +1,15 @@
 import { useState, useEffect } from "react";
 import { Link, Outlet, useLocation } from "react-router-dom";
 import { 
-  Menu, X, LayoutDashboard, Users, Briefcase, Settings, PieChart, Zap, ChevronRight, Home, Sun, Moon, Smartphone, MessageSquare, PanelLeftClose, PanelLeftOpen, Cloud, GitBranch, ClipboardCheck
+  Menu, X, LayoutDashboard, Users, Briefcase, Settings, PieChart, Zap, ChevronRight, Home, Sun, Moon, Smartphone, MessageSquare, PanelLeftClose, PanelLeftOpen, Cloud, GitBranch, ClipboardCheck, LogOut
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { NetworkBackground } from "./NetworkBackground";
 import { NotificationsPopover } from "@/components/notifications/NotificationsPopover";
 import { useAuth } from "@/contexts/AuthContext";
+import { appUrl } from "@/lib/basePath";
 
-const BRAND_LOGO_PATH = "/assets/heavenly-dreams-logo-clean-cropped.png";
+const BRAND_LOGO_PATH = appUrl("/assets/heavenly-dreams-logo-square.png");
 
 function BrandLogoMark({ className }: { className?: string }) {
   return (
@@ -21,7 +22,7 @@ function BrandLogoMark({ className }: { className?: string }) {
       <img
         src={BRAND_LOGO_PATH}
         alt="Heavenly Dreams"
-        className="h-full w-full object-contain"
+        className="h-full w-full object-contain object-center"
       />
     </div>
   );
@@ -60,7 +61,7 @@ export function AppLayout() {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(true);
   const location = useLocation();
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const displayName = user?.displayName || user?.email || "Sin sesión";
   const userLabel = user ? (user.isAnonymous ? "Invitado" : "Usuario") : "Sin autenticar";
   const initials = displayName
@@ -127,11 +128,11 @@ export function AppLayout() {
           "glass-panel flex-shrink-0 flex-col relative z-50 md:z-50",
           "fixed inset-y-0 left-0 md:static md:flex",
           "transition-all duration-500 ease-out md:m-4 md:rounded-2xl border-r-0 md:border-r border-slate-700/50",
-          sidebarOpen ? "translate-x-0 w-64 h-[100dvh] md:h-auto" : "-translate-x-full md:translate-x-0",
-          !sidebarOpen && (isCollapsed ? "md:w-20" : "md:w-64")
+          sidebarOpen ? "translate-x-0 w-72 h-[100dvh] md:h-auto" : "-translate-x-full md:translate-x-0",
+          !sidebarOpen && (isCollapsed ? "md:w-20" : "md:w-72")
         )}
       >
-        <div className={cn("hidden md:flex flex-col justify-center border-b border-white/5 shrink-0 relative overflow-hidden transition-all duration-300", isCollapsed ? "h-20 px-2" : "h-32 px-8")}>
+        <div className={cn("hidden md:flex flex-col justify-center border-b border-white/5 shrink-0 relative overflow-hidden transition-all duration-300", isCollapsed ? "h-20 px-2" : "h-36 px-6")}>
           <div className="absolute top-0 right-0 p-16 bg-cyan-500/10 blur-2xl rounded-full opacity-50 pointer-events-none"></div>
           
           <button 
@@ -144,12 +145,12 @@ export function AppLayout() {
             {isCollapsed ? <PanelLeftOpen className="w-4 h-4" /> : <PanelLeftClose className="w-4 h-4" />}
           </button>
 
-          <div className={cn("flex items-center gap-3 font-bold text-white text-xl tracking-tight group cursor-pointer relative z-10", isCollapsed ? "justify-center mt-3" : "")}>
-            <BrandLogoMark className="h-11 w-11 transition-transform duration-300 group-hover:scale-105" />
+          <div className={cn("flex items-center gap-4 font-bold text-white text-xl tracking-tight group cursor-pointer relative z-10 min-w-0", isCollapsed ? "justify-center mt-3" : "")}>
+            <BrandLogoMark className={cn("transition-transform duration-300 group-hover:scale-105", isCollapsed ? "h-12 w-12" : "h-16 w-16")} />
             {!isCollapsed && (
-              <div className="flex flex-col">
-                <span className="font-bold tracking-tighter text-2xl">RH<span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">Dreams</span></span>
-                <span className="text-[9px] text-cyan-400/80 uppercase tracking-[0.2em] font-bold mt-0.5">Heavenly Dreams</span>
+              <div className="flex min-w-0 flex-col">
+                <span className="whitespace-nowrap font-bold tracking-tight text-[27px] leading-none">RH<span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">Dreams</span></span>
+                <span className="mt-2 whitespace-nowrap text-[11px] text-cyan-400/85 uppercase tracking-[0.26em] font-bold">Heavenly Dreams</span>
               </div>
             )}
           </div>
@@ -211,6 +212,13 @@ export function AppLayout() {
             <div className={cn(isCollapsed && "flex items-center justify-center w-10 h-10")}>
               <NotificationsPopover align={isCollapsed ? "center" : "left"} direction={isCollapsed ? "right" : "up"} />
             </div>
+            <button
+              onClick={logout}
+              title="Cerrar sesion"
+              className={cn("p-2 text-slate-400 hover:text-red-300 transition-colors rounded-full hover:bg-red-500/10", isCollapsed && "w-10 h-10 flex items-center justify-center")}
+            >
+              <LogOut className="w-4 h-4" />
+            </button>
           </div>
         </div>
       </aside>
@@ -225,7 +233,7 @@ export function AppLayout() {
 
       {/* Main content */}
       <main className="flex-1 overflow-auto w-full relative z-10 styled-scrollbar">
-        <div className="p-4 md:p-8 md:pt-4 max-w-7xl mx-auto min-w-0 flex flex-col h-full">
+        <div className="p-4 pt-6 md:p-8 md:pt-8 max-w-7xl mx-auto min-w-0 flex flex-col min-h-full">
           <div className="flex items-center gap-2 text-sm text-slate-500 mb-4">
             <Link to="/" className="hover:text-cyan-400 transition-colors flex items-center gap-1">
               <Home className="w-4 h-4" />

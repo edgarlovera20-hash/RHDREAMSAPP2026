@@ -8,7 +8,7 @@ import {
   onSnapshot,
 } from "firebase/firestore";
 import { db, auth, OperationType } from "@/lib/firebase";
-import { apiUrl, readApiJson } from "@/lib/api";
+import { apiFetch, readApiJson } from "@/lib/api";
 import {
   Candidate,
   Job,
@@ -16,10 +16,26 @@ import {
   Message,
   Automation,
   Notification,
-  Agent
+  Agent,
+  DEFAULT_COMPANY_ID
 } from "@/services/db";
 
 type CollectionUnsubscribe = () => void;
+
+const withCompanyId = <T extends Record<string, any>>(data: T): T & { companyId: string } => ({
+  ...data,
+  companyId: data.companyId || DEFAULT_COMPANY_ID,
+});
+
+const normalizeMessageChannel = (value?: string): Message["channel"] => {
+  const text = String(value || "").toLowerCase();
+  if (text.includes("whatsapp") || text.includes("baileys")) return "whatsapp";
+  if (text.includes("instagram") || text.includes("ig")) return "instagram";
+  if (text.includes("messenger")) return "messenger";
+  if (text.includes("facebook") || text.includes("meta")) return "facebook";
+  if (text.includes("mail") || text.includes("email")) return "email";
+  return "manual";
+};
 
 export function useDb() {
   const [candidates, setCandidates] = useState<Candidate[]>([]);
@@ -47,6 +63,29 @@ export function useDb() {
       throw new Error("Debes iniciar sesión para modificar datos reales.");
     }
     return auth.currentUser;
+  };
+
+  const ensureBackendConversation = async (
+    candidate: Candidate | undefined,
+    channel: Message["channel"],
+    agentId?: string
+  ) => {
+    const response = await apiFetch("/api/conversations", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        companyId: DEFAULT_COMPANY_ID,
+        candidateId: candidate?.id,
+        contactName: candidate?.name,
+        contactEmail: candidate?.email,
+        contactPhone: candidate?.phone || candidate?.whatsapp,
+        channel,
+        assignedAgentId: agentId || candidate?.assignedAgentId,
+        aiMode: "auto_with_approval",
+      }),
+    });
+    const payload = await readApiJson(response);
+    return payload?.data || payload;
   };
 
   // Load all collections reactive
@@ -177,7 +216,7 @@ export function useDb() {
             
             // Add outbound WhatsApp message
             const newMsgRef = doc(collection(db, "messages"));
-            await setDoc(newMsgRef, {
+            await setDoc(newMsgRef, withCompanyId({
               id: newMsgRef.id,
               candidateId: context.candidate.id,
               channel: "whatsapp",
@@ -186,7 +225,7 @@ export function useDb() {
               sender: "me",
               status: "sent",
               createdAt: Date.now()
-            });
+            }));
 
             // Ask the assigned AI agent to continue the conversation.
             triggerAgentDialogue(context.candidate.id, "agent-1", "Por favor da la bienvenida e introduce al candidato.");
@@ -195,7 +234,7 @@ export function useDb() {
           if (action === "send_email" && context.candidate) {
             // Add automated system email logging
             const newMsgRef = doc(collection(db, "messages"));
-            await setDoc(newMsgRef, {
+            await setDoc(newMsgRef, withCompanyId({
               id: newMsgRef.id,
               candidateId: context.candidate.id,
               channel: "email",
@@ -204,12 +243,12 @@ export function useDb() {
               sender: "me",
               status: "sent",
               createdAt: Date.now()
-            });
+            }));
           }
 
           if (action === "create_notification" && context.candidate) {
             const newNotRef = doc(collection(db, "notifications"));
-            await setDoc(newNotRef, {
+            await setDoc(newNotRef, withCompanyId({
               id: newNotRef.id,
               title: "Automatización ejecutada",
               message: `${context.candidate.name} cambió a la etapa: ${context.candidate.stage}`,
@@ -217,7 +256,7 @@ export function useDb() {
               read: false,
               candidateId: context.candidate.id,
               createdAt: Date.now()
-            });
+            }));
           }
 
           if (action === "assign_agent" && context.candidate) {
@@ -239,56 +278,63 @@ export function useDb() {
       const candMessages = messages.filter(m => m.candidateId === candidateId);
 
       if (!activeCand) return;
-      
-      const agentPrompt = activeAgent?.basePrompt || "Eres un asistente virtual de reclutamiento. Responde con datos verificados del proceso y escala a una persona cuando falte información.";
-      
-      // Post to our secure full-stack backend
-      const res = await fetch(apiUrl("/api/gemini/reply"), {
+      const agentDisplayName = activeAgent?.name || "Agente de Heavenly Dreams";
+      const lastChannel = candMessages[candMessages.length - 1]?.channel || activeCand.source;
+      const channel = normalizeMessageChannel(lastChannel);
+      const agentPrompt = `
+${activeAgent?.basePrompt || "Eres un asistente virtual de reclutamiento. Responde con datos verificados del proceso y escala a una persona cuando falte información."}
+
+Modo autonomo:
+- Genera cada respuesta desde cero segun el historial y la etapa del candidato.
+- Responde en maximo 2 o 3 lineas.
+- No envies parrafos largos.
+- Haz una sola pregunta por mensaje.
+- No repitas exactamente el ultimo mensaje enviado.
+- Mantente profesional, amable y directo.
+- Si el candidato pide vacantes, responde: "Tenemos varias vacantes disponibles. ¿Para que area buscas empleo?"
+      `.trim();
+
+      const conversation = await ensureBackendConversation(activeCand, channel, agentId);
+      const res = await apiFetch(`/api/conversations/${conversation.id}/ai/draft`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          companyId: DEFAULT_COMPANY_ID,
           candidate: activeCand,
-          agentPrompt: agentPrompt,
-          history: candMessages,
-          customUserPrompt: customInstruction || "Continúa la conversación de manera natural."
+          agentId,
+          agentName: agentDisplayName,
+          agentPrompt,
+          customInstruction: customInstruction || "Continua la conversacion de manera natural.",
+          approvalMode: "auto_with_approval",
         })
       });
 
       const data = await readApiJson(res);
       const replyPayload = data?.data || data;
-      if (replyPayload?.reply) {
-        // Save the outbound AI response as a WhatsApp message in Firestore
-        const newMsgRef = doc(collection(db, "messages"));
-        await setDoc(newMsgRef, {
-          id: newMsgRef.id,
+      const draftMessage = replyPayload?.message;
+      if (draftMessage?.body) {
+        await setDoc(doc(db, "messages", draftMessage.id), withCompanyId({
+          ...draftMessage,
+          id: draftMessage.id,
           candidateId: candidateId,
-          channel: "whatsapp",
+          channel,
           direction: "outbound",
-          body: replyPayload.reply,
+          body: draftMessage.body,
           sender: "me",
-          status: "sent",
-          createdAt: Date.now() + 100 // tiny delay
-        });
+          status: draftMessage.status || "pending_approval",
+          createdAt: draftMessage.createdAt || Date.now(),
+        }));
 
-        // Trigger in-app notification of the reply
         const notRef = doc(collection(db, "notifications"));
-        await setDoc(notRef, {
+        await setDoc(notRef, withCompanyId({
           id: notRef.id,
-          title: `Agente ${activeAgent?.name || "IA"} respondió`,
-          message: `Mensaje enviado a ${activeCand.name}`,
-          type: "success",
+          title: `Borrador IA listo`,
+          message: `${agentDisplayName} preparo una respuesta para ${activeCand.name}. Requiere aprobacion.`,
+          type: "info",
           read: false,
           candidateId: candidateId,
           createdAt: Date.now()
-        });
-
-        // Advance the stage when the AI response clearly confirms scheduling intent.
-        const replyLower = replyPayload.reply.toLowerCase();
-        if (replyLower.includes("entrevista") || replyLower.includes("agenda") || replyLower.includes("coordinada")) {
-          if (activeCand.stage === "Nuevo" || activeCand.stage === "Contactado") {
-            await updateCandidate(candidateId, { stage: "Cita agendada" });
-          }
-        }
+        }));
       }
     } catch (err) {
       console.error("Dialogue service failed: ", err);
@@ -303,6 +349,7 @@ export function useDb() {
     const id = "cand-" + Date.now();
     const candidate: Candidate = {
       ...candData,
+      companyId: candData.companyId || DEFAULT_COMPANY_ID,
       id,
       createdAt: Date.now(),
       updatedAt: Date.now()
@@ -314,7 +361,7 @@ export function useDb() {
     
     // Also add an automated notification
     const newNotRef = doc(collection(db, "notifications"));
-    await setDoc(newNotRef, {
+    await setDoc(newNotRef, withCompanyId({
       id: newNotRef.id,
       title: "Nuevo Candidato",
       message: `${candidate.name} ingresado vía ${candidate.source}`,
@@ -322,7 +369,7 @@ export function useDb() {
       read: false,
       candidateId: id,
       createdAt: Date.now()
-    });
+    }));
   };
 
   const updateCandidate = async (id: string, candData: Partial<Candidate>) => {
@@ -330,6 +377,7 @@ export function useDb() {
     const prevCandidate = candidates.find(c => c.id === id);
     const updated: Partial<Candidate> = {
       ...candData,
+      companyId: candData.companyId || prevCandidate?.companyId || DEFAULT_COMPANY_ID,
       updatedAt: Date.now()
     };
 
@@ -353,6 +401,7 @@ export function useDb() {
     const id = "job-" + Date.now();
     const job: Job = {
       ...jobData,
+      companyId: jobData.companyId || DEFAULT_COMPANY_ID,
       id,
       applicants: 0,
       platforms: ["LinkedIn", "WhatsApp"],
@@ -366,6 +415,7 @@ export function useDb() {
     requireAuthenticatedUser();
     await updateDoc(doc(db, "jobs", id), {
       ...jobData,
+      companyId: jobData.companyId || DEFAULT_COMPANY_ID,
       updatedAt: Date.now()
     });
   };
@@ -381,6 +431,7 @@ export function useDb() {
     const id = "appt-" + Date.now();
     const appt: Appointment = {
       ...apptData,
+      companyId: apptData.companyId || DEFAULT_COMPANY_ID,
       id,
       createdAt: Date.now()
     };
@@ -407,7 +458,10 @@ export function useDb() {
   const updateAppointment = async (id: string, apptData: Partial<Appointment>) => {
     requireAuthenticatedUser();
     const prevAppointment = appointments.find(a => a.id === id);
-    await updateDoc(doc(db, "appointments", id), apptData);
+    await updateDoc(doc(db, "appointments", id), {
+      ...apptData,
+      companyId: apptData.companyId || prevAppointment?.companyId || DEFAULT_COMPANY_ID,
+    });
 
     const fullAppt = prevAppointment ? { ...prevAppointment, ...apptData } as Appointment : null;
     if (fullAppt) {
@@ -443,7 +497,7 @@ export function useDb() {
     candidate?: Candidate,
     agent?: Agent
   ) => {
-    const res = await fetch(apiUrl("/api/gemini/audio/transcribe"), {
+    const res = await apiFetch("/api/gemini/audio/transcribe", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -505,12 +559,37 @@ export function useDb() {
       }
     }
 
+    let backendMessage: Partial<Message> | null = null;
+    try {
+      const conversation = await ensureBackendConversation(
+        activeCand,
+        normalizeMessageChannel(processedMsgData.channel || activeCand?.source),
+        assignedAgentId
+      );
+      const response = await apiFetch(`/api/conversations/${conversation.id}/messages`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(withCompanyId({
+          ...processedMsgData,
+          conversationId: conversation.id,
+          channel: normalizeMessageChannel(processedMsgData.channel || activeCand?.source),
+        })),
+      });
+      const payload = await readApiJson(response);
+      backendMessage = payload?.data || payload;
+    } catch (error) {
+      console.warn("Backend message registry failed, falling back to Firestore mirror:", error);
+    }
+
     const msg: Message = {
       ...processedMsgData,
+      ...backendMessage,
+      companyId: processedMsgData.companyId || DEFAULT_COMPANY_ID,
       id,
-      createdAt: Date.now()
+      createdAt: backendMessage?.createdAt || Date.now()
     };
-    await setDoc(doc(db, "messages", id), msg);
+    msg.id = backendMessage?.id || id;
+    await setDoc(doc(db, "messages", msg.id), withCompanyId(msg));
 
     // If inbound message, we trigger automations and allow assigned AI agent to respond automatically! (Phase 8 & 9)
     if (processedMsgData.direction === "inbound") {
@@ -539,13 +618,13 @@ export function useDb() {
   const addAutomation = async (autoData: Omit<Automation, "id">) => {
     requireAuthenticatedUser();
     const id = "auto-" + Date.now();
-    const auto: Automation = { ...autoData, id };
+    const auto: Automation = { ...autoData, companyId: autoData.companyId || DEFAULT_COMPANY_ID, id };
     await setDoc(doc(db, "automations", id), auto);
   };
 
   const updateAutomation = async (id: string, autoData: Partial<Automation>) => {
     requireAuthenticatedUser();
-    await updateDoc(doc(db, "automations", id), autoData);
+    await updateDoc(doc(db, "automations", id), withCompanyId(autoData as Record<string, any>));
   };
 
   const deleteAutomation = async (id: string) => {
@@ -559,6 +638,7 @@ export function useDb() {
     const id = "not-" + Date.now();
     const notification: Notification = {
       ...notData,
+      companyId: notData.companyId || DEFAULT_COMPANY_ID,
       id,
       createdAt: Date.now()
     };
@@ -570,12 +650,65 @@ export function useDb() {
     await updateDoc(doc(db, "notifications", id), { read: true });
   };
 
+  const approveAiMessage = async (message: Message) => {
+    requireAuthenticatedUser();
+    if (!message.conversationId) {
+      await updateDoc(doc(db, "messages", message.id), {
+        status: "sent",
+        requiresApproval: false,
+        approvedAt: Date.now(),
+        sentAt: Date.now(),
+        companyId: message.companyId || DEFAULT_COMPANY_ID,
+      });
+      return;
+    }
+
+    const response = await apiFetch(`/api/conversations/${message.conversationId}/messages/${message.id}/approve`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ sendNow: true, companyId: message.companyId || DEFAULT_COMPANY_ID }),
+    });
+    const payload = await readApiJson(response);
+    const approved = payload?.data || payload;
+    await updateDoc(doc(db, "messages", message.id), {
+      ...approved,
+      status: "sent",
+      requiresApproval: false,
+      approvedAt: approved?.approvedAt || Date.now(),
+      sentAt: approved?.sentAt || Date.now(),
+      companyId: approved?.companyId || message.companyId || DEFAULT_COMPANY_ID,
+    });
+  };
+
+  const rejectAiMessage = async (message: Message, reason = "Rechazado por usuario") => {
+    requireAuthenticatedUser();
+    if (message.conversationId) {
+      try {
+        await apiFetch(`/api/conversations/${message.conversationId}/messages/${message.id}/reject`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ reason, companyId: message.companyId || DEFAULT_COMPANY_ID }),
+        });
+      } catch (error) {
+        console.warn("Backend rejection registry failed, updating Firestore mirror:", error);
+      }
+    }
+
+    await updateDoc(doc(db, "messages", message.id), {
+      status: "draft",
+      requiresApproval: false,
+      failedReason: reason,
+      companyId: message.companyId || DEFAULT_COMPANY_ID,
+    });
+  };
+
   // Agents CRUD
   const addAgent = async (agentData: Omit<Agent, "id" | "userId" | "createdAt">) => {
     const currentUser = requireAuthenticatedUser();
     const id = "agent-" + Date.now();
     const agent: Agent = {
       ...agentData,
+      companyId: agentData.companyId || DEFAULT_COMPANY_ID,
       id,
       userId: currentUser.uid,
       createdAt: Date.now()
@@ -585,7 +718,7 @@ export function useDb() {
 
   const updateAgent = async (id: string, agentData: Partial<Agent>) => {
     requireAuthenticatedUser();
-    await updateDoc(doc(db, "agents", id), agentData);
+    await updateDoc(doc(db, "agents", id), withCompanyId(agentData as Record<string, any>));
   };
 
   const deleteAgent = async (id: string) => {
@@ -620,6 +753,8 @@ export function useDb() {
     addAgent,
     updateAgent,
     deleteAgent,
+    approveAiMessage,
+    rejectAiMessage,
     triggerAgentDialogue
   };
 }

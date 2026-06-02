@@ -3,7 +3,7 @@ import {
   handleOpenRouterChat,
   openRouterHealthCheck,
 } from "../controllers/openrouter.controller";
-import { optionalAuthMiddleware } from "../middleware/auth";
+import { authMiddleware } from "../middleware/auth";
 import { geminiLimiter } from "../middleware/rateLimiter";
 import { logger } from "../utils/logger";
 
@@ -14,7 +14,7 @@ export const createOpenRouterRoutes = (): Router => {
 
   router.post(
     "/chat",
-    optionalAuthMiddleware,
+    authMiddleware,
     geminiLimiter,
     async (req, res) => {
       logger.debug("POST /api/openrouter/chat", {
