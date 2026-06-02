@@ -95,7 +95,7 @@ export function AppLayout() {
   return (
     <div className="flex flex-col md:flex-row font-sans text-slate-200" style={{ height: '100dvh', overflow: 'hidden' }}>
       <NetworkBackground />
-      <div className="pointer-events-none fixed inset-0 z-0 bg-[linear-gradient(90deg,rgba(1,4,11,0.82)_0%,rgba(2,8,23,0.58)_34%,rgba(2,8,23,0.7)_100%)]" />
+      <div className="pointer-events-none fixed inset-0 z-0 bg-[linear-gradient(90deg,rgba(22,22,22,0.92)_0%,rgba(31,31,31,0.72)_40%,rgba(18,18,18,0.84)_100%)]" />
       {/* Mobile nav header */}
       <div className="md:hidden flex items-center justify-between glass-panel p-3 shrink-0 m-2 rounded-xl relative z-40">
         <div className="flex flex-col">

@@ -45,9 +45,9 @@ export function NetworkBackground() {
         if (!ctx) return;
         ctx.beginPath();
         ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(34, 211, 238, 0.85)';
-        ctx.shadowColor = 'rgba(34, 211, 238, 0.95)';
-        ctx.shadowBlur = 12;
+        ctx.fillStyle = 'rgba(34, 211, 238, 0.42)';
+        ctx.shadowColor = 'rgba(34, 211, 238, 0.55)';
+        ctx.shadowBlur = 8;
         ctx.fill();
         ctx.shadowBlur = 0;
       }
@@ -73,11 +73,11 @@ export function NetworkBackground() {
             ctx.beginPath();
             ctx.moveTo(particles[i].x, particles[i].y);
             ctx.lineTo(particles[j].x, particles[j].y);
-            const opacity = (1 - distance / 155) * 0.75;
+            const opacity = (1 - distance / 155) * 0.36;
             ctx.strokeStyle = `rgba(34, 211, 238, ${opacity})`;
             ctx.lineWidth = 1;
-            ctx.shadowColor = 'rgba(14, 165, 233, 0.55)';
-            ctx.shadowBlur = 8;
+            ctx.shadowColor = 'rgba(14, 165, 233, 0.25)';
+            ctx.shadowBlur = 5;
             ctx.stroke();
             ctx.shadowBlur = 0;
           }
@@ -108,11 +108,11 @@ export function NetworkBackground() {
   }, []);
 
   return (
-    <div className="fixed inset-0 z-[-1] bg-gradient-to-br from-[#01040B] via-[#020817] to-[#050B16] overflow-hidden">
+    <div className="fixed inset-0 z-[-1] overflow-hidden bg-[#1b1b1b]">
       {/* Subtle diagonal tech lines / grid hologram */}
-      <div className="absolute inset-0 bg-[linear-gradient(rgba(34,211,238,0.045)_1px,transparent_1px),linear-gradient(90deg,rgba(34,211,238,0.04)_1px,transparent_1px)] bg-[size:3rem_3rem] [mask-image:radial-gradient(ellipse_65%_55%_at_50%_48%,#000_72%,transparent_100%)] opacity-40" />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_18%,rgba(8,145,178,0.2),transparent_34%),radial-gradient(circle_at_82%_12%,rgba(37,99,235,0.15),transparent_32%),radial-gradient(circle_at_50%_82%,rgba(6,182,212,0.12),transparent_40%)]" />
-      <canvas ref={canvasRef} className="absolute inset-0 w-full h-full opacity-60" />
+      <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.055)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.045)_1px,transparent_1px)] bg-[size:3rem_3rem] opacity-35" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_18%,rgba(42,42,42,0.95),transparent_34%),radial-gradient(circle_at_82%_12%,rgba(24,24,24,0.86),transparent_34%),linear-gradient(90deg,#171717_0%,#1e1e1e_48%,#181818_100%)]" />
+      <canvas ref={canvasRef} className="absolute inset-0 h-full w-full opacity-38" />
     </div>
   );
 }

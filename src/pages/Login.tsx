@@ -40,9 +40,9 @@ export function Login() {
   };
 
   return (
-    <main className="relative min-h-screen overflow-hidden bg-[#0c1d31] text-slate-100">
+    <main className="relative min-h-screen overflow-hidden bg-[#1b1b1b] text-slate-100">
       <NetworkBackground />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(34,211,238,0.18),transparent_32%),radial-gradient(circle_at_bottom_right,rgba(59,130,246,0.14),transparent_34%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.055),transparent_32%),radial-gradient(circle_at_bottom_right,rgba(10,10,10,0.72),transparent_38%),linear-gradient(90deg,rgba(22,22,22,0.9),rgba(31,31,31,0.72),rgba(18,18,18,0.86))]" />
 
       <section className="relative z-10 flex min-h-screen items-center justify-center px-4 py-8">
         <div className="grid w-full max-w-5xl overflow-hidden rounded-2xl border border-white/10 bg-slate-950/70 shadow-2xl shadow-cyan-950/20 backdrop-blur-2xl md:grid-cols-[1fr_420px]">
