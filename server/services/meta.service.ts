@@ -187,11 +187,16 @@ async function sendAutonomousText(input: {
   text: string;
   channel: "messenger" | "instagram" | "whatsapp";
 }) {
-  if (input.channel === "whatsapp") {
+  const channel = input.channel;
+  if (channel === "whatsapp") {
     return sendWhatsAppCloudText(input.recipientId, input.text);
   }
 
-  return sendMetaText(input);
+  return sendMetaText({
+    recipientId: input.recipientId,
+    text: input.text,
+    channel,
+  });
 }
 
 async function createAutonomousMetaReply(input: {
