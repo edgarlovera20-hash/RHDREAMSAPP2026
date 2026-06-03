@@ -660,7 +660,7 @@ export function WorkspaceHub() {
     triggerEvent("Nota eliminada", "Se removió de Google Keep.");
   };
 
-  const neutralToolState = "bg-slate-200/10 border-slate-200/35 text-white shadow-[inset_3px_0_0_rgba(226,232,240,0.55)]";
+  const neutralToolState = "bg-slate-200/10 border-slate-200/40 text-white shadow-[inset_3px_0_0_rgba(226,232,240,0.55),0_0_18px_rgba(245,245,245,0.10)]";
   const workspaceTools = [
     { id: "sheets", name: "Google Sheets", desc: "Base de candidatos", icon: FileSpreadsheet },
     { id: "calendar", name: "Google Calendar", desc: "Agendar entrevistas", icon: CalendarIcon },
@@ -748,7 +748,7 @@ export function WorkspaceHub() {
                     "min-h-[74px] p-3.5 rounded-xl border text-left flex items-center gap-3 transition-all cursor-pointer group",
                     activeTab === tool.id
                       ? neutralToolState
-                      : "bg-slate-950/45 border-white/5 text-slate-400 hover:text-white hover:bg-slate-900/70 hover:border-slate-300/20"
+                      : "bg-slate-950/45 border-white/5 text-slate-400 hover:text-white hover:bg-white/[0.045] hover:border-slate-200/30 hover:shadow-[0_0_16px_rgba(245,245,245,0.08)]"
                   )}
                 >
                   <div className={cn(
@@ -1299,8 +1299,8 @@ export function WorkspaceHub() {
                         className={cn(
                           "bg-slate-950 p-3 rounded-xl border cursor-pointer transition-all flex items-start gap-2.5 hover:scale-[1.01]",
                           isSelected
-                            ? "border-zinc-500 bg-zinc-500/5 shadow-md"
-                            : "border-white/5 hover:border-white/10"
+                            ? "border-slate-200/55 bg-white/[0.045] shadow-[0_0_18px_rgba(245,245,245,0.12)]"
+                            : "border-white/5 hover:border-slate-200/30 hover:shadow-[0_0_14px_rgba(245,245,245,0.08)]"
                         )}
                       >
                         <div className={cn(
@@ -1403,7 +1403,7 @@ export function WorkspaceHub() {
                       }}
                       className={cn(
                         "text-left bg-slate-950 rounded-xl border overflow-hidden transition-all hover:scale-[1.01]",
-                        isSelected ? "border-zinc-500 shadow-[0_0_18px_rgba(163,163,163,0.12)]" : "border-white/5 hover:border-white/10"
+                        isSelected ? "border-slate-200/55 shadow-[0_0_18px_rgba(245,245,245,0.12)]" : "border-white/5 hover:border-slate-200/30 hover:shadow-[0_0_14px_rgba(245,245,245,0.08)]"
                       )}
                     >
                       <img
@@ -1508,7 +1508,7 @@ export function WorkspaceHub() {
                   <div
                     key={note.id}
                     className={cn(
-                      "p-4 rounded-2xl border flex flex-col justify-between relative group hover:shadow-lg transition-all",
+                      "p-4 rounded-2xl border flex flex-col justify-between relative group hover:border-slate-200/35 hover:shadow-[0_0_18px_rgba(245,245,245,0.10)] transition-all",
                       note.color === 'tone1' ? "bg-zinc-400/10 border-zinc-400/20 text-zinc-100" :
                       note.color === 'tone2' ? "bg-zinc-500/10 border-zinc-500/20 text-zinc-100" :
                       note.color === 'tone3' ? "bg-zinc-600/10 border-zinc-600/20 text-zinc-100" :

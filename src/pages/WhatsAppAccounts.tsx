@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Plus, Search, Smartphone, Shield, Zap, QrCode, Trash2, CheckCircle2, RotateCcw, X, SmartphoneNfc, MessageSquare, Clock, Facebook, Instagram, Video, Loader2, Settings2, Sparkles, AlertCircle, DollarSign, TrendingUp, Target, BarChart3, CalendarClock } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { apiFetch, apiUrl, readApiJson } from "@/lib/api";
+import { API_AUTH_EXPIRED_MESSAGE, API_TOKEN_STORAGE_KEY, apiFetch, apiUrl, isApiAuthExpiredErrorMessage, readApiJson } from "@/lib/api";
 import { EMPTY_AGENTS } from "@/data/appDefaults";
 import { WHATSAPP_RECRUITMENT_TEMPLATES } from "@/data/recruitmentKnowledge";
 import { DEFAULT_COMPANY_NAME } from "@/lib/recruiterAgentPrompt";
@@ -60,6 +60,9 @@ type BaileysStatus = {
   id: string;
   state: "idle" | "connecting" | "qr" | "connected" | "closed" | "logged_out" | "error";
   qrDataUrl?: string | null;
+  qrCreatedAt?: number;
+  qrExpiresAt?: number;
+  qrSecondsLeft?: number | null;
   phone?: string | null;
   lastError?: string | null;
   updatedAt?: number;
@@ -183,6 +186,7 @@ export function WhatsAppAccounts() {
   const [baileysSessionId, setBaileysSessionId] = useState("default");
   const [baileysStatus, setBaileysStatus] = useState<BaileysStatus | null>(null);
   const [baileysError, setBaileysError] = useState("");
+  const [baileysAuthExpired, setBaileysAuthExpired] = useState(false);
   const [isStartingBaileys, setIsStartingBaileys] = useState(false);
   const baileysCompletedRef = useRef(false);
   const baileysLoggedOutResetRef = useRef(false);
@@ -268,6 +272,27 @@ export function WhatsAppAccounts() {
   }, []);
 
   const getAssignedAgent = (agentId: string) => availableAgents.find(agent => agent.id === agentId) || EMPTY_AGENTS.find(agent => agent.id === agentId);
+
+  const isBaileysAuthExpiredError = (error: any) => {
+    const message = String(error?.message || "");
+    return message === API_AUTH_EXPIRED_MESSAGE || isApiAuthExpiredErrorMessage(message);
+  };
+
+  const getBaileysFriendlyError = (error: any, fallback: string) => {
+    const message = String(error?.message || "");
+    if (message === "API endpoint no encontrado") {
+      return "Baileys necesita el backend Express activo en un servidor persistente. En DigitalOcean podra generar QR si la API esta desplegada junto con la app.";
+    }
+    if (isBaileysAuthExpiredError(error)) {
+      return "Tu sesion del panel expiro. Inicia sesion de nuevo y vuelve a generar el QR de Baileys.";
+    }
+    return message || fallback;
+  };
+
+  const goToLogin = () => {
+    localStorage.removeItem(API_TOKEN_STORAGE_KEY);
+    window.location.assign("/login");
+  };
 
   const baileysWhatsAppAccounts = accounts.filter(account => account.type === "whatsapp_personal");
   const metaWhatsAppAccounts = accounts.filter(account => account.type === "whatsapp_meta");
@@ -443,6 +468,7 @@ export function WhatsAppAccounts() {
       baileysCompletedRef.current = false;
       baileysLoggedOutResetRef.current = false;
       setBaileysError("");
+      setBaileysAuthExpired(false);
       setBaileysStatus(null);
       setIsStartingBaileys(true);
       setModalStep('qr');
@@ -476,11 +502,8 @@ export function WhatsAppAccounts() {
           }, 1200);
         }
       } catch (error: any) {
-        setBaileysError(
-          error.message === "API endpoint no encontrado"
-            ? "Baileys necesita el backend Express activo en un servidor persistente. En DigitalOcean podra generar QR si la API esta desplegada junto con la app."
-            : error.message || "No se pudo generar el QR de Baileys."
-        );
+        setBaileysAuthExpired(isBaileysAuthExpiredError(error));
+        setBaileysError(getBaileysFriendlyError(error, "No se pudo generar el QR de Baileys."));
       } finally {
         setIsStartingBaileys(false);
       }
@@ -549,10 +572,11 @@ export function WhatsAppAccounts() {
     setSelectedAgent('');
     setBaileysStatus(null);
     setBaileysError('');
+    setBaileysAuthExpired(false);
   };
 
   useEffect(() => {
-    if (!isModalOpen || modalStep !== 'qr' || activeTab !== 'whatsapp_personal') return;
+    if (!isModalOpen || modalStep !== 'qr' || activeTab !== 'whatsapp_personal' || baileysAuthExpired) return;
 
     const sessionId = baileysSessionId.trim() || "default";
     const interval = window.setInterval(async () => {
@@ -606,16 +630,18 @@ export function WhatsAppAccounts() {
           }, 1200);
         }
       } catch (error: any) {
+        setBaileysAuthExpired(isBaileysAuthExpiredError(error));
         setBaileysError(
-          error.message === "API endpoint no encontrado"
-            ? "Baileys no esta disponible porque el backend Express no respondio. Revisa que el servicio de DigitalOcean este corriendo."
-            : error.message || "No se pudo actualizar el estado de Baileys."
+          getBaileysFriendlyError(
+            error,
+            "No se pudo actualizar el estado de Baileys. Usa Regenerar QR para iniciar una nueva sesion."
+          )
         );
       }
     }, 2500);
 
     return () => window.clearInterval(interval);
-  }, [activeTab, baileysSessionId, isModalOpen, modalStep, baileysStatus?.phone]);
+  }, [activeTab, baileysAuthExpired, baileysSessionId, isModalOpen, modalStep, baileysStatus?.phone]);
 
   const confirmRemoveAccount = (account: any) => {
     setAccountToUnlink(account);
@@ -777,14 +803,14 @@ export function WhatsAppAccounts() {
 
   const getPlatformColor = (type: string) => {
     switch(type) {
-      case 'whatsapp_meta': return 'text-zinc-300 border-zinc-500/30';
-      case 'whatsapp_personal': return 'text-zinc-300 border-zinc-500/30';
-      case 'indeed': return 'text-zinc-300 border-zinc-500/30';
-      case 'computrabajo': return 'text-zinc-300 border-zinc-500/30';
-      case 'facebook': return 'text-zinc-400 border-zinc-500/30';
-      case 'messenger': return 'text-zinc-400 border-zinc-500/30';
-      case 'instagram': return 'text-zinc-400 border-zinc-500/30';
-      case 'tiktok': return 'text-zinc-400 border-zinc-500/30';
+      case 'whatsapp_meta': return 'text-emerald-300 border-emerald-400/35';
+      case 'whatsapp_personal': return 'text-cyan-300 border-cyan-400/35';
+      case 'indeed': return 'text-blue-300 border-blue-400/35';
+      case 'computrabajo': return 'text-teal-300 border-teal-400/35';
+      case 'facebook': return 'text-blue-400 border-blue-500/35';
+      case 'messenger': return 'text-sky-300 border-sky-400/35';
+      case 'instagram': return 'text-pink-300 border-pink-400/35';
+      case 'tiktok': return 'text-fuchsia-300 border-fuchsia-400/35';
       default: return 'text-slate-400 border-slate-700';
     }
   };
@@ -796,21 +822,21 @@ export function WhatsAppAccounts() {
         <img
           src={image}
           alt={`${getPlatformLabel(type)} icono`}
-          className="h-5 w-5 object-contain drop-shadow-[0_0_10px_rgba(212,212,212,0.35)]"
+          className="h-5 w-5 object-contain drop-shadow-[0_0_10px_rgba(34,211,238,0.45)]"
           loading="lazy"
         />
       );
     }
 
     switch(type) {
-      case 'whatsapp_meta': return <Smartphone className="w-5 h-5 text-zinc-400" />;
-      case 'whatsapp_personal': return <Smartphone className="w-5 h-5 text-zinc-400" />;
-      case 'indeed': return <MessageSquare className="w-5 h-5 text-zinc-300" />;
-      case 'computrabajo': return <SmartphoneNfc className="w-5 h-5 text-zinc-300" />;
-      case 'facebook': return <Facebook className="w-5 h-5 text-zinc-400" />;
-      case 'messenger': return <MessageSquare className="w-5 h-5 text-zinc-400" />;
-      case 'instagram': return <Instagram className="w-5 h-5 text-zinc-400" />;
-      case 'tiktok': return <Video className="w-5 h-5 text-zinc-400" />;
+      case 'whatsapp_meta': return <Smartphone className="w-5 h-5 text-emerald-300" />;
+      case 'whatsapp_personal': return <Smartphone className="w-5 h-5 text-cyan-300" />;
+      case 'indeed': return <MessageSquare className="w-5 h-5 text-blue-300" />;
+      case 'computrabajo': return <SmartphoneNfc className="w-5 h-5 text-teal-300" />;
+      case 'facebook': return <Facebook className="w-5 h-5 text-blue-400" />;
+      case 'messenger': return <MessageSquare className="w-5 h-5 text-sky-300" />;
+      case 'instagram': return <Instagram className="w-5 h-5 text-pink-300" />;
+      case 'tiktok': return <Video className="w-5 h-5 text-fuchsia-300" />;
       default: return <Smartphone className="w-5 h-5" />;
     }
   };
@@ -867,7 +893,7 @@ export function WhatsAppAccounts() {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-white/5 pb-4">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight text-white mt-1 flex items-center gap-2">
-            <Sparkles className="w-6 h-6 text-zinc-400 drop-shadow-[0_0_10px_rgba(212,212,212,0.5)]" />
+            <Sparkles className="w-6 h-6 text-cyan-300 drop-shadow-[0_0_10px_rgba(34,211,238,0.55)]" />
             Canales de Mensajería y Redes Sociales
           </h1>
           <p className="text-slate-400 text-sm">Gestiona tus conexiones de reclutamiento desde un único lugar asignando Agentes de IA conversacionales.</p>
@@ -887,19 +913,20 @@ export function WhatsAppAccounts() {
             setBaileysSessionId(activeTab === 'whatsapp_personal' ? getNextWhatsAppSessionId() : "default");
             setBaileysStatus(null);
             setBaileysError("");
+            setBaileysAuthExpired(false);
             baileysCompletedRef.current = false;
             setIsModalOpen(true);
           }}
           className={cn(
-            "px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-2 transition-all shadow-[0_0_15px_rgba(163,163,163,0.15)] uppercase tracking-wide border",
-            activeTab === 'whatsapp_meta' ? "bg-zinc-600/20 border-zinc-500/50 hover:bg-zinc-600/40 text-zinc-200" :
-            activeTab === 'whatsapp_personal' ? "bg-zinc-600/20 border-zinc-500/50 hover:bg-zinc-600/40 text-zinc-250" :
-            activeTab === 'indeed' ? "bg-zinc-600/20 border-zinc-500/50 hover:bg-zinc-600/40 text-zinc-250" :
-            activeTab === 'computrabajo' ? "bg-zinc-600/20 border-zinc-500/50 hover:bg-zinc-600/40 text-zinc-250" :
-            activeTab === 'facebook' ? "bg-zinc-600/20 border-zinc-500/50 hover:bg-zinc-600/40 text-zinc-250" :
-            activeTab === 'messenger' ? "bg-zinc-600/20 border-zinc-500/50 hover:bg-zinc-600/40 text-zinc-250" :
-            activeTab === 'instagram' ? "bg-zinc-600/20 border-zinc-500/50 hover:bg-zinc-600/40 text-zinc-250" :
-            "bg-zinc-600/20 border-zinc-500/50 hover:bg-zinc-600/40 text-zinc-250"
+            "px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-2 transition-all uppercase tracking-wide border shadow-[0_0_18px_rgba(34,211,238,0.16)]",
+            activeTab === 'whatsapp_meta' ? "bg-emerald-500/15 border-emerald-400/50 hover:bg-emerald-500/25 text-emerald-100" :
+            activeTab === 'whatsapp_personal' ? "bg-cyan-500/15 border-cyan-400/50 hover:bg-cyan-500/25 text-cyan-100" :
+            activeTab === 'indeed' ? "bg-blue-500/15 border-blue-400/50 hover:bg-blue-500/25 text-blue-100" :
+            activeTab === 'computrabajo' ? "bg-teal-500/15 border-teal-400/50 hover:bg-teal-500/25 text-teal-100" :
+            activeTab === 'facebook' ? "bg-blue-600/15 border-blue-400/50 hover:bg-blue-600/25 text-blue-100" :
+            activeTab === 'messenger' ? "bg-sky-500/15 border-sky-400/50 hover:bg-sky-500/25 text-sky-100" :
+            activeTab === 'instagram' ? "bg-pink-500/15 border-pink-400/50 hover:bg-pink-500/25 text-pink-100" :
+            "bg-fuchsia-500/15 border-fuchsia-400/50 hover:bg-fuchsia-500/25 text-fuchsia-100"
           )}
         >
           {activeTab === 'whatsapp_personal' ? <QrCode className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
@@ -910,14 +937,14 @@ export function WhatsAppAccounts() {
       {/* Tabs Navigation */}
       <div className="flex flex-wrap gap-2 p-1 bg-slate-900/60 border border-white/5 rounded-xl self-start">
         {[
-          { id: 'indeed', name: 'Indeed', icon: MessageSquare, color: 'text-zinc-300' },
-          { id: 'computrabajo', name: 'Computrabajo', icon: SmartphoneNfc, color: 'text-zinc-300' },
-          { id: 'whatsapp_meta', name: 'WhatsApp Meta API', icon: Smartphone, color: 'text-zinc-400' },
-          { id: 'whatsapp_personal', name: 'WhatsApp Baileys QR', icon: QrCode, color: 'text-zinc-400' },
-          { id: 'facebook', name: 'Facebook Leads', icon: Facebook, color: 'text-zinc-400' },
-          { id: 'messenger', name: 'Messenger', icon: MessageSquare, color: 'text-zinc-400' },
-          { id: 'instagram', name: 'Instagram DM', icon: Instagram, color: 'text-zinc-400' },
-          { id: 'tiktok', name: 'TikTok Leads', icon: Video, color: 'text-zinc-400' }
+          { id: 'indeed', name: 'Indeed', icon: MessageSquare, color: 'text-blue-300' },
+          { id: 'computrabajo', name: 'Computrabajo', icon: SmartphoneNfc, color: 'text-teal-300' },
+          { id: 'whatsapp_meta', name: 'WhatsApp Meta API', icon: Smartphone, color: 'text-emerald-300' },
+          { id: 'whatsapp_personal', name: 'WhatsApp Baileys QR', icon: QrCode, color: 'text-cyan-300' },
+          { id: 'facebook', name: 'Facebook Leads', icon: Facebook, color: 'text-blue-400' },
+          { id: 'messenger', name: 'Messenger', icon: MessageSquare, color: 'text-sky-300' },
+          { id: 'instagram', name: 'Instagram DM', icon: Instagram, color: 'text-pink-300' },
+          { id: 'tiktok', name: 'TikTok Leads', icon: Video, color: 'text-fuchsia-300' }
         ].map((tab) => (
           <button
             key={tab.id}
@@ -925,7 +952,7 @@ export function WhatsAppAccounts() {
             className={cn(
               "flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold uppercase tracking-wider transition-all",
               activeTab === tab.id
-                ? "bg-slate-800 text-white shadow-md border border-white/10"
+                ? "bg-cyan-500/15 text-white shadow-[0_0_18px_rgba(34,211,238,0.16)] border border-cyan-300/35"
                 : "text-slate-400 hover:text-white hover:bg-white/5"
             )}
           >
@@ -1592,7 +1619,7 @@ export function WhatsAppAccounts() {
                   <button
                     onClick={startLinking}
                     disabled={!newAccountName || !selectedAgent || isStartingBaileys}
-                    className="bg-zinc-500 hover:bg-zinc-600 text-slate-900 font-semibold px-6 py-2.5 rounded-xl text-sm transition-all shadow-[0_0_15px_rgba(212,212,212,0.2)] disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="bg-gradient-to-r from-cyan-300 via-sky-400 to-blue-500 hover:from-cyan-200 hover:via-sky-300 hover:to-blue-400 text-slate-950 font-semibold px-6 py-2.5 rounded-xl text-sm transition-all shadow-[0_0_20px_rgba(34,211,238,0.25)] disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {isStartingBaileys ? 'Iniciando...' : activeTab === 'whatsapp_personal' ? 'Generar Código QR' : activeTab === 'whatsapp_meta' ? 'Registrar modulo Meta API' : activeTab === 'indeed' || activeTab === 'computrabajo' ? 'Crear entrada sin API' : 'Conectar con API oficial'}
                   </button>
@@ -1601,11 +1628,11 @@ export function WhatsAppAccounts() {
             )}
 
             {modalStep === 'qr' && (
-              <div className="flex flex-col items-center justify-center py-6 text-center">
+              <div className="flex flex-col items-center justify-center px-5 py-7 text-center">
                 <h3 className="text-xl font-bold text-white mb-2">Escanea el código QR de Baileys</h3>
                 <p className="text-sm text-slate-400 mb-8 max-w-[300px]">Abre WhatsApp en tu teléfono, ve a "Dispositivos vinculados" y escanea este QR real para enlazar la sesión local.</p>
 
-                <div className="bg-white p-4 rounded-2xl mb-6 relative min-h-[224px] min-w-[224px] flex items-center justify-center">
+                <div className="bg-white p-4 rounded-2xl mb-6 relative min-h-[224px] min-w-[224px] flex items-center justify-center shadow-[0_0_35px_rgba(34,211,238,0.18)] ring-1 ring-cyan-200/70">
                   {baileysStatus?.qrDataUrl ? (
                     <img src={baileysStatus.qrDataUrl} alt="QR Baileys" className="w-56 h-56" />
                   ) : (
@@ -1614,10 +1641,12 @@ export function WhatsAppAccounts() {
                       <Loader2 className="w-5 h-5 animate-spin" />
                     </div>
                   )}
-                  <div className="absolute top-0 left-0 w-full h-1 bg-zinc-500 shadow-[0_0_10px_rgba(212,212,212,0.8)] animate-[scan_2s_ease-in-out_infinite]" />
+                  {baileysStatus?.qrDataUrl && (
+                    <div className="absolute left-0 top-0 h-1 w-full bg-cyan-400 shadow-[0_0_14px_rgba(34,211,238,0.95)] animate-[scan_2s_ease-in-out_infinite]" />
+                  )}
                 </div>
 
-                <div className="flex items-center gap-2 text-sm text-zinc-400 animate-pulse">
+                <div className="flex items-center gap-2 text-sm text-cyan-300 animate-pulse">
                   <Loader2 className="w-4 h-4 animate-spin" />
                   {baileysStatus?.state === "qr"
                     ? "Esperando escaneo desde tu dispositivo móvil..."
@@ -1628,16 +1657,42 @@ export function WhatsAppAccounts() {
                 <p className="mt-3 text-[11px] uppercase tracking-widest text-slate-500">
                   Sesión: {baileysStatus?.id || baileysSessionId || "default"} · Estado: {baileysStatus?.state || "connecting"}
                 </p>
+                {baileysStatus?.state === "qr" && typeof baileysStatus.qrSecondsLeft === "number" && (
+                  <p className="mt-2 text-[11px] font-bold uppercase tracking-widest text-cyan-200">
+                    QR activo por {baileysStatus.qrSecondsLeft}s
+                  </p>
+                )}
                 {baileysError && (
                   <div className={cn(
                     "mt-4 rounded-xl border px-4 py-3 text-xs",
-                    baileysStatus?.state === "logged_out"
-                      ? "border-zinc-500/30 bg-zinc-500/10 text-zinc-200"
-                      : "border-zinc-500/30 bg-zinc-500/10 text-zinc-200"
+                    baileysAuthExpired
+                      ? "border-amber-400/35 bg-amber-500/10 text-amber-100"
+                      : baileysStatus?.state === "logged_out"
+                        ? "border-amber-400/35 bg-amber-500/10 text-amber-100"
+                        : "border-rose-400/35 bg-rose-500/10 text-rose-100"
                   )}>
                     {baileysError}
                   </div>
                 )}
+                <div className="mt-5 flex flex-wrap justify-center gap-3">
+                  {baileysAuthExpired ? (
+                    <button
+                      onClick={goToLogin}
+                      className="rounded-xl border border-amber-300/40 bg-amber-400/15 px-4 py-2 text-xs font-bold uppercase tracking-widest text-amber-100 hover:bg-amber-400/25"
+                    >
+                      Iniciar sesion
+                    </button>
+                  ) : (
+                    <button
+                      onClick={startLinking}
+                      disabled={isStartingBaileys}
+                      className="inline-flex items-center gap-2 rounded-xl border border-cyan-300/40 bg-cyan-400/10 px-4 py-2 text-xs font-bold uppercase tracking-widest text-cyan-100 hover:bg-cyan-400/20 disabled:opacity-50"
+                    >
+                      {isStartingBaileys ? <Loader2 className="h-4 w-4 animate-spin" /> : <RotateCcw className="h-4 w-4" />}
+                      Regenerar QR
+                    </button>
+                  )}
+                </div>
               </div>
             )}
 

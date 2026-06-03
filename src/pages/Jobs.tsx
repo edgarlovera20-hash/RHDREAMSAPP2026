@@ -156,7 +156,7 @@ export function Jobs() {
         </div>
         <button
           onClick={() => setIsModalOpen(true)}
-          className="bg-zinc-600/20 border border-zinc-500/50 hover:bg-zinc-600/40 text-zinc-50 hover:text-white px-4 py-2.5 rounded-lg font-bold text-xs flex items-center gap-2 transition-all shadow-[0_0_15px_rgba(163,163,163,0.2)] hover:shadow-[0_0_20px_rgba(163,163,163,0.4)]">
+          className="bg-slate-200/10 border border-slate-200/35 hover:bg-white/10 hover:border-slate-200/55 text-slate-100 hover:text-white px-4 py-2.5 rounded-lg font-bold text-xs flex items-center gap-2 transition-all shadow-[0_0_15px_rgba(163,163,163,0.2)] hover:shadow-[0_0_24px_rgba(245,245,245,0.16)]">
           <Plus className="w-4 h-4" />
           Nueva Oferta
         </button>
@@ -255,7 +255,7 @@ export function Jobs() {
                   Ver ficha
                 </button>
                 {job.status === "Active" && (
-                  <button className="p-2 text-slate-400 hover:text-zinc-400 hover:bg-zinc-500/10 rounded-lg transition-colors">
+                  <button className="p-2 text-slate-400 hover:text-white hover:bg-white/10 hover:shadow-[0_0_14px_rgba(245,245,245,0.10)] rounded-lg transition-all">
                     <Share2 className="w-4 h-4" />
                   </button>
                 )}

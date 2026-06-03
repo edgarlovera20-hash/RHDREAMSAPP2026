@@ -8,6 +8,17 @@ const inferredApiBase = (() => {
 
 const API_BASE_URL = inferredApiBase || configuredApiBase;
 export const API_TOKEN_STORAGE_KEY = "rhdreams_api_token";
+export const API_AUTH_EXPIRED_MESSAGE = "Tu sesion expiro. Inicia sesion de nuevo para continuar.";
+
+export function isApiAuthExpiredErrorMessage(message = "") {
+  return /token expirado|token invalido|no autenticado|sesion expiro|unauthorized/i.test(message);
+}
+
+export function clearApiAuthToken() {
+  if (typeof window === "undefined") return;
+  localStorage.removeItem(API_TOKEN_STORAGE_KEY);
+  window.dispatchEvent(new CustomEvent("rhdreams:api-auth-expired"));
+}
 
 export function apiUrl(path: string) {
   const normalizedPath = path.startsWith("/") ? path : `/${path}`;
@@ -60,7 +71,12 @@ export async function readApiJson<T = any>(response: Response): Promise<T> {
 
   if (!response.ok) {
     const payload = data?.data || data;
-    throw new Error(payload?.error || data?.error || `La API respondio ${response.status}`);
+    const errorMessage = payload?.error || data?.error || `La API respondio ${response.status}`;
+    if (response.status === 401 && isApiAuthExpiredErrorMessage(errorMessage)) {
+      clearApiAuthToken();
+      throw new Error(API_AUTH_EXPIRED_MESSAGE);
+    }
+    throw new Error(errorMessage);
   }
 
   return data as T;

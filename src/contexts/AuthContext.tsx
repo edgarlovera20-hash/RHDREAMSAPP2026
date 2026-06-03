@@ -184,10 +184,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         <div className="opacity-15 absolute inset-0 pointer-events-none z-0">
           <NetworkBackground />
         </div>
-        <div className="z-10 text-cyan-400 flex flex-col items-center">
+        <div className="z-10 text-zinc-400 flex flex-col items-center">
           <div className="relative w-16 h-16 flex items-center justify-center mb-6">
-            <div className="absolute inset-0 rounded-full border-2 border-cyan-400/20 animate-[ping_1.5s_ease-in-out_infinite]" />
-            <div className="absolute w-12 h-12 rounded-full border border-cyan-400/35 border-t-cyan-400 animate-spin" />
+            <div className="absolute inset-0 rounded-full border-2 border-zinc-400/20 animate-[ping_1.5s_ease-in-out_infinite]" />
+            <div className="absolute w-12 h-12 rounded-full border border-zinc-400/35 border-t-zinc-400 animate-spin" />
             <Sparkles className="w-5 h-5 text-[#d4d4d4] animate-pulse" />
           </div>
           <span className="font-extrabold text-xs tracking-[0.2em] text-white uppercase opacity-90">Iniciando Red Neuronal</span>

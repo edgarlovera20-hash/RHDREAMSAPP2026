@@ -18,6 +18,8 @@ type BaileysSession = {
   state: BaileysConnectionState;
   qr?: string | null;
   qrDataUrl?: string | null;
+  qrCreatedAt?: number;
+  qrExpiresAt?: number;
   phone?: string | null;
   lastError?: string | null;
   updatedAt: number;
@@ -53,6 +55,8 @@ type SendOptions = {
 
 const DEFAULT_SESSION_ID = process.env.BAILEYS_SESSION_ID || "default";
 const MAX_SESSION_MESSAGES = Math.max(100, Number(process.env.BAILEYS_MAX_SESSION_MESSAGES || 1000));
+const QR_TTL_MS = Math.max(30_000, Number(process.env.BAILEYS_QR_TTL_MS || 75_000));
+const CONNECTING_STALE_MS = Math.max(15_000, Number(process.env.BAILEYS_CONNECTING_STALE_MS || 35_000));
 const SESSION_ROOT = path.join(process.cwd(), ".sessions", "baileys");
 const sessions = new Map<string, BaileysSession>();
 
@@ -78,6 +82,51 @@ const getSession = (sessionId = DEFAULT_SESSION_ID) => {
 
 const sessionPath = (sessionId: string) => path.join(SESSION_ROOT, sessionId);
 
+const closeSessionSocket = (session: BaileysSession) => {
+  const socket = session.socket;
+  session.socket = undefined;
+  if (!socket) return;
+
+  try {
+    socket.ev?.removeAllListeners?.("connection.update");
+    socket.ev?.removeAllListeners?.("messages.upsert");
+    socket.ev?.removeAllListeners?.("creds.update");
+  } catch (_error) {
+    // Best effort cleanup; Baileys socket shapes vary between versions.
+  }
+
+  try {
+    socket.ws?.close?.();
+  } catch (_error) {
+    // Ignore websocket close errors.
+  }
+};
+
+const clearTransientQrState = (session: BaileysSession) => {
+  session.qr = null;
+  session.qrDataUrl = null;
+  session.qrCreatedAt = undefined;
+  session.qrExpiresAt = undefined;
+};
+
+const refreshSessionLifecycle = (session: BaileysSession) => {
+  if (session.state === "connected") return;
+
+  const now = Date.now();
+  const qrExpired = session.state === "qr" && Boolean(session.qrExpiresAt) && now > Number(session.qrExpiresAt);
+  const connectingStale = session.state === "connecting" && now - session.updatedAt > CONNECTING_STALE_MS;
+
+  if (!qrExpired && !connectingStale) return;
+
+  closeSessionSocket(session);
+  clearTransientQrState(session);
+  session.state = "closed";
+  session.lastError = qrExpired
+    ? "El QR expiro. Generando uno nuevo para vincular WhatsApp."
+    : "Baileys tardo demasiado en generar QR. Reiniciando la sesion.";
+  session.updatedAt = now;
+};
+
 const clearSessionFiles = async (session: BaileysSession) => {
   const targetPath = path.resolve(sessionPath(session.id));
   const rootPath = path.resolve(SESSION_ROOT);
@@ -86,9 +135,8 @@ const clearSessionFiles = async (session: BaileysSession) => {
   }
 
   await fs.rm(targetPath, { recursive: true, force: true });
-  session.socket = undefined;
-  session.qr = null;
-  session.qrDataUrl = null;
+  closeSessionSocket(session);
+  clearTransientQrState(session);
   session.phone = null;
   session.connectedAt = undefined;
   session.updatedAt = Date.now();
@@ -110,6 +158,9 @@ const publicSession = (session: BaileysSession) => ({
   id: session.id,
   state: session.state,
   qrDataUrl: session.qrDataUrl,
+  qrCreatedAt: session.qrCreatedAt,
+  qrExpiresAt: session.qrExpiresAt,
+  qrSecondsLeft: session.qrExpiresAt ? Math.max(0, Math.ceil((session.qrExpiresAt - Date.now()) / 1000)) : null,
   phone: session.phone,
   agentName: session.agentName,
   companyName: session.companyName,
@@ -194,16 +245,22 @@ const dedupeRecruitmentReply = (reply: string, previousReply: string, fallback: 
     : reply;
 
 export function getBaileysStatus(sessionId?: string) {
-  return publicSession(getSession(sessionId));
+  const session = getSession(sessionId);
+  refreshSessionLifecycle(session);
+  return publicSession(session);
 }
 
 export function getAllBaileysStatuses() {
-  return Array.from(sessions.values()).map(publicSession);
+  return Array.from(sessions.values()).map((session) => {
+    refreshSessionLifecycle(session);
+    return publicSession(session);
+  });
 }
 
 export async function startBaileysSession(options: StartOptions = {}) {
   const session = getSession(options.sessionId);
   updateSessionMetadata(session, options);
+  refreshSessionLifecycle(session);
 
   if (options.resetSession || session.state === "logged_out") {
     await clearSessionFiles(session);
@@ -243,16 +300,25 @@ export async function startBaileysSession(options: StartOptions = {}) {
     const { connection, qr, lastDisconnect } = update;
 
     if (qr) {
+      const now = Date.now();
       session.qr = qr;
       session.qrDataUrl = await QRCode.toDataURL(qr, { margin: 1, width: 320 });
+      session.qrCreatedAt = now;
+      session.qrExpiresAt = now + QR_TTL_MS;
       session.state = "qr";
-      session.updatedAt = Date.now();
+      session.updatedAt = now;
+
+      const expireTimer = setTimeout(() => {
+        const activeSession = sessions.get(session.id);
+        if (activeSession !== session || session.state !== "qr" || session.qr !== qr) return;
+        refreshSessionLifecycle(session);
+      }, QR_TTL_MS + 1000);
+      (expireTimer as any).unref?.();
     }
 
     if (connection === "open") {
       session.state = "connected";
-      session.qr = null;
-      session.qrDataUrl = null;
+      clearTransientQrState(session);
       session.phone = socket.user?.id || null;
       session.lastError = null;
       session.connectedAt = Date.now();
@@ -264,6 +330,7 @@ export async function startBaileysSession(options: StartOptions = {}) {
       const loggedOut = statusCode === DisconnectReason.loggedOut;
       session.state = loggedOut ? "logged_out" : "closed";
       session.socket = undefined;
+      clearTransientQrState(session);
       session.lastError = lastDisconnect?.error?.message || null;
       session.updatedAt = Date.now();
 

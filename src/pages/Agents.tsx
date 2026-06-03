@@ -841,7 +841,7 @@ Escribenos por mensaje para recibir requisitos, horarios y siguientes pasos.
           onClick={() => setActiveTab('agents')}
           className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
             activeTab === 'agents'
-              ? 'bg-zinc-500/20 text-zinc-400 border border-zinc-500/30 shadow-[0_0_10px_rgba(212,212,212,0.1)]'
+              ? 'bg-slate-200/10 text-white border border-slate-200/35 shadow-[0_0_14px_rgba(245,245,245,0.12)]'
               : 'text-slate-400 hover:text-slate-200 hover:bg-white/5'
           }`}
         >
@@ -851,7 +851,7 @@ Escribenos por mensaje para recibir requisitos, horarios y siguientes pasos.
           onClick={() => setActiveTab('templates')}
           className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
             activeTab === 'templates'
-              ? 'bg-zinc-500/20 text-zinc-400 border border-zinc-500/30 shadow-[0_0_10px_rgba(212,212,212,0.1)]'
+              ? 'bg-slate-200/10 text-white border border-slate-200/35 shadow-[0_0_14px_rgba(245,245,245,0.12)]'
               : 'text-slate-400 hover:text-slate-200 hover:bg-white/5'
           }`}
         >
@@ -861,7 +861,7 @@ Escribenos por mensaje para recibir requisitos, horarios y siguientes pasos.
           onClick={() => setActiveTab('tester')}
           className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
             activeTab === 'tester'
-              ? 'bg-zinc-500/20 text-zinc-400 border border-zinc-500/30 shadow-[0_0_10px_rgba(212,212,212,0.1)]'
+              ? 'bg-slate-200/10 text-white border border-slate-200/35 shadow-[0_0_14px_rgba(245,245,245,0.12)]'
               : 'text-slate-400 hover:text-slate-200 hover:bg-white/5'
           }`}
         >
@@ -872,7 +872,7 @@ Escribenos por mensaje para recibir requisitos, horarios y siguientes pasos.
           onClick={() => setActiveTab('schedule')}
           className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
             activeTab === 'schedule'
-              ? 'bg-zinc-500/20 text-zinc-400 border border-zinc-500/30 shadow-[0_0_10px_rgba(212,212,212,0.1)]'
+              ? 'bg-slate-200/10 text-white border border-slate-200/35 shadow-[0_0_14px_rgba(245,245,245,0.12)]'
               : 'text-slate-400 hover:text-slate-200 hover:bg-white/5'
           }`}
         >
@@ -883,7 +883,7 @@ Escribenos por mensaje para recibir requisitos, horarios y siguientes pasos.
           onClick={() => setActiveTab('canva')}
           className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
             activeTab === 'canva'
-              ? 'bg-zinc-500/20 text-zinc-400 border border-zinc-500/30 shadow-[0_0_10px_rgba(212,212,212,0.1)]'
+              ? 'bg-slate-200/10 text-white border border-slate-200/35 shadow-[0_0_14px_rgba(245,245,245,0.12)]'
               : 'text-slate-400 hover:text-slate-200 hover:bg-white/5'
           }`}
         >
@@ -894,7 +894,7 @@ Escribenos por mensaje para recibir requisitos, horarios y siguientes pasos.
           onClick={() => setActiveTab('memory')}
           className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
             activeTab === 'memory'
-              ? 'bg-zinc-500/20 text-zinc-400 border border-zinc-500/30 shadow-[0_0_10px_rgba(212,212,212,0.1)]'
+              ? 'bg-slate-200/10 text-white border border-slate-200/35 shadow-[0_0_14px_rgba(245,245,245,0.12)]'
               : 'text-slate-400 hover:text-slate-200 hover:bg-white/5'
           }`}
         >
@@ -913,7 +913,7 @@ Escribenos por mensaje para recibir requisitos, horarios y siguientes pasos.
               <div
                 key={agent.id}
                 onClick={() => openChat(agent)}
-                className={`glass-panel bg-[#0a0a0a]/95 p-6 rounded-2xl flex flex-col border transition-all hover:-translate-y-1 group cursor-pointer ${activeChatAgent?.id === agent.id ? 'border-zinc-500 shadow-[0_0_20px_rgba(212,212,212,0.16)]' : 'border-slate-700/50 hover:border-zinc-500/30 hover:shadow-[0_8px_30px_rgba(212,212,212,0.04)]'}`}
+                className={`glass-panel bg-[#0a0a0a]/95 p-6 rounded-2xl flex flex-col border transition-all hover:-translate-y-1 group cursor-pointer ${activeChatAgent?.id === agent.id ? 'neon-selected border-slate-200/60 shadow-[0_0_24px_rgba(245,245,245,0.16)]' : 'border-slate-700/50 hover:border-slate-200/35 hover:shadow-[0_8px_30px_rgba(245,245,245,0.08)]'}`}
               >
                 <div className="flex justify-between items-start mb-4">
                   <div className="flex items-center gap-3">
@@ -1033,7 +1033,7 @@ Escribenos por mensaje para recibir requisitos, horarios y siguientes pasos.
         {activeTab === 'templates' && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {EMPTY_AGENT_TEMPLATES.map((tpl) => (
-              <div key={tpl.id} className="relative glass-panel p-6 rounded-2xl border border-slate-700/50 flex flex-col group overflow-hidden cursor-pointer hover:border-zinc-500/50 transition-colors">
+              <div key={tpl.id} className="relative glass-panel p-6 rounded-2xl border border-slate-700/50 flex flex-col group overflow-hidden cursor-pointer hover:border-slate-200/40 hover:shadow-[0_0_22px_rgba(245,245,245,0.10)] transition-all">
                 <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
                    {getIcon(tpl.icon)}
                 </div>
@@ -1042,7 +1042,7 @@ Escribenos por mensaje para recibir requisitos, horarios y siguientes pasos.
                 </div>
                 <h3 className="font-semibold text-white mb-2">{tpl.name}</h3>
                 <p className="text-sm text-slate-400 mb-6 flex-1">{tpl.description}</p>
-                <button className="w-full py-2 bg-slate-800 hover:bg-zinc-500 text-slate-200 hover:text-slate-900 rounded-xl transition-all font-medium text-sm flex items-center justify-center gap-2 border border-slate-700 hover:border-transparent">
+                <button className="w-full py-2 bg-slate-800 hover:bg-white/10 text-slate-200 hover:text-white rounded-xl transition-all font-medium text-sm flex items-center justify-center gap-2 border border-slate-700 hover:border-slate-200/35 hover:shadow-[0_0_14px_rgba(245,245,245,0.10)]">
                   <Plus className="w-4 h-4" /> Usar Plantilla
                 </button>
               </div>
@@ -1339,8 +1339,8 @@ Escribenos por mensaje para recibir requisitos, horarios y siguientes pasos.
                           key={template.id}
                           className={`rounded-xl border p-4 bg-slate-950/40 transition-all ${
                             isSelected
-                              ? 'border-zinc-500/50 shadow-[0_0_18px_rgba(212,212,212,0.10)]'
-                              : 'border-slate-700/70 hover:border-slate-500'
+                              ? 'border-slate-200/55 bg-white/[0.045] shadow-[0_0_18px_rgba(245,245,245,0.12)]'
+                              : 'border-slate-700/70 hover:border-slate-200/35 hover:shadow-[0_0_14px_rgba(245,245,245,0.08)]'
                           }`}
                         >
                           <div className="flex items-start justify-between gap-3">
@@ -1379,8 +1379,8 @@ Escribenos por mensaje para recibir requisitos, horarios y siguientes pasos.
                           onClick={() => setCanvaFormat(format.id)}
                           className={`text-left p-3 rounded-xl border transition-all ${
                             isSelected
-                              ? 'border-zinc-500/60 bg-zinc-500/10 text-white shadow-[0_0_14px_rgba(212,212,212,0.12)]'
-                              : 'border-slate-700 bg-slate-900/50 text-slate-300 hover:border-slate-500'
+                              ? 'border-slate-200/60 bg-slate-200/10 text-white shadow-[0_0_14px_rgba(245,245,245,0.12)]'
+                              : 'border-slate-700 bg-slate-900/50 text-slate-300 hover:border-slate-200/35 hover:shadow-[0_0_12px_rgba(245,245,245,0.08)]'
                           }`}
                         >
                           <FormatIcon className={`w-5 h-5 mb-2 ${isSelected ? 'text-zinc-400' : 'text-slate-500'}`} />

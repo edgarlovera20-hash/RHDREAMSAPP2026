@@ -201,19 +201,19 @@ export function Candidates() {
           <div className="glass-panel p-1 rounded-lg flex border border-slate-700/50 w-full sm:w-auto overflow-x-auto">
             <button
               onClick={() => setActiveView('kanban')}
-              className={cn("px-3 py-1.5 text-sm font-medium rounded-md transition-colors", activeView === 'kanban' ? "bg-slate-800/80 text-zinc-400 shadow-sm" : "text-slate-500 hover:text-slate-300")}
+              className={cn("px-3 py-1.5 text-sm font-medium rounded-md transition-all border border-transparent", activeView === 'kanban' ? "bg-slate-200/10 text-white border-slate-200/25 shadow-[0_0_14px_rgba(245,245,245,0.10)]" : "text-slate-500 hover:text-white hover:bg-white/5")}
             >
               Kanban
             </button>
             <button
               onClick={() => setActiveView('list')}
-              className={cn("px-3 py-1.5 text-sm font-medium rounded-md transition-colors", activeView === 'list' ? "bg-slate-800/80 text-zinc-400 shadow-sm" : "text-slate-500 hover:text-slate-300")}
+              className={cn("px-3 py-1.5 text-sm font-medium rounded-md transition-all border border-transparent", activeView === 'list' ? "bg-slate-200/10 text-white border-slate-200/25 shadow-[0_0_14px_rgba(245,245,245,0.10)]" : "text-slate-500 hover:text-white hover:bg-white/5")}
             >
               Tabla
             </button>
             <button
               onClick={() => setActiveView('calendar')}
-              className={cn("px-3 py-1.5 text-sm font-medium rounded-md transition-colors", activeView === 'calendar' ? "bg-slate-800/80 text-zinc-400 shadow-sm" : "text-slate-500 hover:text-slate-300")}
+              className={cn("px-3 py-1.5 text-sm font-medium rounded-md transition-all border border-transparent", activeView === 'calendar' ? "bg-slate-200/10 text-white border-slate-200/25 shadow-[0_0_14px_rgba(245,245,245,0.10)]" : "text-slate-500 hover:text-white hover:bg-white/5")}
             >
               Calendario
             </button>
@@ -221,7 +221,7 @@ export function Candidates() {
               <button
                 onClick={() => setIsEditingStages(!isEditingStages)}
                 className={cn("px-2 py-1.5 ml-1 text-sm font-medium rounded-md transition-colors border max-w-fit flex items-center justify-center",
-                  isEditingStages ? "bg-zinc-500/10 text-zinc-400 border-zinc-500/30" : "text-slate-500 hover:text-slate-300 border-transparent"
+                  isEditingStages ? "bg-slate-200/10 text-white border-slate-200/35 shadow-[0_0_14px_rgba(245,245,245,0.10)]" : "text-slate-500 hover:text-white hover:bg-white/5 border-transparent"
                 )}
                 title="Editar Etapas"
               >
@@ -249,7 +249,7 @@ export function Candidates() {
                 type: 'info'
               });
             }}
-            className="bg-zinc-600/20 border border-zinc-500/50 hover:bg-zinc-600/40 text-zinc-50 hover:text-white px-4 py-2.5 rounded-lg font-bold text-xs flex items-center gap-2 transition-all shadow-[0_0_15px_rgba(163,163,163,0.2)] hover:shadow-[0_0_20px_rgba(163,163,163,0.4)]">
+            className="bg-slate-200/10 border border-slate-200/35 hover:bg-white/10 hover:border-slate-200/55 text-slate-100 hover:text-white px-4 py-2.5 rounded-lg font-bold text-xs flex items-center gap-2 transition-all shadow-[0_0_15px_rgba(163,163,163,0.2)] hover:shadow-[0_0_24px_rgba(245,245,245,0.16)]">
             <Plus className="w-4 h-4" />
             Nuevo Lead
           </button>
@@ -274,8 +274,8 @@ export function Candidates() {
           className={cn(
             "px-4 py-2 text-xs border rounded-md transition-colors font-medium flex items-center gap-2",
             sortByRating
-              ? "bg-zinc-500/10 border-zinc-500/50 text-zinc-400"
-              : "bg-slate-800/50 border-white/5 text-slate-300 hover:bg-slate-800 hover:text-white"
+              ? "bg-slate-200/10 border-slate-200/40 text-white shadow-[inset_0_0_12px_rgba(255,255,255,0.06)]"
+              : "bg-slate-800/50 border-white/5 text-slate-300 hover:bg-white/5 hover:border-slate-200/25 hover:text-white"
           )}
         >
           <Star className={cn("w-3.5 h-3.5", sortByRating && "fill-zinc-400")} /> Mejores
@@ -285,8 +285,8 @@ export function Candidates() {
           className={cn(
             "px-4 py-2 text-xs border rounded-md transition-colors font-medium flex items-center gap-2",
             sortBySource
-              ? "bg-zinc-500/10 border-zinc-500/50 text-zinc-400"
-              : "bg-slate-800/50 border-white/5 text-slate-300 hover:bg-slate-800 hover:text-white"
+              ? "bg-slate-200/10 border-slate-200/40 text-white shadow-[inset_0_0_12px_rgba(255,255,255,0.06)]"
+              : "bg-slate-800/50 border-white/5 text-slate-300 hover:bg-white/5 hover:border-slate-200/25 hover:text-white"
           )}
         >
           <ArrowDownAZ className="w-3.5 h-3.5" /> Fuente
@@ -298,8 +298,8 @@ export function Candidates() {
               className={cn(
                 "w-full sm:w-auto justify-center px-4 py-2 text-xs border rounded-md transition-colors font-medium flex items-center gap-2",
               selectedSources.length > 0 || selectedPools.length > 0 || selectedLocations.length > 0 || selectedExperience.length > 0 || selectedSalary.length > 0
-                ? "bg-zinc-500/10 border-zinc-500/50 text-zinc-400"
-                : "bg-slate-800/50 border-white/5 text-slate-300 hover:bg-slate-800 hover:text-white"
+                ? "bg-slate-200/10 border-slate-200/40 text-white shadow-[inset_0_0_12px_rgba(255,255,255,0.06)]"
+                : "bg-slate-800/50 border-white/5 text-slate-300 hover:bg-white/5 hover:border-slate-200/25 hover:text-white"
             )}
           >
             <Filter className="w-3.5 h-3.5" />
@@ -450,7 +450,7 @@ export function Candidates() {
                             }}
                             className={cn(
                               "text-xs px-3 py-1.5 rounded border transition-colors",
-                              isSelected ? "bg-zinc-500/10 border-zinc-500/50 text-zinc-400" : "bg-slate-800 border-slate-700 text-slate-400 hover:text-white hover:border-slate-500"
+                              isSelected ? "bg-slate-200/10 border-slate-200/40 text-white shadow-[inset_0_0_12px_rgba(255,255,255,0.06)]" : "bg-slate-800 border-slate-700 text-slate-400 hover:text-white hover:border-slate-200/30 hover:bg-white/5"
                             )}>
                             {sal}
                           </button>
@@ -554,11 +554,11 @@ export function Candidates() {
                       key={candidate.id}
                       onClick={() => setSelectedCandidate(candidate)}
                       className={cn(
-                        "glass-panel text-left p-3.5 rounded-xl transition-all cursor-pointer group hover:scale-[1.02] border hover:border-white/10",
-                        "hover:shadow-[0_8px_30px_rgba(0,0,0,0.5)] flex flex-col gap-2 relative overflow-hidden"
+                        "glass-panel text-left p-3.5 rounded-xl transition-all cursor-pointer group hover:scale-[1.02] border hover:border-slate-200/35 hover:bg-slate-950/80",
+                        "hover:shadow-[0_0_22px_rgba(245,245,245,0.12),0_10px_34px_rgba(0,0,0,0.55)] flex flex-col gap-2 relative overflow-hidden"
                       )}
                     >
-                      <div className="absolute inset-0 bg-gradient-to-br from-zinc-500/0 to-zinc-500/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                      <div className="absolute inset-0 bg-gradient-to-br from-white/0 to-white/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
 
                       <div className="flex gap-3 relative z-10">
                         <div className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center text-slate-300 font-bold border border-slate-700 shadow-inner overflow-hidden shrink-0">
@@ -568,7 +568,7 @@ export function Candidates() {
 
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center justify-between">
-                            <h4 className="font-semibold text-slate-100 text-sm truncate group-hover:text-zinc-300 transition-colors">{candidate.name}</h4>
+                            <h4 className="font-semibold text-slate-100 text-sm truncate group-hover:text-white group-hover:drop-shadow-[0_0_8px_rgba(212,212,212,0.45)] transition-all">{candidate.name}</h4>
                             {candidate.rating > 0 && (
                               <div className="flex items-center">
                                 <Star className="w-3 h-3 fill-zinc-400 text-zinc-400" />
@@ -784,7 +784,7 @@ export function Candidates() {
                     key={event.id}
                     type="button"
                     onClick={() => setSelectedCandidate(event.candidate)}
-                    className="group rounded-lg border border-slate-700/70 bg-slate-900/70 p-3 text-left transition-colors hover:border-zinc-500/50 hover:bg-zinc-500/10"
+                    className="group rounded-lg border border-slate-700/70 bg-slate-900/70 p-3 text-left transition-all hover:border-slate-200/40 hover:bg-white/5 hover:shadow-[0_0_18px_rgba(245,245,245,0.10)]"
                   >
                     <div className="flex items-center gap-2 text-xs font-bold text-zinc-300">
                       <Clock className="h-3.5 w-3.5" />
@@ -886,14 +886,14 @@ export function Candidates() {
                 };
 
                 return (
-                <tr key={candidate.id} className="hover:bg-zinc-500/5 transition-colors group cursor-pointer" onClick={() => setSelectedCandidate(candidate)}>
+                <tr key={candidate.id} className="hover:bg-white/[0.035] hover:shadow-[inset_3px_0_0_rgba(226,232,240,0.45)] transition-all group cursor-pointer" onClick={() => setSelectedCandidate(candidate)}>
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
                       <div className="w-8 h-8 rounded-full bg-slate-800 text-slate-300 flex items-center justify-center font-bold text-xs border border-slate-700">
                         {candidate.name.charAt(0)}
                       </div>
                       <div>
-                        <div className="font-medium text-white group-hover:text-zinc-300 transition-colors flex items-center gap-2">
+                        <div className="font-medium text-white group-hover:text-white group-hover:drop-shadow-[0_0_8px_rgba(212,212,212,0.35)] transition-all flex items-center gap-2">
                           {candidate.name} {candidate.age && <span className="text-slate-500 font-normal">({candidate.age})</span>}
                           {candidate.rating > 0 && (
                             <div className="flex items-center">

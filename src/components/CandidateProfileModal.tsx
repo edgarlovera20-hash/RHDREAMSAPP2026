@@ -175,7 +175,7 @@ export function CandidateProfileModal({ candidate, onClose, onUpdate }: Candidat
         {/* Header */}
         <div className="flex items-start justify-between p-6 border-b border-white/10 bg-slate-900/30">
           <div className="flex items-center gap-5">
-            <div className="w-16 h-16 rounded-full bg-cyan-500/10 text-cyan-400 flex items-center justify-center text-2xl font-bold border border-cyan-500/20 shrink-0 shadow-[0_0_15px_rgba(163,163,163,0.15)]">
+            <div className="w-16 h-16 rounded-full bg-zinc-500/10 text-zinc-400 flex items-center justify-center text-2xl font-bold border border-zinc-500/20 shrink-0 shadow-[0_0_15px_rgba(163,163,163,0.15)]">
               {candidate.name.charAt(0)}
             </div>
             <div>
@@ -194,7 +194,7 @@ export function CandidateProfileModal({ candidate, onClose, onUpdate }: Candidat
                         className={cn(
                           "w-4 h-4 transition-colors",
                           (hoverRating || rating) >= star
-                            ? "fill-yellow-400 text-yellow-400 drop-shadow-[0_0_8px_rgba(163,163,163,0.5)]"
+                            ? "fill-zinc-300 text-zinc-300 drop-shadow-[0_0_8px_rgba(163,163,163,0.5)]"
                             : "text-slate-600 hover:text-slate-500"
                         )}
                       />
@@ -204,7 +204,7 @@ export function CandidateProfileModal({ candidate, onClose, onUpdate }: Candidat
               </div>
               <p className="text-slate-400 mt-1 font-light">{candidate.role}</p>
               <div className="flex items-center gap-3 mt-3">
-                <span className="px-2.5 py-1 bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 rounded-md text-[10px] font-bold uppercase tracking-widest shadow-[inset_0_0_8px_rgba(163,163,163,0.2)]">{candidate.stage}</span>
+                <span className="px-2.5 py-1 bg-zinc-500/10 border border-zinc-500/20 text-zinc-400 rounded-md text-[10px] font-bold uppercase tracking-widest shadow-[inset_0_0_8px_rgba(163,163,163,0.2)]">{candidate.stage}</span>
                 <div className="flex items-center gap-1 text-xs text-slate-500">
                   <Clock className="w-3.5 h-3.5" /> Postulado hace 2 días
                 </div>
@@ -218,27 +218,27 @@ export function CandidateProfileModal({ candidate, onClose, onUpdate }: Candidat
 
         {/* Content Body */}
         <div className="flex flex-col md:flex-row flex-1 overflow-hidden relative">
-          <div className="absolute inset-0 bg-cyan-500/5 blur-3xl rounded-none pointer-events-none opacity-50"></div>
+          <div className="absolute inset-0 bg-zinc-500/5 blur-3xl rounded-none pointer-events-none opacity-50"></div>
           
           {/* Left Column - Contact & Basics */}
           <div className="w-full md:w-1/3 bg-slate-900/40 p-6 border-r border-white/5 overflow-y-auto styled-scrollbar relative z-10">
-            <h3 className="text-xs uppercase tracking-widest font-bold text-cyan-500/80 mb-4">Información de Contacto</h3>
+            <h3 className="text-xs uppercase tracking-widest font-bold text-zinc-500/80 mb-4">Información de Contacto</h3>
             
             <div className="space-y-4">
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 rounded-lg glass-panel flex items-center justify-center text-slate-400 shrink-0 border border-white/5">
-                  <Mail className="w-4 h-4 text-cyan-400/80" />
+                  <Mail className="w-4 h-4 text-zinc-400/80" />
                 </div>
                 <div className="min-w-0">
                   <p className="text-[10px] text-slate-500 uppercase font-semibold">Email</p>
-                  <a href={`mailto:${candidate.email}`} className="text-sm text-cyan-400 hover:underline truncate block">{candidate.email}</a>
+                  <a href={`mailto:${candidate.email}`} className="text-sm text-zinc-400 hover:underline truncate block">{candidate.email}</a>
                 </div>
               </div>
 
               {candidate.phone && (
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 rounded-lg glass-panel flex items-center justify-center text-slate-400 shrink-0 border border-white/5">
-                    <Phone className="w-4 h-4 text-cyan-400/80" />
+                    <Phone className="w-4 h-4 text-zinc-400/80" />
                   </div>
                   <div>
                     <p className="text-[10px] text-slate-500 uppercase font-semibold">Teléfono</p>
@@ -250,7 +250,7 @@ export function CandidateProfileModal({ candidate, onClose, onUpdate }: Candidat
               {candidate.location && (
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 rounded-lg glass-panel flex items-center justify-center text-slate-400 shrink-0 border border-white/5">
-                    <MapPin className="w-4 h-4 text-cyan-400/80" />
+                    <MapPin className="w-4 h-4 text-zinc-400/80" />
                   </div>
                   <div>
                     <p className="text-[10px] text-slate-500 uppercase font-semibold">Ubicación</p>
@@ -262,7 +262,7 @@ export function CandidateProfileModal({ candidate, onClose, onUpdate }: Candidat
 
             <div className="h-px bg-white/5 my-6"></div>
 
-            <h3 className="text-xs uppercase tracking-widest font-bold text-cyan-500/80 mb-4">Etiquetas y motivo</h3>
+            <h3 className="text-xs uppercase tracking-widest font-bold text-zinc-500/80 mb-4">Etiquetas y motivo</h3>
             <div className="space-y-3">
               <div>
                 <label className="text-[10px] text-slate-500 uppercase font-semibold mb-1 block">Motivo de visita</label>
@@ -270,18 +270,18 @@ export function CandidateProfileModal({ candidate, onClose, onUpdate }: Candidat
                   value={visitReason}
                   onChange={(e) => setVisitReason(e.target.value)}
                   placeholder="Ej. Viene a entrevista, DDO, bienvenida, uniforme..."
-                  className="w-full min-h-[72px] resize-none rounded-lg border border-white/10 bg-slate-950/40 px-3 py-2 text-sm text-slate-200 placeholder:text-slate-600 focus:border-cyan-500/50 focus:outline-none"
+                  className="w-full min-h-[72px] resize-none rounded-lg border border-white/10 bg-slate-950/40 px-3 py-2 text-sm text-slate-200 placeholder:text-slate-600 focus:border-zinc-500/50 focus:outline-none"
                 />
               </div>
 
               <div className="flex flex-wrap gap-1.5">
                 {candidateTags.length > 0 ? candidateTags.map((tag) => (
-                  <span key={tag} className="inline-flex items-center gap-1 rounded-md border border-cyan-500/20 bg-cyan-500/10 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-cyan-300">
+                  <span key={tag} className="inline-flex items-center gap-1 rounded-md border border-zinc-500/20 bg-zinc-500/10 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-zinc-300">
                     <Tag className="w-3 h-3" />
                     {tag}
                     <button
                       onClick={() => handleRemoveTag(tag)}
-                      className="ml-0.5 rounded text-cyan-200/70 hover:text-white"
+                      className="ml-0.5 rounded text-zinc-200/70 hover:text-white"
                       title={`Quitar ${tag}`}
                     >
                       <X className="w-3 h-3" />
@@ -303,11 +303,11 @@ export function CandidateProfileModal({ candidate, onClose, onUpdate }: Candidat
                     }
                   }}
                   placeholder="Nueva etiqueta"
-                  className="min-w-0 flex-1 rounded-lg border border-white/10 bg-slate-950/40 px-3 py-2 text-xs text-slate-200 placeholder:text-slate-600 focus:border-cyan-500/50 focus:outline-none"
+                  className="min-w-0 flex-1 rounded-lg border border-white/10 bg-slate-950/40 px-3 py-2 text-xs text-slate-200 placeholder:text-slate-600 focus:border-zinc-500/50 focus:outline-none"
                 />
                 <button
                   onClick={handleAddTag}
-                  className="rounded-lg border border-cyan-500/30 bg-cyan-500/10 px-3 text-cyan-300 hover:bg-cyan-500/20"
+                  className="rounded-lg border border-zinc-500/30 bg-zinc-500/10 px-3 text-zinc-300 hover:bg-zinc-500/20"
                   title="Agregar etiqueta"
                 >
                   <Plus className="w-4 h-4" />
@@ -317,7 +317,7 @@ export function CandidateProfileModal({ candidate, onClose, onUpdate }: Candidat
               <button
                 onClick={handleSaveCandidateMeta}
                 disabled={isSavingMeta}
-                className="w-full rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-3 py-2 text-xs font-bold uppercase tracking-widest text-emerald-300 transition-colors hover:bg-emerald-500/20 disabled:cursor-not-allowed disabled:opacity-60 flex items-center justify-center gap-2"
+                className="w-full rounded-lg border border-zinc-500/30 bg-zinc-500/10 px-3 py-2 text-xs font-bold uppercase tracking-widest text-zinc-300 transition-colors hover:bg-zinc-500/20 disabled:cursor-not-allowed disabled:opacity-60 flex items-center justify-center gap-2"
               >
                 <Save className="w-3.5 h-3.5" />
                 {isSavingMeta ? "Guardando..." : "Guardar etiquetas"}
@@ -326,11 +326,11 @@ export function CandidateProfileModal({ candidate, onClose, onUpdate }: Candidat
 
             <div className="h-px bg-white/5 my-6"></div>
 
-            <h3 className="text-xs uppercase tracking-widest font-bold text-cyan-500/80 mb-4">Enlaces y Redes</h3>
+            <h3 className="text-xs uppercase tracking-widest font-bold text-zinc-500/80 mb-4">Enlaces y Redes</h3>
             <div className="space-y-3">
               {candidate.linkedin && (
                 <a href={`https://${candidate.linkedin}`} target="_blank" rel="noreferrer" className="flex items-center gap-3 p-2 rounded-lg hover:bg-white/5 transition-colors group">
-                  <Linkedin className="w-4 h-4 text-slate-400 group-hover:text-blue-400 drop-shadow-[0_0_8px_rgba(163,163,163,0)] group-hover:drop-shadow-[0_0_8px_rgba(163,163,163,0.5)]" />
+                  <Linkedin className="w-4 h-4 text-slate-400 group-hover:text-zinc-300 drop-shadow-[0_0_8px_rgba(163,163,163,0)] group-hover:drop-shadow-[0_0_8px_rgba(163,163,163,0.5)]" />
                   <span className="text-sm text-slate-300 group-hover:text-white transition-colors font-light">{candidate.linkedin}</span>
                 </a>
               )}
@@ -342,7 +342,7 @@ export function CandidateProfileModal({ candidate, onClose, onUpdate }: Candidat
               )}
               {candidate.portfolio && (
                 <a href={`https://${candidate.portfolio}`} target="_blank" rel="noreferrer" className="flex items-center gap-3 p-2 rounded-lg hover:bg-white/5 transition-colors group">
-                  <Globe className="w-4 h-4 text-slate-400 group-hover:text-cyan-400 drop-shadow-[0_0_8px_rgba(163,163,163,0)] group-hover:drop-shadow-[0_0_8px_rgba(163,163,163,0.5)]" />
+                  <Globe className="w-4 h-4 text-slate-400 group-hover:text-zinc-400 drop-shadow-[0_0_8px_rgba(163,163,163,0)] group-hover:drop-shadow-[0_0_8px_rgba(163,163,163,0.5)]" />
                   <span className="text-sm text-slate-300 group-hover:text-white transition-colors font-light">{candidate.portfolio}</span>
                 </a>
               )}
@@ -361,56 +361,56 @@ export function CandidateProfileModal({ candidate, onClose, onUpdate }: Candidat
                 onClick={() => setActiveTab('profile')}
                 className={cn(
                   "pb-3 text-sm font-medium transition-colors relative whitespace-nowrap", 
-                  activeTab === 'profile' ? "text-cyan-400" : "text-slate-400 hover:text-slate-300"
+                  activeTab === 'profile' ? "text-zinc-400" : "text-slate-400 hover:text-slate-300"
                 )}
               >
                 Perfil y CV
-                {activeTab === 'profile' && <div className="absolute bottom-0 left-0 w-full h-[2px] bg-cyan-400 glowing-border shadow-[0_0_8px_rgba(163,163,163,0.8)]"></div>}
+                {activeTab === 'profile' && <div className="absolute bottom-0 left-0 w-full h-[2px] bg-zinc-400 glowing-border shadow-[0_0_8px_rgba(163,163,163,0.8)]"></div>}
               </button>
               <button 
                 onClick={() => setActiveTab('scorecard')}
                 className={cn(
                   "pb-3 text-sm font-medium transition-colors relative whitespace-nowrap", 
-                  activeTab === 'scorecard' ? "text-purple-400" : "text-slate-400 hover:text-slate-300"
+                  activeTab === 'scorecard' ? "text-zinc-300" : "text-slate-400 hover:text-slate-300"
                 )}
               >
                 Scorecard
-                {activeTab === 'scorecard' && <div className="absolute bottom-0 left-0 w-full h-[2px] bg-purple-400 glowing-border shadow-[0_0_8px_rgba(163,163,163,0.8)]"></div>}
+                {activeTab === 'scorecard' && <div className="absolute bottom-0 left-0 w-full h-[2px] bg-zinc-400 glowing-border shadow-[0_0_8px_rgba(163,163,163,0.8)]"></div>}
               </button>
               <button 
                 onClick={() => setActiveTab('history')}
                 className={cn(
                   "pb-3 text-sm font-medium transition-colors relative whitespace-nowrap", 
-                  activeTab === 'history' ? "text-emerald-400" : "text-slate-400 hover:text-slate-300"
+                  activeTab === 'history' ? "text-zinc-300" : "text-slate-400 hover:text-slate-300"
                 )}
               >
                 Historial & Notas
-                {activeTab === 'history' && <div className="absolute bottom-0 left-0 w-full h-[2px] bg-emerald-400 glowing-border shadow-[0_0_8px_rgba(163,163,163,0.8)]"></div>}
+                {activeTab === 'history' && <div className="absolute bottom-0 left-0 w-full h-[2px] bg-zinc-400 glowing-border shadow-[0_0_8px_rgba(163,163,163,0.8)]"></div>}
               </button>
               <button 
                 onClick={() => setActiveTab('offer')}
                 className={cn(
                   "pb-3 text-sm font-medium transition-colors relative whitespace-nowrap", 
-                  activeTab === 'offer' ? "text-amber-400" : "text-slate-400 hover:text-slate-300"
+                  activeTab === 'offer' ? "text-zinc-300" : "text-slate-400 hover:text-slate-300"
                 )}
               >
                 Oferta
-                {activeTab === 'offer' && <div className="absolute bottom-0 left-0 w-full h-[2px] bg-amber-400 glowing-border shadow-[0_0_8px_rgba(163,163,163,0.8)]"></div>}
+                {activeTab === 'offer' && <div className="absolute bottom-0 left-0 w-full h-[2px] bg-zinc-400 glowing-border shadow-[0_0_8px_rgba(163,163,163,0.8)]"></div>}
               </button>
             </div>
 
             <div className="p-6 overflow-y-auto styled-scrollbar flex-1">
               {activeTab === 'profile' ? (
                 <>
-                  <h3 className="text-xs uppercase tracking-widest font-bold text-cyan-500/80 mb-4">Currículum Vitae</h3>
+                  <h3 className="text-xs uppercase tracking-widest font-bold text-zinc-500/80 mb-4">Currículum Vitae</h3>
                   
                   <div className="glass-panel glass-panel-hover rounded-xl p-4 flex flex-col md:flex-row md:items-center justify-between group cursor-pointer gap-4">
                     <div className="flex items-center gap-4">
-                      <div className="w-10 h-10 rounded-lg bg-cyan-500/10 flex items-center justify-center text-cyan-400 border border-cyan-500/20 group-hover:bg-cyan-500/20 transition-all shrink-0">
+                      <div className="w-10 h-10 rounded-lg bg-zinc-500/10 flex items-center justify-center text-zinc-400 border border-zinc-500/20 group-hover:bg-zinc-500/20 transition-all shrink-0">
                         <FileText className="w-5 h-5" />
                       </div>
                       <div className="min-w-0">
-                        <p className="font-medium text-white text-sm group-hover:text-cyan-300 transition-colors truncate">CV_{candidate.name.replace(' ', '_')}.pdf</p>
+                        <p className="font-medium text-white text-sm group-hover:text-zinc-300 transition-colors truncate">CV_{candidate.name.replace(' ', '_')}.pdf</p>
                         <p className="text-xs text-slate-400 mt-0.5 font-light">245 KB • Actualizado hace 2 días</p>
                       </div>
                     </div>
@@ -421,15 +421,15 @@ export function CandidateProfileModal({ candidate, onClose, onUpdate }: Candidat
                        <button className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-white rounded-lg text-xs font-semibold transition-colors border border-slate-700 whitespace-nowrap flex items-center gap-1.5">
                          <Download className="w-3.5 h-3.5" /> Descargar CV
                        </button>
-                       <button className="px-3 py-1.5 bg-cyan-600/20 hover:bg-cyan-600/40 text-cyan-400 rounded-lg text-xs font-semibold transition-colors border border-cyan-500/30 whitespace-nowrap">
+                       <button className="px-3 py-1.5 bg-zinc-600/20 hover:bg-zinc-600/40 text-zinc-400 rounded-lg text-xs font-semibold transition-colors border border-zinc-500/30 whitespace-nowrap">
                          Ver Perfil Completo
                        </button>
                     </div>
                   </div>
 
                   {/* Upload CV */}
-                  <label className="mt-4 p-4 border border-dashed border-slate-700 hover:border-cyan-500/50 rounded-xl bg-slate-900/30 flex flex-col items-center justify-center cursor-pointer transition-colors group relative">
-                    <Upload className="w-6 h-6 text-slate-500 group-hover:text-cyan-400 mb-2 transition-colors" />
+                  <label className="mt-4 p-4 border border-dashed border-slate-700 hover:border-zinc-500/50 rounded-xl bg-slate-900/30 flex flex-col items-center justify-center cursor-pointer transition-colors group relative">
+                    <Upload className="w-6 h-6 text-slate-500 group-hover:text-zinc-400 mb-2 transition-colors" />
                     <span className="text-sm text-slate-300 font-medium">
                       {uploadedCV ? uploadedCV.name : "Arrastra o haz clic para subir un nuevo CV"}
                     </span>
@@ -449,7 +449,7 @@ export function CandidateProfileModal({ candidate, onClose, onUpdate }: Candidat
                   {candidate.customAnswers && candidate.customAnswers.length > 0 && (
                     <>
                       <div className="h-px bg-white/5 my-8"></div>
-                      <h3 className="text-xs uppercase tracking-widest font-bold text-cyan-500/80 mb-4">Preguntas de Selección</h3>
+                      <h3 className="text-xs uppercase tracking-widest font-bold text-zinc-500/80 mb-4">Preguntas de Selección</h3>
                       <div className="space-y-6">
                         {candidate.customAnswers.map((item: any, i: number) => (
                           <div key={i}>
@@ -484,7 +484,7 @@ export function CandidateProfileModal({ candidate, onClose, onUpdate }: Candidat
                             onClick={() => setScores({...scores, technical: star})}
                             className="p-1 hover:scale-110 transition-transform"
                           >
-                            <Star className={cn("w-5 h-5", scores.technical >= star ? "fill-purple-400 text-purple-400 shadow-purple" : "text-slate-600")} />
+                            <Star className={cn("w-5 h-5", scores.technical >= star ? "fill-zinc-300 text-zinc-300 shadow-zinc-500/20" : "text-slate-600")} />
                           </button>
                         ))}
                       </div>
@@ -505,7 +505,7 @@ export function CandidateProfileModal({ candidate, onClose, onUpdate }: Candidat
                             onClick={() => setScores({...scores, cultural: star})}
                             className="p-1 hover:scale-110 transition-transform"
                           >
-                            <Star className={cn("w-5 h-5", scores.cultural >= star ? "fill-purple-400 text-purple-400 shadow-purple" : "text-slate-600")} />
+                            <Star className={cn("w-5 h-5", scores.cultural >= star ? "fill-zinc-300 text-zinc-300 shadow-zinc-500/20" : "text-slate-600")} />
                           </button>
                         ))}
                       </div>
@@ -526,7 +526,7 @@ export function CandidateProfileModal({ candidate, onClose, onUpdate }: Candidat
                             onClick={() => setScores({...scores, communication: star})}
                             className="p-1 hover:scale-110 transition-transform"
                           >
-                            <Star className={cn("w-5 h-5", scores.communication >= star ? "fill-purple-400 text-purple-400 shadow-purple" : "text-slate-600")} />
+                            <Star className={cn("w-5 h-5", scores.communication >= star ? "fill-zinc-300 text-zinc-300 shadow-zinc-500/20" : "text-slate-600")} />
                           </button>
                         ))}
                       </div>
@@ -536,7 +536,7 @@ export function CandidateProfileModal({ candidate, onClose, onUpdate }: Candidat
                   <div>
                     <label className="block text-xs font-semibold text-slate-400 uppercase tracking-widest mb-2 mt-4">Notas de Entrevista</label>
                     <textarea 
-                      className="w-full bg-slate-900/50 border border-slate-700 focus:border-purple-500/50 rounded-xl p-3 text-sm text-slate-200 placeholder:text-slate-600 focus:outline-none min-h-[100px] resize-none"
+                      className="w-full bg-slate-900/50 border border-slate-700 focus:border-zinc-500/50 rounded-xl p-3 text-sm text-slate-200 placeholder:text-slate-600 focus:outline-none min-h-[100px] resize-none"
                       placeholder="Escribe tus observaciones estructuradas aquí..."
                     ></textarea>
                   </div>
@@ -553,7 +553,7 @@ export function CandidateProfileModal({ candidate, onClose, onUpdate }: Candidat
                   <div className="space-y-6 relative before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-slate-700 before:to-transparent">
                     {/* Event 1 */}
                     <div className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
-                      <div className="flex items-center justify-center w-10 h-10 rounded-full border border-emerald-500/30 bg-emerald-500/10 text-emerald-400 shadow-[0_0_10px_rgba(163,163,163,0.2)] shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 z-10 ms-0 md:mx-auto">
+                      <div className="flex items-center justify-center w-10 h-10 rounded-full border border-zinc-500/30 bg-zinc-500/10 text-zinc-300 shadow-[0_0_10px_rgba(163,163,163,0.2)] shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 z-10 ms-0 md:mx-auto">
                         <MessageSquare className="w-4 h-4" />
                       </div>
                       <div className="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] glass-panel p-4 rounded-xl border border-white/5">
@@ -568,7 +568,7 @@ export function CandidateProfileModal({ candidate, onClose, onUpdate }: Candidat
                     </div>
                     {/* Event 2 */}
                     <div className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
-                      <div className="flex items-center justify-center w-10 h-10 rounded-full border border-cyan-500/30 bg-cyan-500/10 text-cyan-400 shadow-[0_0_10px_rgba(163,163,163,0.2)] shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 z-10 ms-0 md:mx-auto">
+                      <div className="flex items-center justify-center w-10 h-10 rounded-full border border-zinc-500/30 bg-zinc-500/10 text-zinc-400 shadow-[0_0_10px_rgba(163,163,163,0.2)] shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 z-10 ms-0 md:mx-auto">
                         <Activity className="w-4 h-4" />
                       </div>
                       <div className="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] glass-panel p-4 rounded-xl border border-white/5">
@@ -579,7 +579,7 @@ export function CandidateProfileModal({ candidate, onClose, onUpdate }: Candidat
                         <p className="text-xs text-slate-400 font-light leading-relaxed">
                           Movido de <b>Screening</b> a <b>Entrevista Técnica</b> por Luis Pérez.
                         </p>
-                        <p className="text-xs text-cyan-400 mt-2 font-medium bg-slate-900/50 p-2 rounded-lg inline-block">
+                        <p className="text-xs text-zinc-400 mt-2 font-medium bg-slate-900/50 p-2 rounded-lg inline-block">
                           @Diana R. por favor revisar el CV técnico adjunto.
                         </p>
                       </div>
@@ -588,7 +588,7 @@ export function CandidateProfileModal({ candidate, onClose, onUpdate }: Candidat
                     {/* Dynamic Notes */}
                     {notes.map((note, idx) => (
                       <div key={`note-${idx}`} className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
-                        <div className="flex items-center justify-center w-10 h-10 rounded-full border border-purple-500/30 bg-purple-500/10 text-purple-400 shadow-[0_0_10px_rgba(163,163,163,0.2)] shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 z-10 ms-0 md:mx-auto">
+                        <div className="flex items-center justify-center w-10 h-10 rounded-full border border-zinc-500/30 bg-zinc-500/10 text-zinc-300 shadow-[0_0_10px_rgba(163,163,163,0.2)] shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 z-10 ms-0 md:mx-auto">
                           <MessageSquare className="w-4 h-4" />
                         </div>
                         <div className="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] glass-panel p-4 rounded-xl border border-white/5">
@@ -608,7 +608,7 @@ export function CandidateProfileModal({ candidate, onClose, onUpdate }: Candidat
                     <label className="block text-xs font-semibold text-slate-400 uppercase tracking-widest mb-2">Añadir Nota o Mencionar (@)</label>
                     <div className="relative">
                       <textarea 
-                        className="w-full bg-slate-900/50 border border-slate-700 focus:border-emerald-500/50 rounded-xl py-3 px-4 text-sm text-slate-200 placeholder:text-slate-600 focus:outline-none min-h-[80px] resize-none pr-12"
+                        className="w-full bg-slate-900/50 border border-slate-700 focus:border-zinc-500/50 rounded-xl py-3 px-4 text-sm text-slate-200 placeholder:text-slate-600 focus:outline-none min-h-[80px] resize-none pr-12"
                         placeholder="Escribe una nota o usa @ para mencionar al equipo..."
                         value={currentNote}
                         onChange={(e) => setCurrentNote(e.target.value)}
@@ -621,7 +621,7 @@ export function CandidateProfileModal({ candidate, onClose, onUpdate }: Candidat
                       ></textarea>
                       <button 
                         onClick={handleAddNote}
-                        className="absolute right-3 bottom-3 p-1.5 bg-emerald-500 hover:bg-emerald-400 text-slate-900 rounded-lg transition-colors">
+                        className="absolute right-3 bottom-3 p-1.5 bg-zinc-500 hover:bg-zinc-400 text-slate-900 rounded-lg transition-colors">
                         <ArrowRight className="w-4 h-4" />
                       </button>
                     </div>
@@ -640,12 +640,12 @@ export function CandidateProfileModal({ candidate, onClose, onUpdate }: Candidat
                     <div className="space-y-1">
                       <div className="flex items-center justify-between">
                         <label className="text-[10px] font-semibold text-slate-500 uppercase tracking-widest">Plantilla de Oferta</label>
-                        <button className="text-[10px] flex items-center gap-1 text-amber-500 hover:text-amber-400 font-bold transition-colors"><Plus className="w-3 h-3" /> Crear Nueva</button>
+                        <button className="text-[10px] flex items-center gap-1 text-zinc-400 hover:text-zinc-300 font-bold transition-colors"><Plus className="w-3 h-3" /> Crear Nueva</button>
                       </div>
                       <select 
                         value={offerForm.template}
                         onChange={(e) => setOfferForm({...offerForm, template: e.target.value})}
-                        className="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-200 focus:border-amber-500/50 focus:outline-none appearance-none"
+                        className="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-200 focus:border-zinc-500/50 focus:outline-none appearance-none"
                       >
                         <option>Estándar</option>
                         <option>Senior</option>
@@ -660,10 +660,10 @@ export function CandidateProfileModal({ candidate, onClose, onUpdate }: Candidat
                           type="text" 
                           value={offerForm.baseSalary}
                           onChange={(e) => setOfferForm({...offerForm, baseSalary: e.target.value})}
-                          className={cn("w-full bg-slate-900/50 border rounded-xl pl-7 pr-3 py-2 text-sm text-slate-200 focus:border-amber-500/50 focus:outline-none", offerErrors.baseSalary ? "border-rose-500" : "border-slate-700")} 
+                          className={cn("w-full bg-slate-900/50 border rounded-xl pl-7 pr-3 py-2 text-sm text-slate-200 focus:border-zinc-500/50 focus:outline-none", offerErrors.baseSalary ? "border-zinc-500" : "border-slate-700")} 
                         />
                       </div>
-                      {offerErrors.baseSalary && <p className="text-[10px] text-rose-500 mt-1">{offerErrors.baseSalary}</p>}
+                      {offerErrors.baseSalary && <p className="text-[10px] text-zinc-400 mt-1">{offerErrors.baseSalary}</p>}
                     </div>
                   </div>
 
@@ -675,7 +675,7 @@ export function CandidateProfileModal({ candidate, onClose, onUpdate }: Candidat
                           type="text" 
                           value={offerForm.bonus}
                           onChange={(e) => setOfferForm({...offerForm, bonus: e.target.value})}
-                          className="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-200 focus:border-amber-500/50 focus:outline-none" 
+                          className="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-200 focus:border-zinc-500/50 focus:outline-none" 
                         />
                         <span className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">%</span>
                       </div>
@@ -688,9 +688,9 @@ export function CandidateProfileModal({ candidate, onClose, onUpdate }: Candidat
                         onChange={(e) => setOfferForm({...offerForm, startDate: e.target.value})}
                         required
                         min={new Date().toISOString().split('T')[0]}
-                        className={cn("w-full bg-slate-900/50 border rounded-xl px-3 py-2 text-sm text-slate-200 focus:border-amber-500/50 focus:outline-none", offerErrors.startDate ? "border-rose-500" : "border-slate-700")} 
+                        className={cn("w-full bg-slate-900/50 border rounded-xl px-3 py-2 text-sm text-slate-200 focus:border-zinc-500/50 focus:outline-none", offerErrors.startDate ? "border-zinc-500" : "border-slate-700")} 
                       />
-                      {offerErrors.startDate && <p className="text-[10px] text-rose-500 mt-1">{offerErrors.startDate}</p>}
+                      {offerErrors.startDate && <p className="text-[10px] text-zinc-400 mt-1">{offerErrors.startDate}</p>}
                     </div>
                   </div>
 
@@ -704,7 +704,7 @@ export function CandidateProfileModal({ candidate, onClose, onUpdate }: Candidat
                           value={offerForm.stockOptions}
                           onChange={(e) => setOfferForm({...offerForm, stockOptions: e.target.value})}
                           placeholder="Ej. 10,000"
-                          className="w-full bg-slate-900/50 border border-slate-700 rounded-xl pl-7 pr-3 py-2 text-sm text-slate-200 focus:border-amber-500/50 focus:outline-none" 
+                          className="w-full bg-slate-900/50 border border-slate-700 rounded-xl pl-7 pr-3 py-2 text-sm text-slate-200 focus:border-zinc-500/50 focus:outline-none" 
                         />
                       </div>
                     </div>
@@ -717,7 +717,7 @@ export function CandidateProfileModal({ candidate, onClose, onUpdate }: Candidat
                           value={offerForm.signOnBonus}
                           onChange={(e) => setOfferForm({...offerForm, signOnBonus: e.target.value})}
                           placeholder="Ej. 5,000"
-                          className="w-full bg-slate-900/50 border border-slate-700 rounded-xl pl-7 pr-3 py-2 text-sm text-slate-200 focus:border-amber-500/50 focus:outline-none" 
+                          className="w-full bg-slate-900/50 border border-slate-700 rounded-xl pl-7 pr-3 py-2 text-sm text-slate-200 focus:border-zinc-500/50 focus:outline-none" 
                         />
                       </div>
                     </div>
@@ -729,7 +729,7 @@ export function CandidateProfileModal({ candidate, onClose, onUpdate }: Candidat
                       <select 
                         value={offerForm.equipment}
                         onChange={(e) => setOfferForm({...offerForm, equipment: e.target.value})}
-                        className="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-200 focus:border-amber-500/50 focus:outline-none appearance-none"
+                        className="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-200 focus:border-zinc-500/50 focus:outline-none appearance-none"
                       >
                         <option>MacBook Pro 16" + Monitor Dell 27"</option>
                         <option>MacBook Air 13" + Monitor Dell 27"</option>
@@ -742,7 +742,7 @@ export function CandidateProfileModal({ candidate, onClose, onUpdate }: Candidat
                         type="date" 
                         value={offerForm.interviewDate}
                         onChange={(e) => setOfferForm({...offerForm, interviewDate: e.target.value})}
-                        className="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-200 focus:border-amber-500/50 focus:outline-none" 
+                        className="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-200 focus:border-zinc-500/50 focus:outline-none" 
                       />
                     </div>
                   </div>
@@ -752,22 +752,22 @@ export function CandidateProfileModal({ candidate, onClose, onUpdate }: Candidat
                     <textarea 
                       value={offerForm.notes}
                       onChange={(e) => setOfferForm({...offerForm, notes: e.target.value})}
-                      className="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-3 py-3 text-sm text-slate-200 focus:border-amber-500/50 focus:outline-none min-h-[60px] resize-none styled-scrollbar"
+                      className="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-3 py-3 text-sm text-slate-200 focus:border-zinc-500/50 focus:outline-none min-h-[60px] resize-none styled-scrollbar"
                       placeholder="Ej. Acordamos negociar bono de reubicación si lo aprueba finanzas..."
                     ></textarea>
                   </div>
 
-                  <div className="p-4 rounded-xl border border-amber-500/20 bg-amber-500/5 flex items-start gap-4">
-                    <div className="w-10 h-10 shrink-0 rounded-lg bg-amber-500/20 flex items-center justify-center text-amber-500">
+                  <div className="p-4 rounded-xl border border-zinc-500/20 bg-zinc-500/5 flex items-start gap-4">
+                    <div className="w-10 h-10 shrink-0 rounded-lg bg-zinc-500/20 flex items-center justify-center text-zinc-400">
                       <FileText className="w-5 h-5" />
                     </div>
                     <div className="w-full">
-                      <h4 className="text-sm font-semibold text-amber-500 mb-1">Previsualizar Carta de Oferta</h4>
+                      <h4 className="text-sm font-semibold text-zinc-400 mb-1">Previsualizar Carta de Oferta</h4>
                       <p className="text-xs text-slate-400 leading-relaxed mb-3">
                         Se generará un PDF usando la <b>{offerForm.template}</b> con los datos ingresados arriba.
                       </p>
                       {offerSuccess && (
-                        <p className="text-xs text-emerald-400 font-semibold mb-3 flex items-center gap-1.5"><CheckCircle2 className="w-4 h-4"/> Oferta generada y enviada correctamente.</p>
+                        <p className="text-xs text-zinc-300 font-semibold mb-3 flex items-center gap-1.5"><CheckCircle2 className="w-4 h-4"/> Oferta generada y enviada correctamente.</p>
                       )}
                       <div className="flex gap-2">
                         <button 
@@ -778,7 +778,7 @@ export function CandidateProfileModal({ candidate, onClose, onUpdate }: Candidat
                         </button>
                         <button 
                           onClick={handleGenerateOffer}
-                          className="px-3 py-1.5 bg-amber-500 hover:bg-amber-400 text-slate-900 rounded-lg text-xs font-bold transition-colors shadow-[0_0_10px_rgba(163,163,163,0.2)] flex items-center gap-1.5"
+                          className="px-3 py-1.5 bg-zinc-500 hover:bg-zinc-400 text-slate-900 rounded-lg text-xs font-bold transition-colors shadow-[0_0_10px_rgba(163,163,163,0.2)] flex items-center gap-1.5"
                         >
                           <Mail className="w-3.5 h-3.5" /> Enviar para Firma (Docusign)
                         </button>
@@ -792,7 +792,7 @@ export function CandidateProfileModal({ candidate, onClose, onUpdate }: Candidat
               
               <div className="flex items-center justify-between space-x-4">
                 <div>
-                  <h3 className="text-xs uppercase tracking-widest font-bold text-cyan-500/80">Agendar y Mover</h3>
+                  <h3 className="text-xs uppercase tracking-widest font-bold text-zinc-500/80">Agendar y Mover</h3>
                 </div>
                 <div className="flex gap-2 flex-wrap justify-end">
                   <button 
@@ -805,7 +805,7 @@ export function CandidateProfileModal({ candidate, onClose, onUpdate }: Candidat
                     <CalendarIcon className="w-3.5 h-3.5" /> Entrevista
                   </button>
                   <button className="px-3 py-1.5 glass-panel text-slate-300 hover:text-white hover:bg-white/5 rounded-md text-xs font-medium transition-colors">Rechazar</button>
-                  <button className="px-3 py-1.5 bg-cyan-600/20 border border-cyan-500/50 hover:bg-cyan-600/40 text-cyan-50 hover:text-white rounded-md text-xs font-bold flex items-center gap-1 transition-all shadow-[0_0_15px_rgba(163,163,163,0.2)] hover:shadow-[0_0_20px_rgba(163,163,163,0.4)]">
+                  <button className="px-3 py-1.5 bg-zinc-600/20 border border-zinc-500/50 hover:bg-zinc-600/40 text-zinc-50 hover:text-white rounded-md text-xs font-bold flex items-center gap-1 transition-all shadow-[0_0_15px_rgba(163,163,163,0.2)] hover:shadow-[0_0_20px_rgba(163,163,163,0.4)]">
                     Avanzar <ArrowRight className="w-3.5 h-3.5" />
                   </button>
                 </div>
@@ -814,7 +814,7 @@ export function CandidateProfileModal({ candidate, onClose, onUpdate }: Candidat
               {showSchedule && (
                 <div className="mt-4 p-4 rounded-xl border border-white/10 bg-slate-800/50 relative overflow-hidden">
                    {scheduled ? (
-                     <div className="flex flex-col items-center justify-center py-4 text-emerald-400">
+                     <div className="flex flex-col items-center justify-center py-4 text-zinc-300">
                        <CheckCircle2 className="w-8 h-8 mb-2" />
                        <p className="text-sm font-semibold">Entrevista agendada con éxito</p>
                        <p className="text-xs text-slate-400 mt-1">Sincronizado con tu calendario.</p>
@@ -831,7 +831,7 @@ export function CandidateProfileModal({ candidate, onClose, onUpdate }: Candidat
                              type="date" 
                              value={scheduleDate}
                              onChange={(e) => setScheduleDate(e.target.value)}
-                             className="w-full bg-slate-900 border border-white/10 rounded-md px-3 py-1.5 text-sm text-white focus:outline-none focus:border-cyan-500/50" 
+                             className="w-full bg-slate-900 border border-white/10 rounded-md px-3 py-1.5 text-sm text-white focus:outline-none focus:border-zinc-500/50" 
                            />
                          </div>
                          <div>
@@ -840,7 +840,7 @@ export function CandidateProfileModal({ candidate, onClose, onUpdate }: Candidat
                              type="time" 
                              value={scheduleTime}
                              onChange={(e) => setScheduleTime(e.target.value)}
-                             className="w-full bg-slate-900 border border-white/10 rounded-md px-3 py-1.5 text-sm text-white focus:outline-none focus:border-cyan-500/50" 
+                             className="w-full bg-slate-900 border border-white/10 rounded-md px-3 py-1.5 text-sm text-white focus:outline-none focus:border-zinc-500/50" 
                            />
                          </div>
                        </div>

@@ -53,7 +53,7 @@ export const EMPTY_AGENTS: any[] = [
     memory: "Prompt Heavenly Dreams Reclutador V2.0",
     conversations: 0,
     successRate: "-",
-    avatarColor: "bg-cyan-600",
+    avatarColor: "bg-zinc-600",
     companyName: "Heavenly Dreams S.A.S. de C.V.",
     accountName: "Agente Principal 1",
     accountChannel: "WhatsApp",
@@ -78,7 +78,7 @@ export const EMPTY_AGENTS: any[] = [
     memory: "Algoritmo Facebook y playbooks Meta Ads",
     conversations: 0,
     successRate: "-",
-    avatarColor: "bg-blue-600",
+    avatarColor: "bg-neutral-700",
     systemPrompt: channelSpecialistPrompt("Director de Reclutamiento Facebook", "Algoritmo de Facebook, Meta Ads, Facebook Groups, Messenger, Marketplace y publicaciones de empleo.", "Generar candidatos calificados mediante copies de alto rendimiento, imagenes, videos, horarios, presupuestos y seguimiento de comentarios/mensajes.", "Copy principal, variantes, idea visual, presupuesto sugerido, horario de publicacion, KPI esperado y siguiente accion.")
   },
   {
@@ -91,7 +91,7 @@ export const EMPTY_AGENTS: any[] = [
     memory: "Tendencias visuales Instagram",
     conversations: 0,
     successRate: "-",
-    avatarColor: "bg-pink-600",
+    avatarColor: "bg-neutral-700",
     systemPrompt: channelSpecialistPrompt("Instagram Recruiting IA", "Reels, Stories, carruseles, hashtags, tendencias visuales y conversion por DM.", "Crear contenido visual de reclutamiento con hooks, secuencias, stickers, encuestas y CTAs para postulacion.", "Concepto creativo, guion por slide/escena, hashtags, CTA, horario recomendado y metrica de exito.")
   },
   {
@@ -117,7 +117,7 @@ export const EMPTY_AGENTS: any[] = [
     memory: "Boolean search y employer branding LinkedIn",
     conversations: 0,
     successRate: "-",
-    avatarColor: "bg-sky-700",
+    avatarColor: "bg-neutral-700",
     systemPrompt: channelSpecialistPrompt("LinkedIn Recruiting IA", "Talent Acquisition, busqueda avanzada, boolean search, InMail, employer branding y vacantes profesionales.", "Encontrar perfiles, redactar outreach profesional y publicar vacantes con alto nivel de credibilidad.", "Boolean search, perfil objetivo, mensaje de contacto, post de vacante, follow-up y metrica esperada.")
   },
   {
@@ -130,7 +130,7 @@ export const EMPTY_AGENTS: any[] = [
     memory: "SEO de vacantes Indeed",
     conversations: 0,
     successRate: "-",
-    avatarColor: "bg-indigo-600",
+    avatarColor: "bg-neutral-700",
     systemPrompt: channelSpecialistPrompt("Indeed Recruiting IA", "Optimizacion de vacantes, ranking, conversion, titulos buscables y sponsored jobs en Indeed.", "Aumentar postulaciones calificadas mejorando el anuncio, palabras clave, estructura y medicion de conversion.", "Titulo optimizado, descripcion, keywords, filtros recomendados, pruebas A/B y KPIs.")
   },
   {
@@ -143,7 +143,7 @@ export const EMPTY_AGENTS: any[] = [
     memory: "Benchmark Computrabajo",
     conversations: 0,
     successRate: "-",
-    avatarColor: "bg-cyan-700",
+    avatarColor: "bg-zinc-700",
     systemPrompt: channelSpecialistPrompt("Computrabajo Recruiting IA", "Optimizacion de anuncios, analisis de candidatos, comparacion de vacantes y mejoras de ranking en Computrabajo.", "Incrementar postulaciones utiles ajustando titulo, sueldo visible, beneficios, requisitos y filtros.", "Diagnostico del anuncio, mejoras, comparativo, criterios de filtro, mensaje de contacto y KPIs.")
   },
   {
@@ -156,7 +156,7 @@ export const EMPTY_AGENTS: any[] = [
     memory: "Mercado profesional OCC",
     conversations: 0,
     successRate: "-",
-    avatarColor: "bg-teal-700",
+    avatarColor: "bg-neutral-700",
     systemPrompt: channelSpecialistPrompt("OCC Recruiting IA", "Reclutamiento profesional, vacantes especializadas, perfiles ejecutivos y mensajes de alto valor.", "Atraer perfiles con experiencia mediante vacantes claras, oferta competitiva y contacto profesional.", "Titulo ejecutivo, descripcion, requisitos, beneficios, mensaje de invitacion, filtros y KPI.")
   },
   {
@@ -169,7 +169,7 @@ export const EMPTY_AGENTS: any[] = [
     memory: "SEO tecnico de vacantes",
     conversations: 0,
     successRate: "-",
-    avatarColor: "bg-green-700",
+    avatarColor: "bg-neutral-700",
     systemPrompt: channelSpecialistPrompt("Google Jobs SEO IA", "SEO para vacantes, indexacion, datos estructurados JobPosting, busquedas locales y conversion organica.", "Hacer que las vacantes sean encontrables, claras e indexables en Google Jobs.", "Titulo SEO, descripcion optimizada, keywords, schema sugerido, checklist de indexacion y KPI.")
   },
   {
@@ -182,7 +182,7 @@ export const EMPTY_AGENTS: any[] = [
     memory: "Brand kit Heavenly Dreams",
     conversations: 0,
     successRate: "-",
-    avatarColor: "bg-purple-700",
+    avatarColor: "bg-neutral-700",
     systemPrompt: channelSpecialistPrompt("Canva Master IA", "Canva Pro, diseno de reclutamiento, employer branding, banners, flyers, reels, historias y carruseles.", "Crear instrucciones visuales listas para disenar piezas de reclutamiento con CTA, vacante, beneficios y branding Heavenly Dreams.", "Tipo de pieza, copy, tipografia, colores, distribucion, elementos graficos, CTA y checklist de marca.")
   },
   {
@@ -195,7 +195,7 @@ export const EMPTY_AGENTS: any[] = [
     memory: "Marcos de copywriting RH",
     conversations: 0,
     successRate: "-",
-    avatarColor: "bg-fuchsia-700",
+    avatarColor: "bg-neutral-700",
     systemPrompt: channelSpecialistPrompt("Copywriter RH", "Copywriting de reclutamiento, anuncios, mensajes, campanas, hooks, CTA y manejo de objeciones.", "Convertir vacantes y beneficios en mensajes persuasivos, claros y cumplidores para cada canal.", "Hook, copy largo, copy corto, CTA, variantes por canal, objeciones y pruebas A/B.")
   },
   {
@@ -208,7 +208,7 @@ export const EMPTY_AGENTS: any[] = [
     memory: "Produccion de video vertical",
     conversations: 0,
     successRate: "-",
-    avatarColor: "bg-red-700",
+    avatarColor: "bg-neutral-700",
     systemPrompt: channelSpecialistPrompt("Video Creator RH", "Guiones, escenas, prompts para IA, videos verticales, storyboards y edicion rapida.", "Producir videos de reclutamiento con gancho, claridad de oferta, escenas simples y CTA fuerte.", "Guion, storyboard, prompts visuales, texto en pantalla, voz en off, CTA y checklist de produccion.")
   },
   {
@@ -221,7 +221,7 @@ export const EMPTY_AGENTS: any[] = [
     memory: "Flujo de calificacion WhatsApp",
     conversations: 0,
     successRate: "-",
-    avatarColor: "bg-emerald-600",
+    avatarColor: "bg-neutral-700",
     systemPrompt: channelSpecialistPrompt("WhatsApp Recruiter Elite", "Saludo, solicitud de datos, calificacion, agenda, seguimiento y actualizacion CRM por WhatsApp.", "Guiar al candidato por un flujo simple: nombre completo, zona voluntaria, experiencia, disponibilidad y vacante de interes.", "Mensaje inicial, preguntas una por una, calificacion, siguiente accion, resumen CRM y mensaje de cierre.")
   },
   {
@@ -234,7 +234,7 @@ export const EMPTY_AGENTS: any[] = [
     memory: "Disponibilidad y confirmaciones",
     conversations: 0,
     successRate: "-",
-    avatarColor: "bg-lime-700",
+    avatarColor: "bg-neutral-700",
     systemPrompt: channelSpecialistPrompt("WhatsApp Agenda IA", "Agenda de entrevistas, reagenda, confirmacion de asistencia, recordatorios y sincronizacion CRM.", "Reducir friccion para que el candidato elija horario, confirme asistencia y reciba instrucciones claras.", "Horarios sugeridos, mensaje de confirmacion, mensaje de reagenda, recordatorio y actualizacion CRM.")
   },
   {
@@ -247,7 +247,7 @@ export const EMPTY_AGENTS: any[] = [
     memory: "Playbook anti no-show",
     conversations: 0,
     successRate: "-",
-    avatarColor: "bg-yellow-700",
+    avatarColor: "bg-neutral-700",
     systemPrompt: channelSpecialistPrompt("WhatsApp Confirmador IA", "Recordatorios 24h antes, confirmacion, instrucciones de llegada, documentos y deteccion de no-show.", "Confirmar asistencia y reducir ausencias con mensajes claros, breves y empaticos.", "Recordatorio 24h, respuesta segun confirmacion, alerta de riesgo, mensaje de rescate y estado CRM.")
   },
   {
@@ -260,7 +260,7 @@ export const EMPTY_AGENTS: any[] = [
     memory: "Seguimiento post entrevista",
     conversations: 0,
     successRate: "-",
-    avatarColor: "bg-teal-600",
+    avatarColor: "bg-neutral-700",
     systemPrompt: channelSpecialistPrompt("WhatsApp Seguimiento IA", "Seguimiento despues de entrevista, resultado, interes, proximos pasos y actualizacion CRM.", "Mantener al candidato informado y recuperar contexto tras entrevista sin prometer resultados no confirmados.", "Mensaje post entrevista, pregunta de interes, resumen, siguiente accion, etiqueta CRM y alerta.")
   },
   {
@@ -273,7 +273,7 @@ export const EMPTY_AGENTS: any[] = [
     memory: "Plantillas de recuperacion",
     conversations: 0,
     successRate: "-",
-    avatarColor: "bg-orange-700",
+    avatarColor: "bg-neutral-700",
     systemPrompt: channelSpecialistPrompt("WhatsApp Recuperador IA", "Reactivacion de candidatos, recuperacion de abandonos, mensajes por etapa y priorizacion.", "Recuperar candidatos sin presion, preguntando si siguen interesados y ofreciendo una ruta simple para continuar.", "Diagnostico de abandono, mensaje de rescate, follow-up, criterio de cierre, prioridad y actualizacion CRM.")
   },
   {
@@ -286,7 +286,7 @@ export const EMPTY_AGENTS: any[] = [
     memory: "Radar de tendencias RH",
     conversations: 0,
     successRate: "-",
-    avatarColor: "bg-violet-700",
+    avatarColor: "bg-neutral-700",
     systemPrompt: channelSpecialistPrompt("Agente Tendencias RH", "Analisis diario de tendencias en TikTok, Facebook, Instagram y LinkedIn aplicadas a reclutamiento.", "Traducir tendencias en acciones de contenido y captacion de candidatos para esta semana.", "Tendencia, canal, aplicacion RH, idea creativa, nivel de esfuerzo, riesgo y KPI.")
   },
   {
@@ -312,7 +312,7 @@ export const EMPTY_AGENTS: any[] = [
     memory: "Narrativa de marca empleadora",
     conversations: 0,
     successRate: "-",
-    avatarColor: "bg-cyan-800",
+    avatarColor: "bg-zinc-800",
     systemPrompt: channelSpecialistPrompt("Agente Employer Branding", "Marca empleadora, propuesta de valor al empleado, reputacion, contenido interno y campanas de confianza.", "Construir una imagen clara y atractiva de Heavenly Dreams como lugar para trabajar.", "Pilar de marca, mensaje central, pieza sugerida, prueba social, CTA, calendario y KPI.")
   },
   {
@@ -325,7 +325,7 @@ export const EMPTY_AGENTS: any[] = [
     memory: "Playbook growth recruiting",
     conversations: 0,
     successRate: "-",
-    avatarColor: "bg-emerald-700",
+    avatarColor: "bg-neutral-700",
     systemPrompt: channelSpecialistPrompt("Agente Growth Recruiting", "Crecimiento semanal de candidatos, experimentos rapidos, presupuesto, canales, referidos y optimizacion de embudo.", "Responder siempre a la pregunta: como consigo mas candidatos esta semana, con acciones concretas y priorizadas.", "Plan de 7 dias, acciones por canal, responsable, presupuesto, volumen esperado, KPI y experimento ganador.")
   },
 ];

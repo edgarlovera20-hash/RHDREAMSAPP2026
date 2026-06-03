@@ -265,7 +265,7 @@ export function AgentConfigModal({
         </button>
 
         <h2 className="text-2xl font-bold text-white mb-2 flex items-center gap-3">
-           <Bot className="w-6 h-6 text-cyan-400" />
+           <Bot className="w-6 h-6 text-zinc-400" />
            Configuración: {agent.name}
         </h2>
         <div className="mb-6 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
@@ -280,14 +280,14 @@ export function AgentConfigModal({
             />
             <button
               onClick={() => knowledgeImportRef.current?.click()}
-              className="inline-flex items-center gap-2 rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-xs font-semibold text-slate-300 transition-colors hover:border-cyan-500/50 hover:text-white"
+              className="inline-flex items-center gap-2 rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-xs font-semibold text-slate-300 transition-colors hover:border-zinc-500/50 hover:text-white"
             >
               <Upload className="h-3.5 w-3.5" />
               Importar datos
             </button>
             <button
               onClick={handleExportKnowledge}
-              className="inline-flex items-center gap-2 rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-xs font-semibold text-slate-300 transition-colors hover:border-cyan-500/50 hover:text-white"
+              className="inline-flex items-center gap-2 rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-xs font-semibold text-slate-300 transition-colors hover:border-zinc-500/50 hover:text-white"
             >
               <Download className="h-3.5 w-3.5" />
               Exportar datos
@@ -296,18 +296,18 @@ export function AgentConfigModal({
         </div>
 
         <div className="flex-1 overflow-y-auto pr-2 styled-scrollbar flex flex-col gap-8">
-          <div className="bg-slate-800/50 border border-cyan-500/20 p-5 rounded-2xl flex flex-col gap-4">
+          <div className="bg-slate-800/50 border border-zinc-500/20 p-5 rounded-2xl flex flex-col gap-4">
             <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between border-b border-slate-700 pb-3">
               <div>
                 <h3 className="text-white font-semibold flex items-center gap-2">
-                  <SlidersHorizontal className="w-4 h-4 text-cyan-400" />
+                  <SlidersHorizontal className="w-4 h-4 text-zinc-400" />
                   Personalidad y voz del agente
                 </h3>
                 <p className="mt-1 text-xs text-slate-500">Estos campos controlan cómo habla, cuándo escala y qué hace con audios.</p>
               </div>
               <button
                 onClick={handleSavePersonality}
-                className="inline-flex items-center justify-center gap-2 rounded-xl bg-cyan-500 px-4 py-2 text-xs font-bold uppercase tracking-wide text-slate-950 transition-colors hover:bg-cyan-400"
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-zinc-500 px-4 py-2 text-xs font-bold uppercase tracking-wide text-slate-950 transition-colors hover:bg-zinc-400"
               >
                 <Save className="h-4 w-4" />
                 Guardar personalidad
@@ -322,7 +322,7 @@ export function AgentConfigModal({
                   value={companyName}
                   onChange={e => setCompanyName(e.target.value)}
                   placeholder="Ej. Heavenly Dreams"
-                  className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-cyan-500"
+                  className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-zinc-500"
                 />
               </div>
               <div>
@@ -332,7 +332,7 @@ export function AgentConfigModal({
                   value={accountName}
                   onChange={e => setAccountName(e.target.value)}
                   placeholder="Ej. WhatsApp RH 1"
-                  className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-cyan-500"
+                  className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-zinc-500"
                 />
               </div>
               <div>
@@ -342,7 +342,7 @@ export function AgentConfigModal({
                   value={accountChannel}
                   onChange={e => setAccountChannel(e.target.value)}
                   placeholder="WhatsApp"
-                  className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-cyan-500"
+                  className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-zinc-500"
                 />
               </div>
               <div>
@@ -352,7 +352,7 @@ export function AgentConfigModal({
                   value={tone}
                   onChange={e => setTone(e.target.value)}
                   placeholder="Ej. cálido, directo, ejecutivo"
-                  className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-cyan-500"
+                  className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-zinc-500"
                 />
               </div>
               <div>
@@ -360,7 +360,7 @@ export function AgentConfigModal({
                 <select
                   value={audioLanguage}
                   onChange={e => setAudioLanguage(e.target.value)}
-                  className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-cyan-500"
+                  className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-zinc-500"
                 >
                   <option value="es-MX">Español México</option>
                   <option value="es">Español</option>
@@ -376,7 +376,7 @@ export function AgentConfigModal({
                 value={personalityPrompt}
                 onChange={e => setPersonalityPrompt(e.target.value)}
                 placeholder="Describe cómo debe hablar, qué debe priorizar y qué límites debe respetar."
-                className="w-full h-32 bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-cyan-500 font-mono resize-none"
+                className="w-full h-32 bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-zinc-500 font-mono resize-none"
               />
             </div>
 
@@ -386,7 +386,7 @@ export function AgentConfigModal({
                 <textarea
                   value={responseStyle}
                   onChange={e => setResponseStyle(e.target.value)}
-                  className="w-full h-24 bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-cyan-500 resize-none"
+                  className="w-full h-24 bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-zinc-500 resize-none"
                 />
               </div>
               <div>
@@ -394,39 +394,39 @@ export function AgentConfigModal({
                 <textarea
                   value={escalationRules}
                   onChange={e => setEscalationRules(e.target.value)}
-                  className="w-full h-24 bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-cyan-500 resize-none"
+                  className="w-full h-24 bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-zinc-500 resize-none"
                 />
               </div>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <label className="rounded-xl border border-slate-700 bg-slate-900/70 p-4 cursor-pointer hover:border-cyan-500/40 transition-colors">
+              <label className="rounded-xl border border-slate-700 bg-slate-900/70 p-4 cursor-pointer hover:border-zinc-500/40 transition-colors">
                 <div className="flex items-center justify-between gap-3">
                   <span className="flex items-center gap-2 text-sm font-semibold text-slate-200">
-                    <Mic className="w-4 h-4 text-cyan-400" />
+                    <Mic className="w-4 h-4 text-zinc-400" />
                     Transcribir audios
                   </span>
                   <input
                     type="checkbox"
                     checked={transcribeAudio}
                     onChange={e => setTranscribeAudio(e.target.checked)}
-                    className="rounded bg-slate-900 border-slate-600 text-cyan-500 focus:ring-cyan-500"
+                    className="rounded bg-slate-900 border-slate-600 text-zinc-500 focus:ring-zinc-500"
                   />
                 </div>
                 <p className="mt-2 text-xs leading-5 text-slate-500">Convierte notas de voz en texto antes de activar la IA.</p>
               </label>
 
-              <label className="rounded-xl border border-slate-700 bg-slate-900/70 p-4 cursor-pointer hover:border-cyan-500/40 transition-colors">
+              <label className="rounded-xl border border-slate-700 bg-slate-900/70 p-4 cursor-pointer hover:border-zinc-500/40 transition-colors">
                 <div className="flex items-center justify-between gap-3">
                   <span className="flex items-center gap-2 text-sm font-semibold text-slate-200">
-                    <Volume2 className="w-4 h-4 text-emerald-400" />
+                    <Volume2 className="w-4 h-4 text-zinc-300" />
                     Responder audios
                   </span>
                   <input
                     type="checkbox"
                     checked={audioAutoReply}
                     onChange={e => setAudioAutoReply(e.target.checked)}
-                    className="rounded bg-slate-900 border-slate-600 text-cyan-500 focus:ring-cyan-500"
+                    className="rounded bg-slate-900 border-slate-600 text-zinc-500 focus:ring-zinc-500"
                   />
                 </div>
                 <p className="mt-2 text-xs leading-5 text-slate-500">Si está apagado, solo guarda la transcripción para revisión humana.</p>
@@ -434,18 +434,18 @@ export function AgentConfigModal({
             </div>
           </div>
 
-          <div className="bg-slate-800/50 border border-cyan-500/20 p-5 rounded-2xl">
+          <div className="bg-slate-800/50 border border-zinc-500/20 p-5 rounded-2xl">
             <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
               <div>
                 <h3 className="text-white font-semibold flex items-center gap-2">
-                  <BookOpen className="w-4 h-4 text-cyan-400" />
+                  <BookOpen className="w-4 h-4 text-zinc-400" />
                   Autoconocimiento del agente
                 </h3>
                 <p className="mt-1 text-xs text-slate-500">Aprende de mensajes respondidos, pruebas y errores para consultar su experiencia previa.</p>
               </div>
               <button
                 onClick={() => onSave?.(agent.id, { learningMemory: [], lastLearningAt: null, memory: `${knowledgeList.length} fuentes` })}
-                className="rounded-lg border border-rose-500/20 bg-rose-500/10 px-3 py-2 text-xs font-semibold text-rose-200 transition-colors hover:bg-rose-500/20"
+                className="rounded-lg border border-zinc-500/20 bg-zinc-500/10 px-3 py-2 text-xs font-semibold text-zinc-200 transition-colors hover:bg-zinc-500/20"
               >
                 Limpiar aprendizajes
               </button>
@@ -456,7 +456,7 @@ export function AgentConfigModal({
                 {agent.learningMemory.slice(0, 6).map((memory: any) => (
                   <div key={memory.id} className="rounded-xl border border-slate-700 bg-slate-900/70 p-4">
                     <div className="flex flex-wrap items-center gap-2">
-                      <span className="rounded-md border border-cyan-500/20 bg-cyan-500/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest text-cyan-300">
+                      <span className="rounded-md border border-zinc-500/20 bg-zinc-500/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest text-zinc-300">
                         {memory.intent || 'Aprendizaje'}
                       </span>
                       <span className="text-[10px] text-slate-500">{memory.source || 'Interacción'}</span>
@@ -475,7 +475,7 @@ export function AgentConfigModal({
           {/* New Item Form */}
           <div className="bg-slate-800/50 border border-slate-700 p-5 rounded-2xl flex flex-col gap-4">
              <h3 className="text-white font-semibold flex items-center gap-2 border-b border-slate-700 pb-2">
-               <Database className="w-4 h-4 text-emerald-400" />
+               <Database className="w-4 h-4 text-zinc-300" />
                Añadir a la Base de Conocimientos
                <button
                  onClick={handleImportPlainText}
@@ -501,7 +501,7 @@ export function AgentConfigModal({
                  <select 
                    value={newItemType}
                    onChange={e => setNewItemType(e.target.value)}
-                   className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-cyan-500"
+                   className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-zinc-500"
                  >
                    <option value="text">Texto Libre / Instrucciones</option>
                    <option value="template">Plantilla de Conversación</option>
@@ -515,7 +515,7 @@ export function AgentConfigModal({
                    value={newItemTitle}
                    onChange={e => setNewItemTitle(e.target.value)}
                    placeholder="Ej. Cultura de la Empresa"
-                   className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-cyan-500"
+                   className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-zinc-500"
                  />
                </div>
              </div>
@@ -526,7 +526,7 @@ export function AgentConfigModal({
                  value={newItemContent}
                  onChange={e => setNewItemContent(e.target.value)}
                  placeholder="Pega el texto, instrucciones o el cuerpo de la plantilla aquí..."
-                 className="w-full h-32 bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-cyan-500 font-mono resize-none"
+                 className="w-full h-32 bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-zinc-500 font-mono resize-none"
                />
              </div>
 
@@ -534,7 +534,7 @@ export function AgentConfigModal({
                <button 
                  onClick={handleAddKnowledge}
                  disabled={loading || !newItemTitle.trim() || !newItemContent.trim()}
-                 className="bg-emerald-500 hover:bg-emerald-600 disabled:bg-slate-700 text-slate-900 font-semibold px-4 py-2 rounded-xl text-sm transition-all flex items-center gap-2"
+                 className="bg-zinc-500 hover:bg-zinc-600 disabled:bg-slate-700 text-slate-900 font-semibold px-4 py-2 rounded-xl text-sm transition-all flex items-center gap-2"
                >
                  <Plus className="w-4 h-4" /> Agregar Conocimiento
                </button>
@@ -544,7 +544,7 @@ export function AgentConfigModal({
           {/* List existing knowledge */}
           <div className="space-y-4">
             <h3 className="text-white font-semibold flex items-center gap-2">
-              <BookOpen className="w-4 h-4 text-cyan-400" />
+              <BookOpen className="w-4 h-4 text-zinc-400" />
               Conocimiento Actual
             </h3>
             
@@ -559,7 +559,7 @@ export function AgentConfigModal({
                  {knowledgeList.map(item => (
                    <div key={item.id} className="bg-slate-800/80 border border-slate-700 rounded-xl p-4 flex gap-4 group">
                       <div className="w-10 h-10 rounded-lg bg-slate-700 flex items-center justify-center shrink-0">
-                         {item.type === 'template' ? <FileText className="w-5 h-5 text-purple-400" /> : <BookOpen className="w-5 h-5 text-amber-400" />}
+                         {item.type === 'template' ? <FileText className="w-5 h-5 text-zinc-300" /> : <BookOpen className="w-5 h-5 text-zinc-300" />}
                       </div>
                       <div className="flex-1 overflow-hidden">
                         <div className="flex items-center justify-between">
@@ -567,14 +567,14 @@ export function AgentConfigModal({
                           <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all">
                             <button
                               onClick={() => navigator.clipboard?.writeText(item.content)}
-                              className="text-slate-500 hover:text-cyan-300 p-1"
+                              className="text-slate-500 hover:text-zinc-300 p-1"
                               title="Copiar contenido"
                             >
                               <Copy className="w-4 h-4" />
                             </button>
                             <button 
                               onClick={() => handleDelete(item.id)}
-                              className="text-slate-500 hover:text-rose-400 p-1"
+                              className="text-slate-500 hover:text-zinc-300 p-1"
                             >
                               <Trash2 className="w-4 h-4" />
                             </button>
