@@ -166,15 +166,15 @@ export function Settings() {
   const [customFields, setCustomFields] = useState(CUSTOM_FIELDS);
   const [newCustomField, setNewCustomField] = useState({ name: '', description: '' });
   const [users, setUsers] = useState(INITIAL_USERS);
-  
+
   // Modals state
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
   const [isFlowModalOpen, setIsFlowModalOpen] = useState(false);
-  
+
   // Draft states
   const [newUserEmail, setNewUserEmail] = useState('');
   const [newUserRole, setNewUserRole] = useState('hr_manager');
-  
+
   const [newFlowName, setNewFlowName] = useState('');
   const [newFlowTrigger, setNewFlowTrigger] = useState('Recibir nueva postulación');
   const [newFlowAction, setNewFlowAction] = useState('Enviar correo a HR');
@@ -365,7 +365,7 @@ export function Settings() {
     return (
       <div key={integration.id} className="glass-panel glass-panel-hover p-5 rounded-xl border border-white/10 group">
         <div className="flex items-start justify-between mb-3">
-          <div className={cn("w-12 h-12 rounded-xl flex items-center justify-center shrink-0 transition-all overflow-hidden", status.ok ? "bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 shadow-[inset_0_0_10px_rgba(163,163,163,0.3)]" : "bg-slate-800 text-slate-500 border border-slate-700")}>
+          <div className={cn("w-12 h-12 rounded-xl flex items-center justify-center shrink-0 transition-all overflow-hidden", status.ok ? "bg-zinc-500/10 text-zinc-400 border border-zinc-500/30 shadow-[inset_0_0_10px_rgba(163,163,163,0.3)]" : "bg-slate-800 text-slate-500 border border-slate-700")}>
             {iconImage ? (
               <img
                 src={iconImage}
@@ -377,25 +377,25 @@ export function Settings() {
               <integration.icon className="w-6 h-6" />
             )}
           </div>
-          <div className={cn("px-2.5 py-1 rounded-lg text-[10px] uppercase tracking-widest font-bold border", status.ok ? "text-emerald-300 border-emerald-500/30 bg-emerald-500/10" : "text-amber-300 border-amber-500/30 bg-amber-500/10")}>
+          <div className={cn("px-2.5 py-1 rounded-lg text-[10px] uppercase tracking-widest font-bold border", status.ok ? "text-zinc-300 border-zinc-500/30 bg-zinc-500/10" : "text-zinc-300 border-zinc-500/30 bg-zinc-500/10")}>
             {status.ok ? "Real conectado" : "Requiere datos"}
           </div>
         </div>
         <h4 className={cn("font-semibold text-sm mb-1 transition-colors", status.ok ? "text-white" : "text-slate-300")}>{integration.name}</h4>
-        <div className="text-[10px] text-cyan-500 uppercase tracking-widest font-bold mb-2">{integration.category}</div>
+        <div className="text-[10px] text-zinc-500 uppercase tracking-widest font-bold mb-2">{integration.category}</div>
         <p className="text-xs text-slate-400 leading-relaxed font-light">{integration.description}</p>
 
         <div className="mt-4 rounded-lg border border-white/5 bg-slate-950/40 p-3">
           <p className="text-[11px] text-slate-300">{status.message}</p>
           {missing.length > 0 && (
-            <p className="mt-2 text-[10px] text-amber-200">
+            <p className="mt-2 text-[10px] text-zinc-200">
               Faltan: {missing.join(", ")}
             </p>
           )}
         </div>
 
         <div className="mt-4 pt-4 border-t border-white/5 flex flex-wrap items-center justify-between gap-2">
-          <span className={cn("flex items-center gap-1.5 text-[10px] uppercase tracking-wider font-bold", status.ok ? "text-emerald-400" : "text-slate-500")}>
+          <span className={cn("flex items-center gap-1.5 text-[10px] uppercase tracking-wider font-bold", status.ok ? "text-zinc-400" : "text-slate-500")}>
             {status.ok ? <CheckCircle2 className="w-3.5 h-3.5" /> : <AlertCircle className="w-3.5 h-3.5" />}
             {status.ok ? "Validado" : "No validado"}
           </span>
@@ -403,7 +403,7 @@ export function Settings() {
             {integration.actionPath && (
               <button
                 onClick={() => { window.location.href = integration.actionPath; }}
-                className="text-xs text-slate-400 hover:text-cyan-400 transition-colors flex items-center gap-1"
+                className="text-xs text-slate-400 hover:text-zinc-400 transition-colors flex items-center gap-1"
               >
                 <SettingsIcon className="w-3.5 h-3.5" /> Abrir modulo
               </button>
@@ -412,14 +412,14 @@ export function Settings() {
               <>
                 <button
                   onClick={() => setConfiguringIntegration(integration)}
-                  className="text-xs text-slate-400 hover:text-cyan-400 transition-colors flex items-center gap-1"
+                  className="text-xs text-slate-400 hover:text-zinc-400 transition-colors flex items-center gap-1"
                 >
                   <SettingsIcon className="w-3.5 h-3.5" /> Credenciales
                 </button>
                 <button
                   onClick={() => testIntegration(integration)}
                   disabled={testingIntegration === integration.id}
-                  className="text-xs text-cyan-300 hover:text-white transition-colors flex items-center gap-1 disabled:opacity-60"
+                  className="text-xs text-zinc-300 hover:text-white transition-colors flex items-center gap-1 disabled:opacity-60"
                 >
                   {testingIntegration === integration.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Shield className="w-3.5 h-3.5" />}
                   Probar real
@@ -459,8 +459,8 @@ export function Settings() {
               onClick={() => setActiveTab(tab.id)}
               className={cn(
                 "flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-all text-left",
-                activeTab === tab.id 
-                  ? "bg-cyan-500/10 text-cyan-400 drop-shadow-[0_0_8px_rgba(163,163,163,0.8)]" 
+                activeTab === tab.id
+                  ? "bg-zinc-500/10 text-zinc-400 drop-shadow-[0_0_8px_rgba(163,163,163,0.8)]"
                   : "text-slate-400 hover:bg-slate-800 hover:text-white"
               )}
             >
@@ -471,8 +471,8 @@ export function Settings() {
         </div>
 
         <div className="flex-1 w-full glass-panel rounded-2xl overflow-hidden relative group">
-          <div className="absolute -inset-20 bg-cyan-500/5 blur-3xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none duration-1000"></div>
-          
+          <div className="absolute -inset-20 bg-zinc-500/5 blur-3xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none duration-1000"></div>
+
           <div className="relative z-10 w-full h-full">
             {activeTab === 'workflows' ? (
               <div>
@@ -481,43 +481,43 @@ export function Settings() {
                     <h2 className="text-lg font-semibold text-white">Flujos de Automatización</h2>
                     <p className="text-sm text-slate-400 font-light">Configura notificaciones y correos automáticos.</p>
                   </div>
-                  <button 
+                  <button
                     onClick={() => setIsFlowModalOpen(true)}
-                    className="bg-cyan-600/20 border border-cyan-500/50 hover:bg-cyan-600/40 text-cyan-50 hover:text-white px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wide flex items-center gap-2 transition-all shadow-[0_0_15px_rgba(163,163,163,0.2)]">
+                    className="bg-zinc-600/20 border border-zinc-500/50 hover:bg-zinc-600/40 text-zinc-50 hover:text-white px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wide flex items-center gap-2 transition-all shadow-[0_0_15px_rgba(163,163,163,0.2)]">
                     <Plus className="w-4 h-4" /> Crear Flujo
                   </button>
                 </div>
-                
+
                 <div className="p-6">
                   <div className="grid gap-4">
                     {automations.map(auto => (
                       <div key={auto.id} className="glass-panel glass-panel-hover p-5 rounded-xl flex items-center justify-between group">
                         <div className="flex items-center gap-4">
-                          <div className={cn("w-10 h-10 rounded-lg flex items-center justify-center shrink-0 transition-all", auto.active ? "bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 shadow-[inset_0_0_8px_rgba(163,163,163,0.2)]" : "bg-slate-800 text-slate-500 border border-slate-700")}>
+                          <div className={cn("w-10 h-10 rounded-lg flex items-center justify-center shrink-0 transition-all", auto.active ? "bg-zinc-500/10 text-zinc-400 border border-zinc-500/20 shadow-[inset_0_0_8px_rgba(163,163,163,0.2)]" : "bg-slate-800 text-slate-500 border border-slate-700")}>
                             <Zap className="w-5 h-5" />
                           </div>
                           <div>
                             <h4 className={cn("font-semibold transition-colors", auto.active ? "text-white" : "text-slate-400")}>{auto.name}</h4>
                             <div className={cn("flex flex-wrap items-center gap-2 mt-2 text-[11px] uppercase tracking-wider font-bold", auto.active ? "text-slate-400" : "text-slate-600")}>
                                <span className="glass-panel px-2 py-0.5 rounded text-slate-300">{auto.trigger}</span>
-                               <span className="text-cyan-500/50 font-normal lowercase tracking-normal">→ entonces →</span>
-                               <span className="bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 px-2 py-0.5 rounded">{auto.action}</span>
+                               <span className="text-zinc-500/50 font-normal lowercase tracking-normal">→ entonces →</span>
+                               <span className="bg-zinc-500/10 border border-zinc-500/20 text-zinc-400 px-2 py-0.5 rounded">{auto.action}</span>
                             </div>
                           </div>
                         </div>
-                        
+
                         <div className="flex items-center gap-4 border-l border-white/5 pl-4 ml-4">
-                          <button 
+                          <button
                             onClick={() => toggleAutomation(auto.id)}
-                            className={cn("px-4 py-2 rounded-lg text-[10px] uppercase font-bold tracking-widest border transition-colors", 
-                              auto.active 
-                                ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20 hover:bg-emerald-500/20 shadow-[inset_0_0_8px_rgba(163,163,163,0.2)]" 
+                            className={cn("px-4 py-2 rounded-lg text-[10px] uppercase font-bold tracking-widest border transition-colors",
+                              auto.active
+                                ? "bg-zinc-500/10 text-zinc-400 border-zinc-500/20 hover:bg-zinc-500/20 shadow-[inset_0_0_8px_rgba(163,163,163,0.2)]"
                                 : "bg-slate-800/50 text-slate-500 border-white/5 hover:bg-slate-800 hover:text-white"
                             )}
                           >
                             {auto.active ? 'Activo' : 'Inactivo'}
                           </button>
-                          <button className="p-2 text-slate-500 hover:text-cyan-400 rounded-lg hover:bg-cyan-500/10 transition-colors">
+                          <button className="p-2 text-slate-500 hover:text-zinc-400 rounded-lg hover:bg-zinc-500/10 transition-colors">
                             <SettingsIcon className="w-4 h-4" />
                           </button>
                         </div>
@@ -533,32 +533,32 @@ export function Settings() {
                     <h2 className="text-lg font-semibold text-white">Gestión de Usuarios</h2>
                     <p className="text-sm text-slate-400 font-light">Controla quién puede acceder a qué.</p>
                   </div>
-                  <button 
+                  <button
                     onClick={() => setIsInviteModalOpen(true)}
-                    className="bg-cyan-600/20 border border-cyan-500/50 hover:bg-cyan-600/40 text-cyan-50 hover:text-white px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wide flex items-center gap-2 transition-all shadow-[0_0_15px_rgba(163,163,163,0.2)]">
+                    className="bg-zinc-600/20 border border-zinc-500/50 hover:bg-zinc-600/40 text-zinc-50 hover:text-white px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wide flex items-center gap-2 transition-all shadow-[0_0_15px_rgba(163,163,163,0.2)]">
                     <Plus className="w-4 h-4" /> Invitar
                   </button>
                 </div>
-                
+
                 <div className="p-6 overflow-x-auto">
                   <table className="w-full text-left border-collapse text-sm whitespace-nowrap">
                     <thead>
                       <tr className="border-b border-white/5 text-slate-400 uppercase tracking-widest text-[10px] font-bold">
-                        <th className="pb-3 text-cyan-400/80">Usuario</th>
-                        <th className="pb-3 text-cyan-400/80">Rol</th>
-                        <th className="pb-3 text-right text-cyan-400/80">Acción</th>
+                        <th className="pb-3 text-zinc-400/80">Usuario</th>
+                        <th className="pb-3 text-zinc-400/80">Rol</th>
+                        <th className="pb-3 text-right text-zinc-400/80">Acción</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-white/5">
                     {users.map(user => (
-                        <tr key={user.id} className="hover:bg-cyan-500/5 transition-colors group">
+                        <tr key={user.id} className="hover:bg-zinc-500/5 transition-colors group">
                           <td className="py-4">
                             <div className="font-medium text-white">{user.name}</div>
                             <div className="text-slate-500 text-xs">{user.email}</div>
                           </td>
                           <td className="py-4">
-                            <select 
-                              className="glass-panel text-slate-300 rounded p-1.5 text-sm outline-none focus:ring-1 focus:ring-cyan-500 appearance-none bg-slate-900"
+                            <select
+                              className="glass-panel text-slate-300 rounded p-1.5 text-sm outline-none focus:ring-1 focus:ring-zinc-500 appearance-none bg-slate-900"
                               value={user.role}
                               onChange={(e) => {
                                 setUsers(users.map(u => u.id === user.id ? { ...u, role: e.target.value } : u));
@@ -575,7 +575,7 @@ export function Settings() {
                             </select>
                           </td>
                           <td className="py-4 text-right">
-                            <button 
+                            <button
                               onClick={() => {
                                 setUsers(users.filter(u => u.id !== user.id));
                                 triggerEvent('user_removed', {
@@ -584,7 +584,7 @@ export function Settings() {
                                   type: 'error'
                                 });
                               }}
-                              className="text-slate-500 hover:text-rose-400 p-1.5 rounded-md hover:bg-rose-500/10 transition-colors opacity-0 group-hover:opacity-100">
+                              className="text-slate-500 hover:text-zinc-400 p-1.5 rounded-md hover:bg-zinc-500/10 transition-colors opacity-0 group-hover:opacity-100">
                               <Trash2 className="w-4 h-4" />
                             </button>
                           </td>
@@ -596,12 +596,12 @@ export function Settings() {
 
                 <div className="p-6 border-t border-white/5 bg-slate-900/20">
                   <h3 className="font-semibold text-slate-300 mb-4 text-xs uppercase tracking-widest flex items-center gap-2">
-                    <Shield className="w-4 h-4 text-cyan-400" /> Niveles de Permiso
+                    <Shield className="w-4 h-4 text-zinc-400" /> Niveles de Permiso
                   </h3>
                   <div className="grid gap-4">
                     {ROLES.map(role => (
                       <div key={role.id} className="glass-panel p-4 rounded-xl flex items-start gap-4 hover:border-white/10 transition-colors">
-                        <div className="mt-0.5 bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 p-2 rounded-lg shadow-[inset_0_0_8px_rgba(163,163,163,0.2)]">
+                        <div className="mt-0.5 bg-zinc-500/10 text-zinc-400 border border-zinc-500/20 p-2 rounded-lg shadow-[inset_0_0_8px_rgba(163,163,163,0.2)]">
                           <Shield className="w-5 h-5" />
                         </div>
                         <div>
@@ -620,16 +620,16 @@ export function Settings() {
                     <h2 className="text-lg font-semibold text-white">Preferencias de Notificación</h2>
                     <p className="text-sm text-slate-400 font-light">Elige qué eventos activan cada tipo de notificación.</p>
                   </div>
-                  <button className="bg-cyan-600/20 border border-cyan-500/50 hover:bg-cyan-600/40 text-cyan-50 hover:text-white px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wide flex items-center transition-all shadow-[0_0_15px_rgba(163,163,163,0.2)]">
+                  <button className="bg-zinc-600/20 border border-zinc-500/50 hover:bg-zinc-600/40 text-zinc-50 hover:text-white px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wide flex items-center transition-all shadow-[0_0_15px_rgba(163,163,163,0.2)]">
                     Guardar Cambios
                   </button>
                 </div>
 
                 <div className="p-6 space-y-5">
-                  <div className="rounded-xl border border-cyan-500/20 bg-cyan-500/5 p-4">
+                  <div className="rounded-xl border border-zinc-500/20 bg-zinc-500/5 p-4">
                     <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                       <div className="flex items-start gap-3">
-                        <div className="rounded-xl border border-cyan-500/30 bg-cyan-500/10 p-2 text-cyan-300">
+                        <div className="rounded-xl border border-zinc-500/30 bg-zinc-500/10 p-2 text-zinc-300">
                           <BellRing className="h-5 w-5" />
                         </div>
                         <div>
@@ -637,9 +637,9 @@ export function Settings() {
                             <h3 className="text-sm font-semibold text-white">Push del navegador</h3>
                             <span className={cn(
                               "rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider",
-                              pushStatus === 'granted' && "border-emerald-500/30 bg-emerald-500/10 text-emerald-300",
-                              pushStatus === 'denied' && "border-rose-500/30 bg-rose-500/10 text-rose-300",
-                              pushStatus === 'default' && "border-amber-500/30 bg-amber-500/10 text-amber-300",
+                              pushStatus === 'granted' && "border-zinc-500/30 bg-zinc-500/10 text-zinc-300",
+                              pushStatus === 'denied' && "border-zinc-500/30 bg-zinc-500/10 text-zinc-300",
+                              pushStatus === 'default' && "border-zinc-500/30 bg-zinc-500/10 text-zinc-300",
                               pushStatus === 'unsupported' && "border-slate-600 bg-slate-800 text-slate-400"
                             )}>
                               {pushStatus === 'granted' ? 'Activas' : pushStatus === 'denied' ? 'Bloqueadas' : pushStatus === 'unsupported' ? 'No soportadas' : 'Sin permiso'}
@@ -649,7 +649,7 @@ export function Settings() {
                             Recibe avisos de citas, cambios de estado y alertas importantes aunque estés en otra pestaña.
                           </p>
                           {pushError && (
-                            <p className="mt-2 text-xs text-rose-300">{pushError}</p>
+                            <p className="mt-2 text-xs text-zinc-300">{pushError}</p>
                           )}
                         </div>
                       </div>
@@ -659,7 +659,7 @@ export function Settings() {
                           type="button"
                           onClick={requestPushPermission}
                           disabled={pushStatus === 'unsupported' || pushStatus === 'granted'}
-                          className="inline-flex items-center gap-2 rounded-lg border border-cyan-500/50 bg-cyan-600/20 px-4 py-2 text-xs font-bold uppercase tracking-wide text-cyan-50 transition-all hover:bg-cyan-600/40 disabled:cursor-not-allowed disabled:opacity-50"
+                          className="inline-flex items-center gap-2 rounded-lg border border-zinc-500/50 bg-zinc-600/20 px-4 py-2 text-xs font-bold uppercase tracking-wide text-zinc-50 transition-all hover:bg-zinc-600/40 disabled:cursor-not-allowed disabled:opacity-50"
                         >
                           <Bell className="h-4 w-4" />
                           Activar Push
@@ -668,7 +668,7 @@ export function Settings() {
                           type="button"
                           onClick={sendTestPushNotification}
                           disabled={pushStatus !== 'granted'}
-                          className="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-slate-800/70 px-4 py-2 text-xs font-bold uppercase tracking-wide text-slate-200 transition-colors hover:border-cyan-500/40 hover:text-cyan-300 disabled:cursor-not-allowed disabled:opacity-50"
+                          className="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-slate-800/70 px-4 py-2 text-xs font-bold uppercase tracking-wide text-slate-200 transition-colors hover:border-zinc-500/40 hover:text-zinc-300 disabled:cursor-not-allowed disabled:opacity-50"
                         >
                           <Send className="h-4 w-4" />
                           Probar
@@ -681,10 +681,10 @@ export function Settings() {
                     <table className="w-full text-left text-sm">
                       <thead>
                         <tr className="border-b border-white/5 bg-black/20 text-slate-400 uppercase tracking-widest text-[10px] font-bold">
-                          <th className="p-4 font-semibold text-cyan-400/80">Tipo de Evento</th>
-                          <th className="p-4 text-center font-semibold text-cyan-400/80 w-24">In-App</th>
-                          <th className="p-4 text-center font-semibold text-cyan-400/80 w-24">Push</th>
-                          <th className="p-4 text-center font-semibold text-cyan-400/80 w-24">Email</th>
+                          <th className="p-4 font-semibold text-zinc-400/80">Tipo de Evento</th>
+                          <th className="p-4 text-center font-semibold text-zinc-400/80 w-24">In-App</th>
+                          <th className="p-4 text-center font-semibold text-zinc-400/80 w-24">Push</th>
+                          <th className="p-4 text-center font-semibold text-zinc-400/80 w-24">Email</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-white/5">
@@ -696,15 +696,15 @@ export function Settings() {
                             </td>
                             <td className="p-4 text-center">
                               <label className="relative inline-flex items-center cursor-pointer">
-                                <input 
-                                  type="checkbox" 
+                                <input
+                                  type="checkbox"
                                   className="sr-only peer"
                                   checked={pref.inApp}
                                   onChange={() => toggleNotificationPref(pref.id, 'inApp')}
                                 />
                                 <div className={cn(
                                   "w-9 h-5 rounded-full peer-focus:outline-none transition-all",
-                                  pref.inApp ? "bg-cyan-500 shadow-[0_0_10px_rgba(163,163,163,0.5)]" : "bg-slate-700"
+                                  pref.inApp ? "bg-zinc-500 shadow-[0_0_10px_rgba(163,163,163,0.5)]" : "bg-slate-700"
                                 )}></div>
                                 <div className={cn(
                                   "absolute left-[2px] top-[2px] bg-white border-gray-300 border rounded-full h-4 w-4 transition-all",
@@ -722,7 +722,7 @@ export function Settings() {
                                 />
                                 <div className={cn(
                                   "w-9 h-5 rounded-full peer-focus:outline-none transition-all",
-                                  pref.push ? "bg-cyan-500 shadow-[0_0_10px_rgba(163,163,163,0.5)]" : "bg-slate-700"
+                                  pref.push ? "bg-zinc-500 shadow-[0_0_10px_rgba(163,163,163,0.5)]" : "bg-slate-700"
                                 )}></div>
                                 <div className={cn(
                                   "absolute left-[2px] top-[2px] bg-white border-gray-300 border rounded-full h-4 w-4 transition-all",
@@ -732,15 +732,15 @@ export function Settings() {
                             </td>
                             <td className="p-4 text-center">
                               <label className="relative inline-flex items-center cursor-pointer">
-                                <input 
-                                  type="checkbox" 
+                                <input
+                                  type="checkbox"
                                   className="sr-only peer"
                                   checked={pref.email}
                                   onChange={() => toggleNotificationPref(pref.id, 'email')}
                                 />
                                 <div className={cn(
                                   "w-9 h-5 rounded-full peer-focus:outline-none transition-all",
-                                  pref.email ? "bg-cyan-500 shadow-[0_0_10px_rgba(163,163,163,0.5)]" : "bg-slate-700"
+                                  pref.email ? "bg-zinc-500 shadow-[0_0_10px_rgba(163,163,163,0.5)]" : "bg-slate-700"
                                 )}></div>
                                 <div className={cn(
                                   "absolute left-[2px] top-[2px] bg-white border-gray-300 border rounded-full h-4 w-4 transition-all",
@@ -764,17 +764,17 @@ export function Settings() {
                   </div>
                   <button
                     onClick={() => setConfiguringIntegration(integrationsList.find(item => item.provider) || null)}
-                    className="bg-cyan-600/20 border border-cyan-500/50 hover:bg-cyan-600/40 text-cyan-50 hover:text-white px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wide flex items-center gap-2 transition-all shadow-[0_0_15px_rgba(163,163,163,0.2)]"
+                    className="bg-zinc-600/20 border border-zinc-500/50 hover:bg-zinc-600/40 text-zinc-50 hover:text-white px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wide flex items-center gap-2 transition-all shadow-[0_0_15px_rgba(163,163,163,0.2)]"
                   >
                     <Plus className="w-4 h-4" /> Nueva Integracion
                   </button>
                 </div>
-                
+
                 <div className="p-6 space-y-6">
                   <section className="space-y-3">
                     <div>
                       <h3 className="text-sm font-semibold text-white flex items-center gap-2">
-                        <Key className="w-4 h-4 text-cyan-300" />
+                        <Key className="w-4 h-4 text-zinc-300" />
                         Apps que ocupan API oficial
                       </h3>
                       <p className="mt-1 text-xs text-slate-400">
@@ -791,7 +791,7 @@ export function Settings() {
                   <section className="space-y-3">
                     <div>
                       <h3 className="text-sm font-semibold text-white flex items-center gap-2">
-                        <Send className="w-4 h-4 text-sky-300" />
+                        <Send className="w-4 h-4 text-zinc-300" />
                         Apps por webhook, CSV o correo
                       </h3>
                       <p className="mt-1 text-xs text-slate-400">
@@ -805,10 +805,10 @@ export function Settings() {
                     </div>
                   </section>
 
-                  <div className="glass-panel rounded-xl border border-cyan-500/20 overflow-hidden">
+                  <div className="glass-panel rounded-xl border border-zinc-500/20 overflow-hidden">
                     <div className="p-5 border-b border-white/5 bg-slate-950/40">
                       <h3 className="text-sm font-semibold text-white flex items-center gap-2">
-                        <Send className="w-4 h-4 text-cyan-300" />
+                        <Send className="w-4 h-4 text-zinc-300" />
                         Modulo de Webhooks
                       </h3>
                       <p className="mt-1 text-xs text-slate-400">Usa estas URLs para recibir candidatos reales desde formularios, bolsas de trabajo, Make, Zapier o sistemas externos.</p>
@@ -821,7 +821,7 @@ export function Settings() {
                           value={webhookSecret}
                           onChange={(event) => setWebhookSecret(event.target.value)}
                           placeholder="Debe coincidir con RHDREAMS_WEBHOOK_SECRET si esta configurado"
-                          className="w-full bg-slate-900/50 border border-slate-700/80 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-cyan-500/50"
+                          className="w-full bg-slate-900/50 border border-slate-700/80 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-zinc-500/50"
                         />
                       </div>
 
@@ -834,7 +834,7 @@ export function Settings() {
                           <div key={source} className="rounded-xl border border-white/5 bg-slate-950/40 p-4">
                             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
                               <div>
-                                <p className="text-xs font-bold uppercase tracking-widest text-cyan-300">{source}</p>
+                                <p className="text-xs font-bold uppercase tracking-widest text-zinc-300">{source}</p>
                                 <p className="mt-1 break-all font-mono text-[11px] text-slate-300">{url}</p>
                               </div>
                               <div className="flex items-center gap-2">
@@ -847,7 +847,7 @@ export function Settings() {
                                 <button
                                   onClick={() => sendWebhookTest(source)}
                                   disabled={webhookTestStatus?.source === source && webhookTestStatus?.loading}
-                                  className="rounded-lg border border-cyan-500/30 bg-cyan-500/10 px-3 py-2 text-xs text-cyan-200 hover:bg-cyan-500/20 flex items-center gap-1 disabled:opacity-60"
+                                  className="rounded-lg border border-zinc-500/30 bg-zinc-500/10 px-3 py-2 text-xs text-zinc-200 hover:bg-zinc-500/20 flex items-center gap-1 disabled:opacity-60"
                                 >
                                   {webhookTestStatus?.source === source && webhookTestStatus?.loading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
                                   Probar
@@ -859,7 +859,7 @@ export function Settings() {
                       })}
 
                       {webhookTestStatus && !webhookTestStatus.loading && (
-                        <div className={cn("rounded-xl border px-4 py-3 text-xs", webhookTestStatus.ok ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-200" : "border-rose-500/30 bg-rose-500/10 text-rose-200")}>
+                        <div className={cn("rounded-xl border px-4 py-3 text-xs", webhookTestStatus.ok ? "border-zinc-500/30 bg-zinc-500/10 text-zinc-200" : "border-zinc-500/30 bg-zinc-500/10 text-zinc-200")}>
                           {webhookTestStatus.message}
                         </div>
                       )}
@@ -876,7 +876,7 @@ export function Settings() {
                   </div>
                   <div className={cn(
                     "rounded-lg border px-3 py-2 text-[10px] font-bold uppercase tracking-widest",
-                    isApiVaultOwner ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-300" : "border-amber-500/30 bg-amber-500/10 text-amber-300"
+                    isApiVaultOwner ? "border-zinc-500/30 bg-zinc-500/10 text-zinc-300" : "border-zinc-500/30 bg-zinc-500/10 text-zinc-300"
                   )}>
                     {isApiVaultOwner ? "Acceso privado activo" : "Cuenta no autorizada"}
                   </div>
@@ -884,12 +884,12 @@ export function Settings() {
 
                 <div className="p-6 space-y-6">
                   {!isApiVaultOwner ? (
-                    <div className="rounded-2xl border border-amber-500/20 bg-amber-500/10 p-6 text-sm text-amber-100">
+                    <div className="rounded-2xl border border-zinc-500/20 bg-zinc-500/10 p-6 text-sm text-zinc-100">
                       <div className="flex items-start gap-3">
                         <Lock className="mt-0.5 h-5 w-5 shrink-0" />
                         <div>
                           <h3 className="font-semibold text-white">Bóveda bloqueada</h3>
-                          <p className="mt-1 text-xs leading-relaxed text-amber-100/80">
+                          <p className="mt-1 text-xs leading-relaxed text-zinc-100/80">
                             Esta bóveda solo se abre con las cuentas autorizadas: {API_VAULT_OWNER_EMAILS.join(", ")}.
                           </p>
                         </div>
@@ -898,9 +898,9 @@ export function Settings() {
                   ) : (
                     <>
                       <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.2fr] gap-5">
-                        <div className="glass-panel rounded-xl border border-cyan-500/20 p-5">
+                        <div className="glass-panel rounded-xl border border-zinc-500/20 p-5">
                           <div className="flex items-center gap-2 mb-4">
-                            <Key className="h-4 w-4 text-cyan-300" />
+                            <Key className="h-4 w-4 text-zinc-300" />
                             <h3 className="text-sm font-semibold text-white">Agregar nueva clave</h3>
                           </div>
 
@@ -910,7 +910,7 @@ export function Settings() {
                               <select
                                 value={vaultDraft.provider}
                                 onChange={(event) => setVaultDraft({ ...vaultDraft, provider: event.target.value })}
-                                className="w-full bg-slate-900/50 border border-slate-700/80 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-cyan-500/50 appearance-none"
+                                className="w-full bg-slate-900/50 border border-slate-700/80 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-zinc-500/50 appearance-none"
                               >
                                 {API_VAULT_PRESETS.map((provider) => (
                                   <option key={provider} value={provider}>{provider}</option>
@@ -925,7 +925,7 @@ export function Settings() {
                                   value={vaultDraft.label}
                                   onChange={(event) => setVaultDraft({ ...vaultDraft, label: event.target.value })}
                                   placeholder="Ej: Gemini producción"
-                                  className="w-full bg-slate-900/50 border border-slate-700/80 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-cyan-500/50"
+                                  className="w-full bg-slate-900/50 border border-slate-700/80 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-zinc-500/50"
                                 />
                               </div>
                               <div>
@@ -933,7 +933,7 @@ export function Settings() {
                                 <select
                                   value={vaultDraft.kind}
                                   onChange={(event) => setVaultDraft({ ...vaultDraft, kind: event.target.value })}
-                                  className="w-full bg-slate-900/50 border border-slate-700/80 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-cyan-500/50 appearance-none"
+                                  className="w-full bg-slate-900/50 border border-slate-700/80 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-zinc-500/50 appearance-none"
                                 >
                                   <option>Modelo IA</option>
                                   <option>API App</option>
@@ -950,7 +950,7 @@ export function Settings() {
                                 value={vaultDraft.model}
                                 onChange={(event) => setVaultDraft({ ...vaultDraft, model: event.target.value })}
                                 placeholder="Ej: gemini-1.5-pro, gpt-4.1, ads_read"
-                                className="w-full bg-slate-900/50 border border-slate-700/80 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-cyan-500/50"
+                                className="w-full bg-slate-900/50 border border-slate-700/80 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-zinc-500/50"
                               />
                             </div>
 
@@ -961,7 +961,7 @@ export function Settings() {
                                 value={vaultDraft.apiKey}
                                 onChange={(event) => setVaultDraft({ ...vaultDraft, apiKey: event.target.value })}
                                 placeholder="Pega la clave aquí"
-                                className="w-full bg-slate-900/50 border border-slate-700/80 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-cyan-500/50"
+                                className="w-full bg-slate-900/50 border border-slate-700/80 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-zinc-500/50"
                               />
                             </div>
 
@@ -971,7 +971,7 @@ export function Settings() {
                                 value={vaultDraft.endpoint}
                                 onChange={(event) => setVaultDraft({ ...vaultDraft, endpoint: event.target.value })}
                                 placeholder="https://api.proveedor.com/v1/..."
-                                className="w-full bg-slate-900/50 border border-slate-700/80 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-cyan-500/50"
+                                className="w-full bg-slate-900/50 border border-slate-700/80 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-zinc-500/50"
                               />
                             </div>
 
@@ -981,14 +981,14 @@ export function Settings() {
                                 value={vaultDraft.notes}
                                 onChange={(event) => setVaultDraft({ ...vaultDraft, notes: event.target.value })}
                                 placeholder="Dónde se usa, permisos, límites, fecha de renovación..."
-                                className="min-h-[82px] w-full resize-none bg-slate-900/50 border border-slate-700/80 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-cyan-500/50"
+                                className="min-h-[82px] w-full resize-none bg-slate-900/50 border border-slate-700/80 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-zinc-500/50"
                               />
                             </div>
 
                             <button
                               onClick={saveVaultEntry}
                               disabled={!vaultDraft.apiKey.trim()}
-                              className="w-full rounded-lg bg-cyan-500 px-4 py-2.5 text-sm font-bold text-slate-950 transition-colors hover:bg-cyan-400 disabled:cursor-not-allowed disabled:opacity-50"
+                              className="w-full rounded-lg bg-zinc-500 px-4 py-2.5 text-sm font-bold text-slate-950 transition-colors hover:bg-zinc-400 disabled:cursor-not-allowed disabled:opacity-50"
                             >
                               Guardar en bóveda
                             </button>
@@ -996,15 +996,15 @@ export function Settings() {
                         </div>
 
                         <div className="space-y-4">
-                          <div className="rounded-xl border border-cyan-500/20 bg-cyan-500/5 p-4">
+                          <div className="rounded-xl border border-zinc-500/20 bg-zinc-500/5 p-4">
                             <div className="flex items-start gap-3">
-                              <Shield className="mt-0.5 h-5 w-5 shrink-0 text-cyan-300" />
+                              <Shield className="mt-0.5 h-5 w-5 shrink-0 text-zinc-300" />
                               <div>
                                 <h3 className="text-sm font-semibold text-white">Propietario de la bóveda</h3>
                                 <p className="mt-1 text-xs leading-relaxed text-slate-400">
-                                  Sesión actual: <span className="font-mono text-cyan-200">{currentUserEmail}</span>. Las claves se guardan bajo esta cuenta y no aparecen para otros usuarios.
+                                  Sesión actual: <span className="font-mono text-zinc-200">{currentUserEmail}</span>. Las claves se guardan bajo esta cuenta y no aparecen para otros usuarios.
                                 </p>
-                                <p className="mt-2 text-[11px] leading-relaxed text-amber-200/80">
+                                <p className="mt-2 text-[11px] leading-relaxed text-zinc-200/80">
                                   Para producción real, copia las claves al servidor como variables de entorno cuando quieras que el backend las use.
                                 </p>
                               </div>
@@ -1022,7 +1022,7 @@ export function Settings() {
                                   <div>
                                     <div className="flex flex-wrap items-center gap-2">
                                       <h4 className="font-semibold text-white">{entry.label}</h4>
-                                      <span className="rounded-md border border-cyan-500/20 bg-cyan-500/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest text-cyan-300">{entry.provider}</span>
+                                      <span className="rounded-md border border-zinc-500/20 bg-zinc-500/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest text-zinc-300">{entry.provider}</span>
                                       <span className="rounded-md border border-white/10 bg-slate-800/80 px-2 py-0.5 text-[10px] text-slate-300">{entry.kind}</span>
                                     </div>
                                     {entry.model && <p className="mt-1 text-xs text-slate-400">Modelo/alcance: {entry.model}</p>}
@@ -1031,21 +1031,21 @@ export function Settings() {
                                   <div className="flex items-center gap-2">
                                     <button
                                       onClick={() => setVisibleVaultSecrets((current) => ({ ...current, [entry.id]: !current[entry.id] }))}
-                                      className="rounded-lg border border-white/10 p-2 text-slate-400 transition-colors hover:text-cyan-300 hover:bg-white/5"
+                                      className="rounded-lg border border-white/10 p-2 text-slate-400 transition-colors hover:text-zinc-300 hover:bg-white/5"
                                       title="Mostrar u ocultar clave"
                                     >
                                       {visibleVaultSecrets[entry.id] ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                                     </button>
                                     <button
                                       onClick={() => copyText(entry.apiKey)}
-                                      className="rounded-lg border border-white/10 p-2 text-slate-400 transition-colors hover:text-cyan-300 hover:bg-white/5"
+                                      className="rounded-lg border border-white/10 p-2 text-slate-400 transition-colors hover:text-zinc-300 hover:bg-white/5"
                                       title="Copiar clave"
                                     >
                                       <Copy className="h-4 w-4" />
                                     </button>
                                     <button
                                       onClick={() => deleteVaultEntry(entry.id)}
-                                      className="rounded-lg border border-white/10 p-2 text-slate-400 transition-colors hover:text-rose-300 hover:bg-rose-500/10"
+                                      className="rounded-lg border border-white/10 p-2 text-slate-400 transition-colors hover:text-zinc-300 hover:bg-zinc-500/10"
                                       title="Eliminar clave"
                                     >
                                       <Trash2 className="h-4 w-4" />
@@ -1077,14 +1077,14 @@ export function Settings() {
                     <p className="text-sm text-slate-400 font-light">Estandariza la comunicación de tu equipo de reclutamiento.</p>
                   </div>
                   {!editingTemplate && (
-                    <button 
+                    <button
                       onClick={() => setEditingTemplate({ id: Date.now(), name: '', subject: '', type: 'Manual', body: '' })}
-                      className="bg-cyan-600/20 border border-cyan-500/50 hover:bg-cyan-600/40 text-cyan-50 hover:text-white px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wide flex items-center gap-2 transition-all shadow-[0_0_15px_rgba(163,163,163,0.2)]">
+                      className="bg-zinc-600/20 border border-zinc-500/50 hover:bg-zinc-600/40 text-zinc-50 hover:text-white px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wide flex items-center gap-2 transition-all shadow-[0_0_15px_rgba(163,163,163,0.2)]">
                       <Plus className="w-4 h-4" /> Crear Plantilla
                     </button>
                   )}
                 </div>
-                
+
                 <div className="p-6">
                   {editingTemplate ? (
                     <div className="glass-panel p-5 rounded-xl flex flex-col gap-4">
@@ -1095,16 +1095,16 @@ export function Settings() {
                       <div className="grid gap-4">
                          <div>
                            <label className="block text-xs font-medium text-slate-400 mb-1.5">Nombre de la Plantilla</label>
-                           <input type="text" value={editingTemplate.name} onChange={e => setEditingTemplate({...editingTemplate, name: e.target.value})} className="w-full bg-slate-900/50 border border-slate-700/80 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-cyan-500/50" />
+                           <input type="text" value={editingTemplate.name} onChange={e => setEditingTemplate({...editingTemplate, name: e.target.value})} className="w-full bg-slate-900/50 border border-slate-700/80 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-zinc-500/50" />
                          </div>
                          <div className="grid grid-cols-2 gap-4">
                            <div>
                              <label className="block text-xs font-medium text-slate-400 mb-1.5">Asunto</label>
-                             <input type="text" value={editingTemplate.subject} onChange={e => setEditingTemplate({...editingTemplate, subject: e.target.value})} className="w-full bg-slate-900/50 border border-slate-700/80 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-cyan-500/50" />
+                             <input type="text" value={editingTemplate.subject} onChange={e => setEditingTemplate({...editingTemplate, subject: e.target.value})} className="w-full bg-slate-900/50 border border-slate-700/80 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-zinc-500/50" />
                            </div>
                            <div>
                              <label className="block text-xs font-medium text-slate-400 mb-1.5">Categoría</label>
-                             <select value={editingTemplate.type} onChange={e => setEditingTemplate({...editingTemplate, type: e.target.value})} className="w-full bg-slate-900/50 border border-slate-700/80 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-cyan-500/50 appearance-none">
+                             <select value={editingTemplate.type} onChange={e => setEditingTemplate({...editingTemplate, type: e.target.value})} className="w-full bg-slate-900/50 border border-slate-700/80 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-zinc-500/50 appearance-none">
                                <option value="Manual">Manual</option>
                                <option value="Automático">Automático</option>
                              </select>
@@ -1115,7 +1115,7 @@ export function Settings() {
                            <textarea
                              value={editingTemplate.body}
                              onChange={(event) => setEditingTemplate({ ...editingTemplate, body: event.target.value })}
-                             className="min-h-40 w-full rounded-lg border border-slate-700 bg-slate-950/70 p-3 text-sm text-slate-100 outline-none focus:border-cyan-400"
+                             className="min-h-40 w-full rounded-lg border border-slate-700 bg-slate-950/70 p-3 text-sm text-slate-100 outline-none focus:border-zinc-400"
                            />
                            <p className="text-[10px] text-slate-500 mt-2">Variables disponibles: {'{{candidate_name}}'}, {'{{job_name}}'}, {'{{company_name}}'}, {customFields.map(cf => `{{${cf.name}}}`).join(', ')}</p>
                          </div>
@@ -1129,7 +1129,7 @@ export function Settings() {
                              setTemplates([...templates, editingTemplate]);
                           }
                           setEditingTemplate(null);
-                        }} className="bg-cyan-500 text-white px-4 py-2 rounded-lg text-xs font-medium hover:bg-cyan-600 transition-colors flex items-center gap-2">
+                        }} className="bg-zinc-500 text-white px-4 py-2 rounded-lg text-xs font-medium hover:bg-zinc-600 transition-colors flex items-center gap-2">
                           <Check className="w-4 h-4" /> Guardar Plantilla
                         </button>
                       </div>
@@ -1140,7 +1140,7 @@ export function Settings() {
                         {templates.map(template => (
                           <div key={template.id} className="glass-panel glass-panel-hover p-4 rounded-xl flex items-center justify-between group">
                             <div className="flex items-center gap-4">
-                              <div className="w-10 h-10 rounded-lg bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 flex items-center justify-center shrink-0">
+                              <div className="w-10 h-10 rounded-lg bg-zinc-500/10 text-zinc-400 border border-zinc-500/20 flex items-center justify-center shrink-0">
                                 <Mail className="w-5 h-5" />
                               </div>
                               <div>
@@ -1149,14 +1149,14 @@ export function Settings() {
                               </div>
                             </div>
                             <div className="flex items-center gap-4">
-                              <span className={cn("px-2.5 py-1 rounded text-[10px] font-bold uppercase tracking-wider", template.type === 'Automático' ? "bg-cyan-500/10 text-cyan-400" : "bg-slate-800 text-slate-400")}>
+                              <span className={cn("px-2.5 py-1 rounded text-[10px] font-bold uppercase tracking-wider", template.type === 'Automático' ? "bg-zinc-500/10 text-zinc-400" : "bg-slate-800 text-slate-400")}>
                                 {template.type}
                               </span>
                               <div className="flex items-center gap-2 border-l border-white/5 pl-4 opacity-0 group-hover:opacity-100 transition-opacity">
-                                <button onClick={() => setEditingTemplate(template)} className="p-1.5 text-slate-400 hover:text-cyan-400 hover:bg-cyan-500/10 rounded-lg transition-colors">
+                                <button onClick={() => setEditingTemplate(template)} className="p-1.5 text-slate-400 hover:text-zinc-400 hover:bg-zinc-500/10 rounded-lg transition-colors">
                                   <Edit3 className="w-4 h-4" />
                                 </button>
-                                <button onClick={() => setTemplates(templates.filter(t => t.id !== template.id))} className="p-1.5 text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 rounded-lg transition-colors">
+                                <button onClick={() => setTemplates(templates.filter(t => t.id !== template.id))} className="p-1.5 text-slate-400 hover:text-zinc-400 hover:bg-zinc-500/10 rounded-lg transition-colors">
                                   <Trash2 className="w-4 h-4" />
                                 </button>
                               </div>
@@ -1170,15 +1170,15 @@ export function Settings() {
                           <h3 className="text-sm font-semibold text-white">Campos Personalizados</h3>
                           <p className="text-xs text-slate-400 font-light mt-0.5">Define variables adicionales para usarlas dentro de las plantillas de correo como {'{{nombre_variable}}'}.</p>
                         </div>
-                        
+
                         <div className="grid gap-3 mb-5">
                           {customFields.map(field => (
                             <div key={field.id} className="glass-panel p-3 rounded-lg flex items-center justify-between">
                               <div>
-                                <h4 className="text-sm text-cyan-300 font-mono text-[11px]">{'{{'}{field.name}{'}}'}</h4>
+                                <h4 className="text-sm text-zinc-300 font-mono text-[11px]">{'{{'}{field.name}{'}}'}</h4>
                                 <p className="text-xs text-slate-400 mt-0.5">{field.description}</p>
                               </div>
-                              <button onClick={() => setCustomFields(customFields.filter(f => f.id !== field.id))} className="text-slate-500 hover:text-rose-400 p-1.5 rounded transition-colors">
+                              <button onClick={() => setCustomFields(customFields.filter(f => f.id !== field.id))} className="text-slate-500 hover:text-zinc-400 p-1.5 rounded transition-colors">
                                 <Trash2 className="w-4 h-4" />
                               </button>
                             </div>
@@ -1187,30 +1187,30 @@ export function Settings() {
 
                         <div className="glass-panel p-4 rounded-xl flex items-center gap-3">
                           <div className="flex-1">
-                            <input 
-                              type="text" 
-                              placeholder="nombre_variable" 
-                              value={newCustomField.name} 
+                            <input
+                              type="text"
+                              placeholder="nombre_variable"
+                              value={newCustomField.name}
                               onChange={e => setNewCustomField({...newCustomField, name: e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, '')})}
-                              className="w-full bg-slate-900/50 border border-slate-700/80 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-cyan-500/50 h-9 font-mono text-[11px]" 
+                              className="w-full bg-slate-900/50 border border-slate-700/80 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-zinc-500/50 h-9 font-mono text-[11px]"
                             />
                           </div>
                           <div className="flex-1">
-                            <input 
-                              type="text" 
-                              placeholder="Breve descripción del campo" 
-                              value={newCustomField.description} 
+                            <input
+                              type="text"
+                              placeholder="Breve descripción del campo"
+                              value={newCustomField.description}
                               onChange={e => setNewCustomField({...newCustomField, description: e.target.value})}
-                              className="w-full bg-slate-900/50 border border-slate-700/80 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-cyan-500/50 h-9" 
+                              className="w-full bg-slate-900/50 border border-slate-700/80 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-zinc-500/50 h-9"
                             />
                           </div>
-                          <button 
+                          <button
                             disabled={!newCustomField.name || !newCustomField.description}
                             onClick={() => {
                               setCustomFields([...customFields, { id: Date.now().toString(), name: newCustomField.name, description: newCustomField.description }]);
                               setNewCustomField({ name: '', description: '' });
                             }}
-                            className="bg-cyan-600/20 border border-cyan-500/50 text-cyan-400 hover:bg-cyan-500 hover:text-white px-4 py-2 rounded-lg text-xs font-bold transition-all disabled:opacity-50 h-9 whitespace-nowrap">
+                            className="bg-zinc-600/20 border border-zinc-500/50 text-zinc-400 hover:bg-zinc-500 hover:text-white px-4 py-2 rounded-lg text-xs font-bold transition-all disabled:opacity-50 h-9 whitespace-nowrap">
                             Añadir Campo
                           </button>
                         </div>
@@ -1230,27 +1230,27 @@ export function Settings() {
                     Exportar Reporte
                   </button>
                 </div>
-                
+
                 <div className="p-6 grid gap-6">
                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                     <div className="glass-panel p-5 rounded-xl border border-white/5 relative overflow-hidden group hover:border-cyan-500/30 transition-colors">
-                        <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity"><Lock className="w-16 h-16 text-cyan-400" /></div>
+                     <div className="glass-panel p-5 rounded-xl border border-white/5 relative overflow-hidden group hover:border-zinc-500/30 transition-colors">
+                        <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity"><Lock className="w-16 h-16 text-zinc-400" /></div>
                         <h3 className="font-semibold text-white mb-2 relative z-10">Autenticación de Dos Factores (2FA)</h3>
                         <p className="text-xs text-slate-400 mb-4 max-w-[200px] relative z-10">Requiere un código adicional para iniciar sesión en cuentas de administradores.</p>
                         <div className="relative z-10">
                           <label className="relative inline-flex items-center cursor-pointer">
                             <input type="checkbox" className="sr-only peer" defaultChecked />
-                            <div className="w-9 h-5 rounded-full peer-focus:outline-none transition-all bg-cyan-500 shadow-[0_0_10px_rgba(163,163,163,0.5)]"></div>
+                            <div className="w-9 h-5 rounded-full peer-focus:outline-none transition-all bg-zinc-500 shadow-[0_0_10px_rgba(163,163,163,0.5)]"></div>
                             <div className="absolute left-[2px] top-[2px] bg-white border-gray-300 border rounded-full h-4 w-4 transition-all translate-x-full border-white"></div>
                           </label>
                         </div>
                      </div>
-                     <div className="glass-panel p-5 rounded-xl border border-white/5 relative overflow-hidden group hover:border-cyan-500/30 transition-colors">
-                        <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity"><Smartphone className="w-16 h-16 text-cyan-400" /></div>
+                     <div className="glass-panel p-5 rounded-xl border border-white/5 relative overflow-hidden group hover:border-zinc-500/30 transition-colors">
+                        <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity"><Smartphone className="w-16 h-16 text-zinc-400" /></div>
                         <h3 className="font-semibold text-white mb-2 relative z-10">Restricción de Dispositivos</h3>
                         <p className="text-xs text-slate-400 mb-4 max-w-[200px] relative z-10">Limitar el acceso al sistema solo desde IPs o dispositivos de la compañía.</p>
                         <div className="relative z-10">
-                          <button className="text-xs border border-white/10 hover:border-cyan-500/50 bg-slate-900/50 px-3 py-1.5 rounded-lg text-slate-300 transition-colors">
+                          <button className="text-xs border border-white/10 hover:border-zinc-500/50 bg-slate-900/50 px-3 py-1.5 rounded-lg text-slate-300 transition-colors">
                             Configurar Reglas
                           </button>
                         </div>
@@ -1259,7 +1259,7 @@ export function Settings() {
 
                    <div className="glass-panel rounded-xl overflow-hidden border border-white/10 p-5">
                       <div className="flex items-center gap-2 mb-4">
-                        <Bell className="w-4 h-4 text-rose-400" />
+                        <Bell className="w-4 h-4 text-zinc-400" />
                         <h3 className="font-medium text-sm text-slate-200">Alertas de Seguridad (Email)</h3>
                       </div>
                       <div className="grid gap-3">
@@ -1267,15 +1267,15 @@ export function Settings() {
                           <div key={alert.id} className="flex items-center justify-between p-3 rounded-lg bg-slate-900/50 border border-white/5 hover:bg-slate-800/50 transition-colors">
                             <span className="text-sm text-slate-300 font-light">{alert.label}</span>
                             <label className="relative inline-flex items-center cursor-pointer">
-                              <input 
-                                type="checkbox" 
+                              <input
+                                type="checkbox"
                                 className="sr-only peer"
                                 checked={alert.enabled}
                                 onChange={() => toggleSecurityAlert(alert.id)}
                               />
                               <div className={cn(
                                 "w-9 h-5 rounded-full peer-focus:outline-none transition-all",
-                                alert.enabled ? "bg-rose-500 shadow-[0_0_10px_rgba(163,163,163,0.5)]" : "bg-slate-700"
+                                alert.enabled ? "bg-zinc-500 shadow-[0_0_10px_rgba(163,163,163,0.5)]" : "bg-slate-700"
                               )}></div>
                               <div className={cn(
                                 "absolute left-[2px] top-[2px] bg-white border-gray-300 border rounded-full h-4 w-4 transition-all",
@@ -1289,14 +1289,14 @@ export function Settings() {
 
                    <div className="glass-panel rounded-xl overflow-hidden border border-white/10">
                     <div className="px-5 py-4 border-b border-white/5 bg-black/20 flex items-center gap-2">
-                       <History className="w-4 h-4 text-cyan-400" />
+                       <History className="w-4 h-4 text-zinc-400" />
                        <h3 className="font-medium text-sm text-slate-200">Log de Auditoría</h3>
                     </div>
                     <div className="overflow-x-auto">
                       <table className="w-full text-left text-sm whitespace-nowrap">
                         <tbody className="divide-y divide-white/5">
                           {SECURITY_LOGS.map(log => (
-                            <tr key={log.id} className="hover:bg-cyan-500/5 transition-colors">
+                            <tr key={log.id} className="hover:bg-zinc-500/5 transition-colors">
                               <td className="px-5 py-3">
                                 <div className="font-medium text-slate-200">{log.event}</div>
                               </td>
@@ -1320,12 +1320,12 @@ export function Settings() {
             ) : (
                <div className="p-6 flex flex-col items-center justify-center text-center h-[400px] text-slate-500 relative">
                  <div className="absolute inset-0 bg-gradient-to-t from-slate-900/50 to-transparent pointer-events-none"></div>
-                 <Shield className="w-16 h-16 text-cyan-900 mb-4 opacity-50 drop-shadow-[0_0_15px_rgba(163,163,163,0.2)]" />
+                 <Shield className="w-16 h-16 text-zinc-900 mb-4 opacity-50 drop-shadow-[0_0_15px_rgba(163,163,163,0.2)]" />
                  <h3 className="text-lg font-medium text-slate-300 mb-1 tracking-tight">Módulo en construcción</h3>
                  <p className="max-w-xs text-sm font-light">Pronto podrás configurar esta sección del sistema inteligente aquí.</p>
                </div>
             )}
-            
+
             {/* Invite Modal */}
             {isInviteModalOpen && (
               <div className="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
@@ -1337,25 +1337,25 @@ export function Settings() {
                   <div className="space-y-4">
                     <div>
                       <label className="text-xs text-slate-400 block mb-1">Email</label>
-                      <input 
-                        type="email" 
+                      <input
+                        type="email"
                         value={newUserEmail}
                         onChange={(e) => setNewUserEmail(e.target.value)}
                         placeholder="correo@empresa.com"
-                        className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:border-cyan-500 outline-none"
+                        className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:border-zinc-500 outline-none"
                       />
                     </div>
                     <div>
                       <label className="text-xs text-slate-400 block mb-1">Rol</label>
-                      <select 
+                      <select
                         value={newUserRole}
                         onChange={(e) => setNewUserRole(e.target.value)}
-                        className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:border-cyan-500 outline-none appearance-none"
+                        className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:border-zinc-500 outline-none appearance-none"
                       >
                         {ROLES.map(r => <option key={r.id} value={r.id}>{r.name}</option>)}
                       </select>
                     </div>
-                    <button 
+                    <button
                       onClick={() => {
                         if (newUserEmail) {
                           setUsers([...users, { id: Date.now(), name: newUserEmail.split('@')[0], email: newUserEmail, role: newUserRole }]);
@@ -1364,7 +1364,7 @@ export function Settings() {
                           triggerEvent('user_invited', { title: 'Invitación Enviada', message: `Se ha invitado a ${newUserEmail}.`, type: 'success' });
                         }
                       }}
-                      className="w-full bg-cyan-500 hover:bg-cyan-600 text-slate-900 font-semibold py-2 rounded-lg text-sm mt-2 transition-colors"
+                      className="w-full bg-zinc-500 hover:bg-zinc-600 text-slate-900 font-semibold py-2 rounded-lg text-sm mt-2 transition-colors"
                     >
                       Enviar Invitación
                     </button>
@@ -1402,14 +1402,14 @@ export function Settings() {
                               },
                             }));
                           }}
-                          className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:border-cyan-500 outline-none"
+                          className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:border-zinc-500 outline-none"
                         />
                       </div>
                     ))}
                   </div>
 
                   {integrationCatalog[configuringIntegration.provider]?.notes && (
-                    <div className="mt-4 rounded-xl border border-amber-500/20 bg-amber-500/10 px-3 py-2 text-xs text-amber-100">
+                    <div className="mt-4 rounded-xl border border-zinc-500/20 bg-zinc-500/10 px-3 py-2 text-xs text-zinc-100">
                       {integrationCatalog[configuringIntegration.provider].notes}
                     </div>
                   )}
@@ -1423,7 +1423,7 @@ export function Settings() {
                     </button>
                     <button
                       onClick={saveIntegrationConfig}
-                      className="bg-cyan-500 hover:bg-cyan-600 text-slate-900 font-semibold px-4 py-2 rounded-lg text-xs transition-colors flex items-center gap-2"
+                      className="bg-zinc-500 hover:bg-zinc-600 text-slate-900 font-semibold px-4 py-2 rounded-lg text-xs transition-colors flex items-center gap-2"
                     >
                       <Shield className="w-4 h-4" /> Guardar y probar
                     </button>
@@ -1443,35 +1443,35 @@ export function Settings() {
                   <div className="space-y-4">
                     <div>
                       <label className="text-xs text-slate-400 block mb-1">Nombre Corto</label>
-                      <input 
-                        type="text" 
+                      <input
+                        type="text"
                         value={newFlowName}
                         onChange={(e) => setNewFlowName(e.target.value)}
                         placeholder="Ej: Auto-rechazo por salario"
-                        className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:border-cyan-500 outline-none"
+                        className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:border-zinc-500 outline-none"
                       />
                     </div>
                     <div>
                       <label className="text-xs text-slate-400 block mb-1">Cuando ocurra (Trigger)</label>
-                      <input 
-                        type="text" 
+                      <input
+                        type="text"
                         value={newFlowTrigger}
                         onChange={(e) => setNewFlowTrigger(e.target.value)}
                         placeholder="Ej: Candidato avanza a entrevista"
-                        className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:border-cyan-500 outline-none"
+                        className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:border-zinc-500 outline-none"
                       />
                     </div>
                     <div>
                       <label className="text-xs text-slate-400 block mb-1">Hacer esto (Action)</label>
-                      <input 
-                        type="text" 
+                      <input
+                        type="text"
                         value={newFlowAction}
                         onChange={(e) => setNewFlowAction(e.target.value)}
                         placeholder="Ej: Enviar mensaje slack"
-                        className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:border-cyan-500 outline-none"
+                        className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:border-zinc-500 outline-none"
                       />
                     </div>
-                    <button 
+                    <button
                       onClick={() => {
                         if (newFlowName) {
                           setAutomations([...automations, { id: Date.now(), name: newFlowName, trigger: newFlowTrigger, action: newFlowAction, active: true }]);
@@ -1479,7 +1479,7 @@ export function Settings() {
                           setNewFlowName('');
                         }
                       }}
-                      className="w-full bg-cyan-500 hover:bg-cyan-600 text-slate-900 font-semibold py-2 rounded-lg text-sm mt-2 transition-colors"
+                      className="w-full bg-zinc-500 hover:bg-zinc-600 text-slate-900 font-semibold py-2 rounded-lg text-sm mt-2 transition-colors"
                     >
                       Guardar Flujo
                     </button>

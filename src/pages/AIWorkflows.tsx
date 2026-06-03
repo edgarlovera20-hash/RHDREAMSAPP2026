@@ -318,13 +318,13 @@ const INITIAL_WORKFLOWS: AiWorkflow[] = [
 ];
 
 const STEP_META: Record<StepType, { label: string; icon: typeof Bot; color: string }> = {
-  ai: { label: "Agente IA", icon: Bot, color: "text-cyan-300 bg-cyan-500/10 border-cyan-400/30" },
-  condition: { label: "Condición", icon: GitBranch, color: "text-amber-300 bg-amber-500/10 border-amber-400/30" },
-  message: { label: "Mensaje", icon: MessageSquare, color: "text-emerald-300 bg-emerald-500/10 border-emerald-400/30" },
-  calendar: { label: "Calendario", icon: Calendar, color: "text-blue-300 bg-blue-500/10 border-blue-400/30" },
-  task: { label: "Tarea CRM", icon: UserCheck, color: "text-purple-300 bg-purple-500/10 border-purple-400/30" },
-  webhook: { label: "Webhook", icon: Database, color: "text-indigo-300 bg-indigo-500/10 border-indigo-400/30" },
-  handoff: { label: "Escalar", icon: ShieldCheck, color: "text-rose-300 bg-rose-500/10 border-rose-400/30" }
+  ai: { label: "Agente IA", icon: Bot, color: "text-zinc-300 bg-zinc-500/10 border-zinc-400/30" },
+  condition: { label: "Condición", icon: GitBranch, color: "text-zinc-300 bg-zinc-500/10 border-zinc-400/30" },
+  message: { label: "Mensaje", icon: MessageSquare, color: "text-zinc-300 bg-zinc-500/10 border-zinc-400/30" },
+  calendar: { label: "Calendario", icon: Calendar, color: "text-zinc-300 bg-zinc-500/10 border-zinc-400/30" },
+  task: { label: "Tarea CRM", icon: UserCheck, color: "text-zinc-300 bg-zinc-500/10 border-zinc-400/30" },
+  webhook: { label: "Webhook", icon: Database, color: "text-zinc-300 bg-zinc-500/10 border-zinc-400/30" },
+  handoff: { label: "Escalar", icon: ShieldCheck, color: "text-zinc-300 bg-zinc-500/10 border-zinc-400/30" }
 };
 
 function renderWithVariables(template: string, variables: WorkflowVariable[]) {
@@ -724,51 +724,51 @@ export function AIWorkflows() {
       <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
         <div>
           <h1 className="flex items-center gap-2 text-2xl font-bold tracking-tight text-white">
-            <GitBranch className="h-6 w-6 text-cyan-300" />
+            <GitBranch className="h-6 w-6 text-zinc-300" />
             Creador de Flujos IA
           </h1>
           <p className="mt-1 text-sm text-slate-400">Configura disparadores, condiciones, variables, acciones y aprobaciones para tus agentes.</p>
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
-          <button onClick={addWorkflow} className="flex h-10 items-center gap-2 rounded-lg border border-cyan-400/40 bg-cyan-500/15 px-4 text-sm font-semibold text-cyan-100 transition-colors hover:bg-cyan-500/25">
+          <button onClick={addWorkflow} className="flex h-10 items-center gap-2 rounded-lg border border-zinc-400/40 bg-zinc-500/15 px-4 text-sm font-semibold text-zinc-100 transition-colors hover:bg-zinc-500/25">
             <Plus className="h-4 w-4" />
             Crear flujo
           </button>
-          <button className="flex h-10 items-center gap-2 rounded-lg bg-cyan-500 px-4 text-sm font-semibold text-slate-950 transition-colors hover:bg-cyan-400">
+          <button className="flex h-10 items-center gap-2 rounded-lg bg-zinc-500 px-4 text-sm font-semibold text-slate-950 transition-colors hover:bg-zinc-400">
             <Save className="h-4 w-4" />
             Guardar
           </button>
         </div>
       </div>
 
-      <div className="glass-panel rounded-lg border border-cyan-500/20 bg-cyan-500/5 p-4">
+      <div className="glass-panel rounded-lg border border-zinc-500/20 bg-zinc-500/5 p-4">
         <div className="grid gap-3 xl:grid-cols-[minmax(0,1fr)_220px]">
           <div>
             <div className="mb-2 flex items-center gap-2">
-              <Sparkles className="h-4 w-4 text-cyan-300" />
-              <h2 className="text-sm font-bold uppercase tracking-[0.18em] text-cyan-100">Generador automatico por prompt</h2>
+              <Sparkles className="h-4 w-4 text-zinc-300" />
+              <h2 className="text-sm font-bold uppercase tracking-[0.18em] text-zinc-100">Generador automatico por prompt</h2>
             </div>
             <textarea
               value={flowPrompt}
               onChange={(event) => setFlowPrompt(event.target.value)}
               placeholder="Ej: Crea un flujo para Facebook Leads que califique candidatos, los separe por score, pida datos faltantes, agende entrevista en Google Calendar, mande seguimiento si no responden y escale excepciones legales o salariales."
-              className="min-h-[104px] w-full resize-none rounded-lg border border-slate-700 bg-slate-950/60 px-4 py-3 text-sm leading-6 text-slate-100 outline-none transition-colors placeholder:text-slate-500 focus:border-cyan-400/60"
+              className="min-h-[104px] w-full resize-none rounded-lg border border-slate-700 bg-slate-950/60 px-4 py-3 text-sm leading-6 text-slate-100 outline-none transition-colors placeholder:text-slate-500 focus:border-zinc-400/60"
             />
             {generatedNotice && (
-              <p className="mt-2 text-xs font-semibold text-emerald-300">{generatedNotice}</p>
+              <p className="mt-2 text-xs font-semibold text-zinc-300">{generatedNotice}</p>
             )}
           </div>
           <div className="flex flex-col justify-between gap-3 rounded-lg border border-white/5 bg-slate-950/40 p-3">
             <div className="space-y-2 text-xs text-slate-400">
               <p className="font-semibold text-white">Crea automaticamente:</p>
               <p>Disparadores, ramas, reglas, embudo, variables, pasos, aprobaciones, webhooks y payload de prueba.</p>
-              <p className="text-cyan-200">{HDRS_PHASES.length} fases HDRS y {HDRS_KPIS.length} KPIs listos para medir.</p>
+              <p className="text-zinc-200">{HDRS_PHASES.length} fases HDRS y {HDRS_KPIS.length} KPIs listos para medir.</p>
             </div>
             <button
               onClick={generateWorkflowFromPrompt}
               disabled={!flowPrompt.trim()}
-              className="flex h-11 items-center justify-center gap-2 rounded-lg bg-cyan-500 px-4 text-sm font-bold text-slate-950 transition-colors hover:bg-cyan-400 disabled:cursor-not-allowed disabled:opacity-50"
+              className="flex h-11 items-center justify-center gap-2 rounded-lg bg-zinc-500 px-4 text-sm font-bold text-slate-950 transition-colors hover:bg-zinc-400 disabled:cursor-not-allowed disabled:opacity-50"
             >
               <Sparkles className="h-4 w-4" />
               Crear flujo con IA
@@ -778,8 +778,8 @@ export function AIWorkflows() {
       </div>
 
       <div className="grid gap-3 xl:grid-cols-4">
-        <div className="glass-panel rounded-lg border border-emerald-500/20 bg-emerald-500/5 p-4 xl:col-span-2">
-          <div className="flex items-center gap-2 text-sm font-bold uppercase tracking-[0.18em] text-emerald-200">
+        <div className="glass-panel rounded-lg border border-zinc-500/20 bg-zinc-500/5 p-4 xl:col-span-2">
+          <div className="flex items-center gap-2 text-sm font-bold uppercase tracking-[0.18em] text-zinc-200">
             <ShieldCheck className="h-4 w-4" />
             Modelo HDRS
           </div>
@@ -788,27 +788,27 @@ export function AIWorkflows() {
           </p>
           <div className="mt-3 grid gap-2 sm:grid-cols-2">
             {HDRS_GOALS.slice(0, 4).map((goal) => (
-              <div key={goal} className="rounded-lg border border-emerald-400/15 bg-slate-950/35 px-3 py-2 text-xs leading-5 text-slate-300">
+              <div key={goal} className="rounded-lg border border-zinc-400/15 bg-slate-950/35 px-3 py-2 text-xs leading-5 text-slate-300">
                 {goal}
               </div>
             ))}
           </div>
         </div>
 
-        <div className="glass-panel rounded-lg border border-cyan-500/20 bg-slate-950/25 p-4">
-          <div className="text-xs font-bold uppercase tracking-[0.18em] text-cyan-200">Scoring IA</div>
+        <div className="glass-panel rounded-lg border border-zinc-500/20 bg-slate-950/25 p-4">
+          <div className="text-xs font-bold uppercase tracking-[0.18em] text-zinc-200">Scoring IA</div>
           <div className="mt-3 space-y-2">
             {HDRS_SCORING_RULES.map((rule) => (
               <div key={rule.id} className="flex items-center justify-between gap-3 rounded-lg border border-slate-700/60 bg-slate-950/35 px-3 py-2 text-xs">
                 <span className="text-slate-300">{rule.label}</span>
-                <span className="font-mono font-bold text-cyan-200">{rule.maxPoints}</span>
+                <span className="font-mono font-bold text-zinc-200">{rule.maxPoints}</span>
               </div>
             ))}
           </div>
         </div>
 
-        <div className="glass-panel rounded-lg border border-purple-500/20 bg-slate-950/25 p-4">
-          <div className="text-xs font-bold uppercase tracking-[0.18em] text-purple-200">Talent pool</div>
+        <div className="glass-panel rounded-lg border border-zinc-500/20 bg-slate-950/25 p-4">
+          <div className="text-xs font-bold uppercase tracking-[0.18em] text-zinc-200">Talent pool</div>
           <div className="mt-3 space-y-2">
             {HDRS_TALENT_POOL.map((pool) => (
               <div key={pool.category} className="rounded-lg border border-slate-700/60 bg-slate-950/35 px-3 py-2">
@@ -824,7 +824,7 @@ export function AIWorkflows() {
         <aside className="glass-panel flex min-h-[260px] flex-col overflow-hidden rounded-lg border border-slate-700/60">
           <div className="flex items-center justify-between border-b border-white/5 px-4 py-3">
             <span className="text-xs font-bold uppercase tracking-[0.18em] text-slate-400">Flujos</span>
-            <span className="rounded-md border border-emerald-400/30 bg-emerald-500/10 px-2 py-1 text-[10px] font-bold text-emerald-300">
+            <span className="rounded-md border border-zinc-400/30 bg-zinc-500/10 px-2 py-1 text-[10px] font-bold text-zinc-300">
               {workflows.filter((workflow) => workflow.status === "Activo").length} activos
             </span>
           </div>
@@ -836,15 +836,15 @@ export function AIWorkflows() {
                   setActiveWorkflowId(workflow.id);
                   setActiveStepId(workflow.steps[0]?.id || "");
                 }}
-                className={cn("w-full rounded-lg border p-3 text-left transition-colors", workflow.id === activeWorkflow.id ? "border-cyan-400/50 bg-cyan-500/10" : "border-slate-700/60 bg-slate-950/30 hover:border-slate-500/80")}
+                className={cn("w-full rounded-lg border p-3 text-left transition-colors", workflow.id === activeWorkflow.id ? "border-zinc-400/50 bg-zinc-500/10" : "border-slate-700/60 bg-slate-950/30 hover:border-slate-500/80")}
               >
                 <div className="flex items-start justify-between gap-2">
                   <h3 className="text-sm font-semibold text-white">{workflow.name}</h3>
-                  <span className={cn("rounded px-2 py-0.5 text-[10px] font-bold", workflow.status === "Activo" ? "bg-emerald-500/10 text-emerald-300" : workflow.status === "Pausado" ? "bg-amber-500/10 text-amber-300" : "bg-slate-800 text-slate-400")}>{workflow.status}</span>
+                  <span className={cn("rounded px-2 py-0.5 text-[10px] font-bold", workflow.status === "Activo" ? "bg-zinc-500/10 text-zinc-300" : workflow.status === "Pausado" ? "bg-zinc-500/10 text-zinc-300" : "bg-slate-800 text-slate-400")}>{workflow.status}</span>
                 </div>
                 <p className="mt-2 text-xs text-slate-400">{workflow.trigger.event}</p>
                 <div className="mt-3 flex flex-wrap items-center gap-2 text-[11px] text-slate-500">
-                  <Braces className="h-3.5 w-3.5 text-cyan-300" /> {workflow.variables.length} vars
+                  <Braces className="h-3.5 w-3.5 text-zinc-300" /> {workflow.variables.length} vars
                   <span className="h-1 w-1 rounded-full bg-slate-600" /> {workflow.conditions.length} reglas
                   <span className="h-1 w-1 rounded-full bg-slate-600" /> {workflow.steps.length} pasos
                 </div>
@@ -863,7 +863,7 @@ export function AIWorkflows() {
 
             <div className="mt-4 grid gap-3 xl:grid-cols-[160px_minmax(220px,320px)] 2xl:grid-cols-[160px_260px_minmax(0,1fr)]">
               <label className="flex h-10 items-center gap-3 rounded-lg border border-slate-700 bg-slate-950/40 px-3">
-                <input type="checkbox" checked={activeWorkflow.autonomous} onChange={(event) => updateActiveWorkflow({ autonomous: event.target.checked })} className="h-4 w-4 rounded border-slate-600 bg-slate-900 text-cyan-500 focus:ring-cyan-500" />
+                <input type="checkbox" checked={activeWorkflow.autonomous} onChange={(event) => updateActiveWorkflow({ autonomous: event.target.checked })} className="h-4 w-4 rounded border-slate-600 bg-slate-900 text-zinc-500 focus:ring-zinc-500" />
                 <span className="text-sm text-slate-200">Autónomo</span>
               </label>
               <Select compact label="Aprobación" value={activeWorkflow.approvalMode} options={["Sin aprobación", "Aprobar antes de enviar", "Solo escalar excepciones"]} onChange={(value) => updateActiveWorkflow({ approvalMode: value as ApprovalMode })} />
@@ -876,7 +876,7 @@ export function AIWorkflows() {
                   { id: "library", label: "Biblioteca RH", icon: BookOpen },
                   { id: "preview", label: "Prueba", icon: PlayCircle }
                 ].map((tab) => (
-                  <button key={tab.id} onClick={() => setActiveTab(tab.id as typeof activeTab)} className={cn("flex h-8 shrink-0 items-center gap-2 rounded-md px-3 text-xs font-semibold transition-colors", activeTab === tab.id ? "bg-cyan-500/15 text-cyan-200" : "text-slate-400 hover:text-white")}>
+                  <button key={tab.id} onClick={() => setActiveTab(tab.id as typeof activeTab)} className={cn("flex h-8 shrink-0 items-center gap-2 rounded-md px-3 text-xs font-semibold transition-colors", activeTab === tab.id ? "bg-zinc-500/15 text-zinc-200" : "text-slate-400 hover:text-white")}>
                     <tab.icon className="h-3.5 w-3.5" />
                     {tab.label}
                   </button>
@@ -893,8 +893,8 @@ export function AIWorkflows() {
                 <Field label="Frecuencia / cron" value={activeWorkflow.trigger.schedule} onChange={(value) => updateTrigger({ schedule: value })} placeholder="Inmediato, diario 09:00, cada 2 horas..." />
                 <Field label="Ventana de ejecución" value={activeWorkflow.trigger.runWindow} onChange={(value) => updateTrigger({ runWindow: value })} placeholder="Lunes a viernes 08:00-20:00" />
                 <Field label="Esperar antes de correr (min)" value={String(activeWorkflow.trigger.debounceMinutes)} onChange={(value) => updateTrigger({ debounceMinutes: Number(value) || 0 })} />
-                <div className="rounded-lg border border-cyan-500/20 bg-cyan-500/5 p-4 text-sm text-slate-300">
-                  <h3 className="mb-2 font-semibold text-cyan-200">Cómo se activará</h3>
+                <div className="rounded-lg border border-zinc-500/20 bg-zinc-500/5 p-4 text-sm text-slate-300">
+                  <h3 className="mb-2 font-semibold text-zinc-200">Cómo se activará</h3>
                   Cuando ocurra <b>{activeWorkflow.trigger.event}</b> desde <b>{activeWorkflow.trigger.source}</b>, el flujo esperará <b>{activeWorkflow.trigger.debounceMinutes} min</b> y correrá dentro de <b>{activeWorkflow.trigger.runWindow}</b>.
                 </div>
               </div>
@@ -908,7 +908,7 @@ export function AIWorkflows() {
                     <Select label="Operador" value={condition.operator} options={["contiene", "igual a", "mayor que", "menor que", "existe", "no existe"]} onChange={(value) => updateCondition(condition.id, { operator: value as ConditionOperator })} />
                     <Field label="Valor" value={condition.value} onChange={(value) => updateCondition(condition.id, { value })} placeholder="Valor esperado, opcional si existe/no existe" />
                     <Select label="Si falla" value={condition.actionOnFail} options={["detener", "escalar", "continuar"]} onChange={(value) => updateCondition(condition.id, { actionOnFail: value as WorkflowCondition["actionOnFail"] })} />
-                    <button onClick={() => updateActiveWorkflow({ conditions: activeWorkflow.conditions.filter((item) => item.id !== condition.id) })} className="mt-6 flex h-10 w-10 items-center justify-center rounded-lg border border-slate-700 text-slate-500 hover:border-rose-400/40 hover:text-rose-300">
+                    <button onClick={() => updateActiveWorkflow({ conditions: activeWorkflow.conditions.filter((item) => item.id !== condition.id) })} className="mt-6 flex h-10 w-10 items-center justify-center rounded-lg border border-slate-700 text-slate-500 hover:border-zinc-400/40 hover:text-zinc-300">
                       <Trash2 className="h-4 w-4" />
                     </button>
                   </div>
@@ -923,7 +923,7 @@ export function AIWorkflows() {
                   const meta = STEP_META[step.type];
                   const Icon = meta.icon;
                   return (
-                    <div key={step.id} className={cn("rounded-lg border bg-slate-950/30 p-4", step.id === activeStepId ? "border-cyan-400/50" : "border-slate-700/60")}>
+                    <div key={step.id} className={cn("rounded-lg border bg-slate-950/30 p-4", step.id === activeStepId ? "border-zinc-400/50" : "border-slate-700/60")}>
                       <div className="flex flex-col gap-3 2xl:flex-row 2xl:items-start">
                         <button onClick={() => setActiveStepId(step.id)} className={cn("flex h-10 w-10 items-center justify-center rounded-lg border", meta.color)} title={meta.label}>
                           <Icon className="h-5 w-5" />
@@ -934,22 +934,22 @@ export function AIWorkflows() {
                           <Select label="Agente" value={step.agent} options={AGENTS} onFocus={() => setActiveStepId(step.id)} onChange={(value) => updateStep(step.id, { agent: value })} />
                           <Select label="Canal" value={step.channel} options={["Sistema", ...CHANNELS]} onFocus={() => setActiveStepId(step.id)} onChange={(value) => updateStep(step.id, { channel: value })} />
                         </div>
-                        <button onClick={() => removeStep(step.id)} disabled={activeWorkflow.steps.length === 1} className="flex h-10 w-10 items-center justify-center rounded-lg border border-slate-700 text-slate-500 hover:border-rose-400/40 hover:text-rose-300 disabled:cursor-not-allowed disabled:opacity-40">
+                        <button onClick={() => removeStep(step.id)} disabled={activeWorkflow.steps.length === 1} className="flex h-10 w-10 items-center justify-center rounded-lg border border-slate-700 text-slate-500 hover:border-zinc-400/40 hover:text-zinc-300 disabled:cursor-not-allowed disabled:opacity-40">
                           <Trash2 className="h-4 w-4" />
                         </button>
                       </div>
                       <div className="mt-3 grid gap-3 2xl:grid-cols-[minmax(0,1fr)_170px_180px]">
-                        <textarea value={step.instruction} onFocus={() => setActiveStepId(step.id)} onChange={(event) => updateStep(step.id, { instruction: event.target.value })} className="min-h-[112px] resize-none rounded-lg border border-slate-700 bg-slate-950/60 px-3 py-3 font-mono text-sm leading-6 text-slate-100 outline-none focus:border-cyan-400" />
+                        <textarea value={step.instruction} onFocus={() => setActiveStepId(step.id)} onChange={(event) => updateStep(step.id, { instruction: event.target.value })} className="min-h-[112px] resize-none rounded-lg border border-slate-700 bg-slate-950/60 px-3 py-3 font-mono text-sm leading-6 text-slate-100 outline-none focus:border-zinc-400" />
                         <div className="grid gap-3 sm:grid-cols-2 2xl:block 2xl:space-y-3">
                           <Field label="Salida" value={step.output} onFocus={() => setActiveStepId(step.id)} onChange={(value) => updateStep(step.id, { output: value.toLowerCase().replace(/[^a-z0-9_]/g, "") })} />
                           <Field label="Espera min" value={String(step.waitMinutes)} onFocus={() => setActiveStepId(step.id)} onChange={(value) => updateStep(step.id, { waitMinutes: Number(value) || 0 })} />
                         </div>
                         <div className="grid gap-3 sm:grid-cols-[190px_minmax(0,1fr)] 2xl:block 2xl:space-y-3">
                           <label className="flex h-10 items-center gap-3 rounded-lg border border-slate-700 bg-slate-950/40 px-3 2xl:mt-6">
-                            <input type="checkbox" checked={step.requiresApproval} onChange={(event) => updateStep(step.id, { requiresApproval: event.target.checked })} className="h-4 w-4 rounded border-slate-600 bg-slate-900 text-cyan-500 focus:ring-cyan-500" />
+                            <input type="checkbox" checked={step.requiresApproval} onChange={(event) => updateStep(step.id, { requiresApproval: event.target.checked })} className="h-4 w-4 rounded border-slate-600 bg-slate-900 text-zinc-500 focus:ring-zinc-500" />
                             <span className="text-xs text-slate-200">Requiere aprobación</span>
                           </label>
-                          <textarea value={step.successCriteria} onFocus={() => setActiveStepId(step.id)} onChange={(event) => updateStep(step.id, { successCriteria: event.target.value })} className="min-h-[58px] resize-none rounded-lg border border-slate-700 bg-slate-950/60 px-3 py-2 text-xs text-slate-100 outline-none focus:border-cyan-400" />
+                          <textarea value={step.successCriteria} onFocus={() => setActiveStepId(step.id)} onChange={(event) => updateStep(step.id, { successCriteria: event.target.value })} className="min-h-[58px] resize-none rounded-lg border border-slate-700 bg-slate-950/60 px-3 py-2 text-xs text-slate-100 outline-none focus:border-zinc-400" />
                         </div>
                       </div>
                     </div>
@@ -957,7 +957,7 @@ export function AIWorkflows() {
                 })}
                 <div className="grid grid-cols-2 gap-2 md:grid-cols-4">
                   {(["ai", "condition", "message", "calendar", "task", "webhook", "handoff"] as StepType[]).map((type) => (
-                    <button key={type} onClick={() => { const step = createStep(type); updateActiveWorkflow({ steps: [...activeWorkflow.steps, step] }); setActiveStepId(step.id); }} className="flex h-11 items-center justify-center gap-2 rounded-lg border border-dashed border-cyan-400/40 bg-cyan-500/5 text-xs font-semibold text-cyan-200 hover:bg-cyan-500/10">
+                    <button key={type} onClick={() => { const step = createStep(type); updateActiveWorkflow({ steps: [...activeWorkflow.steps, step] }); setActiveStepId(step.id); }} className="flex h-11 items-center justify-center gap-2 rounded-lg border border-dashed border-zinc-400/40 bg-zinc-500/5 text-xs font-semibold text-zinc-200 hover:bg-zinc-500/10">
                       <Plus className="h-4 w-4" />
                       {STEP_META[type].label}
                     </button>
@@ -976,12 +976,12 @@ export function AIWorkflows() {
                       <Select label="Fuente" value={variable.source} options={VARIABLE_SOURCES} onChange={(value) => updateVariable(variable.id, { source: value as VariableSource })} />
                       <label className="space-y-1">
                         <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">Obligatoria</span>
-                        <button onClick={() => updateVariable(variable.id, { required: !variable.required })} className={cn("flex h-10 w-full items-center justify-center gap-2 rounded-lg border text-xs font-bold", variable.required ? "border-emerald-400/40 bg-emerald-500/10 text-emerald-300" : "border-slate-700 bg-slate-950/60 text-slate-400")}>
+                        <button onClick={() => updateVariable(variable.id, { required: !variable.required })} className={cn("flex h-10 w-full items-center justify-center gap-2 rounded-lg border text-xs font-bold", variable.required ? "border-zinc-400/40 bg-zinc-500/10 text-zinc-300" : "border-slate-700 bg-slate-950/60 text-slate-400")}>
                           {variable.required && <Check className="h-3.5 w-3.5" />}
                           {variable.required ? "Sí" : "No"}
                         </button>
                       </label>
-                      <button onClick={() => updateActiveWorkflow({ variables: activeWorkflow.variables.filter((item) => item.id !== variable.id) })} className="mt-6 flex h-10 w-10 items-center justify-center rounded-lg border border-slate-700 text-slate-500 hover:border-rose-400/40 hover:text-rose-300">
+                      <button onClick={() => updateActiveWorkflow({ variables: activeWorkflow.variables.filter((item) => item.id !== variable.id) })} className="mt-6 flex h-10 w-10 items-center justify-center rounded-lg border border-slate-700 text-slate-500 hover:border-zinc-400/40 hover:text-zinc-300">
                         <Trash2 className="h-4 w-4" />
                       </button>
                     </div>
@@ -998,17 +998,17 @@ export function AIWorkflows() {
 
             {activeTab === "library" && (
               <div className="space-y-4">
-                <div className="rounded-lg border border-cyan-500/20 bg-cyan-500/5 p-4">
+                <div className="rounded-lg border border-zinc-500/20 bg-zinc-500/5 p-4">
                   <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                     <div>
-                      <div className="flex items-center gap-2 text-sm font-semibold text-cyan-100">
-                        <BookOpen className="h-4 w-4 text-cyan-300" />
+                      <div className="flex items-center gap-2 text-sm font-semibold text-zinc-100">
+                        <BookOpen className="h-4 w-4 text-zinc-300" />
                         Biblioteca RH para agentes
                       </div>
                       <p className="mt-2 text-sm leading-6 text-slate-300">{RH_PROMPT_LIBRARY_META.usage}</p>
                       <p className="mt-1 text-xs text-slate-500">Fuente cargada: {RH_PROMPT_LIBRARY_META.source}.</p>
                     </div>
-                    <span className="rounded-lg border border-cyan-400/30 bg-slate-950/60 px-3 py-2 text-xs font-bold text-cyan-200">
+                    <span className="rounded-lg border border-zinc-400/30 bg-slate-950/60 px-3 py-2 text-xs font-bold text-zinc-200">
                       {RH_PROMPT_LIBRARY.length} plantillas
                     </span>
                   </div>
@@ -1017,7 +1017,7 @@ export function AIWorkflows() {
                 <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_260px]">
                   <label className="space-y-1">
                     <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">Buscar prompt</span>
-                    <div className="flex h-10 items-center gap-2 rounded-lg border border-slate-700 bg-slate-950/60 px-3 focus-within:border-cyan-400">
+                    <div className="flex h-10 items-center gap-2 rounded-lg border border-slate-700 bg-slate-950/60 px-3 focus-within:border-zinc-400">
                       <Search className="h-4 w-4 text-slate-500" />
                       <input
                         value={promptSearch}
@@ -1037,13 +1037,13 @@ export function AIWorkflows() {
                         <div className="min-w-0">
                           <div className="flex flex-wrap items-center gap-2">
                             <h3 className="text-sm font-semibold text-white">{template.title}</h3>
-                            <span className="rounded-md border border-cyan-400/20 bg-cyan-500/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-cyan-200">
+                            <span className="rounded-md border border-zinc-400/20 bg-zinc-500/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-zinc-200">
                               {template.category}
                             </span>
                           </div>
                           <p className="mt-1 text-xs text-slate-400">{template.useCase}</p>
                         </div>
-                        <button onClick={() => applyPromptToStep(template)} className="flex h-9 shrink-0 items-center justify-center gap-2 rounded-lg bg-cyan-500 px-3 text-xs font-bold text-slate-950 hover:bg-cyan-400">
+                        <button onClick={() => applyPromptToStep(template)} className="flex h-9 shrink-0 items-center justify-center gap-2 rounded-lg bg-zinc-500 px-3 text-xs font-bold text-slate-950 hover:bg-zinc-400">
                           <MousePointerClick className="h-3.5 w-3.5" />
                           Usar en paso activo
                         </button>
@@ -1051,7 +1051,7 @@ export function AIWorkflows() {
                       <p className="mt-3 rounded-lg border border-slate-700/60 bg-black/20 p-3 font-mono text-xs leading-5 text-slate-300">{template.prompt}</p>
                       <div className="mt-3 flex flex-wrap gap-2">
                         {template.variables.map((variable) => (
-                          <button key={variable} onClick={() => insertVariableIntoStep(variable)} className="rounded-md border border-slate-700 bg-slate-950/60 px-2 py-1 font-mono text-[11px] text-cyan-200 hover:border-cyan-400/40">
+                          <button key={variable} onClick={() => insertVariableIntoStep(variable)} className="rounded-md border border-slate-700 bg-slate-950/60 px-2 py-1 font-mono text-[11px] text-zinc-200 hover:border-zinc-400/40">
                             {"{{"}{variable}{"}}"}
                           </button>
                         ))}
@@ -1076,7 +1076,7 @@ export function AIWorkflows() {
                     <button
                       onClick={startWorkflowRun}
                       disabled={isStartingWorkflow}
-                      className="flex h-8 items-center gap-2 rounded-lg bg-emerald-500 px-3 text-xs font-bold text-slate-950 hover:bg-emerald-400 disabled:cursor-wait disabled:opacity-70"
+                      className="flex h-8 items-center gap-2 rounded-lg bg-zinc-500 px-3 text-xs font-bold text-slate-950 hover:bg-zinc-400 disabled:cursor-wait disabled:opacity-70"
                     >
                       {isStartingWorkflow ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <PlayCircle className="h-3.5 w-3.5" />}
                       {isStartingWorkflow ? "Iniciando" : "Ejecutar flujo"}
@@ -1085,17 +1085,17 @@ export function AIWorkflows() {
                 >
                   <pre className="max-h-[260px] overflow-auto whitespace-pre-wrap rounded-lg bg-black/30 p-4 text-sm leading-6 text-slate-200 styled-scrollbar">{renderedInstruction}</pre>
                   {workflowRun && (
-                    <div className="mt-3 rounded-lg border border-emerald-400/30 bg-emerald-500/10 p-3 text-sm text-emerald-100">
-                      Flujo iniciado. Run ID: <span className="font-mono text-emerald-200">{workflowRun.runId}</span>
+                    <div className="mt-3 rounded-lg border border-zinc-400/30 bg-zinc-500/10 p-3 text-sm text-zinc-100">
+                      Flujo iniciado. Run ID: <span className="font-mono text-zinc-200">{workflowRun.runId}</span>
                     </div>
                   )}
                   {workflowRunError && (
-                    <div className="mt-3 rounded-lg border border-rose-400/30 bg-rose-500/10 p-3 text-sm text-rose-100">
+                    <div className="mt-3 rounded-lg border border-zinc-400/30 bg-zinc-500/10 p-3 text-sm text-zinc-100">
                       {workflowRunError}
                     </div>
                   )}
                 </Panel>
-                <Panel title="Payload completo del flujo" icon={Database} action={<button onClick={copyPayload} className="flex h-8 items-center gap-2 rounded-lg border border-slate-700 px-3 text-xs font-semibold text-slate-300 hover:border-cyan-400/50 hover:text-cyan-200">{copied ? <Check className="h-3.5 w-3.5 text-emerald-300" /> : <Copy className="h-3.5 w-3.5" />}{copied ? "Copiado" : "Copiar"}</button>}>
+                <Panel title="Payload completo del flujo" icon={Database} action={<button onClick={copyPayload} className="flex h-8 items-center gap-2 rounded-lg border border-slate-700 px-3 text-xs font-semibold text-slate-300 hover:border-zinc-400/50 hover:text-zinc-200">{copied ? <Check className="h-3.5 w-3.5 text-zinc-300" /> : <Copy className="h-3.5 w-3.5" />}{copied ? "Copiado" : "Copiar"}</button>}>
                   <pre className="max-h-[360px] overflow-auto rounded-lg bg-black/30 p-4 text-xs leading-5 text-slate-300 styled-scrollbar">{JSON.stringify(executionPayload, null, 2)}</pre>
                 </Panel>
               </div>
@@ -1105,14 +1105,14 @@ export function AIWorkflows() {
 
         <aside className="glass-panel flex min-h-[360px] flex-col overflow-hidden rounded-lg border border-slate-700/60 xl:col-span-2 2xl:col-span-1">
           <div className="border-b border-white/5 px-4 py-3">
-            <div className="flex items-center gap-2 text-sm font-semibold text-white"><Braces className="h-4 w-4 text-cyan-300" /> Variables disponibles</div>
+            <div className="flex items-center gap-2 text-sm font-semibold text-white"><Braces className="h-4 w-4 text-zinc-300" /> Variables disponibles</div>
           </div>
           <div className="flex-1 overflow-y-auto p-4 styled-scrollbar">
             <div className="grid gap-2">
               {activeWorkflow.variables.map((variable) => (
-                <button key={variable.id} onClick={() => insertVariableIntoStep(variable.key)} className="flex items-center justify-between gap-3 rounded-lg border border-slate-700/70 bg-slate-950/40 px-3 py-2 text-left hover:border-cyan-400/40 hover:bg-cyan-500/5">
+                <button key={variable.id} onClick={() => insertVariableIntoStep(variable.key)} className="flex items-center justify-between gap-3 rounded-lg border border-slate-700/70 bg-slate-950/40 px-3 py-2 text-left hover:border-zinc-400/40 hover:bg-zinc-500/5">
                   <span className="min-w-0">
-                    <span className="block truncate font-mono text-xs text-cyan-200">{"{{"}{variable.key}{"}}"}</span>
+                    <span className="block truncate font-mono text-xs text-zinc-200">{"{{"}{variable.key}{"}}"}</span>
                     <span className="mt-0.5 block truncate text-[11px] text-slate-500">{variable.source} • {variable.type} • {variable.required ? "req" : "opc"}</span>
                   </span>
                   <MousePointerClick className="h-4 w-4 shrink-0 text-slate-500" />
@@ -1137,9 +1137,9 @@ function Field({ label, value, onChange, onFocus, placeholder, mono, prefix, suf
   return (
     <label className={cn("min-w-0 space-y-1", className)}>
       <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">{label}</span>
-      <div className="flex h-10 rounded-lg border border-slate-700 bg-slate-950/60 focus-within:border-cyan-400">
+      <div className="flex h-10 rounded-lg border border-slate-700 bg-slate-950/60 focus-within:border-zinc-400">
         {prefix && <span className="flex items-center px-3 font-mono text-xs text-slate-500">{prefix}</span>}
-        <input value={value} onFocus={onFocus} onChange={(event) => onChange(event.target.value)} placeholder={placeholder} className={cn("min-w-0 flex-1 bg-transparent px-3 text-sm text-white outline-none", mono && "font-mono text-cyan-200", prefix && "pl-0", suffix && "pr-0")} />
+        <input value={value} onFocus={onFocus} onChange={(event) => onChange(event.target.value)} placeholder={placeholder} className={cn("min-w-0 flex-1 bg-transparent px-3 text-sm text-white outline-none", mono && "font-mono text-zinc-200", prefix && "pl-0", suffix && "pr-0")} />
         {suffix && <span className="flex items-center px-3 font-mono text-xs text-slate-500">{suffix}</span>}
       </div>
     </label>
@@ -1150,7 +1150,7 @@ function Select({ label, value, options, onChange, onFocus, compact }: { label: 
   return (
     <label className={cn("space-y-1", compact && "min-w-[220px]")}>
       <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">{label}</span>
-      <select value={value} onFocus={onFocus} onChange={(event) => onChange(event.target.value)} className="h-10 w-full rounded-lg border border-slate-700 bg-slate-950/60 px-3 text-sm text-white outline-none focus:border-cyan-400">
+      <select value={value} onFocus={onFocus} onChange={(event) => onChange(event.target.value)} className="h-10 w-full rounded-lg border border-slate-700 bg-slate-950/60 px-3 text-sm text-white outline-none focus:border-zinc-400">
         {options.map((option) => <option key={option} value={option}>{option}</option>)}
       </select>
     </label>
@@ -1159,7 +1159,7 @@ function Select({ label, value, options, onChange, onFocus, compact }: { label: 
 
 function AddButton({ label, onClick }: { label: string; onClick: () => void }) {
   return (
-    <button onClick={onClick} className="flex h-11 w-full items-center justify-center gap-2 rounded-lg border border-dashed border-cyan-400/40 bg-cyan-500/5 text-sm font-semibold text-cyan-200 hover:bg-cyan-500/10">
+    <button onClick={onClick} className="flex h-11 w-full items-center justify-center gap-2 rounded-lg border border-dashed border-zinc-400/40 bg-zinc-500/5 text-sm font-semibold text-zinc-200 hover:bg-zinc-500/10">
       <Plus className="h-4 w-4" />
       {label}
     </button>
@@ -1170,7 +1170,7 @@ function Panel({ title, icon: Icon, children, action }: { title: string; icon: t
   return (
     <div className="rounded-lg border border-slate-700/60 bg-slate-950/40 p-4">
       <div className="mb-3 flex items-center justify-between gap-3">
-        <div className="flex items-center gap-2 text-sm font-semibold text-white"><Icon className="h-4 w-4 text-cyan-300" />{title}</div>
+        <div className="flex items-center gap-2 text-sm font-semibold text-white"><Icon className="h-4 w-4 text-zinc-300" />{title}</div>
         {action}
       </div>
       {children}
@@ -1181,7 +1181,7 @@ function Panel({ title, icon: Icon, children, action }: { title: string; icon: t
 function Metric({ icon: Icon, label, value }: { icon: typeof Bot; label: string; value: number }) {
   return (
     <div className="rounded-lg border border-slate-700/60 bg-slate-950/40 p-3">
-      <Icon className="mx-auto h-4 w-4 text-cyan-300" />
+      <Icon className="mx-auto h-4 w-4 text-zinc-300" />
       <div className="mt-2 text-lg font-bold text-white">{value}</div>
       <div className="text-[10px] uppercase tracking-wider text-slate-500">{label}</div>
     </div>

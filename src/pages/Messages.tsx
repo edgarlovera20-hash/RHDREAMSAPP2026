@@ -102,15 +102,15 @@ type UnifiedChat = {
 };
 
 const platformStyles: Record<string, { label: string; color: string }> = {
-  whatsapp: { label: "WhatsApp", color: "bg-emerald-500" },
-  instagram: { label: "Instagram DM", color: "bg-pink-500" },
-  messenger: { label: "Messenger", color: "bg-blue-500" },
-  facebook: { label: "Facebook Leads", color: "bg-blue-600" },
-  tiktok: { label: "TikTok Leads", color: "bg-cyan-500" },
-  indeed: { label: "Indeed", color: "bg-indigo-500" },
-  computrabajo: { label: "Computrabajo", color: "bg-sky-500" },
-  email: { label: "Email", color: "bg-amber-500" },
-  webhook: { label: "Webhook", color: "bg-violet-500" },
+  whatsapp: { label: "WhatsApp", color: "bg-zinc-500" },
+  instagram: { label: "Instagram DM", color: "bg-zinc-500" },
+  messenger: { label: "Messenger", color: "bg-zinc-500" },
+  facebook: { label: "Facebook Leads", color: "bg-zinc-600" },
+  tiktok: { label: "TikTok Leads", color: "bg-zinc-500" },
+  indeed: { label: "Indeed", color: "bg-zinc-500" },
+  computrabajo: { label: "Computrabajo", color: "bg-zinc-500" },
+  email: { label: "Email", color: "bg-zinc-500" },
+  webhook: { label: "Webhook", color: "bg-zinc-500" },
   manual: { label: "Manual", color: "bg-slate-500" },
 };
 
@@ -617,7 +617,7 @@ Personalidad configurada: ${principalAgent?.personalityPrompt || principalAgent?
         <div className="p-4 2xl:p-5 border-b border-white/5 space-y-4 shrink-0">
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-blue-500">
+              <h2 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-zinc-400 to-zinc-500">
                 Bandeja de Entrada
               </h2>
               <p className="text-[11px] text-slate-500 mt-1">Todos los canales en un solo inbox</p>
@@ -626,7 +626,7 @@ Personalidad configurada: ${principalAgent?.personalityPrompt || principalAgent?
               onClick={handlePromptAgentDialogue}
               disabled={!activeChat || isAgentReplying || Boolean(activeChat.emptyChannel)}
               title="Solicitar que la IA asista esta conversacion"
-              className="bg-cyan-500/10 text-cyan-400 hover:bg-cyan-500/20 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors border border-cyan-500/20 flex items-center gap-1.5 disabled:opacity-40"
+              className="bg-zinc-500/10 text-zinc-400 hover:bg-zinc-500/20 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors border border-zinc-500/20 flex items-center gap-1.5 disabled:opacity-40"
             >
               <Bot className="w-3.5 h-3.5" />
               Auto IA
@@ -634,22 +634,22 @@ Personalidad configurada: ${principalAgent?.personalityPrompt || principalAgent?
           </div>
 
           {inboxError && (
-            <div className="rounded-xl border border-amber-500/20 bg-amber-500/10 px-3 py-2 text-[11px] text-amber-100 flex items-start gap-2">
+            <div className="rounded-xl border border-zinc-500/20 bg-zinc-500/10 px-3 py-2 text-[11px] text-zinc-100 flex items-start gap-2">
               <AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
               {inboxError}
             </div>
           )}
 
           <div className="grid grid-cols-3 gap-2.5">
-            <div className="rounded-xl border border-cyan-500/20 bg-cyan-500/10 p-2.5">
+            <div className="rounded-xl border border-zinc-500/20 bg-zinc-500/10 p-2.5">
               <p className="text-[9px] uppercase tracking-widest text-slate-400">Chats</p>
               <p className="text-lg font-bold text-white">{chats.length}</p>
             </div>
-            <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/10 p-2.5">
+            <div className="rounded-xl border border-zinc-500/20 bg-zinc-500/10 p-2.5">
               <p className="text-[9px] uppercase tracking-widest text-slate-400">Mensajes</p>
               <p className="text-lg font-bold text-white">{chats.reduce((sum, chat) => sum + chat.messages.length, 0)}</p>
             </div>
-            <div className="rounded-xl border border-violet-500/20 bg-violet-500/10 p-2.5">
+            <div className="rounded-xl border border-zinc-500/20 bg-zinc-500/10 p-2.5">
               <p className="text-[9px] uppercase tracking-widest text-slate-400">Canales</p>
               <p className="text-lg font-bold text-white">{Object.keys(totalsByChannel).length}</p>
             </div>
@@ -662,7 +662,7 @@ Personalidad configurada: ${principalAgent?.personalityPrompt || principalAgent?
               placeholder="Buscar mensajes, canal o contacto..."
               value={searchFilter}
               onChange={(event) => setSearchFilter(event.target.value)}
-              className="w-full bg-slate-800/50 border border-slate-700 rounded-xl pl-9 pr-4 py-2.5 text-sm text-white focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition-all font-medium"
+              className="w-full bg-slate-800/50 border border-slate-700 rounded-xl pl-9 pr-4 py-2.5 text-sm text-white focus:outline-none focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 transition-all font-medium"
             />
             <Filter className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
           </div>
@@ -675,7 +675,7 @@ Personalidad configurada: ${principalAgent?.personalityPrompt || principalAgent?
                 className={cn(
                   "whitespace-nowrap px-3 py-1 rounded-full text-xs font-semibold transition-all border",
                   selectedPlatform === button.id
-                    ? "bg-cyan-500/20 text-cyan-400 border-cyan-500/30"
+                    ? "bg-zinc-500/20 text-zinc-400 border-zinc-500/30"
                     : "bg-slate-800/50 text-slate-400 border-slate-700/50"
                 )}
               >
@@ -695,7 +695,7 @@ Personalidad configurada: ${principalAgent?.personalityPrompt || principalAgent?
               }}
               className={cn(
                 "p-4 cursor-pointer transition-all border-b border-white/5 hover:bg-white/5 flex gap-3 relative",
-                activeChat?.id === chat.id ? "bg-cyan-500/5 border-l-2 border-l-cyan-500" : "border-l-2 border-l-transparent"
+                activeChat?.id === chat.id ? "bg-zinc-500/5 border-l-2 border-l-zinc-500" : "border-l-2 border-l-transparent"
               )}
             >
               <div className={cn("w-12 h-12 rounded-xl flex items-center justify-center text-white font-bold shrink-0 shadow-lg", chat.avatarColor)}>
@@ -703,13 +703,13 @@ Personalidad configurada: ${principalAgent?.personalityPrompt || principalAgent?
               </div>
               <div className="flex-1 min-w-0 flex flex-col justify-center">
                 <div className="flex justify-between items-baseline mb-1">
-                  <span className={cn("font-semibold truncate text-sm", activeChat?.id === chat.id ? "text-cyan-400" : "text-white")}>
+                  <span className={cn("font-semibold truncate text-sm", activeChat?.id === chat.id ? "text-zinc-400" : "text-white")}>
                     {chat.name}
                   </span>
                   <span className="text-[10px] text-slate-500 shrink-0 ml-2 font-mono">{chat.lastMessageTime}</span>
                 </div>
                 <div className="flex items-center gap-2 mb-1">
-                  <span className="rounded-md border border-cyan-500/20 bg-cyan-500/10 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-cyan-300">
+                  <span className="rounded-md border border-zinc-500/20 bg-zinc-500/10 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-zinc-300">
                     {platformStyles[chat.platform]?.label || chat.sourceLabel}
                   </span>
                   {chat.emptyChannel && <span className="text-[9px] text-slate-500">sin mensajes</span>}
@@ -772,7 +772,7 @@ Personalidad configurada: ${principalAgent?.personalityPrompt || principalAgent?
 
               {activeChat.messages.length === 0 && (
                 <div className="flex h-full min-h-[260px] flex-col items-center justify-center text-center text-slate-500">
-                  <Inbox className="mb-4 h-12 w-12 text-cyan-900" />
+                  <Inbox className="mb-4 h-12 w-12 text-zinc-900" />
                   <p className="text-sm font-semibold text-slate-300">Esperando mensajes de este canal</p>
                   <p className="mt-1 max-w-sm text-xs">Cuando llegue un webhook, WhatsApp, Messenger, Instagram, TikTok, Indeed o Computrabajo, aparecera aqui.</p>
                 </div>
@@ -784,30 +784,30 @@ Personalidad configurada: ${principalAgent?.personalityPrompt || principalAgent?
                     <div
                       className={cn(
                         "p-3 rounded-2xl shadow-sm text-sm relative group",
-                        msg.status === "pending_approval" && "ring-1 ring-amber-400/60",
+                        msg.status === "pending_approval" && "ring-1 ring-zinc-400/60",
                         msg.sender === "me"
-                          ? "bg-cyan-600 text-white rounded-tr-sm shadow-cyan-900/20"
+                          ? "bg-zinc-600 text-white rounded-tr-sm shadow-zinc-900/20"
                           : "bg-slate-800 border border-slate-700 text-slate-200 rounded-tl-sm shadow-black/20"
                       )}
                     >
                       {msg.status === "pending_approval" && (
-                        <div className="mb-2 rounded-xl border border-amber-400/30 bg-amber-400/10 px-3 py-2 text-[11px] text-amber-100">
+                        <div className="mb-2 rounded-xl border border-zinc-400/30 bg-zinc-400/10 px-3 py-2 text-[11px] text-zinc-100">
                           <div className="flex items-center gap-2 font-bold uppercase tracking-wider">
                             <Bot className="h-3.5 w-3.5" />
                             Borrador IA pendiente de aprobación
                           </div>
-                          <p className="mt-1 text-amber-100/80">
+                          <p className="mt-1 text-zinc-100/80">
                             Intención: {msg.intent || "seguimiento"} · confianza: {Math.round((msg.aiConfidence || 0) * 100) || 82}%
                           </p>
                         </div>
                       )}
                       {msg.attachmentType === "audio" && (
-                        <div className="mb-2 rounded-xl border border-cyan-500/20 bg-cyan-500/10 px-3 py-2 text-[11px] text-cyan-100">
+                        <div className="mb-2 rounded-xl border border-zinc-500/20 bg-zinc-500/10 px-3 py-2 text-[11px] text-zinc-100">
                           <div className="flex items-center gap-2 font-bold uppercase tracking-wider">
                             <Paperclip className="h-3.5 w-3.5" />
                             Audio entrante
                           </div>
-                          <p className="mt-1 text-cyan-100/80">{msg.audioFileName || "Nota de voz"}</p>
+                          <p className="mt-1 text-zinc-100/80">{msg.audioFileName || "Nota de voz"}</p>
                         </div>
                       )}
                       {msg.text}
@@ -818,9 +818,9 @@ Personalidad configurada: ${principalAgent?.personalityPrompt || principalAgent?
                         <span className={cn(
                           "rounded-full border px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider",
                           msg.status === "pending_approval"
-                            ? "border-amber-400/30 bg-amber-400/10 text-amber-200"
+                            ? "border-zinc-400/30 bg-zinc-400/10 text-zinc-200"
                             : msg.status === "failed"
-                              ? "border-rose-400/30 bg-rose-400/10 text-rose-200"
+                              ? "border-zinc-400/30 bg-zinc-400/10 text-zinc-200"
                               : "border-slate-600 bg-slate-800 text-slate-400"
                         )}>
                           {msg.status === "pending_approval" ? "requiere aprobación" : msg.status}
@@ -831,14 +831,14 @@ Personalidad configurada: ${principalAgent?.personalityPrompt || principalAgent?
                       <div className="flex justify-end gap-2 px-1 pt-1">
                         <button
                           onClick={() => handleRejectDraft(msg)}
-                          className="inline-flex items-center gap-1 rounded-lg border border-rose-400/30 bg-rose-500/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-rose-200 hover:bg-rose-500/20"
+                          className="inline-flex items-center gap-1 rounded-lg border border-zinc-400/30 bg-zinc-500/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-zinc-200 hover:bg-zinc-500/20"
                         >
                           <XCircle className="h-3.5 w-3.5" />
                           Rechazar
                         </button>
                         <button
                           onClick={() => handleApproveDraft(msg)}
-                          className="inline-flex items-center gap-1 rounded-lg border border-emerald-400/30 bg-emerald-500/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-emerald-200 hover:bg-emerald-500/20"
+                          className="inline-flex items-center gap-1 rounded-lg border border-zinc-400/30 bg-zinc-500/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-zinc-200 hover:bg-zinc-500/20"
                         >
                           <CheckCircle2 className="h-3.5 w-3.5" />
                           Aprobar
@@ -852,13 +852,13 @@ Personalidad configurada: ${principalAgent?.personalityPrompt || principalAgent?
 
             <div className="p-4 bg-slate-900/80 backdrop-blur-md border-t border-white/5 shrink-0 rounded-b-2xl">
               <input ref={audioInputRef} type="file" accept="audio/*" className="hidden" onChange={handleInboundAudioUpload} />
-              <div className="flex items-end gap-2 bg-slate-950/50 p-2 rounded-2xl border border-slate-700/50 focus-within:border-cyan-500/50 focus-within:ring-1 focus-within:ring-cyan-500/30 transition-all shadow-inner">
+              <div className="flex items-end gap-2 bg-slate-950/50 p-2 rounded-2xl border border-slate-700/50 focus-within:border-zinc-500/50 focus-within:ring-1 focus-within:ring-zinc-500/30 transition-all shadow-inner">
                 <button
                   type="button"
                   onClick={() => audioInputRef.current?.click()}
                   disabled={isProcessingAudio || Boolean(activeChat.emptyChannel) || (!activeChat.candidateId && activeChat.platform !== "whatsapp")}
                   title="Subir audio entrante para transcribir"
-                  className="p-2.5 text-slate-400 hover:text-cyan-400 hover:bg-slate-800 rounded-xl transition-all shrink-0 disabled:opacity-50"
+                  className="p-2.5 text-slate-400 hover:text-zinc-400 hover:bg-slate-800 rounded-xl transition-all shrink-0 disabled:opacity-50"
                 >
                   <Paperclip className="w-5 h-5" />
                 </button>
@@ -876,13 +876,13 @@ Personalidad configurada: ${principalAgent?.personalityPrompt || principalAgent?
                     }
                   }}
                 />
-                <button className="p-2.5 text-slate-400 hover:text-cyan-400 hover:bg-slate-800 rounded-xl transition-all shrink-0">
+                <button className="p-2.5 text-slate-400 hover:text-zinc-400 hover:bg-slate-800 rounded-xl transition-all shrink-0">
                   <Smile className="w-5 h-5" />
                 </button>
                 <button
                   onClick={handleSendMessage}
                   disabled={!messageInput.trim() || Boolean(activeChat.emptyChannel) || (!activeChat.candidateId && activeChat.platform !== "whatsapp")}
-                  className="p-2.5 bg-cyan-500 text-slate-900 hover:bg-cyan-600 rounded-xl transition-all font-bold shrink-0 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="p-2.5 bg-zinc-500 text-slate-900 hover:bg-zinc-600 rounded-xl transition-all font-bold shrink-0 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <Send className="w-5 h-5" />
                 </button>
@@ -895,7 +895,7 @@ Personalidad configurada: ${principalAgent?.personalityPrompt || principalAgent?
           </>
         ) : (
           <div className="flex-1 flex flex-col items-center justify-center text-slate-500 text-center">
-            <Inbox className="mb-4 h-14 w-14 text-cyan-900" />
+            <Inbox className="mb-4 h-14 w-14 text-zinc-900" />
             <p className="text-sm font-semibold text-slate-300">Bandeja lista</p>
             <p className="mt-1 max-w-sm text-xs">Aun no hay mensajes recibidos. Los canales conectados, webhooks y conversaciones CRM apareceran aqui.</p>
           </div>
@@ -912,7 +912,7 @@ Personalidad configurada: ${principalAgent?.personalityPrompt || principalAgent?
               <h3 className="font-bold text-white text-base 2xl:text-lg text-center leading-tight">{activeChat.name}</h3>
               <p className="text-sm text-slate-400 text-center mb-4">{activeChat.role || activeChat.sourceLabel}</p>
               <div className="flex gap-2 overflow-x-auto pb-2 styled-scrollbar w-full justify-center">
-                <span className="px-2.5 py-1 bg-cyan-500/10 text-cyan-400 text-xs font-bold uppercase tracking-wider rounded-md border border-cyan-500/20">
+                <span className="px-2.5 py-1 bg-zinc-500/10 text-zinc-400 text-xs font-bold uppercase tracking-wider rounded-md border border-zinc-500/20">
                   {platformStyles[activeChat.platform]?.label || activeChat.platform}
                 </span>
                 {activeChat.stage && (
@@ -921,7 +921,7 @@ Personalidad configurada: ${principalAgent?.personalityPrompt || principalAgent?
                   </span>
                 )}
                 {activeChat.rating && (
-                  <span className="px-2 py-1 bg-amber-500/10 text-amber-500 text-xs font-semibold rounded-md border border-amber-500/20">
+                  <span className="px-2 py-1 bg-zinc-500/10 text-zinc-500 text-xs font-semibold rounded-md border border-zinc-500/20">
                     ★ {activeChat.rating}
                   </span>
                 )}
@@ -934,28 +934,28 @@ Personalidad configurada: ${principalAgent?.personalityPrompt || principalAgent?
                   Detalles de la conversacion
                 </h4>
                 <div className="flex items-start gap-3">
-                  <Briefcase className="w-4 h-4 text-cyan-400 mt-0.5 shrink-0" />
+                  <Briefcase className="w-4 h-4 text-zinc-400 mt-0.5 shrink-0" />
                   <div>
                     <p className="text-xs text-slate-400 mb-0.5">Origen</p>
                     <p className="text-sm text-white font-medium">{activeChat.sourceLabel}</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
-                  <MapPin className="w-4 h-4 text-emerald-400 mt-0.5 shrink-0" />
+                  <MapPin className="w-4 h-4 text-zinc-400 mt-0.5 shrink-0" />
                   <div>
                     <p className="text-xs text-slate-400 mb-0.5">Ubicacion</p>
                     <p className="text-sm text-white font-medium">{activeChat.location || "Sin dato"}</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
-                  <Mail className="w-4 h-4 text-blue-400 mt-0.5 shrink-0" />
+                  <Mail className="w-4 h-4 text-zinc-400 mt-0.5 shrink-0" />
                   <div className="min-w-0">
                     <p className="text-xs text-slate-400 mb-0.5">Contacto</p>
                     <p className="text-xs text-white font-medium truncate">{activeChat.email || activeChat.phone || "Sin dato"}</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
-                  <MessageSquare className="w-4 h-4 text-violet-400 mt-0.5 shrink-0" />
+                  <MessageSquare className="w-4 h-4 text-zinc-400 mt-0.5 shrink-0" />
                   <div>
                     <p className="text-xs text-slate-400 mb-0.5">Mensajes</p>
                     <p className="text-sm text-white font-medium">{activeChat.messages.length}</p>
@@ -963,8 +963,8 @@ Personalidad configurada: ${principalAgent?.personalityPrompt || principalAgent?
                 </div>
               </div>
 
-              <div className="space-y-3 rounded-2xl border border-cyan-500/15 bg-cyan-500/5 p-4">
-                <h4 className="text-[10px] font-bold text-cyan-300 uppercase tracking-widest">
+              <div className="space-y-3 rounded-2xl border border-zinc-500/15 bg-zinc-500/5 p-4">
+                <h4 className="text-[10px] font-bold text-zinc-300 uppercase tracking-widest">
                   Ficha del lead
                 </h4>
                 {[
@@ -994,9 +994,9 @@ Personalidad configurada: ${principalAgent?.personalityPrompt || principalAgent?
               <button
                 onClick={handlePromptAgentDialogue}
                 disabled={!activeChat || isAgentReplying || Boolean(activeChat.emptyChannel)}
-                className="w-full bg-cyan-600/10 hover:bg-cyan-600/30 text-cyan-400 border border-cyan-500/30 font-bold px-4 py-3 rounded-xl text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 disabled:opacity-40"
+                className="w-full bg-zinc-600/10 hover:bg-zinc-600/30 text-zinc-400 border border-zinc-500/30 font-bold px-4 py-3 rounded-xl text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 disabled:opacity-40"
               >
-                <Bot className="w-4 h-4 text-cyan-400" /> {isAgentReplying ? "IA respondiendo..." : "Conversar via IA Agente"}
+                <Bot className="w-4 h-4 text-zinc-400" /> {isAgentReplying ? "IA respondiendo..." : "Conversar via IA Agente"}
               </button>
             </div>
           </>

@@ -19,7 +19,7 @@ const Reports = lazy(() => import("@/pages/Reports").then((module) => ({ default
 const Settings = lazy(() => import("@/pages/Settings").then((module) => ({ default: module.Settings })));
 
 const RouteFallback = () => (
-  <div className="min-h-[50vh] w-full flex items-center justify-center text-sm font-semibold tracking-[0.18em] uppercase text-cyan-300">
+  <div className="min-h-[50vh] w-full flex items-center justify-center text-sm font-semibold tracking-[0.18em] uppercase text-zinc-300">
     Cargando modulo...
   </div>
 );

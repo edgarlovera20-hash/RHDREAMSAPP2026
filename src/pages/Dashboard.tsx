@@ -5,15 +5,15 @@ import { useNotifications } from "@/contexts/NotificationContext";
 import { useDb } from "@/hooks/useDb";
 import { cn } from "@/lib/utils";
 
-const COLORS = ['#6f8f88', '#766a93', '#8a7658', '#6f7f99', '#8b646e'];
+const COLORS = ['#737373', '#858585', '#6b6b6b', '#9ca3af', '#525252'];
 
 const getAlertColors = (type: string) => {
   switch (type) {
-    case 'success': return { bg: 'bg-emerald-500/10', border: 'border-emerald-500/30', text: 'text-emerald-500', icon: CheckCircle2, gradient: 'from-emerald-500/5' };
-    case 'warning': return { bg: 'bg-amber-500/10', border: 'border-amber-500/30', text: 'text-amber-500', icon: AlertTriangle, gradient: 'from-amber-500/5' };
-    case 'error': return { bg: 'bg-rose-500/10', border: 'border-rose-500/30', text: 'text-rose-500', icon: AlertCircle, gradient: 'from-rose-500/5' };
+    case 'success': return { bg: 'bg-zinc-500/10', border: 'border-zinc-500/30', text: 'text-zinc-500', icon: CheckCircle2, gradient: 'from-zinc-500/5' };
+    case 'warning': return { bg: 'bg-zinc-500/10', border: 'border-zinc-500/30', text: 'text-zinc-500', icon: AlertTriangle, gradient: 'from-zinc-500/5' };
+    case 'error': return { bg: 'bg-zinc-500/10', border: 'border-zinc-500/30', text: 'text-zinc-500', icon: AlertCircle, gradient: 'from-zinc-500/5' };
     case 'info':
-    default: return { bg: 'bg-cyan-500/10', border: 'border-cyan-500/30', text: 'text-cyan-500', icon: Info, gradient: 'from-cyan-500/5' };
+    default: return { bg: 'bg-zinc-500/10', border: 'border-zinc-500/30', text: 'text-zinc-500', icon: Info, gradient: 'from-zinc-500/5' };
   }
 };
 
@@ -106,7 +106,7 @@ export function Dashboard() {
   // Compute Performance Trend Dynamically
   const computedPerformanceData = (() => {
     const diffDays = Math.ceil((end.getTime() - start.getTime()) / (24 * 60 * 60 * 1000));
-    
+
     if (diffDays <= 8 || selectedPreset === "7d") {
       const result = [];
       const daysArr = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
@@ -116,18 +116,18 @@ export function Dashboard() {
         const dayName = daysArr[d.getDay()];
         const dateString = d.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit' });
         const name = `${dayName} ${dateString}`;
-        
+
         const startOfDay = new Date(d.getFullYear(), d.getMonth(), d.getDate(), 0, 0, 0).getTime();
         const endOfDay = new Date(d.getFullYear(), d.getMonth(), d.getDate(), 23, 59, 59).getTime();
-        
+
         const dayCandidates = filteredCandidates.filter(c => {
           const ct = typeof c.createdAt === 'number' ? c.createdAt : Number(c.createdAt || Date.now());
           return ct >= startOfDay && ct <= endOfDay;
         });
         const hiresCount = dayCandidates.filter(c => ["Contratado", "En capacitación", "DDO y bienvenida"].includes(c.stage)).length;
-        
+
         const baseTth = calculateAverageTimeToHire(dayCandidates);
-        
+
         result.push({
           name,
           hires: hiresCount,
@@ -136,21 +136,21 @@ export function Dashboard() {
       }
       return result;
     }
-    
+
     if (diffDays <= 32 || selectedPreset === "30d") {
       const result = [];
       for (let i = 3; i >= 0; i--) {
         const name = `Semana ${4 - i}`;
         const wStart = new Date(start.getTime() + (3 - i) * 7 * 24 * 60 * 60 * 1000).getTime();
         const wEnd = i === 0 ? end.getTime() : new Date(start.getTime() + (4 - i) * 7 * 24 * 60 * 60 * 1000).getTime();
-        
+
         const weekCandidates = filteredCandidates.filter(c => {
           const ct = typeof c.createdAt === 'number' ? c.createdAt : Number(c.createdAt || Date.now());
           return ct >= wStart && ct <= wEnd;
         });
         const hiresCount = weekCandidates.filter(c => ["Contratado", "En capacitación", "DDO y bienvenida"].includes(c.stage)).length;
         const baseTth = calculateAverageTimeToHire(weekCandidates);
-        
+
         result.push({
           name,
           hires: hiresCount,
@@ -159,42 +159,42 @@ export function Dashboard() {
       }
       return result;
     }
-    
+
     const monthsEs = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
     const result = [];
-    
+
     let currentMonth = start.getMonth();
     let currentYear = start.getFullYear();
     const endMonth = end.getMonth();
     const endYear = end.getFullYear();
-    
+
     while (currentYear < endYear || (currentYear === endYear && currentMonth <= endMonth)) {
       const monthName = monthsEs[currentMonth];
       const name = `${monthName} ${String(currentYear).slice(-2)}`;
-      
+
       const mStart = new Date(currentYear, currentMonth, 1).getTime();
       const mEnd = new Date(currentYear, currentMonth + 1, 0, 23, 59, 59).getTime();
-      
+
       const monthCandidates = filteredCandidates.filter(c => {
         const ct = typeof c.createdAt === 'number' ? c.createdAt : Number(c.createdAt || Date.now());
         return ct >= mStart && ct <= mEnd;
       });
       const hiresCount = monthCandidates.filter(c => ["Contratado", "En capacitación", "DDO y bienvenida"].includes(c.stage)).length;
       const baseTth = calculateAverageTimeToHire(monthCandidates);
-      
+
       result.push({
         name,
         hires: hiresCount,
         timeToHire: baseTth
       });
-      
+
       currentMonth++;
       if (currentMonth > 11) {
         currentMonth = 0;
         currentYear++;
       }
     }
-    
+
     return result;
   })();
 
@@ -246,17 +246,17 @@ export function Dashboard() {
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-5">
           <div className="min-w-0">
             <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.24em] text-white">
-              <Cpu className="w-3.5 h-3.5 electric-icon electric-icon-cyan" />
+              <Cpu className="w-3.5 h-3.5 text-zinc-300" />
               Centro de mando
             </div>
             <h1 className="text-3xl md:text-[42px] font-bold tracking-tight text-white flex flex-wrap items-center gap-x-3 gap-y-1 leading-tight">
                <span>Heavenly Dreams</span>
-               <span className="electric-text-cyan">Metrics</span>
+               <span className="text-zinc-300">Metrics</span>
             </h1>
             <p className="text-slate-200 mt-2 font-medium tracking-wide text-sm uppercase">Autonomous matching and conversion analysis</p>
           </div>
           <div className="flex items-center gap-3 rounded-full border border-white/20 bg-neutral-800/80 px-5 py-3 text-xs font-bold uppercase tracking-[0.22em] text-white shadow-[0_0_28px_rgba(255,255,255,0.08)]">
-            <div className="w-2.5 h-2.5 rounded-full bg-[#77ff9b] shadow-[0_0_12px_#77ff9b] animate-pulse" />
+            <div className="w-2.5 h-2.5 rounded-full bg-zinc-300 shadow-[0_0_12px_rgba(212,212,212,0.55)] animate-pulse" />
             System Active
           </div>
         </div>
@@ -264,10 +264,10 @@ export function Dashboard() {
 
       {/* Dynamic Date Filter Toolbar */}
       <div className="flex flex-col 2xl:flex-row items-stretch 2xl:items-center justify-between gap-4 p-4 glass-panel rounded-2xl border border-white/15 bg-neutral-900/80 shadow-lg relative overflow-visible group">
-        <div className="absolute inset-y-4 left-0 w-1 rounded-r-full bg-gradient-to-b from-[#00e7ff] to-[#a66cff]"></div>
+        <div className="absolute inset-y-4 left-0 w-1 rounded-r-full bg-gradient-to-b from-zinc-300 to-zinc-600"></div>
         <div className="flex items-center gap-4 relative z-10 w-full min-w-0 2xl:max-w-[460px]">
           <div className="grid h-11 w-11 shrink-0 place-items-center border border-white/20 bg-neutral-800 rounded-xl shadow-[0_0_18px_rgba(255,255,255,0.10)]">
-            <Calendar className="w-5 h-5 electric-icon electric-icon-cyan" />
+            <Calendar className="w-5 h-5 text-zinc-300" />
           </div>
           <div className="min-w-0">
             <h4 className="text-sm md:text-base font-semibold tracking-wide text-slate-100 leading-tight">
@@ -276,7 +276,7 @@ export function Dashboard() {
             <p className="text-xs md:text-sm text-slate-200 font-sans mt-1 leading-snug">Filtra métricas por rango o presets rápidos</p>
           </div>
         </div>
-        
+
         <div className="flex flex-col lg:flex-row lg:flex-wrap items-stretch lg:items-center gap-3 relative z-10 w-full 2xl:w-auto 2xl:justify-end">
           <div className="flex flex-wrap items-center gap-1 p-1 bg-black/35 rounded-xl border border-white/10">
             {[
@@ -297,14 +297,14 @@ export function Dashboard() {
                     else if (preset.id === "30d") startPreset.setDate(endPreset.getDate() - 30);
                     else if (preset.id === "90d") startPreset.setDate(endPreset.getDate() - 90);
                     else if (preset.id === "all") startPreset.setDate(endPreset.getDate() - 365); // 1 YEAR
-                    
+
                     setStartDateStr(startPreset.toISOString().split("T")[0]);
                     setEndDateStr(endPreset.toISOString().split("T")[0]);
                   }
                 }}
                 className={cn(
                   "px-3 py-2 rounded-lg text-xs font-semibold tracking-wide transition-all border border-transparent whitespace-nowrap",
-                  selectedPreset === preset.id 
+                  selectedPreset === preset.id
                     ? "bg-white/15 text-white shadow-[0_0_16px_rgba(255,255,255,0.16)] border-white/35"
                     : "text-slate-400 hover:text-white hover:bg-slate-800/40"
                 )}
@@ -313,10 +313,10 @@ export function Dashboard() {
               </button>
             ))}
           </div>
-          
+
           <div className="flex flex-wrap items-center gap-2 bg-black/35 rounded-xl border border-white/10 py-2 px-3">
             <span className="text-[10px] uppercase text-slate-500 font-bold tracking-wider">Desde</span>
-            <input 
+            <input
               type="date"
               value={startDateStr}
               onChange={(e) => {
@@ -326,7 +326,7 @@ export function Dashboard() {
               className="text-xs font-mono text-slate-200 bg-transparent border-0 focus:outline-none focus:ring-0 cursor-pointer p-0 w-[115px] [color-scheme:dark]"
             />
             <span className="text-[10px] uppercase text-slate-500 font-bold tracking-wider ml-1">Hasta</span>
-            <input 
+            <input
               type="date"
               value={endDateStr}
               onChange={(e) => {
@@ -341,32 +341,32 @@ export function Dashboard() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {[
-          { title: "Total Candidatos", value: String(totalCandidates), subtitle: "Sincronizado Firestore", icon: Users, color: 'cyan' as const },
-          { title: "Nuevas Aplicaciones", value: String(newApplications), subtitle: "En bandeja 'Nuevo'", icon: Activity, color: 'purple' as const },
-          { title: "Ofertas Activas", value: String(activeJobs), subtitle: "Vacantes reales cargadas", icon: Briefcase, color: 'emerald' as const },
-          { title: "Citas en Agenda", value: String(scheduledCount), subtitle: "Entrevistas agendadas", icon: Clock, color: 'rose' as const },
+          { title: "Total Candidatos", value: String(totalCandidates), subtitle: "Sincronizado Firestore", icon: Users, color: 'tone1' as const },
+          { title: "Nuevas Aplicaciones", value: String(newApplications), subtitle: "En bandeja 'Nuevo'", icon: Activity, color: 'tone2' as const },
+          { title: "Ofertas Activas", value: String(activeJobs), subtitle: "Vacantes reales cargadas", icon: Briefcase, color: 'tone3' as const },
+          { title: "Citas en Agenda", value: String(scheduledCount), subtitle: "Entrevistas agendadas", icon: Clock, color: 'tone4' as const },
         ].map((stat, i) => {
           const Icon = stat.icon;
           const styles = {
-            cyan: { text: "electric-text-cyan", bgLine: "via-white/40", shadow: "group-hover:drop-shadow-[0_0_12px_rgba(0,231,255,0.55)]", dot: "bg-[#00e7ff]", hoverBorder: "hover:border-white/40" },
-            purple: { text: "electric-text-violet", bgLine: "via-white/40", shadow: "group-hover:drop-shadow-[0_0_12px_rgba(166,108,255,0.55)]", dot: "bg-[#a66cff]", hoverBorder: "hover:border-white/40" },
-            emerald: { text: "electric-text-lime", bgLine: "via-white/40", shadow: "group-hover:drop-shadow-[0_0_12px_rgba(119,255,155,0.55)]", dot: "bg-[#77ff9b]", hoverBorder: "hover:border-white/40" },
-            rose: { text: "electric-text-pink", bgLine: "via-white/40", shadow: "group-hover:drop-shadow-[0_0_12px_rgba(255,79,216,0.55)]", dot: "bg-[#ff4fd8]", hoverBorder: "hover:border-white/40" },
+            tone1: { text: "text-zinc-200", bgLine: "via-zinc-300/40", shadow: "group-hover:drop-shadow-[0_0_12px_rgba(212,212,212,0.45)]", dot: "bg-zinc-300", hoverBorder: "hover:border-white/40" },
+            tone2: { text: "text-zinc-300", bgLine: "via-zinc-400/40", shadow: "group-hover:drop-shadow-[0_0_12px_rgba(190,190,190,0.45)]", dot: "bg-zinc-400", hoverBorder: "hover:border-white/40" },
+            tone3: { text: "text-zinc-400", bgLine: "via-zinc-500/40", shadow: "group-hover:drop-shadow-[0_0_12px_rgba(163,163,163,0.45)]", dot: "bg-zinc-500", hoverBorder: "hover:border-white/40" },
+            tone4: { text: "text-zinc-500", bgLine: "via-zinc-600/40", shadow: "group-hover:drop-shadow-[0_0_12px_rgba(115,115,115,0.45)]", dot: "bg-zinc-600", hoverBorder: "hover:border-white/40" },
           }[stat.color];
 
           return (
             <div key={i} className={`glass-panel p-5 rounded-2xl flex flex-col relative overflow-hidden group border-white/15 bg-neutral-900/80 ${styles.hoverBorder} transition-all duration-300`}>
               <div className={`absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent ${styles.bgLine} to-transparent opacity-80 transition-opacity duration-300`}></div>
               <div className="absolute inset-0 bg-gradient-to-br from-white/[0.04] to-transparent pointer-events-none"></div>
-              <div className="absolute -right-8 -bottom-10 h-28 w-28 rounded-full bg-cyan-400/5 blur-2xl group-hover:bg-cyan-400/10 transition-colors pointer-events-none"></div>
-              
+              <div className="absolute -right-8 -bottom-10 h-28 w-28 rounded-full bg-zinc-400/5 blur-2xl group-hover:bg-zinc-400/10 transition-colors pointer-events-none"></div>
+
               <div className="flex items-center justify-between pb-4 relative z-10">
                 <p className="text-slate-200 text-[10px] font-bold tracking-[0.18em] uppercase">{stat.title}</p>
                 <div className="grid h-9 w-9 place-items-center rounded-xl border border-white/10 bg-white/[0.03]">
                   <Icon className={`w-[18px] h-[18px] opacity-85 group-hover:opacity-100 transition-all ${styles.text} ${styles.shadow}`} />
                 </div>
               </div>
-              
+
               <div className="relative z-10">
                 <div className="text-[42px] font-semibold text-white tracking-tighter font-mono leading-none">{stat.value}</div>
                 <p className={`text-[10px] mt-3 font-semibold uppercase tracking-widest flex items-center gap-2 ${styles.text} opacity-80`}>
@@ -382,7 +382,7 @@ export function Dashboard() {
         <div className="glass-panel p-6 rounded-2xl flex flex-col relative overflow-hidden group border-white/15 bg-neutral-900/80 hover:border-white/35 transition-all duration-300">
           <div className="absolute top-0 right-0 p-32 bg-white/8 blur-3xl rounded-full opacity-55 group-hover:opacity-85 transition-opacity duration-700 pointer-events-none"></div>
           <h2 className="text-[11px] font-bold text-slate-300 mb-6 uppercase tracking-[0.2em] flex items-center gap-3">
-            <span className="w-2 h-2 bg-[#00e7ff] rounded-sm shadow-[0_0_8px_#00e7ff]"></span> Embudo y Tasa de Conversión (%)
+            <span className="w-2 h-2 bg-zinc-300 rounded-sm shadow-[0_0_8px_rgba(212,212,212,0.55)]"></span> Embudo y Tasa de Conversión (%)
           </h2>
           <div className="h-[320px] w-full relative z-10">
             <ResponsiveContainer width="100%" height="100%">
@@ -390,19 +390,19 @@ export function Dashboard() {
                 <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="rgba(255,255,255,0.03)" />
                 <XAxis type="number" hide />
                 <YAxis dataKey="stage" type="category" axisLine={false} tickLine={false} tick={{ fill: '#737373', fontSize: 11, fontWeight: 600, fontFamily: 'Inter' }} />
-                <RechartsTooltip 
+                <RechartsTooltip
                   cursor={{ fill: 'rgba(255,255,255,0.02)' }}
                   contentStyle={{ borderRadius: '12px', border: '1px solid rgba(163,163,163,0.3)', backgroundColor: 'rgba(15, 17, 21, 0.9)', color: '#e5e5e5', boxShadow: '0 8px 32px rgba(0, 0, 0, 0.5)', backdropFilter: 'blur(12px)', fontFamily: 'Inter', fontSize: '12px' }}
                 />
-                <Bar dataKey="count" fill="url(#cyanGradient)" radius={[0, 4, 4, 0]} barSize={24} name="Candidatos">
+                <Bar dataKey="count" fill="url(#neutralGradient)" radius={[0, 4, 4, 0]} barSize={24} name="Candidatos">
                   <defs>
-                    <linearGradient id="cyanGradient" x1="0" y1="0" x2="1" y2="0">
-                      <stop offset="0%" stopColor="#5c7773" stopOpacity={0.72}/>
-                      <stop offset="100%" stopColor="#7d928e" stopOpacity={0.95}/>
+                    <linearGradient id="neutralGradient" x1="0" y1="0" x2="1" y2="0">
+                      <stop offset="0%" stopColor="#737373" stopOpacity={0.72}/>
+                      <stop offset="100%" stopColor="#a3a3a3" stopOpacity={0.95}/>
                     </linearGradient>
                   </defs>
                 </Bar>
-                <Line type="monotone" dataKey="conversion" stroke="#8a7658" strokeWidth={3} dot={{ r: 5, fill: '#0b0b0b', strokeWidth: 2, stroke: '#8a7658' }} activeDot={{ r: 7, fill: '#8a7658', strokeWidth: 0, className: "drop-shadow-[0_0_10px_rgba(138,118,88,0.45)]" }} name="Conversión %" />
+                <Line type="monotone" dataKey="conversion" stroke="#a3a3a3" strokeWidth={3} dot={{ r: 5, fill: '#0b0b0b', strokeWidth: 2, stroke: '#a3a3a3' }} activeDot={{ r: 7, fill: '#a3a3a3', strokeWidth: 0, className: "drop-shadow-[0_0_10px_rgba(163,163,163,0.45)]" }} name="Conversión %" />
               </ComposedChart>
             </ResponsiveContainer>
           </div>
@@ -411,7 +411,7 @@ export function Dashboard() {
         <div className="glass-panel p-6 rounded-2xl flex flex-col relative overflow-hidden group border-white/15 bg-neutral-900/80 hover:border-white/35 transition-all duration-300">
           <div className="absolute top-0 right-0 p-32 bg-white/8 blur-3xl rounded-full opacity-55 group-hover:opacity-85 transition-opacity duration-700 pointer-events-none"></div>
           <h2 className="text-[11px] font-bold text-slate-300 mb-6 uppercase tracking-[0.2em] flex items-center gap-3">
-            <span className="w-2 h-2 bg-[#a66cff] rounded-sm shadow-[0_0_8px_#a66cff]"></span> Candidatos por Oferta Activa
+            <span className="w-2 h-2 bg-zinc-400 rounded-sm shadow-[0_0_8px_rgba(163,163,163,0.55)]"></span> Candidatos por Oferta Activa
           </h2>
           <div className="h-[320px] w-full relative z-10">
             <ResponsiveContainer width="100%" height="100%">
@@ -432,9 +432,9 @@ export function Dashboard() {
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} className="drop-shadow-[0_4px_12px_rgba(0,0,0,0.5)] cursor-pointer hover:opacity-90 transition-opacity" />
                   ))}
                 </Pie>
-                <RechartsTooltip 
+                <RechartsTooltip
                   itemStyle={{ color: '#e5e5e5', fontWeight: 600, fontFamily: 'Inter', fontSize: '12px' }}
-                  contentStyle={{ borderRadius: '12px', border: '1px solid rgba(99,102,241,0.3)', backgroundColor: 'rgba(15, 17, 21, 0.9)', boxShadow: '0 8px 32px rgba(0, 0, 0, 0.5)', backdropFilter: 'blur(12px)' }}
+                  contentStyle={{ borderRadius: '12px', border: '1px solid rgba(163,163,163,0.3)', backgroundColor: 'rgba(15, 17, 21, 0.9)', boxShadow: '0 8px 32px rgba(0, 0, 0, 0.5)', backdropFilter: 'blur(12px)' }}
                 />
               </PieChart>
             </ResponsiveContainer>
@@ -444,26 +444,26 @@ export function Dashboard() {
         <div className="glass-panel p-6 rounded-2xl flex flex-col lg:col-span-2 relative overflow-hidden group border-white/15 bg-neutral-900/80 hover:border-white/35 transition-all duration-300">
           <div className="absolute top-0 right-0 p-32 bg-white/8 blur-3xl rounded-full opacity-55 group-hover:opacity-85 transition-opacity duration-700 pointer-events-none"></div>
           <h2 className="text-[11px] font-bold text-slate-300 mb-6 uppercase tracking-[0.2em] flex items-center gap-3">
-            <span className="w-2 h-2 bg-[#77ff9b] rounded-sm shadow-[0_0_8px_#77ff9b]"></span> Rendimiento de Contratación (y Tiempo al Contratar)
+            <span className="w-2 h-2 bg-zinc-500 rounded-sm shadow-[0_0_8px_rgba(115,115,115,0.55)]"></span> Rendimiento de Contratación (y Tiempo al Contratar)
           </h2>
           <div className="h-[340px] w-full relative z-10">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={computedPerformanceData} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
                 <defs>
                   <linearGradient id="colorHires" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#6f8f88" stopOpacity={0.32}/>
-                    <stop offset="95%" stopColor="#6f8f88" stopOpacity={0}/>
+                    <stop offset="5%" stopColor="#737373" stopOpacity={0.32}/>
+                    <stop offset="95%" stopColor="#737373" stopOpacity={0}/>
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.03)" />
                 <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#737373', fontSize: 11, fontWeight: 600, fontFamily: 'Inter' }} dy={15} />
                 <YAxis yAxisId="left" axisLine={false} tickLine={false} tick={{ fill: '#737373', fontSize: 11, fontFamily: 'JetBrains Mono' }} />
                 <YAxis yAxisId="right" orientation="right" axisLine={false} tickLine={false} tick={{ fill: '#737373', fontSize: 11, fontFamily: 'JetBrains Mono' }} />
-                <RechartsTooltip 
+                <RechartsTooltip
                   contentStyle={{ borderRadius: '12px', border: '1px solid rgba(163,163,163,0.3)', backgroundColor: 'rgba(15, 17, 21, 0.9)', color: '#e5e5e5', boxShadow: '0 8px 32px rgba(0, 0, 0, 0.5)', backdropFilter: 'blur(12px)', fontFamily: 'Inter', fontSize: '12px' }}
                 />
-                <Area yAxisId="left" type="monotone" dataKey="hires" name="Contrataciones" stroke="#6f8f88" strokeWidth={3} fillOpacity={1} fill="url(#colorHires)" activeDot={{ r: 6, fill: '#6f8f88', strokeWidth: 0, className: "drop-shadow-[0_0_10px_rgba(111,143,136,0.45)]" }} />
-                <Line yAxisId="right" type="monotone" dataKey="timeToHire" name="Tiempo (días)" stroke="#766a93" strokeWidth={3} dot={{ fill: '#0b0b0b', strokeWidth: 2, stroke: '#766a93' }} activeDot={{ r: 7, fill: '#766a93', strokeWidth: 0, className: "drop-shadow-[0_0_10px_rgba(118,106,147,0.45)]" }} />
+                <Area yAxisId="left" type="monotone" dataKey="hires" name="Contrataciones" stroke="#737373" strokeWidth={3} fillOpacity={1} fill="url(#colorHires)" activeDot={{ r: 6, fill: '#737373', strokeWidth: 0, className: "drop-shadow-[0_0_10px_rgba(115,115,115,0.45)]" }} />
+                <Line yAxisId="right" type="monotone" dataKey="timeToHire" name="Tiempo (días)" stroke="#a3a3a3" strokeWidth={3} dot={{ fill: '#0b0b0b', strokeWidth: 2, stroke: '#a3a3a3' }} activeDot={{ r: 7, fill: '#a3a3a3', strokeWidth: 0, className: "drop-shadow-[0_0_10px_rgba(163,163,163,0.45)]" }} />
               </AreaChart>
             </ResponsiveContainer>
           </div>

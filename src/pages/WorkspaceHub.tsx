@@ -3,10 +3,10 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useNotifications } from "@/contexts/NotificationContext";
 import { useDb } from "@/hooks/useDb";
 import { ALLOWED_GOOGLE_WORKSPACE_EMAILS, GOOGLE_WORKSPACE_CAPABILITIES } from "@/config/googleWorkspace";
-import { 
-  FileSpreadsheet, Calendar as CalendarIcon, Mail, FormInput, FolderOpen, 
-  StickyNote, Plus, Search, Check, Loader2, Sparkles, RefreshCw, 
-  AlertCircle, Trash2, ExternalLink, Send, ArrowRight, CheckCircle2, 
+import {
+  FileSpreadsheet, Calendar as CalendarIcon, Mail, FormInput, FolderOpen,
+  StickyNote, Plus, Search, Check, Loader2, Sparkles, RefreshCw,
+  AlertCircle, Trash2, ExternalLink, Send, ArrowRight, CheckCircle2,
   HelpCircle, Info, Clock, CheckSquare, Palette, Image as ImageIcon, FileText
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -68,13 +68,13 @@ export function WorkspaceHub() {
     addLog(serviceName, `Iniciando proceso de exportación para ${candidates.length} candidatos...`, "info");
 
     const payloadCreate = { properties: { title } };
-    
+
     if (isLoggedInWithGoogle && accessToken) {
       try {
         // Create spreadsheet
         const resCreate = await fetch("https://sheets.googleapis.com/v4/spreadsheets", {
           method: "POST",
-          headers: { 
+          headers: {
             "Authorization": `Bearer ${accessToken}`,
             "Content-Type": "application/json"
           },
@@ -133,7 +133,7 @@ export function WorkspaceHub() {
         });
         if (!res.ok) throw new Error("No se pudo obtener datos del Spreadsheet seleccionado.");
         const data = await res.json();
-        
+
         if (data.values && data.values.length > 1) {
           const rows = data.values.slice(1).map((row: any, index: number) => ({
             id: `imported-${Date.now()}-${index}`,
@@ -218,7 +218,7 @@ export function WorkspaceHub() {
 
     setIsScheduling(true);
     const serviceName = "Google Calendar";
-    
+
     const startIso = `${interviewForm.date}T${interviewForm.time}:00`;
     const endMinutes = parseInt(interviewForm.time.split(":")[1]) + parseInt(interviewForm.lengthMinutes);
     const endHour = parseInt(interviewForm.time.split(":")[0]) + Math.floor(endMinutes / 60);
@@ -423,7 +423,7 @@ export function WorkspaceHub() {
         });
         if (!res.ok) throw new Error("No se pudo leer las respuestas del Formulario");
         const data = await res.json();
-        
+
         addLog("Google Forms", `¡Respuestas sincronizadas! Encontradas ${data.responses?.length || 0} postulaciones nuevas.`, "success", null, data);
         setIsSyncingResponses(false);
       } catch (err: any) {
@@ -508,7 +508,7 @@ export function WorkspaceHub() {
         });
         if (!res.ok) throw new Error("Error leyendo archivos de Google Drive");
         const data = await res.json();
-        
+
         if (data.files) {
           const formattedFiles = data.files.map((file: any) => ({
             id: file.id,
@@ -602,7 +602,7 @@ export function WorkspaceHub() {
   // ----------------------------------------------------
   const [keepNotes, setKeepNotes] = useState<any[]>([]);
 
-  const [newKeepNote, setNewKeepNote] = useState({ title: "", content: "", color: "yellow" });
+  const [newKeepNote, setNewKeepNote] = useState({ title: "", content: "", color: "tone1" });
   const [isCreatingNote, setIsCreatingNote] = useState(false);
 
   const handleCreateKeepNote = async (e: React.FormEvent) => {
@@ -640,9 +640,9 @@ export function WorkspaceHub() {
       };
 
       setKeepNotes([added, ...keepNotes]);
-      setNewKeepNote({ title: "", content: "", color: "yellow" });
+      setNewKeepNote({ title: "", content: "", color: "tone1" });
       setIsCreatingNote(false);
-      
+
       addLog("Google Keep", "Nota creada correctamente en Google Keep.", "success", payload, data);
       triggerEvent("Nota creada", "Nota añadida en Google Keep.");
     } catch (err: any) {
@@ -654,7 +654,7 @@ export function WorkspaceHub() {
   const handleRemoveNote = (id: string, name: string) => {
     const confirmation = window.confirm(`¿Seguro que deseas eliminar la nota "${name}" de Google Keep?`);
     if (!confirmation) return;
-    
+
     setKeepNotes(keepNotes.filter(n => n.id !== id));
     addLog("Google Keep", `Eliminada nota "${name}" de la bandeja de entrada sincronizada.`, "warning");
     triggerEvent("Nota eliminada", "Se removió de Google Keep.");
@@ -679,12 +679,12 @@ export function WorkspaceHub() {
 
   return (
     <div className="flex flex-col gap-6 h-full pb-8">
-      
+
       {/* Visual Header */}
       <div className="glass-panel flex flex-col lg:flex-row justify-between items-start lg:items-center gap-5 p-5 rounded-2xl border border-white/5">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight text-white mt-1 flex items-center gap-2">
-            <Sparkles className="w-6 h-6 text-cyan-400 drop-shadow-[0_0_10px_rgba(212,212,212,0.5)]" />
+            <Sparkles className="w-6 h-6 text-zinc-400 drop-shadow-[0_0_10px_rgba(212,212,212,0.5)]" />
             Integración Google Workspace
           </h1>
           <p className="text-slate-400 text-sm">Centraliza Sheets, Calendar, Gmail, Forms, Drive, Photos y Keep de Reclutamiento.</p>
@@ -700,8 +700,8 @@ export function WorkspaceHub() {
         {/* OAuth Integration Status Banner */}
         <div className="w-full lg:w-auto lg:min-w-[330px] flex items-center justify-between gap-3 bg-slate-950/70 p-4 rounded-xl border border-white/10 shadow-inner">
           <div className="flex flex-col text-left lg:text-right">
-            <span className="text-xs text-slate-450 font-bold uppercase tracking-wider">Estado de Conexión</span>
-            <span className={cn("text-xs font-semibold", isLoggedInWithGoogle ? "text-emerald-400" : "text-amber-400")}>
+            <span className="text-xs text-slate-400 font-bold uppercase tracking-wider">Estado de Conexión</span>
+            <span className={cn("text-xs font-semibold", isLoggedInWithGoogle ? "text-zinc-400" : "text-zinc-400")}>
               {isLoggedInWithGoogle ? "✓ Autenticado con Google" : "Conexión requerida"}
             </span>
             {!isLoggedInWithGoogle && (
@@ -711,7 +711,7 @@ export function WorkspaceHub() {
             )}
           </div>
           {!isLoggedInWithGoogle ? (
-            <button 
+            <button
               onClick={signInWithGoogle}
               className="bg-slate-100 hover:bg-white text-slate-950 font-bold text-xs px-3.5 py-2 rounded-lg cursor-pointer transition-all flex items-center gap-2 shadow-[0_0_15px_rgba(255,255,255,0.08)] border border-slate-300"
             >
@@ -724,7 +724,7 @@ export function WorkspaceHub() {
               Conectar Google
             </button>
           ) : (
-            <div className="w-8 h-8 rounded-full bg-cyan-700 font-bold text-xs flex items-center justify-center text-white border border-cyan-500/30">
+            <div className="w-8 h-8 rounded-full bg-zinc-700 font-bold text-xs flex items-center justify-center text-white border border-zinc-500/30">
               {user?.displayName ? user.displayName.slice(0, 2).toUpperCase() : "G"}
             </div>
           )}
@@ -733,10 +733,10 @@ export function WorkspaceHub() {
 
       {/* Main workspace layout */}
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 items-start">
-        
+
         {/* Navigation Left Sidebar */}
         <div className="xl:col-span-3 flex flex-col gap-4">
-          
+
           <div className="glass-panel p-3 rounded-2xl border border-white/5">
             <div className="text-[10px] font-bold text-slate-500 uppercase tracking-widest px-1 mb-3">Paneles Workspace</div>
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-1 gap-2">
@@ -746,7 +746,7 @@ export function WorkspaceHub() {
                   onClick={() => setActiveTab(tool.id)}
                   className={cn(
                     "min-h-[74px] p-3.5 rounded-xl border text-left flex items-center gap-3 transition-all cursor-pointer group",
-                    activeTab === tool.id 
+                    activeTab === tool.id
                       ? neutralToolState
                       : "bg-slate-950/45 border-white/5 text-slate-400 hover:text-white hover:bg-slate-900/70 hover:border-slate-300/20"
                   )}
@@ -796,7 +796,7 @@ export function WorkspaceHub() {
                   <h3 className="text-lg font-bold text-white leading-tight">Mapeo y Base de Datos en Sheets</h3>
                   <p className="text-slate-400 text-xs mt-1">Exporta candidatos filtrados a Excel/Sheets o trae registros directamente.</p>
                 </div>
-                <div className="p-2 bg-emerald-500/10 text-emerald-400 rounded-lg border border-emerald-500/20">
+                <div className="p-2 bg-zinc-500/10 text-zinc-400 rounded-lg border border-zinc-500/20">
                   <FileSpreadsheet className="w-5 h-5" />
                 </div>
               </div>
@@ -804,12 +804,12 @@ export function WorkspaceHub() {
               {/* Action Buttons */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="bg-slate-950/60 p-5 rounded-2xl border border-white/5 flex flex-col gap-3">
-                  <div className="font-bold text-xs text-emerald-400 uppercase tracking-wide">Exportación masiva</div>
+                  <div className="font-bold text-xs text-zinc-400 uppercase tracking-wide">Exportación masiva</div>
                   <p className="text-xs text-slate-400">Genera una nueva hoja de cálculo estructurada con todos los perfiles, fases y notas de contacto actuales.</p>
                   <button
                     onClick={handleExportToSheets}
                     disabled={isExporting}
-                    className="mt-auto bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs py-2.5 px-4 rounded-xl flex items-center justify-center gap-2 cursor-pointer transition-all"
+                    className="mt-auto bg-zinc-600 hover:bg-zinc-500 text-white font-bold text-xs py-2.5 px-4 rounded-xl flex items-center justify-center gap-2 cursor-pointer transition-all"
                   >
                     {isExporting ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileSpreadsheet className="w-4 h-4" />}
                     Exportar Candidatos
@@ -817,12 +817,12 @@ export function WorkspaceHub() {
                 </div>
 
                 <div className="bg-slate-950/60 p-5 rounded-2xl border border-white/5 flex flex-col gap-3">
-                  <div className="font-bold text-xs text-emerald-400 uppercase tracking-wide">Importación Rápida</div>
+                  <div className="font-bold text-xs text-zinc-400 uppercase tracking-wide">Importación Rápida</div>
                   <p className="text-xs text-slate-400">Importa perfiles desde documentos compartidos ingresando el Identificador de la hoja de cálculo.</p>
                   <div className="flex gap-2">
                     <input
                       type="text"
-                      className="bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white placeholder:text-slate-600 outline-none focus:border-emerald-500 flex-1"
+                      className="bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white placeholder:text-slate-600 outline-none focus:border-zinc-500 flex-1"
                       placeholder="Insertar ID del Spreadsheet..."
                       value={importSheetId}
                       onChange={(e) => setImportSheetId(e.target.value)}
@@ -830,7 +830,7 @@ export function WorkspaceHub() {
                     <button
                       onClick={handleFetchImportPreview}
                       disabled={isImporting || !importSheetId}
-                      className="bg-emerald-600/20 hover:bg-emerald-600/40 text-emerald-400 border border-emerald-500/30 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors disabled:opacity-40"
+                      className="bg-zinc-600/20 hover:bg-zinc-600/40 text-zinc-400 border border-zinc-500/30 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors disabled:opacity-40"
                     >
                       Previsualizar
                     </button>
@@ -840,19 +840,19 @@ export function WorkspaceHub() {
 
               {/* Sheet Success Link */}
               {sheetUrl && (
-                <div className="bg-emerald-500/10 border border-emerald-500/30 p-4 rounded-xl flex items-center justify-between gap-3 animate-in fade-in zoom-in duration-300">
+                <div className="bg-zinc-500/10 border border-zinc-500/30 p-4 rounded-xl flex items-center justify-between gap-3 animate-in fade-in zoom-in duration-300">
                   <div className="flex gap-2.5 items-center">
-                    <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
+                    <CheckCircle2 className="w-5 h-5 text-zinc-400 shrink-0" />
                     <div>
-                      <div className="font-bold text-xs text-emerald-300">Documento Creado con Éxito</div>
+                      <div className="font-bold text-xs text-zinc-300">Documento Creado con Éxito</div>
                       <div className="text-[10px] text-slate-400 truncate max-w-sm font-mono">ID: {sheetId}</div>
                     </div>
                   </div>
-                  <a 
-                    href={sheetUrl} 
-                    target="_blank" 
-                    rel="noreferrer" 
-                    className="bg-slate-900 hover:bg-slate-850 text-emerald-300 border border-emerald-500/20 px-3 py-1.5 rounded-lg text-[10px] font-bold flex items-center gap-1.5 transition-all text-decoration-none"
+                  <a
+                    href={sheetUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="bg-slate-900 hover:bg-slate-850 text-zinc-300 border border-zinc-500/20 px-3 py-1.5 rounded-lg text-[10px] font-bold flex items-center gap-1.5 transition-all text-decoration-none"
                   >
                     Ver en Sheets <ExternalLink className="w-3.5 h-3.5" />
                   </a>
@@ -863,7 +863,7 @@ export function WorkspaceHub() {
               {importPreviewData && (
                 <div className="bg-slate-900/60 border border-white/5 p-4 rounded-xl space-y-3">
                   <div className="flex justify-between items-center border-b border-white/5 pb-2">
-                    <span className="text-xs font-bold text-emerald-400 flex items-center gap-1">
+                    <span className="text-xs font-bold text-zinc-400 flex items-center gap-1">
                       <Clock className="w-4 h-4" /> Candidatos a Importar ({importPreviewData.length})
                     </span>
                     <button
@@ -880,13 +880,13 @@ export function WorkspaceHub() {
                           <div className="font-bold text-white">{cand.name}</div>
                           <div className="text-[10px] text-slate-500">{cand.role} • {cand.location}</div>
                         </div>
-                        <span className="text-[10px] bg-slate-900 px-2 py-0.5 rounded-full border border-white/5 text-emerald-300 font-bold">{cand.stage}</span>
+                        <span className="text-[10px] bg-slate-900 px-2 py-0.5 rounded-full border border-white/5 text-zinc-300 font-bold">{cand.stage}</span>
                       </div>
                     ))}
                   </div>
                   <button
                     onClick={confirmImport}
-                    className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs py-2 px-4 rounded-xl transition-colors"
+                    className="w-full bg-zinc-600 hover:bg-zinc-500 text-white font-bold text-xs py-2 px-4 rounded-xl transition-colors"
                   >
                     Confirmar Ingesta al CRM local
                   </button>
@@ -903,7 +903,7 @@ export function WorkspaceHub() {
                         <div className="font-bold text-slate-200">{cand.name}</div>
                         <div className="text-[10px] text-slate-500">{cand.role}</div>
                       </div>
-                      <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-bold">Respaldo al Día</span>
+                      <span className="text-[10px] px-2 py-0.5 rounded-full bg-zinc-500/10 text-zinc-400 border border-zinc-500/20 font-bold">Respaldo al Día</span>
                     </div>
                   ))}
                 </div>
@@ -919,22 +919,22 @@ export function WorkspaceHub() {
                   <h3 className="text-lg font-bold text-white leading-tight">Google Calendar & Entrevistas</h3>
                   <p className="text-slate-400 text-xs mt-1">Programa videollamadas con Meet autogenerado para tus candidatos seleccionados.</p>
                 </div>
-                <div className="p-2 bg-blue-500/10 text-blue-400 rounded-lg border border-blue-500/20">
+                <div className="p-2 bg-zinc-500/10 text-zinc-400 rounded-lg border border-zinc-500/20">
                   <CalendarIcon className="w-5 h-5" />
                 </div>
               </div>
 
               {/* Schedule form */}
               <form onSubmit={handleScheduleInterview} className="bg-slate-950/50 p-4 rounded-2xl border border-white/5 space-y-4">
-                <div className="text-xs font-bold text-blue-400 uppercase tracking-wider">Agendar Entrevista</div>
-                
+                <div className="text-xs font-bold text-zinc-400 uppercase tracking-wider">Agendar Entrevista</div>
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-1">
                     <label className="text-[11px] text-slate-400 font-medium block">Candidato</label>
                     <select
                       value={interviewForm.candidateId}
                       onChange={(e) => setInterviewForm({...interviewForm, candidateId: e.target.value})}
-                      className="w-full bg-slate-900 border border-slate-700/80 rounded-lg px-3 py-2 text-xs text-white focus:border-blue-500 outline-none"
+                      className="w-full bg-slate-900 border border-slate-700/80 rounded-lg px-3 py-2 text-xs text-white focus:border-zinc-500 outline-none"
                       required
                     >
                       <option value="">Selecciona un candidato...</option>
@@ -950,7 +950,7 @@ export function WorkspaceHub() {
                       type="text"
                       value={interviewForm.interviewerName}
                       onChange={(e) => setInterviewForm({...interviewForm, interviewerName: e.target.value})}
-                      className="w-full bg-slate-900 border border-slate-700/80 rounded-lg px-3 py-1.5 text-xs text-white focus:border-blue-500 outline-none"
+                      className="w-full bg-slate-900 border border-slate-700/80 rounded-lg px-3 py-1.5 text-xs text-white focus:border-zinc-500 outline-none"
                     />
                   </div>
                 </div>
@@ -997,17 +997,17 @@ export function WorkspaceHub() {
                     id="genMeet"
                     checked={interviewForm.generateMeet}
                     onChange={(e) => setInterviewForm({...interviewForm, generateMeet: e.target.checked})}
-                    className="w-4 h-4 rounded border-slate-700 bg-slate-900 text-blue-500"
+                    className="w-4 h-4 rounded border-slate-700 bg-slate-900 text-zinc-500"
                   />
                   <label htmlFor="genMeet" className="text-xs text-slate-300 font-medium cursor-pointer">
-                    Auto-generar enlace corporativo de Google Meet <span className="text-blue-400 font-semibold">(Recomendado)</span>
+                    Auto-generar enlace corporativo de Google Meet <span className="text-zinc-400 font-semibold">(Recomendado)</span>
                   </label>
                 </div>
 
                 <button
                   type="submit"
                   disabled={isScheduling}
-                  className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs py-2 px-4 rounded-xl transition-colors cursor-pointer flex items-center justify-center gap-2"
+                  className="w-full bg-zinc-600 hover:bg-zinc-500 text-white font-bold text-xs py-2 px-4 rounded-xl transition-colors cursor-pointer flex items-center justify-center gap-2"
                 >
                   {isScheduling ? <Loader2 className="w-4 h-4 animate-spin" /> : <CalendarIcon className="w-4 h-4" />}
                   Crear Evento en Google Calendar
@@ -1022,19 +1022,19 @@ export function WorkspaceHub() {
                     <div key={evt.id} className="bg-slate-950/40 p-4 rounded-xl border border-white/10 space-y-2 flex flex-col md:flex-row md:justify-between md:items-center">
                       <div>
                         <div className="font-bold text-slate-200 text-sm">{evt.summary}</div>
-                        <p className="text-slate-450 text-xs mt-0.5">{evt.description.split("\n")[0]}</p>
-                        <div className="flex items-center gap-1.5 text-[10px] text-blue-400 font-mono mt-1">
+                        <p className="text-slate-400 text-xs mt-0.5">{evt.description.split("\n")[0]}</p>
+                        <div className="flex items-center gap-1.5 text-[10px] text-zinc-400 font-mono mt-1">
                           <Clock className="w-3.5 h-3.5" />
                           {new Date(evt.start.dateTime).toLocaleDateString()} a las {new Date(evt.start.dateTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
                         </div>
                       </div>
-                      
+
                       {evt.hangoutLink && (
                         <a
                           href={evt.hangoutLink}
                           target="_blank"
                           rel="noreferrer"
-                          className="px-3 py-1.5 rounded-lg bg-blue-600/10 hover:bg-blue-650/30 text-blue-300 text-xs font-bold flex items-center gap-1 border border-blue-500/20 shadow-md text-decoration-none h-fit"
+                          className="px-3 py-1.5 rounded-lg bg-zinc-600/10 hover:bg-zinc-600/30 text-zinc-300 text-xs font-bold flex items-center gap-1 border border-zinc-500/20 shadow-md text-decoration-none h-fit"
                         >
                           Unirse a Meet <ExternalLink className="w-3.5 h-3.5" />
                         </a>
@@ -1054,14 +1054,14 @@ export function WorkspaceHub() {
                   <h3 className="text-lg font-bold text-white leading-tight">Comunicaciones por Gmail</h3>
                   <p className="text-slate-400 text-xs mt-1 font-light">Envía notificaciones de postulación o cartas de oferta de forma directa vía Gmail API.</p>
                 </div>
-                <div className="p-2 bg-rose-500/10 text-rose-400 rounded-lg border border-rose-500/20">
+                <div className="p-2 bg-zinc-500/10 text-zinc-400 rounded-lg border border-zinc-500/20">
                   <Mail className="w-5 h-5" />
                 </div>
               </div>
 
               {/* Compose Gmail */}
               <form onSubmit={handleSendGmail} className="space-y-4 bg-slate-950/40 p-4 rounded-2xl border border-white/5">
-                <div className="text-xs font-bold text-rose-400 uppercase tracking-wider flex items-center gap-1.5">
+                <div className="text-xs font-bold text-zinc-400 uppercase tracking-wider flex items-center gap-1.5">
                    Redactar Correo Gmail API
                 </div>
 
@@ -1098,8 +1098,8 @@ export function WorkspaceHub() {
                       onClick={() => handleTemplateChange(tmpl.id)}
                       className={cn(
                         "py-1.5 px-2.5 rounded-lg text-[11px] font-bold border transition-all uppercase tracking-wide cursor-pointer",
-                        gmailForm.template === tmpl.id 
-                          ? "bg-rose-500/10 border-rose-500/40 text-rose-350"
+                        gmailForm.template === tmpl.id
+                          ? "bg-zinc-500/10 border-zinc-500/40 text-zinc-300"
                           : "bg-slate-900 border-white/5 text-slate-400"
                       )}
                     >
@@ -1133,7 +1133,7 @@ export function WorkspaceHub() {
                 <button
                   type="submit"
                   disabled={isSendingEmail || !gmailForm.candidateEmail}
-                  className="w-full bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs py-2.5 px-4 rounded-xl flex items-center justify-center gap-2 transition-colors disabled:opacity-40"
+                  className="w-full bg-zinc-600 hover:bg-zinc-500 text-white font-bold text-xs py-2.5 px-4 rounded-xl flex items-center justify-center gap-2 transition-colors disabled:opacity-40"
                 >
                   {isSendingEmail ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
                   Enviar Correo de Forma Directa
@@ -1150,36 +1150,36 @@ export function WorkspaceHub() {
                   <h3 className="text-lg font-bold text-white leading-tight">Captura de Formularios (Forms)</h3>
                   <p className="text-slate-400 text-xs mt-1 font-light">Sincroniza y extrae postulantes de forma automatizada de tus formularios de registro.</p>
                 </div>
-                <div className="p-2 bg-purple-500/10 text-purple-400 rounded-lg border border-purple-500/20">
+                <div className="p-2 bg-zinc-500/10 text-zinc-400 rounded-lg border border-zinc-500/20">
                   <FormInput className="w-5 h-5" />
                 </div>
               </div>
 
               <div className="bg-slate-950/40 p-4 rounded-2xl border border-white/5 space-y-4">
-                <div className="text-xs font-bold text-purple-400 uppercase tracking-wider flex items-center justify-between">
+                <div className="text-xs font-bold text-zinc-400 uppercase tracking-wider flex items-center justify-between">
                   <span>Sincronizar Canal de Registro</span>
                   <button
                     onClick={handleCreateNewForm}
-                    className="text-[10px] bg-purple-500/20 hover:bg-purple-500/40 text-purple-300 px-2 py-1 rounded border border-purple-505/30 hover:scale-[1.01] transition-transform font-bold"
+                    className="text-[10px] bg-zinc-500/20 hover:bg-zinc-500/40 text-zinc-300 px-2 py-1 rounded border border-zinc-500/30 hover:scale-[1.01] transition-transform font-bold"
                   >
                     Crear nuevo en Drive
                   </button>
                 </div>
 
                 <p className="text-xs text-slate-400">Introduce la clave única del Formulario de Google (presente en el enlace de edición del documento) para habilitar las APIs automatizadas:</p>
-                
+
                 <div className="flex gap-2">
                   <input
                     type="text"
                     value={formId}
                     onChange={(e) => setFormId(e.target.value)}
                     placeholder="Ej: 1FAIpQLSfD-T1Form..."
-                    className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white pl-4 outline-none focus:border-purple-500"
+                    className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white pl-4 outline-none focus:border-zinc-500"
                   />
                   <button
                     onClick={handleLinkGoogleForm}
                     disabled={isLinkingForm || !formId}
-                    className="bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs py-2 px-4 rounded-xl shrink-0 transition-colors disabled:opacity-40"
+                    className="bg-zinc-600 hover:bg-zinc-500 text-white font-bold text-xs py-2 px-4 rounded-xl shrink-0 transition-colors disabled:opacity-40"
                   >
                     Enlazar Form
                   </button>
@@ -1188,16 +1188,16 @@ export function WorkspaceHub() {
 
               {/* Linked Form Widget */}
               {connectedForm && (
-                <div className="bg-purple-500/10 border border-purple-500/35 p-5 rounded-xl space-y-4 animate-in fade-in zoom-in duration-300">
+                <div className="bg-zinc-500/10 border border-zinc-500/35 p-5 rounded-xl space-y-4 animate-in fade-in zoom-in duration-300">
                   <div className="flex justify-between items-start">
                     <div className="flex gap-2.5 items-start">
-                      <FormInput className="w-5 h-5 text-purple-400 shrink-0 mt-0.5" />
+                      <FormInput className="w-5 h-5 text-zinc-400 shrink-0 mt-0.5" />
                       <div>
-                        <div className="font-bold text-xs text-purple-300">{connectedForm.title}</div>
-                        <p className="text-[11px] text-slate-450 mt-1">Sincronización segura activa y lista.</p>
+                        <div className="font-bold text-xs text-zinc-300">{connectedForm.title}</div>
+                        <p className="text-[11px] text-slate-400 mt-1">Sincronización segura activa y lista.</p>
                       </div>
                     </div>
-                    <span className="text-[10px] bg-slate-950 border border-white/5 px-2 py-0.5 rounded-full text-purple-300 font-bold font-mono">
+                    <span className="text-[10px] bg-slate-950 border border-white/5 px-2 py-0.5 rounded-full text-zinc-300 font-bold font-mono">
                       {connectedForm.responderCount || 0} postulaciones
                     </span>
                   </div>
@@ -1206,17 +1206,17 @@ export function WorkspaceHub() {
                     <button
                       onClick={handleSyncFormResponses}
                       disabled={isSyncingResponses}
-                      className="bg-purple-600 hover:bg-purple-500 text-white font-bold text-[11px] py-1.5 px-3.5 rounded-lg flex items-center gap-1 transition-all cursor-pointer"
+                      className="bg-zinc-600 hover:bg-zinc-500 text-white font-bold text-[11px] py-1.5 px-3.5 rounded-lg flex items-center gap-1 transition-all cursor-pointer"
                     >
                       {isSyncingResponses ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <RefreshCw className="w-3.5 h-3.5" />}
                       Sincronizar Respuestas
                     </button>
-                    
+
                     <a
                       href={connectedForm.publishedUrl}
                       target="_blank"
                       rel="noreferrer"
-                      className="bg-slate-900 hover:bg-slate-850 text-purple-300 border border-purple-500/20 px-3.5 py-1.5 rounded-lg text-decoration-none text-[11px] font-bold flex items-center gap-1 transition-all"
+                      className="bg-slate-900 hover:bg-slate-850 text-zinc-300 border border-zinc-500/20 px-3.5 py-1.5 rounded-lg text-decoration-none text-[11px] font-bold flex items-center gap-1 transition-all"
                     >
                       Abrir Formulario <ExternalLink className="w-3 h-3" />
                     </a>
@@ -1234,7 +1234,7 @@ export function WorkspaceHub() {
                   <h3 className="text-lg font-bold text-white leading-tight">Explorador de Archivos (Drive/Picker)</h3>
                   <p className="text-slate-400 text-xs mt-1">Busca y asocia recursos en la nube directamente a tu CRM de Recursos Humanos.</p>
                 </div>
-                <div className="p-2 bg-amber-500/10 text-amber-400 rounded-lg border border-amber-500/20">
+                <div className="p-2 bg-zinc-500/10 text-zinc-400 rounded-lg border border-zinc-500/20">
                   <FolderOpen className="w-5 h-5" />
                 </div>
               </div>
@@ -1252,10 +1252,10 @@ export function WorkspaceHub() {
                 <button
                   onClick={fetchRealDriveFiles}
                   disabled={isFetchingDrive}
-                  className="p-1 rounded hover:bg-slate-900 font-bold text-slate-350"
+                  className="p-1 rounded hover:bg-slate-900 font-bold text-slate-300"
                   title="Actualizar Archivos"
                 >
-                  <RefreshCw className={cn("w-3.5 h-3.5", isFetchingDrive ? "animate-spin text-amber-400" : "")} />
+                  <RefreshCw className={cn("w-3.5 h-3.5", isFetchingDrive ? "animate-spin text-zinc-400" : "")} />
                 </button>
               </div>
 
@@ -1272,7 +1272,7 @@ export function WorkspaceHub() {
                     className={cn(
                       "px-3 py-1.5 rounded-lg text-[11px] font-bold border transition-all",
                       driveTypeFilter === filter.id
-                        ? "bg-amber-500/15 text-amber-300 border-amber-500/30"
+                        ? "bg-zinc-500/15 text-zinc-300 border-zinc-500/30"
                         : "bg-slate-950 text-slate-400 border-white/5 hover:text-white"
                     )}
                   >
@@ -1298,18 +1298,18 @@ export function WorkspaceHub() {
                         onClick={() => handleSelectPickerFile(file)}
                         className={cn(
                           "bg-slate-950 p-3 rounded-xl border cursor-pointer transition-all flex items-start gap-2.5 hover:scale-[1.01]",
-                          isSelected 
-                            ? "border-amber-500 bg-amber-500/5 shadow-md"
+                          isSelected
+                            ? "border-zinc-500 bg-zinc-500/5 shadow-md"
                             : "border-white/5 hover:border-white/10"
                         )}
                       >
                         <div className={cn(
                           "p-2 rounded-lg shrink-0 border mt-0.5",
-                          isDoc ? "bg-blue-500/10 text-blue-400 border-blue-500/20" :
-                          isSheet ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" :
-                          isPdf ? "bg-red-500/10 text-red-400 border-red-500/20" :
-                          isImage ? "bg-pink-500/10 text-pink-400 border-pink-500/20" :
-                          "bg-amber-500/10 text-amber-400 border-amber-500/20"
+                          isDoc ? "bg-zinc-500/10 text-zinc-400 border-zinc-500/20" :
+                          isSheet ? "bg-zinc-500/10 text-zinc-400 border-zinc-500/20" :
+                          isPdf ? "bg-zinc-500/10 text-zinc-400 border-zinc-500/20" :
+                          isImage ? "bg-zinc-500/10 text-zinc-400 border-zinc-500/20" :
+                          "bg-zinc-500/10 text-zinc-400 border-zinc-500/20"
                         )}>
                           <FileIcon className="w-3.5 h-3.5" />
                         </div>
@@ -1319,7 +1319,7 @@ export function WorkspaceHub() {
                           <div className="text-[9px] text-slate-600 truncate mt-1">{file.mimeType}</div>
                         </div>
                         {isSelected && (
-                          <div className="bg-amber-550 p-0.5 rounded-full text-slate-900">
+                          <div className="bg-zinc-500 p-0.5 rounded-full text-slate-900">
                             <Check className="w-3.5 h-3.5 font-bold" />
                           </div>
                         )}
@@ -1330,7 +1330,7 @@ export function WorkspaceHub() {
 
               {/* Selected File Details Box */}
               {selectedDriveFile && (
-                <div className="bg-amber-500/10 border border-amber-500/25 p-4 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 animate-in fade-in duration-200">
+                <div className="bg-zinc-500/10 border border-zinc-500/25 p-4 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 animate-in fade-in duration-200">
                   <div className="flex items-center gap-3 min-w-0">
                     {selectedDriveFile.thumbnailLink && (
                       <img
@@ -1340,7 +1340,7 @@ export function WorkspaceHub() {
                       />
                     )}
                     <div className="min-w-0">
-                    <span className="text-[9px] font-bold text-amber-400 uppercase tracking-widest block">Archivo Enlazado</span>
+                    <span className="text-[9px] font-bold text-zinc-400 uppercase tracking-widest block">Archivo Enlazado</span>
                     <span className="text-xs font-bold text-white truncate max-w-xs">{selectedDriveFile.name}</span>
                     </div>
                   </div>
@@ -1350,7 +1350,7 @@ export function WorkspaceHub() {
                         href={selectedDriveFile.webViewLink}
                         target="_blank"
                         rel="noreferrer"
-                        className="text-xs text-amber-300 hover:text-white flex items-center gap-1"
+                        className="text-xs text-zinc-300 hover:text-white flex items-center gap-1"
                       >
                         Abrir <ExternalLink className="w-3 h-3" />
                       </a>
@@ -1375,7 +1375,7 @@ export function WorkspaceHub() {
                   <h3 className="text-lg font-bold text-white leading-tight">Google Photos</h3>
                   <p className="text-slate-400 text-xs mt-1">Consulta fotos e imagenes autorizadas para expedientes, evidencias y onboarding.</p>
                 </div>
-                <div className="p-2 bg-pink-500/10 text-pink-400 rounded-lg border border-pink-500/20">
+                <div className="p-2 bg-zinc-500/10 text-zinc-400 rounded-lg border border-zinc-500/20">
                   <ImageIcon className="w-5 h-5" />
                 </div>
               </div>
@@ -1384,7 +1384,7 @@ export function WorkspaceHub() {
                 <button
                   onClick={fetchGooglePhotos}
                   disabled={isFetchingPhotos}
-                  className="bg-pink-500/10 hover:bg-pink-500/20 text-pink-300 border border-pink-500/20 px-3.5 py-2 rounded-lg text-xs font-bold flex items-center gap-2"
+                  className="bg-zinc-500/10 hover:bg-zinc-500/20 text-zinc-300 border border-zinc-500/20 px-3.5 py-2 rounded-lg text-xs font-bold flex items-center gap-2"
                 >
                   <RefreshCw className={cn("w-3.5 h-3.5", isFetchingPhotos ? "animate-spin" : "")} />
                   Actualizar Fotos
@@ -1403,7 +1403,7 @@ export function WorkspaceHub() {
                       }}
                       className={cn(
                         "text-left bg-slate-950 rounded-xl border overflow-hidden transition-all hover:scale-[1.01]",
-                        isSelected ? "border-pink-500 shadow-[0_0_18px_rgba(236,72,153,0.12)]" : "border-white/5 hover:border-white/10"
+                        isSelected ? "border-zinc-500 shadow-[0_0_18px_rgba(163,163,163,0.12)]" : "border-white/5 hover:border-white/10"
                       )}
                     >
                       <img
@@ -1421,9 +1421,9 @@ export function WorkspaceHub() {
               </div>
 
               {selectedPhoto && (
-                <div className="bg-pink-500/10 border border-pink-500/25 p-4 rounded-xl flex items-center justify-between gap-3">
+                <div className="bg-zinc-500/10 border border-zinc-500/25 p-4 rounded-xl flex items-center justify-between gap-3">
                   <div className="min-w-0">
-                    <span className="text-[9px] font-bold text-pink-300 uppercase tracking-widest block">Foto vinculada</span>
+                    <span className="text-[9px] font-bold text-zinc-300 uppercase tracking-widest block">Foto vinculada</span>
                     <span className="text-xs font-bold text-white truncate block">{selectedPhoto.filename}</span>
                   </div>
                   {selectedPhoto.productUrl && selectedPhoto.productUrl !== "#" && (
@@ -1431,7 +1431,7 @@ export function WorkspaceHub() {
                       href={selectedPhoto.productUrl}
                       target="_blank"
                       rel="noreferrer"
-                      className="text-xs text-pink-300 hover:text-white flex items-center gap-1"
+                      className="text-xs text-zinc-300 hover:text-white flex items-center gap-1"
                     >
                       Abrir <ExternalLink className="w-3 h-3" />
                     </a>
@@ -1449,7 +1449,7 @@ export function WorkspaceHub() {
                   <h3 className="text-lg font-bold text-white leading-tight">Google Keep</h3>
                   <p className="text-slate-400 text-xs mt-1">Toma notas breves sobre evaluaciones, preguntas o avisos rápidos del equipo de RH.</p>
                 </div>
-                <div className="p-2 bg-yellow-500/10 text-yellow-400 rounded-lg border border-yellow-500/20">
+                <div className="p-2 bg-zinc-500/10 text-zinc-400 rounded-lg border border-zinc-500/20">
                   <StickyNote className="w-5 h-5" />
                 </div>
               </div>
@@ -1470,14 +1470,14 @@ export function WorkspaceHub() {
                   rows={3}
                   className="w-full bg-transparent border-none text-xs text-slate-300 outline-none resize-none placeholder:text-slate-600 focus:ring-0"
                 />
-                
+
                 <div className="flex justify-between items-center pt-2 border-t border-white/5 shrink-0">
                   <div className="flex gap-1.5">
                     {[
-                      { id: 'yellow', color: 'bg-yellow-500' },
-                      { id: 'rose', color: 'bg-rose-500' },
-                      { id: 'purple', color: 'bg-purple-500' },
-                      { id: 'cyan', color: 'bg-cyan-500' }
+                      { id: 'tone1', color: 'bg-zinc-400' },
+                      { id: 'tone2', color: 'bg-zinc-500' },
+                      { id: 'tone3', color: 'bg-zinc-600' },
+                      { id: 'tone4', color: 'bg-zinc-700' }
                     ].map(col => (
                       <button
                         key={col.id}
@@ -1495,7 +1495,7 @@ export function WorkspaceHub() {
                   <button
                     type="submit"
                     disabled={isCreatingNote || (!newKeepNote.title && !newKeepNote.content)}
-                    className="bg-yellow-600 hover:bg-yellow-500 text-slate-950 font-bold text-[10px] uppercase tracking-wide py-1 px-3.5 rounded-lg transition-transform hover:scale-[1.02] cursor-pointer disabled:opacity-40"
+                    className="bg-zinc-600 hover:bg-zinc-500 text-slate-950 font-bold text-[10px] uppercase tracking-wide py-1 px-3.5 rounded-lg transition-transform hover:scale-[1.02] cursor-pointer disabled:opacity-40"
                   >
                     Guardar Nota
                   </button>
@@ -1509,10 +1509,10 @@ export function WorkspaceHub() {
                     key={note.id}
                     className={cn(
                       "p-4 rounded-2xl border flex flex-col justify-between relative group hover:shadow-lg transition-all",
-                      note.color === 'yellow' ? "bg-yellow-500/10 border-yellow-500/20 text-yellow-100" :
-                      note.color === 'rose' ? "bg-rose-500/10 border-rose-500/20 text-rose-100" :
-                      note.color === 'purple' ? "bg-purple-500/10 border-purple-500/20 text-purple-100" :
-                      "bg-cyan-500/10 border-cyan-500/20 text-cyan-100"
+                      note.color === 'tone1' ? "bg-zinc-400/10 border-zinc-400/20 text-zinc-100" :
+                      note.color === 'tone2' ? "bg-zinc-500/10 border-zinc-500/20 text-zinc-100" :
+                      note.color === 'tone3' ? "bg-zinc-600/10 border-zinc-600/20 text-zinc-100" :
+                      "bg-zinc-500/10 border-zinc-500/20 text-zinc-100"
                     )}
                   >
                     <button
@@ -1539,9 +1539,9 @@ export function WorkspaceHub() {
           <div className="glass-panel p-4 rounded-2xl border border-white/5 space-y-4">
             <div className="flex justify-between items-center border-b border-white/5 pb-2">
               <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest block">Consola de Respuestas de API</span>
-              <button 
+              <button
                 onClick={() => setApiLogs([])}
-                className="text-[9px] text-slate-550 hover:text-slate-200 uppercase tracking-wider font-bold transition-colors"
+                className="text-[9px] text-slate-500 hover:text-slate-200 uppercase tracking-wider font-bold transition-colors"
               >
                 Limpiar
               </button>
@@ -1550,30 +1550,30 @@ export function WorkspaceHub() {
             <div className="space-y-3.5 max-h-[460px] overflow-y-auto pr-1 style-3 font-mono">
               {apiLogs.map(log => (
                 <div key={log.id} className="text-[10px] bg-slate-950/60 p-2.5 rounded-lg border border-white/5 leading-relaxed">
-                  <div className="flex justify-between items-center text-[9px] text-slate-550 border-b border-white/5 pb-1 mb-1">
+                  <div className="flex justify-between items-center text-[9px] text-slate-500 border-b border-white/5 pb-1 mb-1">
                     <span className={cn(
                       "font-bold uppercase tracking-wide",
-                      log.type === "success" ? "text-emerald-450" :
-                      log.type === "warning" ? "text-amber-450" :
-                      log.type === "error" ? "text-rose-450" : "text-blue-450"
+                      log.type === "success" ? "text-zinc-400" :
+                      log.type === "warning" ? "text-zinc-400" :
+                      log.type === "error" ? "text-zinc-400" : "text-zinc-400"
                     )}>[{log.service}]</span>
                     <span>{log.time}</span>
                   </div>
-                  <div className="text-slate-350">{log.message}</div>
-                  
+                  <div className="text-slate-300">{log.message}</div>
+
                   {/* Expandable debug panel */}
                   {(log.request || log.response) && (
                     <div className="mt-2 pt-2 border-t border-white/5 space-y-1">
                       {log.request && (
                         <div>
                           <span className="text-[8px] text-slate-500">REQUEST:</span>
-                          <pre className="p-1 bg-slate-900 border border-white/5 rounded text-[8px] text-cyan-400 overflow-x-auto max-w-full leading-normal">{log.request}</pre>
+                          <pre className="p-1 bg-slate-900 border border-white/5 rounded text-[8px] text-zinc-400 overflow-x-auto max-w-full leading-normal">{log.request}</pre>
                         </div>
                       )}
                       {log.response && (
                         <div>
                           <span className="text-[8px] text-slate-500">RESPONSE:</span>
-                          <pre className="p-1 bg-slate-900 border border-white/5 rounded text-[8px] text-emerald-400 overflow-x-auto max-w-full leading-normal">{log.response}</pre>
+                          <pre className="p-1 bg-slate-900 border border-white/5 rounded text-[8px] text-zinc-400 overflow-x-auto max-w-full leading-normal">{log.response}</pre>
                         </div>
                       )}
                     </div>

@@ -14,6 +14,7 @@
     "preview": "node dist/server.cjs",
     "clean": "node -e \"require('fs').rmSync('dist',{recursive:true,force:true})\"",
     "lint": "tsc --noEmit",
+    "train:agents": "node scripts/train-agents.mjs",
     "simulate:users": "node scripts/simulate-users.mjs",
     "simulate:messages": "node scripts/simulate-message-load.mjs"
   },

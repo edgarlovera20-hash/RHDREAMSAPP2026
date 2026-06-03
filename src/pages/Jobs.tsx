@@ -156,7 +156,7 @@ export function Jobs() {
         </div>
         <button
           onClick={() => setIsModalOpen(true)}
-          className="bg-cyan-600/20 border border-cyan-500/50 hover:bg-cyan-600/40 text-cyan-50 hover:text-white px-4 py-2.5 rounded-lg font-bold text-xs flex items-center gap-2 transition-all shadow-[0_0_15px_rgba(163,163,163,0.2)] hover:shadow-[0_0_20px_rgba(163,163,163,0.4)]">
+          className="bg-zinc-600/20 border border-zinc-500/50 hover:bg-zinc-600/40 text-zinc-50 hover:text-white px-4 py-2.5 rounded-lg font-bold text-xs flex items-center gap-2 transition-all shadow-[0_0_15px_rgba(163,163,163,0.2)] hover:shadow-[0_0_20px_rgba(163,163,163,0.4)]">
           <Plus className="w-4 h-4" />
           Nueva Oferta
         </button>
@@ -180,7 +180,7 @@ export function Jobs() {
           <div key={job.id} className="glass-panel glass-panel-hover rounded-2xl flex flex-col p-6 group border border-white/5 hover:border-neutral-300/40 hover:shadow-[0_0_26px_rgba(245,245,245,0.14),0_0_70px_rgba(163,163,163,0.10)]">
             <div className="flex justify-between items-start gap-4 mb-5">
               <div className="flex items-start gap-4 min-w-0">
-                <div className="w-12 h-12 rounded-xl bg-cyan-500/10 text-cyan-400 flex items-center justify-center shrink-0 border border-cyan-500/20 group-hover:bg-white/[0.08] group-hover:border-neutral-200/35 group-hover:shadow-[0_0_18px_rgba(245,245,245,0.18),inset_0_0_10px_rgba(255,255,255,0.06)] transition-all">
+                <div className="w-12 h-12 rounded-xl bg-zinc-500/10 text-zinc-400 flex items-center justify-center shrink-0 border border-zinc-500/20 group-hover:bg-white/[0.08] group-hover:border-neutral-200/35 group-hover:shadow-[0_0_18px_rgba(245,245,245,0.18),inset_0_0_10px_rgba(255,255,255,0.06)] transition-all">
                   <Briefcase className="w-6 h-6 opacity-80" />
                 </div>
                 <div className="min-w-0">
@@ -200,8 +200,8 @@ export function Jobs() {
               </div>
               <span className={cn(
                 "px-2 py-1 rounded-md text-[10px] uppercase font-bold tracking-widest border shrink-0",
-                job.status === "Active" ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" :
-                job.status === "Closed" ? "bg-rose-500/10 text-rose-400 border-rose-500/20" :
+                job.status === "Active" ? "bg-zinc-500/10 text-zinc-400 border-zinc-500/20" :
+                job.status === "Closed" ? "bg-zinc-500/10 text-zinc-400 border-zinc-500/20" :
                 "bg-slate-800/50 text-slate-400 border-slate-700/50"
               )}>
                 {job.status === "Active" ? "Activa" : job.status === "Closed" ? "Cerrada" : "Borrador"}
@@ -219,12 +219,12 @@ export function Jobs() {
               <InfoBlock icon={Gift} label="Que se ofrece" value={`${job.offer} ${job.benefits}`} />
             </div>
 
-            <div className="rounded-xl border border-cyan-500/15 bg-cyan-500/5 p-4 mb-5 transition-all hover:border-neutral-300/35 hover:bg-white/[0.04] hover:shadow-[0_0_18px_rgba(245,245,245,0.10)]">
+            <div className="rounded-xl border border-zinc-500/15 bg-zinc-500/5 p-4 mb-5 transition-all hover:border-neutral-300/35 hover:bg-white/[0.04] hover:shadow-[0_0_18px_rgba(245,245,245,0.10)]">
               <div className="flex items-center justify-between gap-3 mb-2">
-                <h4 className="text-xs font-bold uppercase tracking-widest text-cyan-300">Brief para el agente</h4>
+                <h4 className="text-xs font-bold uppercase tracking-widest text-zinc-300">Brief para el agente</h4>
                 <button
                   onClick={() => copyBrief(job)}
-                  className="text-xs text-cyan-300 hover:text-white flex items-center gap-1"
+                  className="text-xs text-zinc-300 hover:text-white flex items-center gap-1"
                 >
                   {copiedJobId === job.id ? <CheckCircle2 className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
                   {copiedJobId === job.id ? "Copiado" : "Copiar"}
@@ -255,7 +255,7 @@ export function Jobs() {
                   Ver ficha
                 </button>
                 {job.status === "Active" && (
-                  <button className="p-2 text-slate-400 hover:text-cyan-400 hover:bg-cyan-500/10 rounded-lg transition-colors">
+                  <button className="p-2 text-slate-400 hover:text-zinc-400 hover:bg-zinc-500/10 rounded-lg transition-colors">
                     <Share2 className="w-4 h-4" />
                   </button>
                 )}
@@ -303,7 +303,7 @@ function InfoBlock({ icon: Icon, label, value }: { icon: typeof Briefcase; label
   return (
     <div className="rounded-xl border border-white/5 bg-slate-950/35 p-3 transition-all hover:border-neutral-300/25 hover:bg-white/[0.035] hover:shadow-[0_0_14px_rgba(212,212,212,0.08)]">
       <div className="flex items-center gap-2 text-[10px] uppercase tracking-widest text-slate-500 font-bold mb-2">
-        <Icon className="w-3.5 h-3.5 text-cyan-400" />
+        <Icon className="w-3.5 h-3.5 text-zinc-400" />
         {label}
       </div>
       <p className="text-xs text-slate-300 leading-5">{value || "Pendiente"}</p>
@@ -328,8 +328,8 @@ function JobModal({
     <div className="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
       <div className="bg-slate-900 border border-slate-700/50 rounded-2xl w-full max-w-4xl max-h-[92vh] overflow-y-auto glass-panel shadow-2xl">
         <div className="sticky top-0 bg-slate-900/95 border-b border-slate-700/50 p-5 flex items-center justify-between z-10">
-          <h2 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-blue-500 flex items-center gap-2">
-            <Briefcase className="w-6 h-6 text-cyan-400" />
+          <h2 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-zinc-400 to-zinc-500 flex items-center gap-2">
+            <Briefcase className="w-6 h-6 text-zinc-400" />
             {title}
           </h2>
           <button onClick={onClose} className="text-slate-400 hover:text-white p-2 transition-colors">
@@ -370,7 +370,7 @@ function JobModal({
             <select
               value={job.status}
               onChange={(event) => onChange("status", event.target.value)}
-              className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition-all appearance-none"
+              className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 transition-all appearance-none"
             >
               <option value="Draft">Borrador</option>
               <option value="Active">Activa</option>
@@ -386,7 +386,7 @@ function JobModal({
           <button
             onClick={onSave}
             disabled={!job.title || !job.department || !job.location}
-            className="bg-cyan-500 hover:bg-cyan-600 text-slate-900 font-semibold px-6 py-2 rounded-xl text-sm transition-all shadow-[0_0_15px_rgba(212,212,212,0.2)] disabled:opacity-50 disabled:cursor-not-allowed"
+            className="bg-zinc-500 hover:bg-zinc-600 text-slate-900 font-semibold px-6 py-2 rounded-xl text-sm transition-all shadow-[0_0_15px_rgba(212,212,212,0.2)] disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Crear Oferta
           </button>
@@ -399,12 +399,12 @@ function JobModal({
 function Field({ label, value, onChange, placeholder, required }: { label: string; value: string; onChange: (value: string) => void; placeholder: string; required?: boolean }) {
   return (
     <div>
-      <label className="text-sm text-slate-300 mb-1.5 block">{label}{required && <span className="text-rose-400"> *</span>}</label>
+      <label className="text-sm text-slate-300 mb-1.5 block">{label}{required && <span className="text-zinc-400"> *</span>}</label>
       <input
         type="text"
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition-all"
+        className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 transition-all"
         placeholder={placeholder}
       />
     </div>
@@ -419,7 +419,7 @@ function Area({ label, value, onChange, placeholder, rows = 3 }: { label: string
         value={value}
         rows={rows}
         onChange={(event) => onChange(event.target.value)}
-        className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition-all resize-none"
+        className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 transition-all resize-none"
         placeholder={placeholder}
       />
     </div>

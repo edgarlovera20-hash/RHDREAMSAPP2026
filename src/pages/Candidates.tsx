@@ -25,16 +25,16 @@ const localizer = dateFnsLocalizer({
 
 type CalendarViewMode = 'month' | 'week' | 'day';
 
-// Helper function for stage colors
+// Helper function for stage tones
 const getStageColor = (stage: string) => {
   const stageLower = stage.toLowerCase();
-  if (['nuevo'].includes(stageLower)) return 'cyan';
-  if (['contactado', 'habló con agente', 'espera de respuesta', 'reagendar'].includes(stageLower)) return 'yellow';
-  if (['cita agendada', 'confirmó asistencia'].includes(stageLower)) return 'cyan';
-  if (['día de observación / ddo', 'ddo y bienvenida'].includes(stageLower)) return 'orange';
-  if (['bienvenida 1er día', 'inventario y materiales', 'seguimiento y bienestar', 'contratado'].includes(stageLower)) return 'emerald';
-  if (['rechazado', 'no asistió'].includes(stageLower)) return 'rose';
-  if (['entrevista realizada', 'en capacitación'].includes(stageLower)) return 'purple';
+  if (['nuevo'].includes(stageLower)) return 'tone1';
+  if (['contactado', 'habló con agente', 'espera de respuesta', 'reagendar'].includes(stageLower)) return 'tone2';
+  if (['cita agendada', 'confirmó asistencia'].includes(stageLower)) return 'tone1';
+  if (['día de observación / ddo', 'ddo y bienvenida'].includes(stageLower)) return 'tone3';
+  if (['bienvenida 1er día', 'inventario y materiales', 'seguimiento y bienestar', 'contratado'].includes(stageLower)) return 'tone4';
+  if (['rechazado', 'no asistió'].includes(stageLower)) return 'tone5';
+  if (['entrevista realizada', 'en capacitación'].includes(stageLower)) return 'tone6';
   return 'slate';
 };
 
@@ -42,14 +42,14 @@ const getStageColor = (stage: string) => {
 const SourceIcon = ({ source }: { source: string }) => {
   const s = source?.toLowerCase() || '';
   if (s.includes('linkedin')) return <Linkedin className="w-3 h-3 text-[#737373]" />;
-  if (s.includes('facebook') || s.includes('messenger')) return <Facebook className="w-3 h-3 text-blue-400" />;
-  if (s.includes('whatsapp')) return <MessageCircle className="w-3 h-3 text-emerald-400" />;
-  if (s.includes('job board') || s.includes('portal')) return <Globe className="w-3 h-3 text-amber-500" />;
+  if (s.includes('facebook') || s.includes('messenger')) return <Facebook className="w-3 h-3 text-zinc-400" />;
+  if (s.includes('whatsapp')) return <MessageCircle className="w-3 h-3 text-zinc-400" />;
+  if (s.includes('job board') || s.includes('portal')) return <Globe className="w-3 h-3 text-zinc-500" />;
   if (s.includes('volante') || s.includes('documento')) return <FileText className="w-3 h-3 text-slate-300" />;
-  if (s.includes('lona') || s.includes('física') || s.includes('ubicación')) return <Map className="w-3 h-3 text-orange-400" />;
-  if (s.includes('instagram') || s.includes('tiktok')) return <ImageIcon className="w-3 h-3 text-pink-400" />;
-  if (s.includes('referido') || s.includes('referral')) return <User className="w-3 h-3 text-purple-400" />;
-  return <Briefcase className="w-3 h-3 text-cyan-400" />;
+  if (s.includes('lona') || s.includes('física') || s.includes('ubicación')) return <Map className="w-3 h-3 text-zinc-400" />;
+  if (s.includes('instagram') || s.includes('tiktok')) return <ImageIcon className="w-3 h-3 text-zinc-400" />;
+  if (s.includes('referido') || s.includes('referral')) return <User className="w-3 h-3 text-zinc-400" />;
+  return <Briefcase className="w-3 h-3 text-zinc-400" />;
 };
 
 const formatAppointmentTime = (date: Date) => {
@@ -108,7 +108,7 @@ export function Candidates() {
   const { triggerEvent } = useNotifications();
 
   let displayedCandidates = [...candidates];
-  
+
   if (searchFilterTerm) {
     const term = searchFilterTerm.toLowerCase();
     displayedCandidates = displayedCandidates.filter(c => {
@@ -159,7 +159,7 @@ export function Candidates() {
       const start = parseAppointmentDateTime(appt.date, appt.time || "09:00");
       const end = new Date(start.getTime() + 60 * 60 * 1000);
       const timeLabel = `${formatAppointmentTime(start)} - ${formatAppointmentTime(end)}`;
-      
+
       return {
         id: appt.id,
         title: `${timeLabel} · ${candidate.name}`,
@@ -182,46 +182,46 @@ export function Candidates() {
   return (
     <div className="flex flex-col gap-6 h-full pb-8">
       {selectedCandidate && (
-        <CandidateProfileModal 
-          candidate={selectedCandidate} 
-          onClose={() => setSelectedCandidate(null)} 
+        <CandidateProfileModal
+          candidate={selectedCandidate}
+          onClose={() => setSelectedCandidate(null)}
           onUpdate={updateCandidate}
         />
       )}
-      
+
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pt-2">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight text-white flex items-center gap-2">
-            <Activity className="w-6 h-6 text-cyan-400" />
+            <Activity className="w-6 h-6 text-zinc-400" />
             CRM Pipeline
           </h1>
           <p className="text-slate-400 text-sm font-light mt-1">Supervisión y flujo en tiempo real de talentos.</p>
         </div>
         <div className="flex self-start sm:self-auto flex-wrap items-center gap-3">
           <div className="glass-panel p-1 rounded-lg flex border border-slate-700/50 w-full sm:w-auto overflow-x-auto">
-            <button 
+            <button
               onClick={() => setActiveView('kanban')}
-              className={cn("px-3 py-1.5 text-sm font-medium rounded-md transition-colors", activeView === 'kanban' ? "bg-slate-800/80 text-cyan-400 shadow-sm" : "text-slate-500 hover:text-slate-300")}
+              className={cn("px-3 py-1.5 text-sm font-medium rounded-md transition-colors", activeView === 'kanban' ? "bg-slate-800/80 text-zinc-400 shadow-sm" : "text-slate-500 hover:text-slate-300")}
             >
               Kanban
             </button>
-            <button 
+            <button
               onClick={() => setActiveView('list')}
-              className={cn("px-3 py-1.5 text-sm font-medium rounded-md transition-colors", activeView === 'list' ? "bg-slate-800/80 text-cyan-400 shadow-sm" : "text-slate-500 hover:text-slate-300")}
+              className={cn("px-3 py-1.5 text-sm font-medium rounded-md transition-colors", activeView === 'list' ? "bg-slate-800/80 text-zinc-400 shadow-sm" : "text-slate-500 hover:text-slate-300")}
             >
               Tabla
             </button>
-            <button 
+            <button
               onClick={() => setActiveView('calendar')}
-              className={cn("px-3 py-1.5 text-sm font-medium rounded-md transition-colors", activeView === 'calendar' ? "bg-slate-800/80 text-cyan-400 shadow-sm" : "text-slate-500 hover:text-slate-300")}
+              className={cn("px-3 py-1.5 text-sm font-medium rounded-md transition-colors", activeView === 'calendar' ? "bg-slate-800/80 text-zinc-400 shadow-sm" : "text-slate-500 hover:text-slate-300")}
             >
               Calendario
             </button>
             {activeView === 'kanban' && (
-              <button 
+              <button
                 onClick={() => setIsEditingStages(!isEditingStages)}
-                className={cn("px-2 py-1.5 ml-1 text-sm font-medium rounded-md transition-colors border max-w-fit flex items-center justify-center", 
-                  isEditingStages ? "bg-cyan-500/10 text-cyan-400 border-cyan-500/30" : "text-slate-500 hover:text-slate-300 border-transparent"
+                className={cn("px-2 py-1.5 ml-1 text-sm font-medium rounded-md transition-colors border max-w-fit flex items-center justify-center",
+                  isEditingStages ? "bg-zinc-500/10 text-zinc-400 border-zinc-500/30" : "text-slate-500 hover:text-slate-300 border-transparent"
                 )}
                 title="Editar Etapas"
               >
@@ -229,7 +229,7 @@ export function Candidates() {
               </button>
             )}
           </div>
-          <button 
+          <button
             onClick={() => {
               triggerEvent('sync', {
                 title: 'Sincronización Iniciada',
@@ -241,7 +241,7 @@ export function Candidates() {
             <Linkedin className="w-4 h-4" />
             Importar/Sincronizar
           </button>
-          <button 
+          <button
             onClick={() => {
               triggerEvent('info', {
                 title: 'Alta manual pendiente',
@@ -249,7 +249,7 @@ export function Candidates() {
                 type: 'info'
               });
             }}
-            className="bg-cyan-600/20 border border-cyan-500/50 hover:bg-cyan-600/40 text-cyan-50 hover:text-white px-4 py-2.5 rounded-lg font-bold text-xs flex items-center gap-2 transition-all shadow-[0_0_15px_rgba(163,163,163,0.2)] hover:shadow-[0_0_20px_rgba(163,163,163,0.4)]">
+            className="bg-zinc-600/20 border border-zinc-500/50 hover:bg-zinc-600/40 text-zinc-50 hover:text-white px-4 py-2.5 rounded-lg font-bold text-xs flex items-center gap-2 transition-all shadow-[0_0_15px_rgba(163,163,163,0.2)] hover:shadow-[0_0_20px_rgba(163,163,163,0.4)]">
             <Plus className="w-4 h-4" />
             Nuevo Lead
           </button>
@@ -259,33 +259,33 @@ export function Candidates() {
       <div className="flex flex-col sm:flex-row items-center gap-2 glass-panel p-2 rounded-xl border border-slate-700/50">
         <div className="relative w-full sm:flex-1">
           <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
-          <input 
-            type="text" 
+          <input
+            type="text"
             value={searchFilterTerm}
             onChange={(e) => setSearchFilterTerm(e.target.value)}
-            placeholder="Buscar por nombre, vacante, número o email..." 
+            placeholder="Buscar por nombre, vacante, número o email..."
             className="w-full pl-9 pr-4 py-2 text-sm bg-transparent border-none outline-none focus:ring-0 placeholder:text-slate-500 text-white font-light"
           />
         </div>
         <div className="hidden sm:block h-6 w-px bg-white/10 mx-2"></div>
         <div className="flex w-full sm:w-auto gap-2 flex-wrap sm:flex-nowrap justify-between sm:justify-start">
-          <button 
+          <button
             onClick={() => { setSortBySource(false); setSortByRating(!sortByRating); }}
           className={cn(
             "px-4 py-2 text-xs border rounded-md transition-colors font-medium flex items-center gap-2",
-            sortByRating 
-              ? "bg-yellow-500/10 border-yellow-500/50 text-yellow-400" 
+            sortByRating
+              ? "bg-zinc-500/10 border-zinc-500/50 text-zinc-400"
               : "bg-slate-800/50 border-white/5 text-slate-300 hover:bg-slate-800 hover:text-white"
           )}
         >
-          <Star className={cn("w-3.5 h-3.5", sortByRating && "fill-yellow-400")} /> Mejores
+          <Star className={cn("w-3.5 h-3.5", sortByRating && "fill-zinc-400")} /> Mejores
         </button>
-        <button 
+        <button
           onClick={() => { setSortByRating(false); setSortBySource(!sortBySource); }}
           className={cn(
             "px-4 py-2 text-xs border rounded-md transition-colors font-medium flex items-center gap-2",
-            sortBySource 
-              ? "bg-purple-500/10 border-purple-500/50 text-purple-400" 
+            sortBySource
+              ? "bg-zinc-500/10 border-zinc-500/50 text-zinc-400"
               : "bg-slate-800/50 border-white/5 text-slate-300 hover:bg-slate-800 hover:text-white"
           )}
         >
@@ -293,19 +293,19 @@ export function Candidates() {
         </button>
 
           <div className="relative w-full sm:w-auto">
-            <button 
+            <button
               onClick={() => setIsAdvancedFilterOpen(!isAdvancedFilterOpen)}
               className={cn(
                 "w-full sm:w-auto justify-center px-4 py-2 text-xs border rounded-md transition-colors font-medium flex items-center gap-2",
               selectedSources.length > 0 || selectedPools.length > 0 || selectedLocations.length > 0 || selectedExperience.length > 0 || selectedSalary.length > 0
-                ? "bg-cyan-500/10 border-cyan-500/50 text-cyan-400"
+                ? "bg-zinc-500/10 border-zinc-500/50 text-zinc-400"
                 : "bg-slate-800/50 border-white/5 text-slate-300 hover:bg-slate-800 hover:text-white"
             )}
           >
-            <Filter className="w-3.5 h-3.5" /> 
+            <Filter className="w-3.5 h-3.5" />
             {(selectedSources.length > 0 || selectedPools.length > 0 || selectedLocations.length > 0 || selectedExperience.length > 0 || selectedSalary.length > 0) ? `Filtros Activos` : 'Filtros Avanzados'}
           </button>
-          
+
           {isAdvancedFilterOpen && (
             <div className="absolute right-0 top-full mt-2 w-[calc(100vw-2rem)] sm:w-96 bg-slate-900/95 backdrop-blur-xl border border-slate-700 rounded-xl shadow-2xl z-50 overflow-hidden flex flex-col max-h-[80vh]">
               <div className="p-3 bg-slate-800/50 border-b border-slate-700 flex justify-between items-center shrink-0">
@@ -320,11 +320,11 @@ export function Candidates() {
                 <div className="p-3 border-b border-white/5 bg-slate-900/20">
                   <div className="relative">
                     <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-500" />
-                    <input 
+                    <input
                       type="text"
                       placeholder="Búsqueda booleana (ej. React AND Node)..."
                       onChange={() => {}}
-                      className="w-full bg-slate-950/50 border border-slate-700/80 focus:border-cyan-500/50 rounded-lg pl-8 pr-3 py-1.5 text-xs text-white placeholder:text-slate-500 focus:outline-none transition-colors"
+                      className="w-full bg-slate-950/50 border border-slate-700/80 focus:border-zinc-500/50 rounded-lg pl-8 pr-3 py-1.5 text-xs text-white placeholder:text-slate-500 focus:outline-none transition-colors"
                     />
                   </div>
                 </div>
@@ -338,14 +338,14 @@ export function Candidates() {
                     <div className="space-y-1.5 flex-1 overflow-y-auto">
                       {uniquePools.map((pool) => (
                         <label key={pool} className="flex items-center gap-2 px-2 py-1.5 hover:bg-slate-800/50 rounded-lg cursor-pointer text-xs text-slate-300 transition-colors group">
-                          <input 
+                          <input
                             type="checkbox"
                             checked={selectedPools.includes(pool)}
                             onChange={(e) => {
                               if (e.target.checked) setSelectedPools([...selectedPools, pool]);
                               else setSelectedPools(selectedPools.filter(s => s !== pool));
                             }}
-                            className="rounded border-slate-600 bg-slate-800 text-cyan-500 focus:ring-cyan-500/20"
+                            className="rounded border-slate-600 bg-slate-800 text-zinc-500 focus:ring-zinc-500/20"
                           />
                           <span className="group-hover:text-white truncate">{pool}</span>
                         </label>
@@ -357,28 +357,28 @@ export function Candidates() {
                   <div className="bg-slate-900 p-3 flex flex-col">
                     <div className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-3 flex items-center justify-between shrink-0">
                       <span className="flex items-center gap-1.5"><Filter className="w-3 h-3" /> Fuentes</span>
-                      <button 
+                      <button
                         onClick={() => {
                           if (selectedSources.length === uniqueSources.length) setSelectedSources([]);
                           else setSelectedSources([...uniqueSources]);
                         }}
-                        className="text-cyan-500 hover:text-cyan-400 normal-case text-[10px] font-medium transition-colors"
+                        className="text-zinc-500 hover:text-zinc-400 normal-case text-[10px] font-medium transition-colors"
                       >
                         {selectedSources.length === uniqueSources.length ? 'Limpiar todas' : 'Seleccionar todas'}
                       </button>
                     </div>
-                    
+
                     <div className="max-h-32 overflow-y-auto styled-scrollbar space-y-1.5 pr-1 mb-2">
                       {uniqueSources.map((source) => (
                         <label key={source} className="flex items-center gap-2 px-2 py-1.5 hover:bg-slate-800/50 rounded-lg cursor-pointer text-xs text-slate-300 transition-colors group">
-                          <input 
+                          <input
                             type="checkbox"
                             checked={selectedSources.includes(source)}
                             onChange={(e) => {
                               if (e.target.checked) setSelectedSources([...selectedSources, source]);
                               else setSelectedSources(selectedSources.filter(s => s !== source));
                             }}
-                            className="rounded border-slate-600 bg-slate-800 text-cyan-500 focus:ring-cyan-500/20"
+                            className="rounded border-slate-600 bg-slate-800 text-zinc-500 focus:ring-zinc-500/20"
                           />
                           <SourceIcon source={source} />
                           <span className="group-hover:text-white truncate">{source}</span>
@@ -386,7 +386,7 @@ export function Candidates() {
                       ))}
                     </div>
                   </div>
-                  
+
                   {/* Location Section */}
                   <div className="bg-slate-900 p-3 flex flex-col col-span-2 sm:col-span-1">
                     <div className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-3 flex items-center gap-1.5 shrink-0">
@@ -395,14 +395,14 @@ export function Candidates() {
                     <div className="space-y-1.5 max-h-32 overflow-y-auto styled-scrollbar">
                       {uniqueLocations.map((loc) => (
                         <label key={loc} className="flex items-center gap-2 px-2 py-1.5 hover:bg-slate-800/50 rounded-lg cursor-pointer text-xs text-slate-300 transition-colors group">
-                          <input 
+                          <input
                             type="checkbox"
                             checked={selectedLocations.includes(loc)}
                             onChange={(e) => {
                               if (e.target.checked) setSelectedLocations([...selectedLocations, loc]);
                               else setSelectedLocations(selectedLocations.filter(l => l !== loc));
                             }}
-                            className="rounded border-slate-600 bg-slate-800 text-cyan-500 focus:ring-cyan-500/20"
+                            className="rounded border-slate-600 bg-slate-800 text-zinc-500 focus:ring-zinc-500/20"
                           />
                           <span className="group-hover:text-white truncate">{loc}</span>
                         </label>
@@ -418,14 +418,14 @@ export function Candidates() {
                     <div className="space-y-1.5 max-h-32 overflow-y-auto styled-scrollbar">
                       {uniqueExperience.map((exp) => (
                         <label key={exp} className="flex items-center gap-2 px-2 py-1.5 hover:bg-slate-800/50 rounded-lg cursor-pointer text-xs text-slate-300 transition-colors group">
-                          <input 
+                          <input
                             type="checkbox"
                             checked={selectedExperience.includes(exp)}
                             onChange={(e) => {
                               if (e.target.checked) setSelectedExperience([...selectedExperience, exp]);
                               else setSelectedExperience(selectedExperience.filter(l => l !== exp));
                             }}
-                            className="rounded border-slate-600 bg-slate-800 text-cyan-500 focus:ring-cyan-500/20"
+                            className="rounded border-slate-600 bg-slate-800 text-zinc-500 focus:ring-zinc-500/20"
                           />
                           <span className="group-hover:text-white truncate">{exp}</span>
                         </label>
@@ -450,7 +450,7 @@ export function Candidates() {
                             }}
                             className={cn(
                               "text-xs px-3 py-1.5 rounded border transition-colors",
-                              isSelected ? "bg-cyan-500/10 border-cyan-500/50 text-cyan-400" : "bg-slate-800 border-slate-700 text-slate-400 hover:text-white hover:border-slate-500"
+                              isSelected ? "bg-zinc-500/10 border-zinc-500/50 text-zinc-400" : "bg-slate-800 border-slate-700 text-slate-400 hover:text-white hover:border-slate-500"
                             )}>
                             {sal}
                           </button>
@@ -466,16 +466,16 @@ export function Candidates() {
                   <span className="text-[10px] text-slate-400 font-medium">
                     {selectedSources.length + selectedPools.length + selectedLocations.length + selectedExperience.length + selectedSalary.length} filtros activos
                   </span>
-                  <button 
-                    onClick={() => { 
-                      setSelectedSources([]); 
-                      setSelectedPools([]); 
+                  <button
+                    onClick={() => {
+                      setSelectedSources([]);
+                      setSelectedPools([]);
                       setSelectedLocations([]);
                       setSelectedExperience([]);
                       setSelectedSalary([]);
-                      setSearchFilterTerm(""); 
+                      setSearchFilterTerm("");
                     }}
-                    className="text-xs text-rose-400 hover:text-rose-300 font-medium border border-rose-500/30 hover:border-rose-400/50 px-3 py-1.5 rounded-lg transition-colors hover:bg-rose-500/10"
+                    className="text-xs text-zinc-400 hover:text-zinc-300 font-medium border border-zinc-500/30 hover:border-zinc-400/50 px-3 py-1.5 rounded-lg transition-colors hover:bg-zinc-500/10"
                   >
                     Restablecer
                   </button>
@@ -497,41 +497,41 @@ export function Candidates() {
               const colorBase = getStageColor(stage);
               const bgLineMap: Record<string, string> = {
                 slate: "via-slate-500/30",
-                cyan: "via-cyan-500/50",
-                purple: "via-purple-500/50",
-                orange: "via-orange-500/50",
-                emerald: "via-emerald-500/50",
-                rose: "via-rose-500/50",
-                yellow: "via-yellow-500/50"
+                tone1: "via-zinc-500/50",
+                tone2: "via-zinc-500/50",
+                tone3: "via-zinc-500/50",
+                tone4: "via-zinc-500/50",
+                tone5: "via-zinc-500/50",
+                tone6: "via-zinc-500/50"
               };
               const textMap: Record<string, string> = {
                 slate: "text-slate-400",
-                cyan: "text-cyan-400",
-                purple: "text-purple-400",
-                orange: "text-orange-400",
-                emerald: "text-emerald-400",
-                rose: "text-rose-400",
-                yellow: "text-yellow-400"
+                tone1: "text-zinc-400",
+                tone2: "text-zinc-400",
+                tone3: "text-zinc-400",
+                tone4: "text-zinc-400",
+                tone5: "text-zinc-400",
+                tone6: "text-zinc-400"
               };
 
               return (
               <div key={stage} className={cn("flex flex-col w-[320px] flex-shrink-0 glass-panel rounded-xl p-3 snap-start relative overflow-hidden border border-slate-700/30")}>
                 <div className={`absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-transparent ${bgLineMap[colorBase]} to-transparent opacity-80`}></div>
-                
+
                 <div className="flex items-center justify-between mb-3 px-1 relative z-10 pt-1">
                   {isEditingStages ? (
                     <div className="flex items-center justify-between w-full gap-2">
-                       <input 
-                         type="text" 
-                         value={stage} 
+                       <input
+                         type="text"
+                         value={stage}
                          onChange={(e) => {
                            const newStages = [...kanbanStages];
                            newStages[index] = e.target.value;
                            setKanbanStages(newStages);
                          }}
-                         className="bg-slate-900 border border-white/20 text-xs text-white px-2 py-1 rounded w-full focus:outline-none focus:border-cyan-500"
+                         className="bg-slate-900 border border-white/20 text-xs text-white px-2 py-1 rounded w-full focus:outline-none focus:border-zinc-500"
                        />
-                       <button onClick={() => setKanbanStages(kanbanStages.filter((_, i) => i !== index))} className="text-rose-400 hover:text-rose-300 p-1 bg-rose-500/10 rounded">
+                       <button onClick={() => setKanbanStages(kanbanStages.filter((_, i) => i !== index))} className="text-zinc-400 hover:text-zinc-300 p-1 bg-zinc-500/10 rounded">
                          <Trash2 className="w-3.5 h-3.5" />
                        </button>
                     </div>
@@ -550,29 +550,29 @@ export function Candidates() {
 
                 <div className="flex-1 overflow-y-auto flex flex-col gap-3 min-h-0 pr-1 styled-scrollbar relative z-10">
                   {displayedCandidates.filter(c => c.stage === stage).map(candidate => (
-                    <div 
-                      key={candidate.id} 
+                    <div
+                      key={candidate.id}
                       onClick={() => setSelectedCandidate(candidate)}
                       className={cn(
                         "glass-panel text-left p-3.5 rounded-xl transition-all cursor-pointer group hover:scale-[1.02] border hover:border-white/10",
                         "hover:shadow-[0_8px_30px_rgba(0,0,0,0.5)] flex flex-col gap-2 relative overflow-hidden"
                       )}
                     >
-                      <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/0 to-cyan-500/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                      
+                      <div className="absolute inset-0 bg-gradient-to-br from-zinc-500/0 to-zinc-500/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+
                       <div className="flex gap-3 relative z-10">
                         <div className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center text-slate-300 font-bold border border-slate-700 shadow-inner overflow-hidden shrink-0">
                           <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
                           <span className="relative z-10">{candidate.name.charAt(0)}</span>
                         </div>
-                        
+
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center justify-between">
-                            <h4 className="font-semibold text-slate-100 text-sm truncate group-hover:text-cyan-300 transition-colors">{candidate.name}</h4>
+                            <h4 className="font-semibold text-slate-100 text-sm truncate group-hover:text-zinc-300 transition-colors">{candidate.name}</h4>
                             {candidate.rating > 0 && (
                               <div className="flex items-center">
-                                <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
-                                <span className="text-[10px] text-yellow-400 font-bold ml-0.5">{candidate.rating}</span>
+                                <Star className="w-3 h-3 fill-zinc-400 text-zinc-400" />
+                                <span className="text-[10px] text-zinc-400 font-bold ml-0.5">{candidate.rating}</span>
                               </div>
                             )}
                           </div>
@@ -591,14 +591,14 @@ export function Candidates() {
                         </span>
                       </div>
 
-                      <p className="relative z-10 line-clamp-2 rounded-lg border border-amber-500/15 bg-amber-500/5 px-2 py-1.5 text-[11px] leading-relaxed text-amber-100/80">
-                        <span className="font-semibold text-amber-300">Motivo:</span> {inferVisitReason(candidate)}
+                      <p className="relative z-10 line-clamp-2 rounded-lg border border-zinc-500/15 bg-zinc-500/5 px-2 py-1.5 text-[11px] leading-relaxed text-zinc-100/80">
+                        <span className="font-semibold text-zinc-300">Motivo:</span> {inferVisitReason(candidate)}
                       </p>
 
                       {deriveCandidateTags(candidate).length > 0 && (
                         <div className="relative z-10 flex flex-wrap gap-1.5">
                           {deriveCandidateTags(candidate).slice(0, 4).map((tag: string) => (
-                            <span key={tag} className="inline-flex items-center gap-1 rounded-md border border-cyan-500/15 bg-cyan-500/10 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-cyan-300">
+                            <span key={tag} className="inline-flex items-center gap-1 rounded-md border border-zinc-500/15 bg-zinc-500/10 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-zinc-300">
                               <Tag className="w-2.5 h-2.5" />
                               {tag}
                             </span>
@@ -611,14 +611,14 @@ export function Candidates() {
                            <SourceIcon source={candidate.source} />
                            {candidate.source}
                         </div>
-                        
+
                         <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity shadow-sm">
                           {candidate.linkedin && (
                             <button onClick={(e) => { e.stopPropagation(); window.open(candidate.linkedin.startsWith('http') ? candidate.linkedin : `https://${candidate.linkedin}`, '_blank'); }} className="p-1.5 bg-[#737373]/10 text-[#737373] hover:bg-[#737373]/30 hover:text-[#737373]/80 rounded-md transition-colors" title="Ver LinkedIn">
                               <Linkedin className="w-3.5 h-3.5" />
                             </button>
                           )}
-                          <button onClick={(e) => { e.stopPropagation(); setContactCandidate(candidate); }} className="px-2 py-1 bg-cyan-500/10 text-cyan-400 hover:bg-cyan-500/20 rounded text-[10px] font-semibold transition-colors uppercase flex items-center gap-1">
+                          <button onClick={(e) => { e.stopPropagation(); setContactCandidate(candidate); }} className="px-2 py-1 bg-zinc-500/10 text-zinc-400 hover:bg-zinc-500/20 rounded text-[10px] font-semibold transition-colors uppercase flex items-center gap-1">
                             <Send className="w-3 h-3" /> Contactar
                           </button>
                            <div className="relative group/menu shrink-0">
@@ -639,11 +639,11 @@ export function Candidates() {
                                     });
                                   }}
                                   className={cn(
-                                    "w-full text-left px-3 py-1.5 text-xs text-slate-300 hover:bg-cyan-500/10 hover:text-cyan-400 transition-colors flex items-center gap-1.5",
-                                    candidate.stage === stg && "text-cyan-400 font-bold bg-cyan-500/5"
+                                    "w-full text-left px-3 py-1.5 text-xs text-slate-300 hover:bg-zinc-500/10 hover:text-zinc-400 transition-colors flex items-center gap-1.5",
+                                    candidate.stage === stg && "text-zinc-400 font-bold bg-zinc-500/5"
                                   )}
                                 >
-                                  {candidate.stage === stg && <Check className="w-3 h-3 text-cyan-400" />}
+                                  {candidate.stage === stg && <Check className="w-3 h-3 text-zinc-400" />}
                                   {stg}
                                 </button>
                               ))}
@@ -662,16 +662,16 @@ export function Candidates() {
                 </div>
               </div>
             )})}
-            
+
             {isEditingStages && (
               <div className="flex flex-col w-[320px] flex-shrink-0 glass-panel rounded-xl p-3 snap-start relative border-2 border-dashed border-white/10 items-center justify-center min-h-[200px]">
                  <div className="w-full flex gap-2">
-                   <input 
-                     type="text" 
+                   <input
+                     type="text"
                      placeholder="Nueva etapa..."
                      value={newStageName}
                      onChange={(e) => setNewStageName(e.target.value)}
-                     className="bg-slate-900 border border-white/10 text-sm text-white px-3 py-2 rounded-lg w-full focus:outline-none focus:border-cyan-500/50"
+                     className="bg-slate-900 border border-white/10 text-sm text-white px-3 py-2 rounded-lg w-full focus:outline-none focus:border-zinc-500/50"
                      onKeyDown={(e) => {
                        if (e.key === 'Enter' && newStageName.trim()) {
                          setKanbanStages([...kanbanStages, newStageName.trim()]);
@@ -679,14 +679,14 @@ export function Candidates() {
                        }
                      }}
                    />
-                   <button 
+                   <button
                      onClick={() => {
                        if (newStageName.trim()) {
                          setKanbanStages([...kanbanStages, newStageName.trim()]);
                          setNewStageName('');
                        }
                      }}
-                     className="bg-cyan-500/10 text-cyan-400 hover:bg-cyan-500/20 px-3 py-2 rounded-lg transition-colors border border-cyan-500/20 shadow-[0_0_10px_rgba(163,163,163,0.1)]"
+                     className="bg-zinc-500/10 text-zinc-400 hover:bg-zinc-500/20 px-3 py-2 rounded-lg transition-colors border border-zinc-500/20 shadow-[0_0_10px_rgba(163,163,163,0.1)]"
                    >
                      <Plus className="w-5 h-5" />
                    </button>
@@ -696,7 +696,7 @@ export function Candidates() {
           </div>
         </div>
       )}
-      
+
       {activeView === 'calendar' && (
         <div className="flex-1 glass-panel rounded-2xl border border-slate-700/50 p-4 min-h-[600px] bg-slate-900/50">
           <div className="grid h-full grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1fr)_300px]">
@@ -732,14 +732,14 @@ export function Candidates() {
                 event: ({ event }: any) => (
                   calendarView === 'month' ? (
                     <div className="flex min-w-0 items-center gap-1 leading-tight">
-                      <span className="shrink-0 font-mono text-[10px] font-bold text-cyan-100">{formatAppointmentTime(event.start)}</span>
+                      <span className="shrink-0 font-mono text-[10px] font-bold text-zinc-100">{formatAppointmentTime(event.start)}</span>
                       <span className="truncate text-[11px] font-semibold text-white">{event.candidate?.name}</span>
                     </div>
                   ) : (
                     <div className="flex h-full min-w-0 flex-col justify-center gap-0.5 leading-tight">
-                      <span className="font-mono text-[10px] font-bold text-cyan-100">{event.timeLabel}</span>
+                      <span className="font-mono text-[10px] font-bold text-zinc-100">{event.timeLabel}</span>
                       <span className="truncate text-[11px] font-semibold text-white">{event.candidate?.name}</span>
-                      <span className="truncate text-[10px] text-cyan-100/80">{event.candidate?.role}</span>
+                      <span className="truncate text-[10px] text-zinc-100/80">{event.candidate?.role}</span>
                     </div>
                   )
                 ),
@@ -757,19 +757,19 @@ export function Candidates() {
               eventPropGetter={(event: any) => {
                 const isDone = event.status && ['attended', 'realizada'].includes(event.status.toLowerCase());
                 return {
-                  className: cn("rounded outline-none border shadow-[0_0_12px_rgba(163,163,163,0.16)]", isDone ? "bg-slate-700 border-slate-600 text-slate-300 opacity-70" : "bg-cyan-500/20 border-cyan-500/50 text-cyan-300 hover:bg-cyan-500/30")
+                  className: cn("rounded outline-none border shadow-[0_0_12px_rgba(163,163,163,0.16)]", isDone ? "bg-slate-700 border-slate-600 text-slate-300 opacity-70" : "bg-zinc-500/20 border-zinc-500/50 text-zinc-300 hover:bg-zinc-500/30")
                 };
               }}
             />
             <aside className="rounded-xl border border-slate-700/60 bg-slate-950/40 p-4">
               <div className="flex items-start justify-between gap-3">
                 <div>
-                  <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-cyan-400">Vista del día</p>
+                  <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-400">Vista del día</p>
                   <h3 className="mt-1 text-sm font-semibold capitalize text-white">
                     {format(calendarDate, "EEEE dd 'de' MMMM", { locale: es })}
                   </h3>
                 </div>
-                <span className="rounded-lg border border-cyan-500/20 bg-cyan-500/10 px-2 py-1 text-xs font-bold text-cyan-300">
+                <span className="rounded-lg border border-zinc-500/20 bg-zinc-500/10 px-2 py-1 text-xs font-bold text-zinc-300">
                   {selectedDayEvents.length}
                 </span>
               </div>
@@ -784,13 +784,13 @@ export function Candidates() {
                     key={event.id}
                     type="button"
                     onClick={() => setSelectedCandidate(event.candidate)}
-                    className="group rounded-lg border border-slate-700/70 bg-slate-900/70 p-3 text-left transition-colors hover:border-cyan-500/50 hover:bg-cyan-500/10"
+                    className="group rounded-lg border border-slate-700/70 bg-slate-900/70 p-3 text-left transition-colors hover:border-zinc-500/50 hover:bg-zinc-500/10"
                   >
-                    <div className="flex items-center gap-2 text-xs font-bold text-cyan-300">
+                    <div className="flex items-center gap-2 text-xs font-bold text-zinc-300">
                       <Clock className="h-3.5 w-3.5" />
                       <span className="font-mono">{event.timeLabel}</span>
                     </div>
-                    <p className="mt-2 truncate text-sm font-semibold text-white group-hover:text-cyan-100">{event.candidate?.name}</p>
+                    <p className="mt-2 truncate text-sm font-semibold text-white group-hover:text-zinc-100">{event.candidate?.name}</p>
                     <p className="truncate text-xs text-slate-400">{event.candidate?.role}</p>
                     <p className="mt-1 text-[10px] uppercase tracking-wider text-slate-500">{event.status || "scheduled"}</p>
                   </button>
@@ -824,7 +824,7 @@ export function Candidates() {
                   background: rgba(0, 0, 0, 0.2);
                 }
                 .rbc-theme-custom .rbc-today {
-                  background: rgba(163, 163, 163, 0.05); /* subtle cyan */
+                  background: rgba(163, 163, 163, 0.05); /* subtle neutral */
                 }
                 .rbc-theme-custom .rbc-btn-group button {
                   color: #d4d4d4;
@@ -877,28 +877,28 @@ export function Candidates() {
                 const colorBase = getStageColor(candidate.stage);
                 const bgTintMap: Record<string, string> = {
                   slate: "bg-slate-500/10 text-slate-400 border-slate-500/20",
-                  cyan: "bg-cyan-500/10 text-cyan-400 border-cyan-500/20",
-                  purple: "bg-purple-500/10 text-purple-400 border-purple-500/20",
-                  orange: "bg-orange-500/10 text-orange-400 border-orange-500/20",
-                  emerald: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
-                  rose: "bg-rose-500/10 text-rose-400 border-rose-500/20",
-                  yellow: "bg-yellow-500/10 text-yellow-400 border-yellow-500/20",
+                  tone1: "bg-zinc-500/10 text-zinc-400 border-zinc-500/20",
+                  tone2: "bg-zinc-500/10 text-zinc-400 border-zinc-500/20",
+                  tone3: "bg-zinc-500/10 text-zinc-400 border-zinc-500/20",
+                  tone4: "bg-zinc-500/10 text-zinc-400 border-zinc-500/20",
+                  tone5: "bg-zinc-500/10 text-zinc-400 border-zinc-500/20",
+                  tone6: "bg-zinc-500/10 text-zinc-400 border-zinc-500/20",
                 };
 
                 return (
-                <tr key={candidate.id} className="hover:bg-cyan-500/5 transition-colors group cursor-pointer" onClick={() => setSelectedCandidate(candidate)}>
+                <tr key={candidate.id} className="hover:bg-zinc-500/5 transition-colors group cursor-pointer" onClick={() => setSelectedCandidate(candidate)}>
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
                       <div className="w-8 h-8 rounded-full bg-slate-800 text-slate-300 flex items-center justify-center font-bold text-xs border border-slate-700">
                         {candidate.name.charAt(0)}
                       </div>
                       <div>
-                        <div className="font-medium text-white group-hover:text-cyan-300 transition-colors flex items-center gap-2">
+                        <div className="font-medium text-white group-hover:text-zinc-300 transition-colors flex items-center gap-2">
                           {candidate.name} {candidate.age && <span className="text-slate-500 font-normal">({candidate.age})</span>}
                           {candidate.rating > 0 && (
                             <div className="flex items-center">
-                              <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
-                              <span className="text-[10px] text-yellow-400 font-bold ml-0.5">{candidate.rating}</span>
+                              <Star className="w-3 h-3 fill-zinc-400 text-zinc-400" />
+                              <span className="text-[10px] text-zinc-400 font-bold ml-0.5">{candidate.rating}</span>
                             </div>
                           )}
                         </div>
@@ -913,7 +913,7 @@ export function Candidates() {
                   <td className="px-6 py-4 max-w-[280px]">
                     <div className="flex flex-wrap gap-1.5 mb-1.5">
                       {deriveCandidateTags(candidate).length > 0 ? deriveCandidateTags(candidate).slice(0, 3).map((tag: string) => (
-                        <span key={tag} className="inline-flex items-center gap-1 rounded-md border border-cyan-500/15 bg-cyan-500/10 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-cyan-300">
+                        <span key={tag} className="inline-flex items-center gap-1 rounded-md border border-zinc-500/15 bg-zinc-500/10 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-zinc-300">
                           <Tag className="w-2.5 h-2.5" />
                           {tag}
                         </span>
@@ -928,7 +928,7 @@ export function Candidates() {
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
                       {(candidate.whatsapp || candidate.source?.toLowerCase().includes('whatsapp')) ? (
-                         <div className="flex items-center gap-1.5 text-emerald-400 text-xs font-mono">
+                         <div className="flex items-center gap-1.5 text-zinc-400 text-xs font-mono">
                            <MessageCircle className="w-3.5 h-3.5" /> {candidate.phone}
                          </div>
                       ) : (
@@ -951,16 +951,16 @@ export function Candidates() {
                   <td className="px-6 py-4 text-right">
                     <div className="flex items-center justify-end gap-3">
                       {candidate.linkedin && (
-                        <button 
+                        <button
                           onClick={(e) => { e.stopPropagation(); window.open(candidate.linkedin.startsWith('http') ? candidate.linkedin : `https://${candidate.linkedin}`, '_blank'); }}
                           className="text-[#737373] hover:text-[#737373]/80 transition-colors p-1 bg-[#737373]/10 hover:bg-[#737373]/20 rounded" title="Contactar por LinkedIn"
                         >
                           <Linkedin className="w-4 h-4" />
                         </button>
                       )}
-                      <button 
+                      <button
                         onClick={(e) => { e.stopPropagation(); setSelectedCandidate(candidate); }}
-                        className="text-slate-400 hover:text-cyan-400 font-medium text-sm transition-colors hover:drop-shadow-[0_0_8px_rgba(163,163,163,0.8)]"
+                        className="text-slate-400 hover:text-zinc-400 font-medium text-sm transition-colors hover:drop-shadow-[0_0_8px_rgba(163,163,163,0.8)]"
                       >
                         Analizar
                       </button>
@@ -970,14 +970,14 @@ export function Candidates() {
               )})}
             </tbody>
           </table>
-          
+
           {totalPages > 1 && (
             <div className="flex items-center justify-between px-6 py-3 border-t border-white/5 bg-slate-900/40">
               <span className="text-xs text-slate-500">
                 Mostrando {(currentPage - 1) * itemsPerPage + 1} a {Math.min(currentPage * itemsPerPage, displayedCandidates.length)} de {displayedCandidates.length} candidatos
               </span>
               <div className="flex gap-1">
-                <button 
+                <button
                   onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                   disabled={currentPage === 1}
                   className="px-3 py-1 text-xs border border-white/5 rounded-md text-slate-400 hover:text-white hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
@@ -987,7 +987,7 @@ export function Candidates() {
                 <div className="px-3 py-1 text-xs text-slate-300 font-medium">
                   {currentPage} / {totalPages}
                 </div>
-                <button 
+                <button
                   onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                   disabled={currentPage === totalPages}
                   className="px-3 py-1 text-xs border border-white/5 rounded-md text-slate-400 hover:text-white hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
@@ -1003,30 +1003,30 @@ export function Candidates() {
       {contactCandidate && (
         <div className="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-slate-900 border border-slate-700/50 p-6 md:p-8 rounded-2xl w-full max-w-lg relative flex flex-col glass-panel shadow-2xl">
-            <button 
+            <button
               onClick={() => setContactCandidate(null)}
               className="absolute top-4 right-4 text-slate-400 hover:text-white p-2"
             >
               <XCircle className="w-5 h-5" />
             </button>
-            <h2 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-blue-500 mb-2">
+            <h2 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-zinc-400 to-zinc-500 mb-2">
               Contactar a {contactCandidate.name.split(' ')[0]}
             </h2>
             <p className="text-sm text-slate-400 mb-6">Selecciona el medio e ingresa tu mensaje para contactar al candidato.</p>
-            
+
             <div className="space-y-4">
               <div className="flex gap-4 border-b border-slate-700/50 pb-4">
-                <button 
+                <button
                   onClick={() => setContactMethod('email')}
-                  className={`flex flex-col items-center justify-center gap-2 p-3 flex-1 rounded-xl border transition-all ${contactMethod === 'email' ? 'bg-cyan-500/10 border-cyan-500/50 text-cyan-400' : 'bg-slate-800/50 border-transparent text-slate-400 hover:text-white hover:bg-slate-800'}`}
+                  className={`flex flex-col items-center justify-center gap-2 p-3 flex-1 rounded-xl border transition-all ${contactMethod === 'email' ? 'bg-zinc-500/10 border-zinc-500/50 text-zinc-400' : 'bg-slate-800/50 border-transparent text-slate-400 hover:text-white hover:bg-slate-800'}`}
                 >
                   <Mail className="w-6 h-6" />
                   <span className="text-xs font-semibold">Email</span>
                 </button>
-                <button 
+                <button
                   onClick={() => setContactMethod('whatsapp')}
                   disabled={!contactCandidate.whatsapp}
-                  className={`flex flex-col items-center justify-center gap-2 p-3 flex-1 rounded-xl border transition-all ${contactMethod === 'whatsapp' ? 'bg-emerald-500/10 border-emerald-500/50 text-emerald-400' : 'bg-slate-800/50 border-transparent text-slate-400 hover:text-white hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed'}`}
+                  className={`flex flex-col items-center justify-center gap-2 p-3 flex-1 rounded-xl border transition-all ${contactMethod === 'whatsapp' ? 'bg-zinc-500/10 border-zinc-500/50 text-zinc-400' : 'bg-slate-800/50 border-transparent text-slate-400 hover:text-white hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed'}`}
                 >
                   <MessageCircle className="w-6 h-6" />
                   <span className="text-xs font-semibold">WhatsApp</span>
@@ -1034,9 +1034,9 @@ export function Candidates() {
               </div>
 
               <div>
-                <label className="text-sm text-slate-300 mb-2 block">Mensaje <span className="text-rose-500">*</span></label>
-                <textarea 
-                  className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition-all resize-none text-sm leading-relaxed h-32"
+                <label className="text-sm text-slate-300 mb-2 block">Mensaje <span className="text-zinc-500">*</span></label>
+                <textarea
+                  className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 transition-all resize-none text-sm leading-relaxed h-32"
                   placeholder={`Hola ${contactCandidate.name.split(' ')[0]}, quería contactarme contigo para hablar sobre la vacante...`}
                   value={contactMessage}
                   onChange={e => setContactMessage(e.target.value)}
@@ -1045,13 +1045,13 @@ export function Candidates() {
             </div>
 
             <div className="mt-8 flex justify-end gap-3 pt-6 border-t border-slate-700/50">
-              <button 
+              <button
                 onClick={() => setContactCandidate(null)}
                 className="px-5 py-2.5 rounded-xl font-medium text-slate-300 hover:bg-white/5 transition-colors"
                >
                 Cancelar
               </button>
-              <button 
+              <button
                 onClick={async () => {
                   await addMessage({
                     candidateId: contactCandidate.id,
@@ -1070,7 +1070,7 @@ export function Candidates() {
                   setContactMessage('');
                 }}
                 disabled={!contactMessage.trim()}
-                className="bg-cyan-500 hover:bg-cyan-600 text-slate-900 font-semibold px-6 py-2.5 rounded-xl flex items-center gap-2 transition-all shadow-[0_0_15px_rgba(212,212,212,0.2)] disabled:opacity-50 disabled:cursor-not-allowed"
+                className="bg-zinc-500 hover:bg-zinc-600 text-slate-900 font-semibold px-6 py-2.5 rounded-xl flex items-center gap-2 transition-all shadow-[0_0_15px_rgba(212,212,212,0.2)] disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <Send className="w-4 h-4 text-slate-900" fill="currentColor" />
                 Enviar Mensaje

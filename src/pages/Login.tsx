@@ -45,7 +45,7 @@ export function Login() {
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.055),transparent_32%),radial-gradient(circle_at_bottom_right,rgba(10,10,10,0.72),transparent_38%),linear-gradient(90deg,rgba(22,22,22,0.9),rgba(31,31,31,0.72),rgba(18,18,18,0.86))]" />
 
       <section className="relative z-10 flex min-h-screen items-center justify-center px-4 py-8">
-        <div className="grid w-full max-w-5xl overflow-hidden rounded-2xl border border-white/10 bg-slate-950/70 shadow-2xl shadow-cyan-950/20 backdrop-blur-2xl md:grid-cols-[1fr_420px]">
+        <div className="grid w-full max-w-5xl overflow-hidden rounded-2xl border border-white/10 bg-slate-950/70 shadow-2xl shadow-zinc-950/20 backdrop-blur-2xl md:grid-cols-[1fr_420px]">
           <div className="hidden min-h-[560px] flex-col justify-between border-r border-white/10 p-10 md:flex">
             <div className="flex items-center gap-3">
               <img
@@ -55,16 +55,16 @@ export function Login() {
               />
               <div>
                 <p className="text-2xl font-bold tracking-tight">
-                  RH<span className="text-cyan-400">Dreams</span>
+                  RH<span className="text-zinc-400">Dreams</span>
                 </p>
-                <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-cyan-300/80">
+                <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-zinc-300/80">
                   Heavenly Dreams
                 </p>
               </div>
             </div>
 
             <div className="max-w-md">
-              <p className="mb-4 text-xs font-bold uppercase tracking-[0.24em] text-cyan-300">
+              <p className="mb-4 text-xs font-bold uppercase tracking-[0.24em] text-zinc-300">
                 Acceso seguro
               </p>
               <h1 className="text-4xl font-bold tracking-tight text-white">
@@ -77,7 +77,7 @@ export function Login() {
 
             <div className="grid grid-cols-3 gap-3 text-xs text-slate-400">
               {["Candidatos", "Mensajes", "Agentes IA"].map((item) => (
-                <div key={item} className="rounded-lg border border-cyan-400/15 bg-cyan-400/5 px-3 py-3">
+                <div key={item} className="rounded-lg border border-zinc-400/15 bg-zinc-400/5 px-3 py-3">
                   {item}
                 </div>
               ))}
@@ -89,16 +89,16 @@ export function Login() {
               <img src={BRAND_LOGO_PATH} alt="Heavenly Dreams" className="h-12 w-12 object-contain grayscale" />
               <div>
                 <p className="text-xl font-bold">
-                  RH<span className="text-cyan-400">Dreams</span>
+                  RH<span className="text-zinc-400">Dreams</span>
                 </p>
-                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-cyan-300/80">
+                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-300/80">
                   Heavenly Dreams
                 </p>
               </div>
             </div>
 
             <div className="mb-8">
-              <p className="text-xs font-bold uppercase tracking-[0.24em] text-cyan-300">Bienvenido</p>
+              <p className="text-xs font-bold uppercase tracking-[0.24em] text-zinc-300">Bienvenido</p>
               <h2 className="mt-3 text-3xl font-bold tracking-tight text-white">Iniciar sesion</h2>
               <p className="mt-2 text-sm text-slate-400">Ingresa tus credenciales para continuar.</p>
             </div>
@@ -108,8 +108,8 @@ export function Login() {
                 <span className="mb-2 block text-xs font-bold uppercase tracking-[0.16em] text-slate-400">
                   Usuario
                 </span>
-                <div className="flex items-center gap-3 rounded-lg border border-white/10 bg-slate-900/70 px-4 py-3 transition-colors focus-within:border-cyan-400/70">
-                  <User className="h-5 w-5 text-cyan-300" />
+                <div className="flex items-center gap-3 rounded-lg border border-white/10 bg-slate-900/70 px-4 py-3 transition-colors focus-within:border-zinc-400/70">
+                  <User className="h-5 w-5 text-zinc-300" />
                   <input
                     value={username}
                     onChange={(event) => setUsername(event.target.value)}
@@ -125,8 +125,8 @@ export function Login() {
                 <span className="mb-2 block text-xs font-bold uppercase tracking-[0.16em] text-slate-400">
                   Contrasena
                 </span>
-                <div className="flex items-center gap-3 rounded-lg border border-white/10 bg-slate-900/70 px-4 py-3 transition-colors focus-within:border-cyan-400/70">
-                  <Lock className="h-5 w-5 text-cyan-300" />
+                <div className="flex items-center gap-3 rounded-lg border border-white/10 bg-slate-900/70 px-4 py-3 transition-colors focus-within:border-zinc-400/70">
+                  <Lock className="h-5 w-5 text-zinc-300" />
                   <input
                     value={password}
                     onChange={(event) => setPassword(event.target.value)}
@@ -139,7 +139,7 @@ export function Login() {
                   <button
                     type="button"
                     onClick={() => setShowPassword((current) => !current)}
-                    className="rounded-md p-1 text-slate-400 transition-colors hover:bg-white/5 hover:text-cyan-300 focus:outline-none focus:ring-2 focus:ring-cyan-400/50"
+                    className="rounded-md p-1 text-slate-400 transition-colors hover:bg-white/5 hover:text-zinc-300 focus:outline-none focus:ring-2 focus:ring-zinc-400/50"
                     aria-label={showPassword ? "Ocultar contrasena" : "Ver contrasena"}
                     title={showPassword ? "Ocultar contrasena" : "Ver contrasena"}
                   >
@@ -148,18 +148,18 @@ export function Login() {
                 </div>
               </label>
 
-              <label className="flex cursor-pointer items-center justify-between gap-3 rounded-lg border border-white/10 bg-slate-900/40 px-4 py-3 text-sm text-slate-300 transition-colors hover:border-cyan-400/30 hover:bg-cyan-400/5">
+              <label className="flex cursor-pointer items-center justify-between gap-3 rounded-lg border border-white/10 bg-slate-900/40 px-4 py-3 text-sm text-slate-300 transition-colors hover:border-zinc-400/30 hover:bg-zinc-400/5">
                 <span>Recordar usuario en este navegador</span>
                 <input
                   type="checkbox"
                   checked={rememberUsername}
                   onChange={(event) => setRememberUsername(event.target.checked)}
-                  className="h-4 w-4 rounded border-slate-600 bg-slate-950 text-cyan-400 accent-cyan-400"
+                  className="h-4 w-4 rounded border-slate-600 bg-slate-950 text-zinc-400 accent-zinc-400"
                 />
               </label>
 
               {error && (
-                <div className="flex items-center gap-2 rounded-lg border border-red-400/20 bg-red-500/10 px-4 py-3 text-sm text-red-200">
+                <div className="flex items-center gap-2 rounded-lg border border-zinc-400/20 bg-zinc-500/10 px-4 py-3 text-sm text-zinc-200">
                   <AlertCircle className="h-4 w-4 shrink-0" />
                   {error}
                 </div>
@@ -168,7 +168,7 @@ export function Login() {
               <button
                 type="submit"
                 disabled={submitting}
-                className="flex w-full items-center justify-center gap-2 rounded-lg bg-cyan-400 px-4 py-3 text-sm font-bold uppercase tracking-[0.16em] text-slate-950 transition-colors hover:bg-cyan-300 disabled:cursor-not-allowed disabled:opacity-70"
+                className="flex w-full items-center justify-center gap-2 rounded-lg bg-zinc-400 px-4 py-3 text-sm font-bold uppercase tracking-[0.16em] text-slate-950 transition-colors hover:bg-zinc-300 disabled:cursor-not-allowed disabled:opacity-70"
               >
                 {submitting ? "Validando..." : "Entrar"}
                 <ArrowRight className="h-4 w-4" />

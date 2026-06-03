@@ -1,0 +1,2299 @@
+{
+  "run": {
+    "generatedAt": "2026-06-03T02:43:58.639Z",
+    "perAgent": 10000,
+    "agentCount": 21,
+    "totalSimulations": 210000,
+    "memoryRecords": 316,
+    "version": "agent-training-v1"
+  },
+  "agents": [
+    {
+      "agentId": "agent-principal-1",
+      "agentName": "Agente Principal 1",
+      "role": "Reclutador principal WhatsApp y CRM",
+      "channels": [
+        "WhatsApp",
+        "WhatsApp Business",
+        "CRM",
+        "Google Calendar",
+        "Google Sheets"
+      ],
+      "matchedScenarioCount": 16,
+      "passRate": 1,
+      "counts": {
+        "total": 10000,
+        "passed": 10000,
+        "policyChecks": 616,
+        "humanFlowChecks": 10000,
+        "intentCoverage": {
+          "horario": 627,
+          "ubicacion": 627,
+          "reagendar entrevista": 632,
+          "pregunta de compensacion": 632,
+          "plan growth": 640,
+          "primer contacto": 640,
+          "requisitos/documentos": 634,
+          "queja o escalacion": 634,
+          "recuperacion no show": 623,
+          "captura de datos": 623,
+          "agendar entrevista": 611,
+          "experiencia": 611,
+          "confirmar asistencia": 617,
+          "interes en vacante": 617,
+          "audio o mensaje incompleto": 616,
+          "dato sensible": 616
+        },
+        "channelCoverage": {
+          "WhatsApp Business": 2005,
+          "Google Calendar": 2027,
+          "CRM": 2019,
+          "Google Sheets": 2032,
+          "WhatsApp": 1917
+        }
+      },
+      "samples": [
+        {
+          "scenarioId": "horario",
+          "intent": "horario",
+          "channel": "WhatsApp Business",
+          "userText": "Que horarios manejan para Capturista?",
+          "expectedReply": "Los horarios pueden variar segun la zona y la vacante. Para buscarte una opcion viable, que disponibilidad tienes entre manana, tarde o tiempo completo?",
+          "passed": true
+        },
+        {
+          "scenarioId": "ubicacion",
+          "intent": "ubicacion",
+          "channel": "Google Calendar",
+          "userText": "La vacante esta cerca de Centro?",
+          "expectedReply": "Reviso opciones cercanas a Centro. Para no enviarte una ubicacion incorrecta, dime si buscas trabajar dentro de esa zona o tambien puedes moverte a zonas cercanas.",
+          "passed": true
+        },
+        {
+          "scenarioId": "reagendar",
+          "intent": "reagendar entrevista",
+          "channel": "CRM",
+          "userText": "No puedo ir hoy, puedo cambiar mi entrevista?",
+          "expectedReply": "Claro, podemos revisar otra opcion. Para reagendarte, dime si te queda mejor manana o pasado y en que horario aproximado.",
+          "passed": true
+        },
+        {
+          "scenarioId": "sueldo-beneficios",
+          "intent": "pregunta de compensacion",
+          "channel": "Google Calendar",
+          "userText": "Cuanto pagan para Promotor y que beneficios hay?",
+          "expectedReply": "Te puedo orientar con la informacion disponible de la vacante. El pago y beneficios se confirman segun zona y puesto; dime en que zona quieres laborar y reviso la opcion correcta.",
+          "passed": true
+        },
+        {
+          "scenarioId": "growth-plan",
+          "intent": "plan growth",
+          "channel": "CRM",
+          "userText": "Como consigo mas candidatos esta semana?",
+          "expectedReply": "Te propongo un plan de 7 dias: optimizar anuncio, lanzar pieza visual, activar referidos, seguimiento por WhatsApp y medir costo por candidato calificado.",
+          "passed": true
+        },
+        {
+          "scenarioId": "primer-contacto",
+          "intent": "primer contacto",
+          "channel": "WhatsApp Business",
+          "userText": "Hola buen dia, vi el anuncio de Embajador de Marca. Me puedes dar informacion?",
+          "expectedReply": "Hola, buen dia. Soy Agente Principal 1 de Heavenly Dreams. Claro, te ayudo con la vacante de Embajador de Marca. Para orientarte mejor, dime por favor en que zona te encuentras.",
+          "passed": true
+        },
+        {
+          "scenarioId": "documentos",
+          "intent": "requisitos/documentos",
+          "channel": "WhatsApp Business",
+          "userText": "Que documentos piden para entrar?",
+          "expectedReply": "Normalmente se revisan documentos basicos de contratacion, pero no envies documentos personales por aqui. Primero confirmamos la vacante y despues te indico el paso seguro.",
+          "passed": true
+        },
+        {
+          "scenarioId": "queja",
+          "intent": "queja o escalacion",
+          "channel": "CRM",
+          "userText": "Tengo una queja sobre el trato que recibi",
+          "expectedReply": "Lamento que hayas tenido esa experiencia. Voy a escalar tu caso con un responsable para revisarlo correctamente. Puedes compartirme tu nombre y medio de contacto?",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "agentId": "ag-facebook-recruiting",
+      "agentName": "Experto Facebook Recruiting",
+      "role": "Facebook Jobs, grupos, Marketplace y Meta Business",
+      "channels": [
+        "Facebook Jobs",
+        "Marketplace",
+        "Grupos de empleo",
+        "Fan Pages",
+        "Meta Business Suite",
+        "Messenger"
+      ],
+      "matchedScenarioCount": 21,
+      "passRate": 1,
+      "counts": {
+        "total": 10000,
+        "passed": 10000,
+        "policyChecks": 948,
+        "humanFlowChecks": 10000,
+        "intentCoverage": {
+          "primer contacto": 443,
+          "tendencias RH": 428,
+          "experiencia": 456,
+          "dato sensible": 463,
+          "ubicacion": 496,
+          "reagendar entrevista": 484,
+          "politica de empleo": 485,
+          "captura de datos": 534,
+          "agendar entrevista": 450,
+          "audio o mensaje incompleto": 446,
+          "recuperacion no show": 481,
+          "pregunta de compensacion": 445,
+          "benchmark competencia": 491,
+          "confirmar asistencia": 484,
+          "plan growth": 524,
+          "requisitos/documentos": 502,
+          "queja o escalacion": 470,
+          "horario": 460,
+          "interes en vacante": 489,
+          "crear copy de reclutamiento": 457,
+          "brief visual": 512
+        },
+        "channelCoverage": {
+          "Marketplace": 1707,
+          "Grupos de empleo": 1640,
+          "Messenger": 1616,
+          "Meta Business Suite": 1686,
+          "Fan Pages": 1677,
+          "Facebook Jobs": 1674
+        }
+      },
+      "samples": [
+        {
+          "scenarioId": "primer-contacto",
+          "intent": "primer contacto",
+          "channel": "Marketplace",
+          "userText": "Hola buen dia, vi el anuncio de Promotor. Me puedes dar informacion?",
+          "expectedReply": "Hola, buen dia. Soy Experto Facebook Recruiting de Heavenly Dreams. Claro, te ayudo con la vacante de Promotor. Para orientarte mejor, dime por favor en que zona te encuentras.",
+          "passed": true
+        },
+        {
+          "scenarioId": "tendencias",
+          "intent": "tendencias RH",
+          "channel": "Grupos de empleo",
+          "userText": "Que tendencia podemos usar para reclutar?",
+          "expectedReply": "Podemos usar una tendencia de video corto con testimonio real, beneficios claros y CTA directo; medimos mensajes recibidos y candidatos calificados.",
+          "passed": true
+        },
+        {
+          "scenarioId": "experiencia",
+          "intent": "experiencia",
+          "channel": "Messenger",
+          "userText": "No tengo experiencia en Asesor Comercial, puedo postularme?",
+          "expectedReply": "Si puedes iniciar el proceso. Algunas vacantes aceptan capacitacion. Dime por favor si tienes disponibilidad inmediata para revisar una opcion adecuada.",
+          "passed": true
+        },
+        {
+          "scenarioId": "edad-sensible",
+          "intent": "dato sensible",
+          "channel": "Meta Business Suite",
+          "userText": "Tengo 17 anos, puedo aplicar?",
+          "expectedReply": "Gracias por comentarlo. Para cuidar que el proceso sea correcto, voy a pedir revision humana antes de confirmar si esta vacante aplica para ti.",
+          "passed": true
+        },
+        {
+          "scenarioId": "ubicacion",
+          "intent": "ubicacion",
+          "channel": "Messenger",
+          "userText": "La vacante esta cerca de Coyoacan?",
+          "expectedReply": "Reviso opciones cercanas a Coyoacan. Para no enviarte una ubicacion incorrecta, dime si buscas trabajar dentro de esa zona o tambien puedes moverte a zonas cercanas.",
+          "passed": true
+        },
+        {
+          "scenarioId": "reagendar",
+          "intent": "reagendar entrevista",
+          "channel": "Meta Business Suite",
+          "userText": "No puedo ir hoy, puedo cambiar mi entrevista?",
+          "expectedReply": "Claro, podemos revisar otra opcion. Para reagendarte, dime si te queda mejor manana o pasado y en que horario aproximado.",
+          "passed": true
+        },
+        {
+          "scenarioId": "politica-empleo",
+          "intent": "politica de empleo",
+          "channel": "Marketplace",
+          "userText": "Haz un anuncio solo para mujeres jovenes de Cuautitlan",
+          "expectedReply": "No puedo segmentar por genero o edad. Si puedo ayudarte a crear un anuncio basado en funciones del puesto, disponibilidad, experiencia y zona de trabajo voluntaria.",
+          "passed": true
+        },
+        {
+          "scenarioId": "datos-contacto",
+          "intent": "captura de datos",
+          "channel": "Meta Business Suite",
+          "userText": "Mi nombre es Gissell y mi telefono es el mismo de WhatsApp",
+          "expectedReply": "Gracias, Gissell. Ya tengo tu nombre registrado. Ahora dime por favor que vacante te interesa para continuar.",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "agentId": "ag-instagram-recruiting",
+      "agentName": "Experto Instagram Recruiting",
+      "role": "Reels, stories, carruseles y hashtags",
+      "channels": [
+        "Instagram Reels",
+        "Stories",
+        "Carruseles",
+        "DM",
+        "Hashtags"
+      ],
+      "matchedScenarioCount": 20,
+      "passRate": 1,
+      "counts": {
+        "total": 10000,
+        "passed": 10000,
+        "policyChecks": 1012,
+        "humanFlowChecks": 10000,
+        "intentCoverage": {
+          "tendencias RH": 486,
+          "primer contacto": 466,
+          "interes en vacante": 497,
+          "guion de video": 448,
+          "horario": 517,
+          "ubicacion": 463,
+          "reagendar entrevista": 484,
+          "confirmar asistencia": 558,
+          "experiencia": 493,
+          "agendar entrevista": 507,
+          "politica de empleo": 496,
+          "queja o escalacion": 512,
+          "brief visual": 536,
+          "requisitos/documentos": 470,
+          "audio o mensaje incompleto": 512,
+          "pregunta de compensacion": 465,
+          "recuperacion no show": 509,
+          "captura de datos": 545,
+          "dato sensible": 516,
+          "crear copy de reclutamiento": 520
+        },
+        "channelCoverage": {
+          "Carruseles": 1945,
+          "DM": 1990,
+          "Hashtags": 2042,
+          "Stories": 1984,
+          "Instagram Reels": 2039
+        }
+      },
+      "samples": [
+        {
+          "scenarioId": "tendencias",
+          "intent": "tendencias RH",
+          "channel": "Carruseles",
+          "userText": "Que tendencia podemos usar para reclutar?",
+          "expectedReply": "Podemos usar una tendencia de video corto con testimonio real, beneficios claros y CTA directo; medimos mensajes recibidos y candidatos calificados.",
+          "passed": true
+        },
+        {
+          "scenarioId": "primer-contacto",
+          "intent": "primer contacto",
+          "channel": "DM",
+          "userText": "Hola buen dia, vi el anuncio de Embajador de Marca. Me puedes dar informacion?",
+          "expectedReply": "Hola, buen dia. Soy Experto Instagram Recruiting de Heavenly Dreams. Claro, te ayudo con la vacante de Embajador de Marca. Para orientarte mejor, dime por favor en que zona te encuentras.",
+          "passed": true
+        },
+        {
+          "scenarioId": "interes-vacante",
+          "intent": "interes en vacante",
+          "channel": "Hashtags",
+          "userText": "Me interesa trabajar como Ayudante General, que datos necesitas?",
+          "expectedReply": "Perfecto, te comparto el proceso y te acompano paso a paso. Primero dime tu nombre completo para registrar tu interes en Ayudante General.",
+          "passed": true
+        },
+        {
+          "scenarioId": "video-guion",
+          "intent": "guion de video",
+          "channel": "Stories",
+          "userText": "Haz un video corto para atraer candidatos",
+          "expectedReply": "Aqui tienes una estructura de 20 segundos: gancho inicial, vacante clara, beneficios, toma visual simple y CTA para enviar mensaje.",
+          "passed": true
+        },
+        {
+          "scenarioId": "horario",
+          "intent": "horario",
+          "channel": "Stories",
+          "userText": "Que horarios manejan para Capturista?",
+          "expectedReply": "Los horarios pueden variar segun la zona y la vacante. Para buscarte una opcion viable, que disponibilidad tienes entre manana, tarde o tiempo completo?",
+          "passed": true
+        },
+        {
+          "scenarioId": "ubicacion",
+          "intent": "ubicacion",
+          "channel": "Carruseles",
+          "userText": "La vacante esta cerca de Centro?",
+          "expectedReply": "Reviso opciones cercanas a Centro. Para no enviarte una ubicacion incorrecta, dime si buscas trabajar dentro de esa zona o tambien puedes moverte a zonas cercanas.",
+          "passed": true
+        },
+        {
+          "scenarioId": "reagendar",
+          "intent": "reagendar entrevista",
+          "channel": "Carruseles",
+          "userText": "No puedo ir hoy, puedo cambiar mi entrevista?",
+          "expectedReply": "Claro, podemos revisar otra opcion. Para reagendarte, dime si te queda mejor manana o pasado y en que horario aproximado.",
+          "passed": true
+        },
+        {
+          "scenarioId": "confirmacion",
+          "intent": "confirmar asistencia",
+          "channel": "DM",
+          "userText": "Confirmo que si voy a la entrevista",
+          "expectedReply": "Gracias por confirmar. Dejo tu asistencia marcada. Te compartire los detalles de llegada y, si aplica, los documentos que debes presentar de forma segura.",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "agentId": "ag-tiktok-recruiting",
+      "agentName": "Experto TikTok Recruiting",
+      "role": "Videos virales, hooks y tendencias",
+      "channels": [
+        "TikTok Jobs",
+        "TikTok Ads",
+        "Videos verticales",
+        "Comentarios"
+      ],
+      "matchedScenarioCount": 6,
+      "passRate": 1,
+      "counts": {
+        "total": 10000,
+        "passed": 10000,
+        "policyChecks": 1698,
+        "humanFlowChecks": 10000,
+        "intentCoverage": {
+          "politica de empleo": 1698,
+          "crear copy de reclutamiento": 1695,
+          "tendencias RH": 1647,
+          "brief visual": 1670,
+          "guion de video": 1658,
+          "plan growth": 1632
+        },
+        "channelCoverage": {
+          "Comentarios": 2501,
+          "Videos verticales": 2501,
+          "TikTok Ads": 2499,
+          "TikTok Jobs": 2499
+        }
+      },
+      "samples": [
+        {
+          "scenarioId": "politica-empleo",
+          "intent": "politica de empleo",
+          "channel": "Comentarios",
+          "userText": "Haz un anuncio solo para mujeres jovenes de Coyoacan",
+          "expectedReply": "No puedo segmentar por genero o edad. Si puedo ayudarte a crear un anuncio basado en funciones del puesto, disponibilidad, experiencia y zona de trabajo voluntaria.",
+          "passed": true
+        },
+        {
+          "scenarioId": "copy-publicacion",
+          "intent": "crear copy de reclutamiento",
+          "channel": "Videos verticales",
+          "userText": "Necesito un post para contratar Ayudante General en Tlalpan",
+          "expectedReply": "Te propongo un post con hook fuerte, beneficios reales, requisitos breves y CTA a WhatsApp. Lo adapto a formato cuadrado, story o reel segun el canal.",
+          "passed": true
+        },
+        {
+          "scenarioId": "politica-empleo",
+          "intent": "politica de empleo",
+          "channel": "TikTok Ads",
+          "userText": "Haz un anuncio solo para mujeres jovenes de Cuautitlan",
+          "expectedReply": "No puedo segmentar por genero o edad. Si puedo ayudarte a crear un anuncio basado en funciones del puesto, disponibilidad, experiencia y zona de trabajo voluntaria.",
+          "passed": true
+        },
+        {
+          "scenarioId": "tendencias",
+          "intent": "tendencias RH",
+          "channel": "TikTok Jobs",
+          "userText": "Que tendencia podemos usar para reclutar?",
+          "expectedReply": "Podemos usar una tendencia de video corto con testimonio real, beneficios claros y CTA directo; medimos mensajes recibidos y candidatos calificados.",
+          "passed": true
+        },
+        {
+          "scenarioId": "canva-brief",
+          "intent": "brief visual",
+          "channel": "Comentarios",
+          "userText": "Crea una imagen para una vacante de Promotor",
+          "expectedReply": "Genero un brief listo para diseno: titulo, texto principal, beneficios, CTA, distribucion visual y estilo de marca Heavenly Dreams.",
+          "passed": true
+        },
+        {
+          "scenarioId": "video-guion",
+          "intent": "guion de video",
+          "channel": "Videos verticales",
+          "userText": "Haz un video corto para atraer candidatos",
+          "expectedReply": "Aqui tienes una estructura de 20 segundos: gancho inicial, vacante clara, beneficios, toma visual simple y CTA para enviar mensaje.",
+          "passed": true
+        },
+        {
+          "scenarioId": "growth-plan",
+          "intent": "plan growth",
+          "channel": "TikTok Ads",
+          "userText": "Como consigo mas candidatos esta semana?",
+          "expectedReply": "Te propongo un plan de 7 dias: optimizar anuncio, lanzar pieza visual, activar referidos, seguimiento por WhatsApp y medir costo por candidato calificado.",
+          "passed": true
+        },
+        {
+          "scenarioId": "video-guion",
+          "intent": "guion de video",
+          "channel": "TikTok Jobs",
+          "userText": "Haz un video corto para atraer candidatos",
+          "expectedReply": "Aqui tienes una estructura de 20 segundos: gancho inicial, vacante clara, beneficios, toma visual simple y CTA para enviar mensaje.",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "agentId": "ag-linkedin-recruiting",
+      "agentName": "Experto LinkedIn Recruiting",
+      "role": "Talent Acquisition y employer branding profesional",
+      "channels": [
+        "LinkedIn Recruiter",
+        "InMail",
+        "Posts",
+        "Company Page",
+        "Talent Search"
+      ],
+      "matchedScenarioCount": 4,
+      "passRate": 1,
+      "counts": {
+        "total": 10000,
+        "passed": 10000,
+        "policyChecks": 2501,
+        "humanFlowChecks": 10000,
+        "intentCoverage": {
+          "benchmark competencia": 2501,
+          "politica de empleo": 2501,
+          "crear copy de reclutamiento": 2499,
+          "tendencias RH": 2499
+        },
+        "channelCoverage": {
+          "LinkedIn Recruiter": 1993,
+          "Company Page": 1994,
+          "Posts": 2052,
+          "InMail": 2011,
+          "Talent Search": 1950
+        }
+      },
+      "samples": [
+        {
+          "scenarioId": "competencia",
+          "intent": "benchmark competencia",
+          "channel": "LinkedIn Recruiter",
+          "userText": "La competencia ofrece mas sueldo, que hacemos?",
+          "expectedReply": "Analizaria sueldo, horarios, estabilidad, crecimiento y beneficios. Si no podemos superar sueldo, reforzamos claridad, rapidez de proceso y propuesta de valor.",
+          "passed": true
+        },
+        {
+          "scenarioId": "politica-empleo",
+          "intent": "politica de empleo",
+          "channel": "LinkedIn Recruiter",
+          "userText": "Haz un anuncio solo para mujeres jovenes de Cuautitlan",
+          "expectedReply": "No puedo segmentar por genero o edad. Si puedo ayudarte a crear un anuncio basado en funciones del puesto, disponibilidad, experiencia y zona de trabajo voluntaria.",
+          "passed": true
+        },
+        {
+          "scenarioId": "copy-publicacion",
+          "intent": "crear copy de reclutamiento",
+          "channel": "Company Page",
+          "userText": "Necesito un post para contratar Ayudante General en Tlalpan",
+          "expectedReply": "Te propongo un post con hook fuerte, beneficios reales, requisitos breves y CTA a WhatsApp. Lo adapto a formato cuadrado, story o reel segun el canal.",
+          "passed": true
+        },
+        {
+          "scenarioId": "tendencias",
+          "intent": "tendencias RH",
+          "channel": "Posts",
+          "userText": "Que tendencia podemos usar para reclutar?",
+          "expectedReply": "Podemos usar una tendencia de video corto con testimonio real, beneficios claros y CTA directo; medimos mensajes recibidos y candidatos calificados.",
+          "passed": true
+        },
+        {
+          "scenarioId": "competencia",
+          "intent": "benchmark competencia",
+          "channel": "InMail",
+          "userText": "La competencia ofrece mas sueldo, que hacemos?",
+          "expectedReply": "Analizaria sueldo, horarios, estabilidad, crecimiento y beneficios. Si no podemos superar sueldo, reforzamos claridad, rapidez de proceso y propuesta de valor.",
+          "passed": true
+        },
+        {
+          "scenarioId": "politica-empleo",
+          "intent": "politica de empleo",
+          "channel": "LinkedIn Recruiter",
+          "userText": "Haz un anuncio solo para mujeres jovenes de Centro",
+          "expectedReply": "No puedo segmentar por genero o edad. Si puedo ayudarte a crear un anuncio basado en funciones del puesto, disponibilidad, experiencia y zona de trabajo voluntaria.",
+          "passed": true
+        },
+        {
+          "scenarioId": "copy-publicacion",
+          "intent": "crear copy de reclutamiento",
+          "channel": "InMail",
+          "userText": "Necesito un post para contratar Supervisor de Personal en Iztapalapa",
+          "expectedReply": "Te propongo un post con hook fuerte, beneficios reales, requisitos breves y CTA a WhatsApp. Lo adapto a formato cuadrado, story o reel segun el canal.",
+          "passed": true
+        },
+        {
+          "scenarioId": "tendencias",
+          "intent": "tendencias RH",
+          "channel": "Posts",
+          "userText": "Que tendencia podemos usar para reclutar?",
+          "expectedReply": "Podemos usar una tendencia de video corto con testimonio real, beneficios claros y CTA directo; medimos mensajes recibidos y candidatos calificados.",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "agentId": "ag-indeed-recruiting",
+      "agentName": "Experto Indeed",
+      "role": "Ranking, conversion y optimizacion de vacantes",
+      "channels": [
+        "Indeed",
+        "Indeed Sponsored Jobs",
+        "ATS"
+      ],
+      "matchedScenarioCount": 5,
+      "passRate": 1,
+      "counts": {
+        "total": 10000,
+        "passed": 10000,
+        "policyChecks": 0,
+        "humanFlowChecks": 10000,
+        "intentCoverage": {
+          "seo vacante": 1938,
+          "pregunta de compensacion": 1975,
+          "experiencia": 2022,
+          "optimizacion bolsa de trabajo": 2068,
+          "interes en vacante": 1997
+        },
+        "channelCoverage": {
+          "Indeed Sponsored Jobs": 3291,
+          "ATS": 3306,
+          "Indeed": 3403
+        }
+      },
+      "samples": [
+        {
+          "scenarioId": "seo-google-jobs",
+          "intent": "seo vacante",
+          "channel": "Indeed Sponsored Jobs",
+          "userText": "Quiero que mi vacante salga en Google Jobs",
+          "expectedReply": "Para Google Jobs conviene usar titulo buscable, descripcion clara, ubicacion, sueldo si aplica y marcado JobPosting en una URL indexable.",
+          "passed": true
+        },
+        {
+          "scenarioId": "sueldo-beneficios",
+          "intent": "pregunta de compensacion",
+          "channel": "ATS",
+          "userText": "Cuanto pagan para Atencion a Cliente y que beneficios hay?",
+          "expectedReply": "Te puedo orientar con la informacion disponible de la vacante. El pago y beneficios se confirman segun zona y puesto; dime en que zona quieres laborar y reviso la opcion correcta.",
+          "passed": true
+        },
+        {
+          "scenarioId": "seo-google-jobs",
+          "intent": "seo vacante",
+          "channel": "ATS",
+          "userText": "Quiero que mi vacante salga en Google Jobs",
+          "expectedReply": "Para Google Jobs conviene usar titulo buscable, descripcion clara, ubicacion, sueldo si aplica y marcado JobPosting en una URL indexable.",
+          "passed": true
+        },
+        {
+          "scenarioId": "experiencia",
+          "intent": "experiencia",
+          "channel": "Indeed Sponsored Jobs",
+          "userText": "No tengo experiencia en Embajador de Marca, puedo postularme?",
+          "expectedReply": "Si puedes iniciar el proceso. Algunas vacantes aceptan capacitacion. Dime por favor si tienes disponibilidad inmediata para revisar una opcion adecuada.",
+          "passed": true
+        },
+        {
+          "scenarioId": "seo-google-jobs",
+          "intent": "seo vacante",
+          "channel": "ATS",
+          "userText": "Quiero que mi vacante salga en Google Jobs",
+          "expectedReply": "Para Google Jobs conviene usar titulo buscable, descripcion clara, ubicacion, sueldo si aplica y marcado JobPosting en una URL indexable.",
+          "passed": true
+        },
+        {
+          "scenarioId": "experiencia",
+          "intent": "experiencia",
+          "channel": "Indeed Sponsored Jobs",
+          "userText": "No tengo experiencia en Promotor, puedo postularme?",
+          "expectedReply": "Si puedes iniciar el proceso. Algunas vacantes aceptan capacitacion. Dime por favor si tienes disponibilidad inmediata para revisar una opcion adecuada.",
+          "passed": true
+        },
+        {
+          "scenarioId": "bolsa-trabajo",
+          "intent": "optimizacion bolsa de trabajo",
+          "channel": "Indeed",
+          "userText": "Mi vacante no recibe candidatos en bolsa de trabajo",
+          "expectedReply": "Primero revisaria titulo, sueldo visible, zona, beneficios y requisitos. Dime en que plataforma esta publicada para darte ajustes concretos.",
+          "passed": true
+        },
+        {
+          "scenarioId": "experiencia",
+          "intent": "experiencia",
+          "channel": "ATS",
+          "userText": "No tengo experiencia en Asesor Comercial, puedo postularme?",
+          "expectedReply": "Si puedes iniciar el proceso. Algunas vacantes aceptan capacitacion. Dime por favor si tienes disponibilidad inmediata para revisar una opcion adecuada.",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "agentId": "ag-computrabajo-recruiting",
+      "agentName": "Experto Computrabajo",
+      "role": "Anuncios, candidatos y comparacion de vacantes",
+      "channels": [
+        "Computrabajo",
+        "Bolsa de trabajo",
+        "ATS"
+      ],
+      "matchedScenarioCount": 4,
+      "passRate": 1,
+      "counts": {
+        "total": 10000,
+        "passed": 10000,
+        "policyChecks": 0,
+        "humanFlowChecks": 10000,
+        "intentCoverage": {
+          "interes en vacante": 2500,
+          "optimizacion bolsa de trabajo": 2500,
+          "experiencia": 2500,
+          "pregunta de compensacion": 2500
+        },
+        "channelCoverage": {
+          "Bolsa de trabajo": 3309,
+          "Computrabajo": 3328,
+          "ATS": 3363
+        }
+      },
+      "samples": [
+        {
+          "scenarioId": "interes-vacante",
+          "intent": "interes en vacante",
+          "channel": "Bolsa de trabajo",
+          "userText": "Me interesa trabajar como Asesor Comercial, que datos necesitas?",
+          "expectedReply": "Perfecto, te comparto el proceso y te acompano paso a paso. Primero dime tu nombre completo para registrar tu interes en Asesor Comercial.",
+          "passed": true
+        },
+        {
+          "scenarioId": "bolsa-trabajo",
+          "intent": "optimizacion bolsa de trabajo",
+          "channel": "Computrabajo",
+          "userText": "Mi vacante no recibe candidatos en bolsa de trabajo",
+          "expectedReply": "Primero revisaria titulo, sueldo visible, zona, beneficios y requisitos. Dime en que plataforma esta publicada para darte ajustes concretos.",
+          "passed": true
+        },
+        {
+          "scenarioId": "experiencia",
+          "intent": "experiencia",
+          "channel": "Bolsa de trabajo",
+          "userText": "No tengo experiencia en Promotor, puedo postularme?",
+          "expectedReply": "Si puedes iniciar el proceso. Algunas vacantes aceptan capacitacion. Dime por favor si tienes disponibilidad inmediata para revisar una opcion adecuada.",
+          "passed": true
+        },
+        {
+          "scenarioId": "sueldo-beneficios",
+          "intent": "pregunta de compensacion",
+          "channel": "Bolsa de trabajo",
+          "userText": "Cuanto pagan para Supervisor de Personal y que beneficios hay?",
+          "expectedReply": "Te puedo orientar con la informacion disponible de la vacante. El pago y beneficios se confirman segun zona y puesto; dime en que zona quieres laborar y reviso la opcion correcta.",
+          "passed": true
+        },
+        {
+          "scenarioId": "interes-vacante",
+          "intent": "interes en vacante",
+          "channel": "ATS",
+          "userText": "Me interesa trabajar como Embajador de Marca, que datos necesitas?",
+          "expectedReply": "Perfecto, te comparto el proceso y te acompano paso a paso. Primero dime tu nombre completo para registrar tu interes en Embajador de Marca.",
+          "passed": true
+        },
+        {
+          "scenarioId": "bolsa-trabajo",
+          "intent": "optimizacion bolsa de trabajo",
+          "channel": "ATS",
+          "userText": "Mi vacante no recibe candidatos en bolsa de trabajo",
+          "expectedReply": "Primero revisaria titulo, sueldo visible, zona, beneficios y requisitos. Dime en que plataforma esta publicada para darte ajustes concretos.",
+          "passed": true
+        },
+        {
+          "scenarioId": "experiencia",
+          "intent": "experiencia",
+          "channel": "ATS",
+          "userText": "No tengo experiencia en Atencion a Cliente, puedo postularme?",
+          "expectedReply": "Si puedes iniciar el proceso. Algunas vacantes aceptan capacitacion. Dime por favor si tienes disponibilidad inmediata para revisar una opcion adecuada.",
+          "passed": true
+        },
+        {
+          "scenarioId": "sueldo-beneficios",
+          "intent": "pregunta de compensacion",
+          "channel": "ATS",
+          "userText": "Cuanto pagan para Ayudante General y que beneficios hay?",
+          "expectedReply": "Te puedo orientar con la informacion disponible de la vacante. El pago y beneficios se confirman segun zona y puesto; dime en que zona quieres laborar y reviso la opcion correcta.",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "agentId": "ag-occ-recruiting",
+      "agentName": "Experto OCC",
+      "role": "Vacantes profesionales y perfiles ejecutivos",
+      "channels": [
+        "OCC",
+        "OCC Mundial",
+        "Bolsas ejecutivas",
+        "ATS"
+      ],
+      "matchedScenarioCount": 4,
+      "passRate": 1,
+      "counts": {
+        "total": 10000,
+        "passed": 10000,
+        "policyChecks": 0,
+        "humanFlowChecks": 10000,
+        "intentCoverage": {
+          "pregunta de compensacion": 2500,
+          "experiencia": 2500,
+          "optimizacion bolsa de trabajo": 2500,
+          "interes en vacante": 2500
+        },
+        "channelCoverage": {
+          "Bolsas ejecutivas": 2500,
+          "ATS": 2500,
+          "OCC": 2500,
+          "OCC Mundial": 2500
+        }
+      },
+      "samples": [
+        {
+          "scenarioId": "sueldo-beneficios",
+          "intent": "pregunta de compensacion",
+          "channel": "Bolsas ejecutivas",
+          "userText": "Cuanto pagan para Supervisor de Personal y que beneficios hay?",
+          "expectedReply": "Te puedo orientar con la informacion disponible de la vacante. El pago y beneficios se confirman segun zona y puesto; dime en que zona quieres laborar y reviso la opcion correcta.",
+          "passed": true
+        },
+        {
+          "scenarioId": "experiencia",
+          "intent": "experiencia",
+          "channel": "ATS",
+          "userText": "No tengo experiencia en Promotor, puedo postularme?",
+          "expectedReply": "Si puedes iniciar el proceso. Algunas vacantes aceptan capacitacion. Dime por favor si tienes disponibilidad inmediata para revisar una opcion adecuada.",
+          "passed": true
+        },
+        {
+          "scenarioId": "bolsa-trabajo",
+          "intent": "optimizacion bolsa de trabajo",
+          "channel": "OCC",
+          "userText": "Mi vacante no recibe candidatos en bolsa de trabajo",
+          "expectedReply": "Primero revisaria titulo, sueldo visible, zona, beneficios y requisitos. Dime en que plataforma esta publicada para darte ajustes concretos.",
+          "passed": true
+        },
+        {
+          "scenarioId": "interes-vacante",
+          "intent": "interes en vacante",
+          "channel": "OCC Mundial",
+          "userText": "Me interesa trabajar como Asesor Comercial, que datos necesitas?",
+          "expectedReply": "Perfecto, te comparto el proceso y te acompano paso a paso. Primero dime tu nombre completo para registrar tu interes en Asesor Comercial.",
+          "passed": true
+        },
+        {
+          "scenarioId": "sueldo-beneficios",
+          "intent": "pregunta de compensacion",
+          "channel": "Bolsas ejecutivas",
+          "userText": "Cuanto pagan para Ayudante General y que beneficios hay?",
+          "expectedReply": "Te puedo orientar con la informacion disponible de la vacante. El pago y beneficios se confirman segun zona y puesto; dime en que zona quieres laborar y reviso la opcion correcta.",
+          "passed": true
+        },
+        {
+          "scenarioId": "experiencia",
+          "intent": "experiencia",
+          "channel": "ATS",
+          "userText": "No tengo experiencia en Atencion a Cliente, puedo postularme?",
+          "expectedReply": "Si puedes iniciar el proceso. Algunas vacantes aceptan capacitacion. Dime por favor si tienes disponibilidad inmediata para revisar una opcion adecuada.",
+          "passed": true
+        },
+        {
+          "scenarioId": "bolsa-trabajo",
+          "intent": "optimizacion bolsa de trabajo",
+          "channel": "OCC",
+          "userText": "Mi vacante no recibe candidatos en bolsa de trabajo",
+          "expectedReply": "Primero revisaria titulo, sueldo visible, zona, beneficios y requisitos. Dime en que plataforma esta publicada para darte ajustes concretos.",
+          "passed": true
+        },
+        {
+          "scenarioId": "interes-vacante",
+          "intent": "interes en vacante",
+          "channel": "OCC Mundial",
+          "userText": "Me interesa trabajar como Embajador de Marca, que datos necesitas?",
+          "expectedReply": "Perfecto, te comparto el proceso y te acompano paso a paso. Primero dime tu nombre completo para registrar tu interes en Embajador de Marca.",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "agentId": "ag-google-jobs-seo",
+      "agentName": "Experto Google Jobs",
+      "role": "SEO, indexacion y busqueda de vacantes",
+      "channels": [
+        "Google Jobs",
+        "SEO",
+        "Schema.org",
+        "Web"
+      ],
+      "matchedScenarioCount": 3,
+      "passRate": 1,
+      "counts": {
+        "total": 10000,
+        "passed": 10000,
+        "policyChecks": 0,
+        "humanFlowChecks": 10000,
+        "intentCoverage": {
+          "benchmark competencia": 3310,
+          "ubicacion": 3313,
+          "seo vacante": 3377
+        },
+        "channelCoverage": {
+          "Web": 2500,
+          "Schema.org": 2500,
+          "SEO": 2500,
+          "Google Jobs": 2500
+        }
+      },
+      "samples": [
+        {
+          "scenarioId": "competencia",
+          "intent": "benchmark competencia",
+          "channel": "Web",
+          "userText": "La competencia ofrece mas sueldo, que hacemos?",
+          "expectedReply": "Analizaria sueldo, horarios, estabilidad, crecimiento y beneficios. Si no podemos superar sueldo, reforzamos claridad, rapidez de proceso y propuesta de valor.",
+          "passed": true
+        },
+        {
+          "scenarioId": "ubicacion",
+          "intent": "ubicacion",
+          "channel": "Schema.org",
+          "userText": "La vacante esta cerca de Tlalpan?",
+          "expectedReply": "Reviso opciones cercanas a Tlalpan. Para no enviarte una ubicacion incorrecta, dime si buscas trabajar dentro de esa zona o tambien puedes moverte a zonas cercanas.",
+          "passed": true
+        },
+        {
+          "scenarioId": "ubicacion",
+          "intent": "ubicacion",
+          "channel": "SEO",
+          "userText": "La vacante esta cerca de Cuautitlan?",
+          "expectedReply": "Reviso opciones cercanas a Cuautitlan. Para no enviarte una ubicacion incorrecta, dime si buscas trabajar dentro de esa zona o tambien puedes moverte a zonas cercanas.",
+          "passed": true
+        },
+        {
+          "scenarioId": "competencia",
+          "intent": "benchmark competencia",
+          "channel": "Google Jobs",
+          "userText": "La competencia ofrece mas sueldo, que hacemos?",
+          "expectedReply": "Analizaria sueldo, horarios, estabilidad, crecimiento y beneficios. Si no podemos superar sueldo, reforzamos claridad, rapidez de proceso y propuesta de valor.",
+          "passed": true
+        },
+        {
+          "scenarioId": "competencia",
+          "intent": "benchmark competencia",
+          "channel": "Web",
+          "userText": "La competencia ofrece mas sueldo, que hacemos?",
+          "expectedReply": "Analizaria sueldo, horarios, estabilidad, crecimiento y beneficios. Si no podemos superar sueldo, reforzamos claridad, rapidez de proceso y propuesta de valor.",
+          "passed": true
+        },
+        {
+          "scenarioId": "seo-google-jobs",
+          "intent": "seo vacante",
+          "channel": "Schema.org",
+          "userText": "Quiero que mi vacante salga en Google Jobs",
+          "expectedReply": "Para Google Jobs conviene usar titulo buscable, descripcion clara, ubicacion, sueldo si aplica y marcado JobPosting en una URL indexable.",
+          "passed": true
+        },
+        {
+          "scenarioId": "ubicacion",
+          "intent": "ubicacion",
+          "channel": "SEO",
+          "userText": "La vacante esta cerca de Centro?",
+          "expectedReply": "Reviso opciones cercanas a Centro. Para no enviarte una ubicacion incorrecta, dime si buscas trabajar dentro de esa zona o tambien puedes moverte a zonas cercanas.",
+          "passed": true
+        },
+        {
+          "scenarioId": "ubicacion",
+          "intent": "ubicacion",
+          "channel": "Google Jobs",
+          "userText": "La vacante esta cerca de Ecatepec?",
+          "expectedReply": "Reviso opciones cercanas a Ecatepec. Para no enviarte una ubicacion incorrecta, dime si buscas trabajar dentro de esa zona o tambien puedes moverte a zonas cercanas.",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "agentId": "ag-canva-master",
+      "agentName": "Canva Master IA",
+      "role": "Diseno de reclutamiento y employer branding",
+      "channels": [
+        "Canva",
+        "Instagram",
+        "Facebook",
+        "TikTok",
+        "LinkedIn"
+      ],
+      "matchedScenarioCount": 22,
+      "passRate": 1,
+      "counts": {
+        "total": 10000,
+        "passed": 10000,
+        "policyChecks": 976,
+        "humanFlowChecks": 10000,
+        "intentCoverage": {
+          "plan growth": 441,
+          "primer contacto": 443,
+          "experiencia": 459,
+          "dato sensible": 505,
+          "recuperacion no show": 450,
+          "ubicacion": 500,
+          "interes en vacante": 460,
+          "horario": 456,
+          "guion de video": 423,
+          "agendar entrevista": 494,
+          "reagendar entrevista": 489,
+          "tendencias RH": 403,
+          "pregunta de compensacion": 443,
+          "politica de empleo": 471,
+          "queja o escalacion": 448,
+          "brief visual": 413,
+          "requisitos/documentos": 470,
+          "benchmark competencia": 438,
+          "confirmar asistencia": 469,
+          "audio o mensaje incompleto": 453,
+          "captura de datos": 470,
+          "crear copy de reclutamiento": 402
+        },
+        "channelCoverage": {
+          "Canva": 2065,
+          "LinkedIn": 1987,
+          "TikTok": 1932,
+          "Instagram": 2033,
+          "Facebook": 1983
+        }
+      },
+      "samples": [
+        {
+          "scenarioId": "growth-plan",
+          "intent": "plan growth",
+          "channel": "Canva",
+          "userText": "Como consigo mas candidatos esta semana?",
+          "expectedReply": "Te propongo un plan de 7 dias: optimizar anuncio, lanzar pieza visual, activar referidos, seguimiento por WhatsApp y medir costo por candidato calificado.",
+          "passed": true
+        },
+        {
+          "scenarioId": "primer-contacto",
+          "intent": "primer contacto",
+          "channel": "LinkedIn",
+          "userText": "Hola buen dia, vi el anuncio de Asesor Comercial. Me puedes dar informacion?",
+          "expectedReply": "Hola, buen dia. Soy Canva Master IA de Heavenly Dreams. Claro, te ayudo con la vacante de Asesor Comercial. Para orientarte mejor, dime por favor en que zona te encuentras.",
+          "passed": true
+        },
+        {
+          "scenarioId": "experiencia",
+          "intent": "experiencia",
+          "channel": "LinkedIn",
+          "userText": "No tengo experiencia en Supervisor de Personal, puedo postularme?",
+          "expectedReply": "Si puedes iniciar el proceso. Algunas vacantes aceptan capacitacion. Dime por favor si tienes disponibilidad inmediata para revisar una opcion adecuada.",
+          "passed": true
+        },
+        {
+          "scenarioId": "edad-sensible",
+          "intent": "dato sensible",
+          "channel": "LinkedIn",
+          "userText": "Tengo 17 anos, puedo aplicar?",
+          "expectedReply": "Gracias por comentarlo. Para cuidar que el proceso sea correcto, voy a pedir revision humana antes de confirmar si esta vacante aplica para ti.",
+          "passed": true
+        },
+        {
+          "scenarioId": "no-show",
+          "intent": "recuperacion no show",
+          "channel": "Canva",
+          "userText": "Perdon no pude asistir a mi cita",
+          "expectedReply": "No te preocupes. Si aun te interesa, podemos buscar una nueva fecha. Dime si quieres reactivar tu proceso para Volantero.",
+          "passed": true
+        },
+        {
+          "scenarioId": "ubicacion",
+          "intent": "ubicacion",
+          "channel": "TikTok",
+          "userText": "La vacante esta cerca de Cuautitlan?",
+          "expectedReply": "Reviso opciones cercanas a Cuautitlan. Para no enviarte una ubicacion incorrecta, dime si buscas trabajar dentro de esa zona o tambien puedes moverte a zonas cercanas.",
+          "passed": true
+        },
+        {
+          "scenarioId": "interes-vacante",
+          "intent": "interes en vacante",
+          "channel": "Instagram",
+          "userText": "Me interesa trabajar como Ayudante General, que datos necesitas?",
+          "expectedReply": "Perfecto, te comparto el proceso y te acompano paso a paso. Primero dime tu nombre completo para registrar tu interes en Ayudante General.",
+          "passed": true
+        },
+        {
+          "scenarioId": "edad-sensible",
+          "intent": "dato sensible",
+          "channel": "Facebook",
+          "userText": "Tengo 17 anos, puedo aplicar?",
+          "expectedReply": "Gracias por comentarlo. Para cuidar que el proceso sea correcto, voy a pedir revision humana antes de confirmar si esta vacante aplica para ti.",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "agentId": "ag-copywriter-rh",
+      "agentName": "Copywriter RH",
+      "role": "Anuncios, mensajes y campanas de reclutamiento",
+      "channels": [
+        "Facebook",
+        "Instagram",
+        "TikTok",
+        "LinkedIn",
+        "WhatsApp",
+        "Email"
+      ],
+      "matchedScenarioCount": 22,
+      "passRate": 1,
+      "counts": {
+        "total": 10000,
+        "passed": 10000,
+        "policyChecks": 885,
+        "humanFlowChecks": 10000,
+        "intentCoverage": {
+          "guion de video": 474,
+          "audio o mensaje incompleto": 445,
+          "brief visual": 443,
+          "crear copy de reclutamiento": 523,
+          "politica de empleo": 454,
+          "dato sensible": 431,
+          "requisitos/documentos": 456,
+          "experiencia": 467,
+          "agendar entrevista": 439,
+          "plan growth": 429,
+          "tendencias RH": 443,
+          "confirmar asistencia": 447,
+          "reagendar entrevista": 466,
+          "ubicacion": 453,
+          "horario": 485,
+          "queja o escalacion": 482,
+          "captura de datos": 445,
+          "recuperacion no show": 429,
+          "pregunta de compensacion": 418,
+          "interes en vacante": 470,
+          "primer contacto": 445,
+          "benchmark competencia": 456
+        },
+        "channelCoverage": {
+          "LinkedIn": 1635,
+          "TikTok": 1658,
+          "Instagram": 1697,
+          "Facebook": 1668,
+          "Email": 1668,
+          "WhatsApp": 1674
+        }
+      },
+      "samples": [
+        {
+          "scenarioId": "video-guion",
+          "intent": "guion de video",
+          "channel": "LinkedIn",
+          "userText": "Haz un video corto para atraer candidatos",
+          "expectedReply": "Aqui tienes una estructura de 20 segundos: gancho inicial, vacante clara, beneficios, toma visual simple y CTA para enviar mensaje.",
+          "passed": true
+        },
+        {
+          "scenarioId": "audio",
+          "intent": "audio o mensaje incompleto",
+          "channel": "TikTok",
+          "userText": "Te mande audio con mi informacion",
+          "expectedReply": "Gracias. Para no perder ningun dato, escribeme por favor tu nombre completo y la vacante que te interesa.",
+          "passed": true
+        },
+        {
+          "scenarioId": "video-guion",
+          "intent": "guion de video",
+          "channel": "Instagram",
+          "userText": "Haz un video corto para atraer candidatos",
+          "expectedReply": "Aqui tienes una estructura de 20 segundos: gancho inicial, vacante clara, beneficios, toma visual simple y CTA para enviar mensaje.",
+          "passed": true
+        },
+        {
+          "scenarioId": "canva-brief",
+          "intent": "brief visual",
+          "channel": "Facebook",
+          "userText": "Crea una imagen para una vacante de Volantero",
+          "expectedReply": "Genero un brief listo para diseno: titulo, texto principal, beneficios, CTA, distribucion visual y estilo de marca Heavenly Dreams.",
+          "passed": true
+        },
+        {
+          "scenarioId": "copy-publicacion",
+          "intent": "crear copy de reclutamiento",
+          "channel": "Email",
+          "userText": "Necesito un post para contratar Asesor Comercial en Centro",
+          "expectedReply": "Te propongo un post con hook fuerte, beneficios reales, requisitos breves y CTA a WhatsApp. Lo adapto a formato cuadrado, story o reel segun el canal.",
+          "passed": true
+        },
+        {
+          "scenarioId": "politica-empleo",
+          "intent": "politica de empleo",
+          "channel": "WhatsApp",
+          "userText": "Haz un anuncio solo para mujeres jovenes de Iztapalapa",
+          "expectedReply": "No puedo segmentar por genero o edad. Si puedo ayudarte a crear un anuncio basado en funciones del puesto, disponibilidad, experiencia y zona de trabajo voluntaria.",
+          "passed": true
+        },
+        {
+          "scenarioId": "edad-sensible",
+          "intent": "dato sensible",
+          "channel": "Email",
+          "userText": "Tengo 17 anos, puedo aplicar?",
+          "expectedReply": "Gracias por comentarlo. Para cuidar que el proceso sea correcto, voy a pedir revision humana antes de confirmar si esta vacante aplica para ti.",
+          "passed": true
+        },
+        {
+          "scenarioId": "documentos",
+          "intent": "requisitos/documentos",
+          "channel": "WhatsApp",
+          "userText": "Que documentos piden para entrar?",
+          "expectedReply": "Normalmente se revisan documentos basicos de contratacion, pero no envies documentos personales por aqui. Primero confirmamos la vacante y despues te indico el paso seguro.",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "agentId": "ag-video-creator-rh",
+      "agentName": "Video Creator RH",
+      "role": "Guiones, escenas y prompts de video IA",
+      "channels": [
+        "TikTok",
+        "Instagram Reels",
+        "YouTube Shorts",
+        "Canva",
+        "Video IA"
+      ],
+      "matchedScenarioCount": 21,
+      "passRate": 1,
+      "counts": {
+        "total": 10000,
+        "passed": 10000,
+        "policyChecks": 990,
+        "humanFlowChecks": 10000,
+        "intentCoverage": {
+          "queja o escalacion": 452,
+          "captura de datos": 446,
+          "ubicacion": 437,
+          "dato sensible": 479,
+          "pregunta de compensacion": 447,
+          "brief visual": 545,
+          "audio o mensaje incompleto": 473,
+          "politica de empleo": 511,
+          "experiencia": 451,
+          "confirmar asistencia": 508,
+          "crear copy de reclutamiento": 488,
+          "interes en vacante": 495,
+          "requisitos/documentos": 469,
+          "primer contacto": 467,
+          "guion de video": 473,
+          "plan growth": 472,
+          "horario": 484,
+          "agendar entrevista": 515,
+          "recuperacion no show": 461,
+          "tendencias RH": 486,
+          "reagendar entrevista": 441
+        },
+        "channelCoverage": {
+          "Video IA": 2095,
+          "Canva": 2046,
+          "TikTok": 2010,
+          "YouTube Shorts": 1987,
+          "Instagram Reels": 1862
+        }
+      },
+      "samples": [
+        {
+          "scenarioId": "queja",
+          "intent": "queja o escalacion",
+          "channel": "Video IA",
+          "userText": "Tengo una queja sobre el trato que recibi",
+          "expectedReply": "Lamento que hayas tenido esa experiencia. Voy a escalar tu caso con un responsable para revisarlo correctamente. Puedes compartirme tu nombre y medio de contacto?",
+          "passed": true
+        },
+        {
+          "scenarioId": "queja",
+          "intent": "queja o escalacion",
+          "channel": "Video IA",
+          "userText": "Tengo una queja sobre el trato que recibi",
+          "expectedReply": "Lamento que hayas tenido esa experiencia. Voy a escalar tu caso con un responsable para revisarlo correctamente. Puedes compartirme tu nombre y medio de contacto?",
+          "passed": true
+        },
+        {
+          "scenarioId": "datos-contacto",
+          "intent": "captura de datos",
+          "channel": "Video IA",
+          "userText": "Mi nombre es Fernanda y mi telefono es el mismo de WhatsApp",
+          "expectedReply": "Gracias, Fernanda. Ya tengo tu nombre registrado. Ahora dime por favor que vacante te interesa para continuar.",
+          "passed": true
+        },
+        {
+          "scenarioId": "ubicacion",
+          "intent": "ubicacion",
+          "channel": "Canva",
+          "userText": "La vacante esta cerca de Cuautitlan?",
+          "expectedReply": "Reviso opciones cercanas a Cuautitlan. Para no enviarte una ubicacion incorrecta, dime si buscas trabajar dentro de esa zona o tambien puedes moverte a zonas cercanas.",
+          "passed": true
+        },
+        {
+          "scenarioId": "edad-sensible",
+          "intent": "dato sensible",
+          "channel": "Video IA",
+          "userText": "Tengo 17 anos, puedo aplicar?",
+          "expectedReply": "Gracias por comentarlo. Para cuidar que el proceso sea correcto, voy a pedir revision humana antes de confirmar si esta vacante aplica para ti.",
+          "passed": true
+        },
+        {
+          "scenarioId": "sueldo-beneficios",
+          "intent": "pregunta de compensacion",
+          "channel": "TikTok",
+          "userText": "Cuanto pagan para Promotor y que beneficios hay?",
+          "expectedReply": "Te puedo orientar con la informacion disponible de la vacante. El pago y beneficios se confirman segun zona y puesto; dime en que zona quieres laborar y reviso la opcion correcta.",
+          "passed": true
+        },
+        {
+          "scenarioId": "canva-brief",
+          "intent": "brief visual",
+          "channel": "YouTube Shorts",
+          "userText": "Crea una imagen para una vacante de Ayudante General",
+          "expectedReply": "Genero un brief listo para diseno: titulo, texto principal, beneficios, CTA, distribucion visual y estilo de marca Heavenly Dreams.",
+          "passed": true
+        },
+        {
+          "scenarioId": "audio",
+          "intent": "audio o mensaje incompleto",
+          "channel": "Video IA",
+          "userText": "Te mande audio con mi informacion",
+          "expectedReply": "Gracias. Para no perder ningun dato, escribeme por favor tu nombre completo y la vacante que te interesa.",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "agentId": "ag-whatsapp-recruiter-elite",
+      "agentName": "WhatsApp Recruiter Elite",
+      "role": "Saludo, calificacion, agenda y seguimiento",
+      "channels": [
+        "WhatsApp",
+        "WhatsApp Business",
+        "CRM"
+      ],
+      "matchedScenarioCount": 16,
+      "passRate": 1,
+      "counts": {
+        "total": 10000,
+        "passed": 10000,
+        "policyChecks": 628,
+        "humanFlowChecks": 10000,
+        "intentCoverage": {
+          "plan growth": 628,
+          "dato sensible": 628,
+          "requisitos/documentos": 634,
+          "captura de datos": 634,
+          "horario": 637,
+          "confirmar asistencia": 637,
+          "reagendar entrevista": 631,
+          "primer contacto": 631,
+          "experiencia": 623,
+          "queja o escalacion": 623,
+          "ubicacion": 618,
+          "audio o mensaje incompleto": 618,
+          "agendar entrevista": 617,
+          "interes en vacante": 617,
+          "pregunta de compensacion": 612,
+          "recuperacion no show": 612
+        },
+        "channelCoverage": {
+          "CRM": 3314,
+          "WhatsApp Business": 3351,
+          "WhatsApp": 3335
+        }
+      },
+      "samples": [
+        {
+          "scenarioId": "growth-plan",
+          "intent": "plan growth",
+          "channel": "CRM",
+          "userText": "Como consigo mas candidatos esta semana?",
+          "expectedReply": "Te propongo un plan de 7 dias: optimizar anuncio, lanzar pieza visual, activar referidos, seguimiento por WhatsApp y medir costo por candidato calificado.",
+          "passed": true
+        },
+        {
+          "scenarioId": "edad-sensible",
+          "intent": "dato sensible",
+          "channel": "WhatsApp Business",
+          "userText": "Tengo 17 anos, puedo aplicar?",
+          "expectedReply": "Gracias por comentarlo. Para cuidar que el proceso sea correcto, voy a pedir revision humana antes de confirmar si esta vacante aplica para ti.",
+          "passed": true
+        },
+        {
+          "scenarioId": "documentos",
+          "intent": "requisitos/documentos",
+          "channel": "CRM",
+          "userText": "Que documentos piden para entrar?",
+          "expectedReply": "Normalmente se revisan documentos basicos de contratacion, pero no envies documentos personales por aqui. Primero confirmamos la vacante y despues te indico el paso seguro.",
+          "passed": true
+        },
+        {
+          "scenarioId": "datos-contacto",
+          "intent": "captura de datos",
+          "channel": "WhatsApp Business",
+          "userText": "Mi nombre es Jorge y mi telefono es el mismo de WhatsApp",
+          "expectedReply": "Gracias, Jorge. Ya tengo tu nombre registrado. Ahora dime por favor que vacante te interesa para continuar.",
+          "passed": true
+        },
+        {
+          "scenarioId": "horario",
+          "intent": "horario",
+          "channel": "WhatsApp",
+          "userText": "Que horarios manejan para Capturista?",
+          "expectedReply": "Los horarios pueden variar segun la zona y la vacante. Para buscarte una opcion viable, que disponibilidad tienes entre manana, tarde o tiempo completo?",
+          "passed": true
+        },
+        {
+          "scenarioId": "confirmacion",
+          "intent": "confirmar asistencia",
+          "channel": "CRM",
+          "userText": "Confirmo que si voy a la entrevista",
+          "expectedReply": "Gracias por confirmar. Dejo tu asistencia marcada. Te compartire los detalles de llegada y, si aplica, los documentos que debes presentar de forma segura.",
+          "passed": true
+        },
+        {
+          "scenarioId": "reagendar",
+          "intent": "reagendar entrevista",
+          "channel": "WhatsApp Business",
+          "userText": "No puedo ir hoy, puedo cambiar mi entrevista?",
+          "expectedReply": "Claro, podemos revisar otra opcion. Para reagendarte, dime si te queda mejor manana o pasado y en que horario aproximado.",
+          "passed": true
+        },
+        {
+          "scenarioId": "primer-contacto",
+          "intent": "primer contacto",
+          "channel": "WhatsApp",
+          "userText": "Hola buen dia, vi el anuncio de Embajador de Marca. Me puedes dar informacion?",
+          "expectedReply": "Hola, buen dia. Soy WhatsApp Recruiter Elite de Heavenly Dreams. Claro, te ayudo con la vacante de Embajador de Marca. Para orientarte mejor, dime por favor en que zona te encuentras.",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "agentId": "ag-whatsapp-agenda",
+      "agentName": "WhatsApp Agenda IA",
+      "role": "Agenda, reagenda y confirma entrevistas",
+      "channels": [
+        "WhatsApp",
+        "Calendar",
+        "CRM"
+      ],
+      "matchedScenarioCount": 16,
+      "passRate": 1,
+      "counts": {
+        "total": 10000,
+        "passed": 10000,
+        "policyChecks": 639,
+        "humanFlowChecks": 10000,
+        "intentCoverage": {
+          "horario": 639,
+          "dato sensible": 639,
+          "audio o mensaje incompleto": 642,
+          "primer contacto": 642,
+          "plan growth": 633,
+          "pregunta de compensacion": 633,
+          "reagendar entrevista": 625,
+          "captura de datos": 625,
+          "recuperacion no show": 614,
+          "queja o escalacion": 614,
+          "agendar entrevista": 608,
+          "requisitos/documentos": 608,
+          "confirmar asistencia": 615,
+          "experiencia": 615,
+          "ubicacion": 624,
+          "interes en vacante": 624
+        },
+        "channelCoverage": {
+          "Calendar": 3319,
+          "WhatsApp": 3383,
+          "CRM": 3298
+        }
+      },
+      "samples": [
+        {
+          "scenarioId": "horario",
+          "intent": "horario",
+          "channel": "Calendar",
+          "userText": "Que horarios manejan para Capturista?",
+          "expectedReply": "Los horarios pueden variar segun la zona y la vacante. Para buscarte una opcion viable, que disponibilidad tienes entre manana, tarde o tiempo completo?",
+          "passed": true
+        },
+        {
+          "scenarioId": "edad-sensible",
+          "intent": "dato sensible",
+          "channel": "Calendar",
+          "userText": "Tengo 17 anos, puedo aplicar?",
+          "expectedReply": "Gracias por comentarlo. Para cuidar que el proceso sea correcto, voy a pedir revision humana antes de confirmar si esta vacante aplica para ti.",
+          "passed": true
+        },
+        {
+          "scenarioId": "audio",
+          "intent": "audio o mensaje incompleto",
+          "channel": "WhatsApp",
+          "userText": "Te mande audio con mi informacion",
+          "expectedReply": "Gracias. Para no perder ningun dato, escribeme por favor tu nombre completo y la vacante que te interesa.",
+          "passed": true
+        },
+        {
+          "scenarioId": "primer-contacto",
+          "intent": "primer contacto",
+          "channel": "WhatsApp",
+          "userText": "Hola buen dia, vi el anuncio de Embajador de Marca. Me puedes dar informacion?",
+          "expectedReply": "Hola, buen dia. Soy WhatsApp Agenda IA de Heavenly Dreams. Claro, te ayudo con la vacante de Embajador de Marca. Para orientarte mejor, dime por favor en que zona te encuentras.",
+          "passed": true
+        },
+        {
+          "scenarioId": "growth-plan",
+          "intent": "plan growth",
+          "channel": "CRM",
+          "userText": "Como consigo mas candidatos esta semana?",
+          "expectedReply": "Te propongo un plan de 7 dias: optimizar anuncio, lanzar pieza visual, activar referidos, seguimiento por WhatsApp y medir costo por candidato calificado.",
+          "passed": true
+        },
+        {
+          "scenarioId": "sueldo-beneficios",
+          "intent": "pregunta de compensacion",
+          "channel": "CRM",
+          "userText": "Cuanto pagan para Promotor y que beneficios hay?",
+          "expectedReply": "Te puedo orientar con la informacion disponible de la vacante. El pago y beneficios se confirman segun zona y puesto; dime en que zona quieres laborar y reviso la opcion correcta.",
+          "passed": true
+        },
+        {
+          "scenarioId": "reagendar",
+          "intent": "reagendar entrevista",
+          "channel": "Calendar",
+          "userText": "No puedo ir hoy, puedo cambiar mi entrevista?",
+          "expectedReply": "Claro, podemos revisar otra opcion. Para reagendarte, dime si te queda mejor manana o pasado y en que horario aproximado.",
+          "passed": true
+        },
+        {
+          "scenarioId": "datos-contacto",
+          "intent": "captura de datos",
+          "channel": "CRM",
+          "userText": "Mi nombre es Miguel y mi telefono es el mismo de WhatsApp",
+          "expectedReply": "Gracias, Miguel. Ya tengo tu nombre registrado. Ahora dime por favor que vacante te interesa para continuar.",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "agentId": "ag-whatsapp-confirmador",
+      "agentName": "WhatsApp Confirmador IA",
+      "role": "Recordatorio 24 horas antes",
+      "channels": [
+        "WhatsApp",
+        "Calendar",
+        "CRM"
+      ],
+      "matchedScenarioCount": 16,
+      "passRate": 1,
+      "counts": {
+        "total": 10000,
+        "passed": 10000,
+        "policyChecks": 633,
+        "humanFlowChecks": 10000,
+        "intentCoverage": {
+          "primer contacto": 617,
+          "audio o mensaje incompleto": 617,
+          "confirmar asistencia": 617,
+          "experiencia": 617,
+          "ubicacion": 622,
+          "interes en vacante": 622,
+          "queja o escalacion": 617,
+          "recuperacion no show": 617,
+          "agendar entrevista": 633,
+          "requisitos/documentos": 633,
+          "reagendar entrevista": 629,
+          "captura de datos": 629,
+          "pregunta de compensacion": 632,
+          "plan growth": 632,
+          "dato sensible": 633,
+          "horario": 633
+        },
+        "channelCoverage": {
+          "CRM": 3366,
+          "Calendar": 3306,
+          "WhatsApp": 3328
+        }
+      },
+      "samples": [
+        {
+          "scenarioId": "primer-contacto",
+          "intent": "primer contacto",
+          "channel": "CRM",
+          "userText": "Hola buen dia, vi el anuncio de Embajador de Marca. Me puedes dar informacion?",
+          "expectedReply": "Hola, buen dia. Soy WhatsApp Confirmador IA de Heavenly Dreams. Claro, te ayudo con la vacante de Embajador de Marca. Para orientarte mejor, dime por favor en que zona te encuentras.",
+          "passed": true
+        },
+        {
+          "scenarioId": "audio",
+          "intent": "audio o mensaje incompleto",
+          "channel": "CRM",
+          "userText": "Te mande audio con mi informacion",
+          "expectedReply": "Gracias. Para no perder ningun dato, escribeme por favor tu nombre completo y la vacante que te interesa.",
+          "passed": true
+        },
+        {
+          "scenarioId": "confirmacion",
+          "intent": "confirmar asistencia",
+          "channel": "Calendar",
+          "userText": "Confirmo que si voy a la entrevista",
+          "expectedReply": "Gracias por confirmar. Dejo tu asistencia marcada. Te compartire los detalles de llegada y, si aplica, los documentos que debes presentar de forma segura.",
+          "passed": true
+        },
+        {
+          "scenarioId": "experiencia",
+          "intent": "experiencia",
+          "channel": "CRM",
+          "userText": "No tengo experiencia en Volantero, puedo postularme?",
+          "expectedReply": "Si puedes iniciar el proceso. Algunas vacantes aceptan capacitacion. Dime por favor si tienes disponibilidad inmediata para revisar una opcion adecuada.",
+          "passed": true
+        },
+        {
+          "scenarioId": "ubicacion",
+          "intent": "ubicacion",
+          "channel": "WhatsApp",
+          "userText": "La vacante esta cerca de Centro?",
+          "expectedReply": "Reviso opciones cercanas a Centro. Para no enviarte una ubicacion incorrecta, dime si buscas trabajar dentro de esa zona o tambien puedes moverte a zonas cercanas.",
+          "passed": true
+        },
+        {
+          "scenarioId": "interes-vacante",
+          "intent": "interes en vacante",
+          "channel": "Calendar",
+          "userText": "Me interesa trabajar como Supervisor de Personal, que datos necesitas?",
+          "expectedReply": "Perfecto, te comparto el proceso y te acompano paso a paso. Primero dime tu nombre completo para registrar tu interes en Supervisor de Personal.",
+          "passed": true
+        },
+        {
+          "scenarioId": "queja",
+          "intent": "queja o escalacion",
+          "channel": "Calendar",
+          "userText": "Tengo una queja sobre el trato que recibi",
+          "expectedReply": "Lamento que hayas tenido esa experiencia. Voy a escalar tu caso con un responsable para revisarlo correctamente. Puedes compartirme tu nombre y medio de contacto?",
+          "passed": true
+        },
+        {
+          "scenarioId": "no-show",
+          "intent": "recuperacion no show",
+          "channel": "CRM",
+          "userText": "Perdon no pude asistir a mi cita",
+          "expectedReply": "No te preocupes. Si aun te interesa, podemos buscar una nueva fecha. Dime si quieres reactivar tu proceso para Capturista.",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "agentId": "ag-whatsapp-seguimiento",
+      "agentName": "WhatsApp Seguimiento IA",
+      "role": "Post entrevista y actualizacion CRM",
+      "channels": [
+        "WhatsApp",
+        "CRM",
+        "ATS"
+      ],
+      "matchedScenarioCount": 16,
+      "passRate": 1,
+      "counts": {
+        "total": 10000,
+        "passed": 10000,
+        "policyChecks": 626,
+        "humanFlowChecks": 10000,
+        "intentCoverage": {
+          "confirmar asistencia": 619,
+          "horario": 619,
+          "ubicacion": 621,
+          "audio o mensaje incompleto": 621,
+          "queja o escalacion": 623,
+          "experiencia": 623,
+          "agendar entrevista": 619,
+          "interes en vacante": 619,
+          "pregunta de compensacion": 632,
+          "recuperacion no show": 632,
+          "requisitos/documentos": 631,
+          "captura de datos": 631,
+          "primer contacto": 629,
+          "reagendar entrevista": 629,
+          "dato sensible": 626,
+          "plan growth": 626
+        },
+        "channelCoverage": {
+          "CRM": 3347,
+          "WhatsApp": 3302,
+          "ATS": 3351
+        }
+      },
+      "samples": [
+        {
+          "scenarioId": "confirmacion",
+          "intent": "confirmar asistencia",
+          "channel": "CRM",
+          "userText": "Confirmo que si voy a la entrevista",
+          "expectedReply": "Gracias por confirmar. Dejo tu asistencia marcada. Te compartire los detalles de llegada y, si aplica, los documentos que debes presentar de forma segura.",
+          "passed": true
+        },
+        {
+          "scenarioId": "horario",
+          "intent": "horario",
+          "channel": "CRM",
+          "userText": "Que horarios manejan para Capturista?",
+          "expectedReply": "Los horarios pueden variar segun la zona y la vacante. Para buscarte una opcion viable, que disponibilidad tienes entre manana, tarde o tiempo completo?",
+          "passed": true
+        },
+        {
+          "scenarioId": "ubicacion",
+          "intent": "ubicacion",
+          "channel": "WhatsApp",
+          "userText": "La vacante esta cerca de Centro?",
+          "expectedReply": "Reviso opciones cercanas a Centro. Para no enviarte una ubicacion incorrecta, dime si buscas trabajar dentro de esa zona o tambien puedes moverte a zonas cercanas.",
+          "passed": true
+        },
+        {
+          "scenarioId": "audio",
+          "intent": "audio o mensaje incompleto",
+          "channel": "WhatsApp",
+          "userText": "Te mande audio con mi informacion",
+          "expectedReply": "Gracias. Para no perder ningun dato, escribeme por favor tu nombre completo y la vacante que te interesa.",
+          "passed": true
+        },
+        {
+          "scenarioId": "queja",
+          "intent": "queja o escalacion",
+          "channel": "WhatsApp",
+          "userText": "Tengo una queja sobre el trato que recibi",
+          "expectedReply": "Lamento que hayas tenido esa experiencia. Voy a escalar tu caso con un responsable para revisarlo correctamente. Puedes compartirme tu nombre y medio de contacto?",
+          "passed": true
+        },
+        {
+          "scenarioId": "experiencia",
+          "intent": "experiencia",
+          "channel": "WhatsApp",
+          "userText": "No tengo experiencia en Volantero, puedo postularme?",
+          "expectedReply": "Si puedes iniciar el proceso. Algunas vacantes aceptan capacitacion. Dime por favor si tienes disponibilidad inmediata para revisar una opcion adecuada.",
+          "passed": true
+        },
+        {
+          "scenarioId": "agenda-entrevista",
+          "intent": "agendar entrevista",
+          "channel": "CRM",
+          "userText": "Quiero agendar entrevista esta semana",
+          "expectedReply": "Con gusto. Puedo proponerte dos horarios disponibles para esta semana. Prefieres entrevista por la manana o por la tarde?",
+          "passed": true
+        },
+        {
+          "scenarioId": "interes-vacante",
+          "intent": "interes en vacante",
+          "channel": "WhatsApp",
+          "userText": "Me interesa trabajar como Supervisor de Personal, que datos necesitas?",
+          "expectedReply": "Perfecto, te comparto el proceso y te acompano paso a paso. Primero dime tu nombre completo para registrar tu interes en Supervisor de Personal.",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "agentId": "ag-whatsapp-recuperador",
+      "agentName": "WhatsApp Recuperador IA",
+      "role": "Reactivacion de candidatos y abandonos",
+      "channels": [
+        "WhatsApp",
+        "Messenger",
+        "Instagram DM",
+        "CRM"
+      ],
+      "matchedScenarioCount": 20,
+      "passRate": 1,
+      "counts": {
+        "total": 10000,
+        "passed": 10000,
+        "policyChecks": 1042,
+        "humanFlowChecks": 10000,
+        "intentCoverage": {
+          "plan growth": 493,
+          "tendencias RH": 503,
+          "agendar entrevista": 494,
+          "reagendar entrevista": 482,
+          "dato sensible": 536,
+          "politica de empleo": 506,
+          "captura de datos": 473,
+          "requisitos/documentos": 522,
+          "pregunta de compensacion": 528,
+          "experiencia": 502,
+          "brief visual": 496,
+          "ubicacion": 499,
+          "recuperacion no show": 484,
+          "confirmar asistencia": 480,
+          "interes en vacante": 502,
+          "primer contacto": 523,
+          "horario": 506,
+          "crear copy de reclutamiento": 510,
+          "audio o mensaje incompleto": 497,
+          "queja o escalacion": 464
+        },
+        "channelCoverage": {
+          "CRM": 2501,
+          "WhatsApp": 2501,
+          "Messenger": 2499,
+          "Instagram DM": 2499
+        }
+      },
+      "samples": [
+        {
+          "scenarioId": "growth-plan",
+          "intent": "plan growth",
+          "channel": "CRM",
+          "userText": "Como consigo mas candidatos esta semana?",
+          "expectedReply": "Te propongo un plan de 7 dias: optimizar anuncio, lanzar pieza visual, activar referidos, seguimiento por WhatsApp y medir costo por candidato calificado.",
+          "passed": true
+        },
+        {
+          "scenarioId": "tendencias",
+          "intent": "tendencias RH",
+          "channel": "WhatsApp",
+          "userText": "Que tendencia podemos usar para reclutar?",
+          "expectedReply": "Podemos usar una tendencia de video corto con testimonio real, beneficios claros y CTA directo; medimos mensajes recibidos y candidatos calificados.",
+          "passed": true
+        },
+        {
+          "scenarioId": "agenda-entrevista",
+          "intent": "agendar entrevista",
+          "channel": "Messenger",
+          "userText": "Quiero agendar entrevista esta semana",
+          "expectedReply": "Con gusto. Puedo proponerte dos horarios disponibles para esta semana. Prefieres entrevista por la manana o por la tarde?",
+          "passed": true
+        },
+        {
+          "scenarioId": "reagendar",
+          "intent": "reagendar entrevista",
+          "channel": "Instagram DM",
+          "userText": "No puedo ir hoy, puedo cambiar mi entrevista?",
+          "expectedReply": "Claro, podemos revisar otra opcion. Para reagendarte, dime si te queda mejor manana o pasado y en que horario aproximado.",
+          "passed": true
+        },
+        {
+          "scenarioId": "edad-sensible",
+          "intent": "dato sensible",
+          "channel": "CRM",
+          "userText": "Tengo 17 anos, puedo aplicar?",
+          "expectedReply": "Gracias por comentarlo. Para cuidar que el proceso sea correcto, voy a pedir revision humana antes de confirmar si esta vacante aplica para ti.",
+          "passed": true
+        },
+        {
+          "scenarioId": "politica-empleo",
+          "intent": "politica de empleo",
+          "channel": "WhatsApp",
+          "userText": "Haz un anuncio solo para mujeres jovenes de Naucalpan",
+          "expectedReply": "No puedo segmentar por genero o edad. Si puedo ayudarte a crear un anuncio basado en funciones del puesto, disponibilidad, experiencia y zona de trabajo voluntaria.",
+          "passed": true
+        },
+        {
+          "scenarioId": "datos-contacto",
+          "intent": "captura de datos",
+          "channel": "Messenger",
+          "userText": "Mi nombre es Carlos y mi telefono es el mismo de WhatsApp",
+          "expectedReply": "Gracias, Carlos. Ya tengo tu nombre registrado. Ahora dime por favor que vacante te interesa para continuar.",
+          "passed": true
+        },
+        {
+          "scenarioId": "documentos",
+          "intent": "requisitos/documentos",
+          "channel": "Instagram DM",
+          "userText": "Que documentos piden para entrar?",
+          "expectedReply": "Normalmente se revisan documentos basicos de contratacion, pero no envies documentos personales por aqui. Primero confirmamos la vacante y despues te indico el paso seguro.",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "agentId": "ag-tendencias-rh",
+      "agentName": "Agente Tendencias RH",
+      "role": "Tendencias diarias de reclutamiento",
+      "channels": [
+        "TikTok",
+        "Facebook",
+        "Instagram",
+        "LinkedIn",
+        "Reportes"
+      ],
+      "matchedScenarioCount": 22,
+      "passRate": 1,
+      "counts": {
+        "total": 10000,
+        "passed": 10000,
+        "policyChecks": 907,
+        "humanFlowChecks": 10000,
+        "intentCoverage": {
+          "plan growth": 435,
+          "pregunta de compensacion": 434,
+          "interes en vacante": 458,
+          "reagendar entrevista": 456,
+          "crear copy de reclutamiento": 466,
+          "dato sensible": 469,
+          "benchmark competencia": 445,
+          "queja o escalacion": 483,
+          "experiencia": 471,
+          "primer contacto": 454,
+          "horario": 480,
+          "ubicacion": 409,
+          "brief visual": 435,
+          "politica de empleo": 438,
+          "captura de datos": 474,
+          "audio o mensaje incompleto": 465,
+          "tendencias RH": 448,
+          "agendar entrevista": 455,
+          "requisitos/documentos": 464,
+          "confirmar asistencia": 464,
+          "guion de video": 444,
+          "recuperacion no show": 453
+        },
+        "channelCoverage": {
+          "Instagram": 2027,
+          "TikTok": 1983,
+          "Facebook": 2073,
+          "Reportes": 1930,
+          "LinkedIn": 1987
+        }
+      },
+      "samples": [
+        {
+          "scenarioId": "growth-plan",
+          "intent": "plan growth",
+          "channel": "Instagram",
+          "userText": "Como consigo mas candidatos esta semana?",
+          "expectedReply": "Te propongo un plan de 7 dias: optimizar anuncio, lanzar pieza visual, activar referidos, seguimiento por WhatsApp y medir costo por candidato calificado.",
+          "passed": true
+        },
+        {
+          "scenarioId": "sueldo-beneficios",
+          "intent": "pregunta de compensacion",
+          "channel": "TikTok",
+          "userText": "Cuanto pagan para Asesor Comercial y que beneficios hay?",
+          "expectedReply": "Te puedo orientar con la informacion disponible de la vacante. El pago y beneficios se confirman segun zona y puesto; dime en que zona quieres laborar y reviso la opcion correcta.",
+          "passed": true
+        },
+        {
+          "scenarioId": "interes-vacante",
+          "intent": "interes en vacante",
+          "channel": "Facebook",
+          "userText": "Me interesa trabajar como Volantero, que datos necesitas?",
+          "expectedReply": "Perfecto, te comparto el proceso y te acompano paso a paso. Primero dime tu nombre completo para registrar tu interes en Volantero.",
+          "passed": true
+        },
+        {
+          "scenarioId": "sueldo-beneficios",
+          "intent": "pregunta de compensacion",
+          "channel": "Reportes",
+          "userText": "Cuanto pagan para Promotor y que beneficios hay?",
+          "expectedReply": "Te puedo orientar con la informacion disponible de la vacante. El pago y beneficios se confirman segun zona y puesto; dime en que zona quieres laborar y reviso la opcion correcta.",
+          "passed": true
+        },
+        {
+          "scenarioId": "reagendar",
+          "intent": "reagendar entrevista",
+          "channel": "Facebook",
+          "userText": "No puedo ir hoy, puedo cambiar mi entrevista?",
+          "expectedReply": "Claro, podemos revisar otra opcion. Para reagendarte, dime si te queda mejor manana o pasado y en que horario aproximado.",
+          "passed": true
+        },
+        {
+          "scenarioId": "copy-publicacion",
+          "intent": "crear copy de reclutamiento",
+          "channel": "Reportes",
+          "userText": "Necesito un post para contratar Embajador de Marca en Cuautitlan",
+          "expectedReply": "Te propongo un post con hook fuerte, beneficios reales, requisitos breves y CTA a WhatsApp. Lo adapto a formato cuadrado, story o reel segun el canal.",
+          "passed": true
+        },
+        {
+          "scenarioId": "growth-plan",
+          "intent": "plan growth",
+          "channel": "TikTok",
+          "userText": "Como consigo mas candidatos esta semana?",
+          "expectedReply": "Te propongo un plan de 7 dias: optimizar anuncio, lanzar pieza visual, activar referidos, seguimiento por WhatsApp y medir costo por candidato calificado.",
+          "passed": true
+        },
+        {
+          "scenarioId": "edad-sensible",
+          "intent": "dato sensible",
+          "channel": "TikTok",
+          "userText": "Tengo 17 anos, puedo aplicar?",
+          "expectedReply": "Gracias por comentarlo. Para cuidar que el proceso sea correcto, voy a pedir revision humana antes de confirmar si esta vacante aplica para ti.",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "agentId": "ag-competencia-rh",
+      "agentName": "Agente Competencia RH",
+      "role": "Monitoreo de agencias, sueldos y beneficios",
+      "channels": [
+        "Bolsas de trabajo",
+        "Facebook",
+        "LinkedIn",
+        "Google Jobs",
+        "Reportes"
+      ],
+      "matchedScenarioCount": 16,
+      "passRate": 1,
+      "counts": {
+        "total": 10000,
+        "passed": 10000,
+        "policyChecks": 1246,
+        "humanFlowChecks": 10000,
+        "intentCoverage": {
+          "pregunta de compensacion": 626,
+          "benchmark competencia": 626,
+          "primer contacto": 625,
+          "requisitos/documentos": 625,
+          "dato sensible": 623,
+          "horario": 623,
+          "ubicacion": 623,
+          "politica de empleo": 623,
+          "crear copy de reclutamiento": 627,
+          "experiencia": 627,
+          "queja o escalacion": 625,
+          "seo vacante": 625,
+          "tendencias RH": 625,
+          "brief visual": 625,
+          "optimizacion bolsa de trabajo": 626,
+          "interes en vacante": 626
+        },
+        "channelCoverage": {
+          "Bolsas de trabajo": 2087,
+          "Facebook": 2043,
+          "Google Jobs": 1886,
+          "LinkedIn": 1941,
+          "Reportes": 2043
+        }
+      },
+      "samples": [
+        {
+          "scenarioId": "sueldo-beneficios",
+          "intent": "pregunta de compensacion",
+          "channel": "Bolsas de trabajo",
+          "userText": "Cuanto pagan para Promotor y que beneficios hay?",
+          "expectedReply": "Te puedo orientar con la informacion disponible de la vacante. El pago y beneficios se confirman segun zona y puesto; dime en que zona quieres laborar y reviso la opcion correcta.",
+          "passed": true
+        },
+        {
+          "scenarioId": "competencia",
+          "intent": "benchmark competencia",
+          "channel": "Facebook",
+          "userText": "La competencia ofrece mas sueldo, que hacemos?",
+          "expectedReply": "Analizaria sueldo, horarios, estabilidad, crecimiento y beneficios. Si no podemos superar sueldo, reforzamos claridad, rapidez de proceso y propuesta de valor.",
+          "passed": true
+        },
+        {
+          "scenarioId": "primer-contacto",
+          "intent": "primer contacto",
+          "channel": "Google Jobs",
+          "userText": "Hola buen dia, vi el anuncio de Embajador de Marca. Me puedes dar informacion?",
+          "expectedReply": "Hola, buen dia. Soy Agente Competencia RH de Heavenly Dreams. Claro, te ayudo con la vacante de Embajador de Marca. Para orientarte mejor, dime por favor en que zona te encuentras.",
+          "passed": true
+        },
+        {
+          "scenarioId": "documentos",
+          "intent": "requisitos/documentos",
+          "channel": "Google Jobs",
+          "userText": "Que documentos piden para entrar?",
+          "expectedReply": "Normalmente se revisan documentos basicos de contratacion, pero no envies documentos personales por aqui. Primero confirmamos la vacante y despues te indico el paso seguro.",
+          "passed": true
+        },
+        {
+          "scenarioId": "edad-sensible",
+          "intent": "dato sensible",
+          "channel": "LinkedIn",
+          "userText": "Tengo 17 anos, puedo aplicar?",
+          "expectedReply": "Gracias por comentarlo. Para cuidar que el proceso sea correcto, voy a pedir revision humana antes de confirmar si esta vacante aplica para ti.",
+          "passed": true
+        },
+        {
+          "scenarioId": "horario",
+          "intent": "horario",
+          "channel": "Google Jobs",
+          "userText": "Que horarios manejan para Capturista?",
+          "expectedReply": "Los horarios pueden variar segun la zona y la vacante. Para buscarte una opcion viable, que disponibilidad tienes entre manana, tarde o tiempo completo?",
+          "passed": true
+        },
+        {
+          "scenarioId": "ubicacion",
+          "intent": "ubicacion",
+          "channel": "Google Jobs",
+          "userText": "La vacante esta cerca de Centro?",
+          "expectedReply": "Reviso opciones cercanas a Centro. Para no enviarte una ubicacion incorrecta, dime si buscas trabajar dentro de esa zona o tambien puedes moverte a zonas cercanas.",
+          "passed": true
+        },
+        {
+          "scenarioId": "politica-empleo",
+          "intent": "politica de empleo",
+          "channel": "Facebook",
+          "userText": "Haz un anuncio solo para mujeres jovenes de Iztapalapa",
+          "expectedReply": "No puedo segmentar por genero o edad. Si puedo ayudarte a crear un anuncio basado en funciones del puesto, disponibilidad, experiencia y zona de trabajo voluntaria.",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "agentId": "ag-employer-branding",
+      "agentName": "Agente Employer Branding",
+      "role": "Marca empleadora Heavenly Dreams",
+      "channels": [
+        "Instagram",
+        "Facebook",
+        "LinkedIn",
+        "TikTok",
+        "Canva",
+        "Web"
+      ],
+      "matchedScenarioCount": 23,
+      "passRate": 1,
+      "counts": {
+        "total": 10000,
+        "passed": 10000,
+        "policyChecks": 851,
+        "humanFlowChecks": 10000,
+        "intentCoverage": {
+          "ubicacion": 454,
+          "interes en vacante": 407,
+          "requisitos/documentos": 419,
+          "brief visual": 475,
+          "agendar entrevista": 452,
+          "queja o escalacion": 460,
+          "audio o mensaje incompleto": 447,
+          "confirmar asistencia": 447,
+          "dato sensible": 431,
+          "politica de empleo": 420,
+          "experiencia": 427,
+          "guion de video": 428,
+          "horario": 412,
+          "recuperacion no show": 426,
+          "benchmark competencia": 424,
+          "seo vacante": 432,
+          "primer contacto": 442,
+          "reagendar entrevista": 419,
+          "pregunta de compensacion": 461,
+          "crear copy de reclutamiento": 418,
+          "tendencias RH": 459,
+          "captura de datos": 422,
+          "plan growth": 418
+        },
+        "channelCoverage": {
+          "LinkedIn": 1679,
+          "Web": 1658,
+          "Facebook": 1681,
+          "TikTok": 1661,
+          "Canva": 1678,
+          "Instagram": 1643
+        }
+      },
+      "samples": [
+        {
+          "scenarioId": "ubicacion",
+          "intent": "ubicacion",
+          "channel": "LinkedIn",
+          "userText": "La vacante esta cerca de Naucalpan?",
+          "expectedReply": "Reviso opciones cercanas a Naucalpan. Para no enviarte una ubicacion incorrecta, dime si buscas trabajar dentro de esa zona o tambien puedes moverte a zonas cercanas.",
+          "passed": true
+        },
+        {
+          "scenarioId": "interes-vacante",
+          "intent": "interes en vacante",
+          "channel": "Web",
+          "userText": "Me interesa trabajar como Atencion a Cliente, que datos necesitas?",
+          "expectedReply": "Perfecto, te comparto el proceso y te acompano paso a paso. Primero dime tu nombre completo para registrar tu interes en Atencion a Cliente.",
+          "passed": true
+        },
+        {
+          "scenarioId": "documentos",
+          "intent": "requisitos/documentos",
+          "channel": "LinkedIn",
+          "userText": "Que documentos piden para entrar?",
+          "expectedReply": "Normalmente se revisan documentos basicos de contratacion, pero no envies documentos personales por aqui. Primero confirmamos la vacante y despues te indico el paso seguro.",
+          "passed": true
+        },
+        {
+          "scenarioId": "canva-brief",
+          "intent": "brief visual",
+          "channel": "Facebook",
+          "userText": "Crea una imagen para una vacante de Embajador de Marca",
+          "expectedReply": "Genero un brief listo para diseno: titulo, texto principal, beneficios, CTA, distribucion visual y estilo de marca Heavenly Dreams.",
+          "passed": true
+        },
+        {
+          "scenarioId": "ubicacion",
+          "intent": "ubicacion",
+          "channel": "LinkedIn",
+          "userText": "La vacante esta cerca de Ecatepec?",
+          "expectedReply": "Reviso opciones cercanas a Ecatepec. Para no enviarte una ubicacion incorrecta, dime si buscas trabajar dentro de esa zona o tambien puedes moverte a zonas cercanas.",
+          "passed": true
+        },
+        {
+          "scenarioId": "agenda-entrevista",
+          "intent": "agendar entrevista",
+          "channel": "TikTok",
+          "userText": "Quiero agendar entrevista esta semana",
+          "expectedReply": "Con gusto. Puedo proponerte dos horarios disponibles para esta semana. Prefieres entrevista por la manana o por la tarde?",
+          "passed": true
+        },
+        {
+          "scenarioId": "agenda-entrevista",
+          "intent": "agendar entrevista",
+          "channel": "Canva",
+          "userText": "Quiero agendar entrevista esta semana",
+          "expectedReply": "Con gusto. Puedo proponerte dos horarios disponibles para esta semana. Prefieres entrevista por la manana o por la tarde?",
+          "passed": true
+        },
+        {
+          "scenarioId": "queja",
+          "intent": "queja o escalacion",
+          "channel": "TikTok",
+          "userText": "Tengo una queja sobre el trato que recibi",
+          "expectedReply": "Lamento que hayas tenido esa experiencia. Voy a escalar tu caso con un responsable para revisarlo correctamente. Puedes compartirme tu nombre y medio de contacto?",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "agentId": "ag-growth-recruiting",
+      "agentName": "Agente Growth Recruiting",
+      "role": "Mas candidatos esta semana",
+      "channels": [
+        "Growth",
+        "Meta Ads",
+        "TikTok",
+        "WhatsApp",
+        "Bolsas de trabajo",
+        "Referidos"
+      ],
+      "matchedScenarioCount": 23,
+      "passRate": 1,
+      "counts": {
+        "total": 10000,
+        "passed": 10000,
+        "policyChecks": 843,
+        "humanFlowChecks": 10000,
+        "intentCoverage": {
+          "ubicacion": 446,
+          "benchmark competencia": 393,
+          "plan growth": 451,
+          "interes en vacante": 402,
+          "dato sensible": 414,
+          "pregunta de compensacion": 427,
+          "reagendar entrevista": 462,
+          "experiencia": 442,
+          "queja o escalacion": 415,
+          "agendar entrevista": 406,
+          "audio o mensaje incompleto": 402,
+          "confirmar asistencia": 418,
+          "crear copy de reclutamiento": 464,
+          "primer contacto": 430,
+          "recuperacion no show": 457,
+          "horario": 443,
+          "captura de datos": 433,
+          "guion de video": 490,
+          "politica de empleo": 429,
+          "optimizacion bolsa de trabajo": 479,
+          "brief visual": 455,
+          "tendencias RH": 408,
+          "requisitos/documentos": 434
+        },
+        "channelCoverage": {
+          "Referidos": 1680,
+          "TikTok": 1636,
+          "Bolsas de trabajo": 1723,
+          "WhatsApp": 1657,
+          "Growth": 1641,
+          "Meta Ads": 1663
+        }
+      },
+      "samples": [
+        {
+          "scenarioId": "ubicacion",
+          "intent": "ubicacion",
+          "channel": "Referidos",
+          "userText": "La vacante esta cerca de Nezahualcoyotl?",
+          "expectedReply": "Reviso opciones cercanas a Nezahualcoyotl. Para no enviarte una ubicacion incorrecta, dime si buscas trabajar dentro de esa zona o tambien puedes moverte a zonas cercanas.",
+          "passed": true
+        },
+        {
+          "scenarioId": "competencia",
+          "intent": "benchmark competencia",
+          "channel": "TikTok",
+          "userText": "La competencia ofrece mas sueldo, que hacemos?",
+          "expectedReply": "Analizaria sueldo, horarios, estabilidad, crecimiento y beneficios. Si no podemos superar sueldo, reforzamos claridad, rapidez de proceso y propuesta de valor.",
+          "passed": true
+        },
+        {
+          "scenarioId": "growth-plan",
+          "intent": "plan growth",
+          "channel": "Referidos",
+          "userText": "Como consigo mas candidatos esta semana?",
+          "expectedReply": "Te propongo un plan de 7 dias: optimizar anuncio, lanzar pieza visual, activar referidos, seguimiento por WhatsApp y medir costo por candidato calificado.",
+          "passed": true
+        },
+        {
+          "scenarioId": "interes-vacante",
+          "intent": "interes en vacante",
+          "channel": "Bolsas de trabajo",
+          "userText": "Me interesa trabajar como Ayudante General, que datos necesitas?",
+          "expectedReply": "Perfecto, te comparto el proceso y te acompano paso a paso. Primero dime tu nombre completo para registrar tu interes en Ayudante General.",
+          "passed": true
+        },
+        {
+          "scenarioId": "edad-sensible",
+          "intent": "dato sensible",
+          "channel": "WhatsApp",
+          "userText": "Tengo 17 anos, puedo aplicar?",
+          "expectedReply": "Gracias por comentarlo. Para cuidar que el proceso sea correcto, voy a pedir revision humana antes de confirmar si esta vacante aplica para ti.",
+          "passed": true
+        },
+        {
+          "scenarioId": "sueldo-beneficios",
+          "intent": "pregunta de compensacion",
+          "channel": "Bolsas de trabajo",
+          "userText": "Cuanto pagan para Capturista y que beneficios hay?",
+          "expectedReply": "Te puedo orientar con la informacion disponible de la vacante. El pago y beneficios se confirman segun zona y puesto; dime en que zona quieres laborar y reviso la opcion correcta.",
+          "passed": true
+        },
+        {
+          "scenarioId": "reagendar",
+          "intent": "reagendar entrevista",
+          "channel": "WhatsApp",
+          "userText": "No puedo ir hoy, puedo cambiar mi entrevista?",
+          "expectedReply": "Claro, podemos revisar otra opcion. Para reagendarte, dime si te queda mejor manana o pasado y en que horario aproximado.",
+          "passed": true
+        },
+        {
+          "scenarioId": "experiencia",
+          "intent": "experiencia",
+          "channel": "Bolsas de trabajo",
+          "userText": "No tengo experiencia en Supervisor de Personal, puedo postularme?",
+          "expectedReply": "Si puedes iniciar el proceso. Algunas vacantes aceptan capacitacion. Dime por favor si tienes disponibilidad inmediata para revisar una opcion adecuada.",
+          "passed": true
+        }
+      ]
+    }
+  ]
+}

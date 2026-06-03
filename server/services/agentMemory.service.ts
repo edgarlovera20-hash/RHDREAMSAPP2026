@@ -1,4 +1,5 @@
 import { ChatMessage } from "../types";
+import { AGENT_TRAINING_MEMORIES } from "../config/agentTrainingKnowledge";
 import { readRuntimeCollection, writeRuntimeCollection } from "./runtimeStore.service";
 
 const AGENT_MEMORY_FILE = "agent-memory.json";
@@ -114,13 +115,17 @@ async function readMemories() {
   return readRuntimeCollection<AgentMemoryRecord>(AGENT_MEMORY_FILE);
 }
 
+function readTrainingMemories(): AgentMemoryRecord[] {
+  return AGENT_TRAINING_MEMORIES as AgentMemoryRecord[];
+}
+
 async function writeMemories(memories: AgentMemoryRecord[]) {
   await writeRuntimeCollection(AGENT_MEMORY_FILE, memories.slice(0, MAX_AGENT_MEMORIES));
 }
 
 export async function listAgentMemories(companyId: string, agentId?: string) {
   const normalizedAgentId = agentId ? stableAgentId(agentId) : undefined;
-  const memories = await readMemories();
+  const memories = [...readTrainingMemories(), ...(await readMemories())];
   return memories
     .filter((memory) => memory.companyId === companyId)
     .filter((memory) => !normalizedAgentId || memory.agentId === normalizedAgentId)
@@ -129,7 +134,8 @@ export async function listAgentMemories(companyId: string, agentId?: string) {
 
 export async function getRelevantAgentMemories(input: MemoryLookupInput) {
   const agentId = stableAgentId(input.agentId, input.agentName);
-  const all = await readMemories();
+  const runtimeMemories = await readMemories();
+  const all = [...readTrainingMemories(), ...runtimeMemories];
   const promptKeywords = keywords([
     input.userPrompt,
     ...(input.conversationHistory || []).slice(-6).map((message) => message.body || message.text || ""),
@@ -155,9 +161,14 @@ export async function getRelevantAgentMemories(input: MemoryLookupInput) {
 
   if (scored.length) {
     const now = Date.now();
-    const ids = new Set(scored.map((memory) => memory.id));
+    const ids = new Set(
+      scored
+        .filter((memory) => !memory.id.startsWith("training-"))
+        .map((memory) => memory.id)
+    );
+    if (!ids.size) return scored;
     await writeMemories(
-      all.map((memory) =>
+      runtimeMemories.map((memory) =>
         ids.has(memory.id)
           ? { ...memory, uses: memory.uses + 1, lastUsedAt: now, updatedAt: now }
           : memory

@@ -140,7 +140,7 @@ const normalizeAgentText = (agent: any) =>
 
 export function WhatsAppAccounts() {
   const [activeTab, setActiveTab] = useState<ChannelType>('whatsapp_meta');
-  
+
   const [accounts, setAccounts] = useState<ChannelAccount[]>(() => {
     try {
       const stored = localStorage.getItem("rhdreams_channel_accounts");
@@ -163,7 +163,7 @@ export function WhatsAppAccounts() {
   const [searchFilter, setSearchFilter] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalStep, setModalStep] = useState<'info' | 'qr' | 'oauth_connecting' | 'success'>('info');
-  
+
   const [newAccountName, setNewAccountName] = useState('');
   const [newAccountCompanyName, setNewAccountCompanyName] = useState(DEFAULT_COMPANY_NAME);
   const [newAgentPersonalName, setNewAgentPersonalName] = useState('');
@@ -314,7 +314,7 @@ export function WhatsAppAccounts() {
         });
       });
   }, [accounts, availableAgents]);
-  
+
   // Advanced Rules State
   const [automationRules, setAutomationRules] = useState<any[]>([]);
 
@@ -337,9 +337,9 @@ export function WhatsAppAccounts() {
     setAutomationRules(automationRules.map(r => r.id === id ? { ...r, [field]: value } : r));
   };
 
-  const filteredAccounts = accounts.filter(acc => 
+  const filteredAccounts = accounts.filter(acc =>
     acc.type === activeTab &&
-    (acc.name.toLowerCase().includes(searchFilter.toLowerCase()) || 
+    (acc.name.toLowerCase().includes(searchFilter.toLowerCase()) ||
      acc.phone.includes(searchFilter))
   );
 
@@ -432,7 +432,7 @@ export function WhatsAppAccounts() {
       setBaileysError(`Ese agente no pertenece a ${getPlatformLabel(activeTab)}. Seleccione un agente del grupo ${getChannelAgentGroupLabel(activeTab)}.`);
       return;
     }
-    
+
     if (activeTab === 'whatsapp_personal') {
       const sessionId = baileysSessionId.trim() || "default";
       if (hasDuplicateWhatsAppSession(sessionId)) {
@@ -539,7 +539,7 @@ export function WhatsAppAccounts() {
       companyName: newAccountCompanyName.trim() || DEFAULT_COMPANY_NAME,
       agentPersonalName: newAgentPersonalName.trim() || undefined,
     };
-    
+
     setAccounts([...accounts, added]);
     setIsModalOpen(false);
     setModalStep('info');
@@ -777,14 +777,14 @@ export function WhatsAppAccounts() {
 
   const getPlatformColor = (type: string) => {
     switch(type) {
-      case 'whatsapp_meta': return 'text-teal-300 border-teal-500/30';
-      case 'whatsapp_personal': return 'text-emerald-300 border-emerald-500/30';
-      case 'indeed': return 'text-blue-300 border-blue-500/30';
-      case 'computrabajo': return 'text-sky-300 border-sky-500/30';
-      case 'facebook': return 'text-blue-400 border-blue-500/30';
-      case 'messenger': return 'text-sky-400 border-sky-500/30';
-      case 'instagram': return 'text-pink-400 border-pink-500/30';
-      case 'tiktok': return 'text-cyan-400 border-cyan-500/30';
+      case 'whatsapp_meta': return 'text-zinc-300 border-zinc-500/30';
+      case 'whatsapp_personal': return 'text-zinc-300 border-zinc-500/30';
+      case 'indeed': return 'text-zinc-300 border-zinc-500/30';
+      case 'computrabajo': return 'text-zinc-300 border-zinc-500/30';
+      case 'facebook': return 'text-zinc-400 border-zinc-500/30';
+      case 'messenger': return 'text-zinc-400 border-zinc-500/30';
+      case 'instagram': return 'text-zinc-400 border-zinc-500/30';
+      case 'tiktok': return 'text-zinc-400 border-zinc-500/30';
       default: return 'text-slate-400 border-slate-700';
     }
   };
@@ -803,14 +803,14 @@ export function WhatsAppAccounts() {
     }
 
     switch(type) {
-      case 'whatsapp_meta': return <Smartphone className="w-5 h-5 text-teal-400" />;
-      case 'whatsapp_personal': return <Smartphone className="w-5 h-5 text-emerald-400" />;
-      case 'indeed': return <MessageSquare className="w-5 h-5 text-blue-300" />;
-      case 'computrabajo': return <SmartphoneNfc className="w-5 h-5 text-sky-300" />;
-      case 'facebook': return <Facebook className="w-5 h-5 text-blue-400" />;
-      case 'messenger': return <MessageSquare className="w-5 h-5 text-sky-400" />;
-      case 'instagram': return <Instagram className="w-5 h-5 text-pink-400" />;
-      case 'tiktok': return <Video className="w-5 h-5 text-cyan-400" />;
+      case 'whatsapp_meta': return <Smartphone className="w-5 h-5 text-zinc-400" />;
+      case 'whatsapp_personal': return <Smartphone className="w-5 h-5 text-zinc-400" />;
+      case 'indeed': return <MessageSquare className="w-5 h-5 text-zinc-300" />;
+      case 'computrabajo': return <SmartphoneNfc className="w-5 h-5 text-zinc-300" />;
+      case 'facebook': return <Facebook className="w-5 h-5 text-zinc-400" />;
+      case 'messenger': return <MessageSquare className="w-5 h-5 text-zinc-400" />;
+      case 'instagram': return <Instagram className="w-5 h-5 text-zinc-400" />;
+      case 'tiktok': return <Video className="w-5 h-5 text-zinc-400" />;
       default: return <Smartphone className="w-5 h-5" />;
     }
   };
@@ -867,13 +867,13 @@ export function WhatsAppAccounts() {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-white/5 pb-4">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight text-white mt-1 flex items-center gap-2">
-            <Sparkles className="w-6 h-6 text-cyan-400 drop-shadow-[0_0_10px_rgba(212,212,212,0.5)]" />
+            <Sparkles className="w-6 h-6 text-zinc-400 drop-shadow-[0_0_10px_rgba(212,212,212,0.5)]" />
             Canales de Mensajería y Redes Sociales
           </h1>
           <p className="text-slate-400 text-sm">Gestiona tus conexiones de reclutamiento desde un único lugar asignando Agentes de IA conversacionales.</p>
         </div>
-        
-        <button 
+
+        <button
           onClick={() => {
             setModalStep('info');
             setSelectedAgent(getDefaultAgentId(activeTab));
@@ -892,14 +892,14 @@ export function WhatsAppAccounts() {
           }}
           className={cn(
             "px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-2 transition-all shadow-[0_0_15px_rgba(163,163,163,0.15)] uppercase tracking-wide border",
-            activeTab === 'whatsapp_meta' ? "bg-teal-600/20 border-teal-500/50 hover:bg-teal-600/40 text-teal-200" :
-            activeTab === 'whatsapp_personal' ? "bg-emerald-600/20 border-emerald-500/50 hover:bg-emerald-600/40 text-emerald-250" :
-            activeTab === 'indeed' ? "bg-blue-600/20 border-blue-500/50 hover:bg-blue-600/40 text-blue-250" :
-            activeTab === 'computrabajo' ? "bg-sky-600/20 border-sky-500/50 hover:bg-sky-600/40 text-sky-250" :
-            activeTab === 'facebook' ? "bg-blue-600/20 border-blue-500/50 hover:bg-blue-600/40 text-blue-250" :
-            activeTab === 'messenger' ? "bg-sky-600/20 border-sky-500/50 hover:bg-sky-600/40 text-sky-250" :
-            activeTab === 'instagram' ? "bg-pink-600/20 border-pink-500/50 hover:bg-pink-600/40 text-pink-250" :
-            "bg-cyan-600/20 border-cyan-500/50 hover:bg-cyan-600/40 text-cyan-250"
+            activeTab === 'whatsapp_meta' ? "bg-zinc-600/20 border-zinc-500/50 hover:bg-zinc-600/40 text-zinc-200" :
+            activeTab === 'whatsapp_personal' ? "bg-zinc-600/20 border-zinc-500/50 hover:bg-zinc-600/40 text-zinc-250" :
+            activeTab === 'indeed' ? "bg-zinc-600/20 border-zinc-500/50 hover:bg-zinc-600/40 text-zinc-250" :
+            activeTab === 'computrabajo' ? "bg-zinc-600/20 border-zinc-500/50 hover:bg-zinc-600/40 text-zinc-250" :
+            activeTab === 'facebook' ? "bg-zinc-600/20 border-zinc-500/50 hover:bg-zinc-600/40 text-zinc-250" :
+            activeTab === 'messenger' ? "bg-zinc-600/20 border-zinc-500/50 hover:bg-zinc-600/40 text-zinc-250" :
+            activeTab === 'instagram' ? "bg-zinc-600/20 border-zinc-500/50 hover:bg-zinc-600/40 text-zinc-250" :
+            "bg-zinc-600/20 border-zinc-500/50 hover:bg-zinc-600/40 text-zinc-250"
           )}
         >
           {activeTab === 'whatsapp_personal' ? <QrCode className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
@@ -910,14 +910,14 @@ export function WhatsAppAccounts() {
       {/* Tabs Navigation */}
       <div className="flex flex-wrap gap-2 p-1 bg-slate-900/60 border border-white/5 rounded-xl self-start">
         {[
-          { id: 'indeed', name: 'Indeed', icon: MessageSquare, color: 'text-blue-300' },
-          { id: 'computrabajo', name: 'Computrabajo', icon: SmartphoneNfc, color: 'text-sky-300' },
-          { id: 'whatsapp_meta', name: 'WhatsApp Meta API', icon: Smartphone, color: 'text-teal-400' },
-          { id: 'whatsapp_personal', name: 'WhatsApp Baileys QR', icon: QrCode, color: 'text-emerald-400' },
-          { id: 'facebook', name: 'Facebook Leads', icon: Facebook, color: 'text-blue-400' },
-          { id: 'messenger', name: 'Messenger', icon: MessageSquare, color: 'text-sky-400' },
-          { id: 'instagram', name: 'Instagram DM', icon: Instagram, color: 'text-pink-400' },
-          { id: 'tiktok', name: 'TikTok Leads', icon: Video, color: 'text-cyan-400' }
+          { id: 'indeed', name: 'Indeed', icon: MessageSquare, color: 'text-zinc-300' },
+          { id: 'computrabajo', name: 'Computrabajo', icon: SmartphoneNfc, color: 'text-zinc-300' },
+          { id: 'whatsapp_meta', name: 'WhatsApp Meta API', icon: Smartphone, color: 'text-zinc-400' },
+          { id: 'whatsapp_personal', name: 'WhatsApp Baileys QR', icon: QrCode, color: 'text-zinc-400' },
+          { id: 'facebook', name: 'Facebook Leads', icon: Facebook, color: 'text-zinc-400' },
+          { id: 'messenger', name: 'Messenger', icon: MessageSquare, color: 'text-zinc-400' },
+          { id: 'instagram', name: 'Instagram DM', icon: Instagram, color: 'text-zinc-400' },
+          { id: 'tiktok', name: 'TikTok Leads', icon: Video, color: 'text-zinc-400' }
         ].map((tab) => (
           <button
             key={tab.id}
@@ -947,8 +947,8 @@ export function WhatsAppAccounts() {
       {/* Search Filter */}
       <div className="glass-panel p-2 rounded-xl flex items-center gap-2 max-w-sm">
         <Search className="w-4 h-4 ml-2 text-slate-500" />
-        <input 
-          type="text" 
+        <input
+          type="text"
           placeholder={`Buscar cuenta de ${getPlatformLabel(activeTab)}...`}
           value={searchFilter}
           onChange={(e) => setSearchFilter(e.target.value)}
@@ -964,19 +964,19 @@ export function WhatsAppAccounts() {
           <div>
             <h2 className="text-sm font-bold text-white">{getPlatformLabel(activeTab)}</h2>
             <p className="text-xs text-slate-400 mt-1 max-w-3xl">{getCaptureDescription(activeTab)}</p>
-            <div className="mt-2 inline-flex items-center gap-2 rounded-lg border border-cyan-500/15 bg-cyan-500/5 px-2 py-1 text-[10px] font-bold uppercase tracking-widest text-cyan-200">
+            <div className="mt-2 inline-flex items-center gap-2 rounded-lg border border-zinc-500/15 bg-zinc-500/5 px-2 py-1 text-[10px] font-bold uppercase tracking-widest text-zinc-200">
               <Zap className="h-3 w-3" />
               Agentes activos: {getChannelAgentGroupLabel(activeTab)}
             </div>
             {getWebhookUrl(activeTab) && (
-              <div className="mt-2 text-[10px] text-cyan-300 font-mono bg-slate-950 border border-cyan-500/10 rounded-lg px-2 py-1 inline-block">
+              <div className="mt-2 text-[10px] text-zinc-300 font-mono bg-slate-950 border border-zinc-500/10 rounded-lg px-2 py-1 inline-block">
                 Webhook: {getWebhookUrl(activeTab)}
               </div>
             )}
             {(activeTab === 'indeed' || activeTab === 'computrabajo') && (
               <div className="mt-2 flex flex-wrap gap-2">
                 {["CSV", "Correo parser", "Feed autorizado", "Webhook"].map((method) => (
-                  <span key={method} className="rounded-lg border border-sky-400/20 bg-sky-400/10 px-2 py-1 text-[10px] font-bold uppercase tracking-widest text-sky-200">
+                  <span key={method} className="rounded-lg border border-zinc-400/20 bg-zinc-400/10 px-2 py-1 text-[10px] font-bold uppercase tracking-widest text-zinc-200">
                     {method}
                   </span>
                 ))}
@@ -988,7 +988,7 @@ export function WhatsAppAccounts() {
           {connectionTest && (
             <span className={cn(
               "text-[11px] px-3 py-2 rounded-lg border",
-              connectionTest.ok ? "text-emerald-300 border-emerald-500/30 bg-emerald-500/10" : "text-amber-300 border-amber-500/30 bg-amber-500/10"
+              connectionTest.ok ? "text-zinc-300 border-zinc-500/30 bg-zinc-500/10" : "text-zinc-300 border-zinc-500/30 bg-zinc-500/10"
             )}>
               {connectionTest.ok ? "Lista" : "Pendiente"}: {connectionTest.message}
             </span>
@@ -996,7 +996,7 @@ export function WhatsAppAccounts() {
           <button
             onClick={testCurrentIntegration}
             disabled={!!testingProvider}
-            className="px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wide bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 hover:bg-cyan-500/20 disabled:opacity-50 flex items-center gap-2"
+            className="px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wide bg-zinc-500/10 border border-zinc-500/30 text-zinc-300 hover:bg-zinc-500/20 disabled:opacity-50 flex items-center gap-2"
           >
             {testingProvider ? <Loader2 className="w-4 h-4 animate-spin" /> : <Shield className="w-4 h-4" />}
             {activeTab === 'indeed' || activeTab === 'computrabajo' ? "Ver forma correcta" : "Probar conexión"}
@@ -1005,10 +1005,10 @@ export function WhatsAppAccounts() {
       </div>
 
       {activeTab === 'whatsapp_meta' && (
-        <div className="glass-panel rounded-2xl border border-teal-500/20 bg-teal-500/5 p-5">
+        <div className="glass-panel rounded-2xl border border-zinc-500/20 bg-zinc-500/5 p-5">
           <div className="flex flex-col xl:flex-row xl:items-center xl:justify-between gap-5">
             <div className="max-w-3xl">
-              <div className="flex items-center gap-2 text-teal-300 text-xs font-bold uppercase tracking-[0.18em]">
+              <div className="flex items-center gap-2 text-zinc-300 text-xs font-bold uppercase tracking-[0.18em]">
                 <Shield className="w-4 h-4" />
                 Modulo oficial separado
               </div>
@@ -1019,26 +1019,26 @@ export function WhatsAppAccounts() {
             </div>
 
             <div className="grid grid-cols-2 gap-3 min-w-full xl:min-w-[360px]">
-              <div className="rounded-xl border border-teal-500/20 bg-slate-950/50 p-3">
+              <div className="rounded-xl border border-zinc-500/20 bg-slate-950/50 p-3">
                 <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Cuentas Meta</p>
                 <p className="mt-1 text-2xl font-bold text-white">{metaWhatsAppAccounts.length}</p>
               </div>
-              <div className="rounded-xl border border-cyan-500/20 bg-slate-950/50 p-3">
+              <div className="rounded-xl border border-zinc-500/20 bg-slate-950/50 p-3">
                 <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Entrada</p>
-                <p className="mt-1 text-sm font-bold text-cyan-200">Webhook Meta</p>
+                <p className="mt-1 text-sm font-bold text-zinc-200">Webhook Meta</p>
               </div>
             </div>
           </div>
 
           <div className="mt-4 grid grid-cols-1 lg:grid-cols-2 gap-3">
-            <div className="rounded-xl border border-cyan-500/15 bg-slate-950/45 p-3">
-              <p className="text-[10px] font-bold uppercase tracking-widest text-cyan-300">URL oficial del webhook</p>
+            <div className="rounded-xl border border-zinc-500/15 bg-slate-950/45 p-3">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-300">URL oficial del webhook</p>
               <p className="mt-2 break-all font-mono text-[11px] text-slate-300">{getWebhookUrl('whatsapp_meta')}</p>
             </div>
-            <div className="rounded-xl border border-teal-500/15 bg-slate-950/45 p-3">
-              <p className="text-[10px] font-bold uppercase tracking-widest text-teal-300">Variables separadas</p>
+            <div className="rounded-xl border border-zinc-500/15 bg-slate-950/45 p-3">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-300">Variables separadas</p>
               <p className="mt-2 text-[11px] leading-5 text-slate-400">
-                Usa <span className="font-mono text-teal-200">WHATSAPP_CLOUD_ACCESS_TOKEN</span> y <span className="font-mono text-teal-200">WHATSAPP_PHONE_NUMBER_ID</span>. Baileys no lee estas credenciales.
+                Usa <span className="font-mono text-zinc-200">WHATSAPP_CLOUD_ACCESS_TOKEN</span> y <span className="font-mono text-zinc-200">WHATSAPP_PHONE_NUMBER_ID</span>. Baileys no lee estas credenciales.
               </p>
             </div>
           </div>
@@ -1046,10 +1046,10 @@ export function WhatsAppAccounts() {
       )}
 
       {activeTab === 'whatsapp_personal' && (
-        <div className="glass-panel rounded-2xl border border-emerald-500/20 bg-emerald-500/5 p-5">
+        <div className="glass-panel rounded-2xl border border-zinc-500/20 bg-zinc-500/5 p-5">
           <div className="flex flex-col xl:flex-row xl:items-center xl:justify-between gap-5">
             <div className="max-w-3xl">
-              <div className="flex items-center gap-2 text-emerald-300 text-xs font-bold uppercase tracking-[0.18em]">
+              <div className="flex items-center gap-2 text-zinc-300 text-xs font-bold uppercase tracking-[0.18em]">
                 <Shield className="w-4 h-4" />
                 Modulo Baileys separado
               </div>
@@ -1060,15 +1060,15 @@ export function WhatsAppAccounts() {
             </div>
 
             <div className="grid grid-cols-3 gap-3 min-w-full xl:min-w-[420px]">
-              <div className="rounded-xl border border-emerald-500/20 bg-slate-950/50 p-3">
+              <div className="rounded-xl border border-zinc-500/20 bg-slate-950/50 p-3">
                 <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Cuentas</p>
                 <p className="mt-1 text-2xl font-bold text-white">{baileysWhatsAppAccounts.length}</p>
               </div>
-              <div className="rounded-xl border border-cyan-500/20 bg-slate-950/50 p-3">
+              <div className="rounded-xl border border-zinc-500/20 bg-slate-950/50 p-3">
                 <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Agentes</p>
                 <p className="mt-1 text-2xl font-bold text-white">{new Set(baileysWhatsAppAccounts.map(account => account.agentId)).size}</p>
               </div>
-              <div className="rounded-xl border border-blue-500/20 bg-slate-950/50 p-3">
+              <div className="rounded-xl border border-zinc-500/20 bg-slate-950/50 p-3">
                 <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Sesiones</p>
                 <p className="mt-1 text-2xl font-bold text-white">{new Set(baileysWhatsAppAccounts.map(getAccountIsolationKey)).size}</p>
               </div>
@@ -1084,14 +1084,14 @@ export function WhatsAppAccounts() {
                     <div className="flex items-start justify-between gap-3">
                       <div>
                         <p className="text-sm font-bold text-white">{account.name}</p>
-                        <p className="mt-1 text-[11px] font-mono text-emerald-300">Sesion aislada: {getAccountIsolationKey(account)}</p>
+                        <p className="mt-1 text-[11px] font-mono text-zinc-300">Sesion aislada: {getAccountIsolationKey(account)}</p>
                       </div>
-                      <span className="rounded-full border border-emerald-500/20 bg-emerald-500/10 px-2 py-1 text-[10px] font-bold uppercase tracking-widest text-emerald-300">
+                      <span className="rounded-full border border-zinc-500/20 bg-zinc-500/10 px-2 py-1 text-[10px] font-bold uppercase tracking-widest text-zinc-300">
                         No mezcla
                       </span>
                     </div>
-                    <div className="mt-3 rounded-lg border border-cyan-500/10 bg-cyan-500/5 px-3 py-2">
-                      <p className="text-[10px] font-bold uppercase tracking-widest text-cyan-300">Agente asignado a esta cuenta</p>
+                    <div className="mt-3 rounded-lg border border-zinc-500/10 bg-zinc-500/5 px-3 py-2">
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-300">Agente asignado a esta cuenta</p>
                       <p className="mt-1 text-xs text-slate-200">{account.agentPersonalName || agent?.name || "Sin agente asignado"}</p>
                       {account.agentPersonalName && (
                         <p className="mt-1 text-[10px] text-slate-500">Base IA: {agent?.name || "Agente seleccionado"}</p>
@@ -1106,12 +1106,12 @@ export function WhatsAppAccounts() {
       )}
 
       {activeTab === 'facebook' && (
-        <div className="glass-panel rounded-2xl border border-blue-500/20 p-5 overflow-hidden relative">
-          <div className="absolute right-0 top-0 h-32 w-32 bg-blue-500/10 blur-3xl pointer-events-none" />
+        <div className="glass-panel rounded-2xl border border-zinc-500/20 p-5 overflow-hidden relative">
+          <div className="absolute right-0 top-0 h-32 w-32 bg-zinc-500/10 blur-3xl pointer-events-none" />
           <div className="relative z-10 flex flex-col gap-5">
             <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
               <div className="max-w-3xl">
-                <div className="flex items-center gap-2 text-blue-300 text-xs font-bold uppercase tracking-[0.18em]">
+                <div className="flex items-center gap-2 text-zinc-300 text-xs font-bold uppercase tracking-[0.18em]">
                   <BarChart3 className="w-4 h-4" />
                   Facebook Recruitment Ads
                 </div>
@@ -1123,7 +1123,7 @@ export function WhatsAppAccounts() {
               <button
                 onClick={analyzeFacebookRecruitmentAds}
                 disabled={isAnalyzingFacebookAds}
-                className="h-11 px-4 rounded-xl bg-blue-500 hover:bg-blue-400 text-white font-bold text-sm flex items-center justify-center gap-2 transition-colors disabled:opacity-60"
+                className="h-11 px-4 rounded-xl bg-zinc-500 hover:bg-zinc-400 text-white font-bold text-sm flex items-center justify-center gap-2 transition-colors disabled:opacity-60"
               >
                 {isAnalyzingFacebookAds ? <Loader2 className="w-4 h-4 animate-spin" /> : <TrendingUp className="w-4 h-4" />}
                 Analizar gasto y horarios
@@ -1133,7 +1133,7 @@ export function WhatsAppAccounts() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
               <label className="rounded-xl border border-slate-700/80 bg-slate-950/40 p-3">
                 <span className="text-[10px] uppercase tracking-widest text-slate-500 font-bold flex items-center gap-1">
-                  <DollarSign className="w-3 h-3 text-emerald-300" />
+                  <DollarSign className="w-3 h-3 text-zinc-300" />
                   Presupuesto diario
                 </span>
                 <input
@@ -1146,7 +1146,7 @@ export function WhatsAppAccounts() {
               </label>
               <label className="rounded-xl border border-slate-700/80 bg-slate-950/40 p-3">
                 <span className="text-[10px] uppercase tracking-widest text-slate-500 font-bold flex items-center gap-1">
-                  <Target className="w-3 h-3 text-cyan-300" />
+                  <Target className="w-3 h-3 text-zinc-300" />
                   Meta de leads
                 </span>
                 <input
@@ -1159,7 +1159,7 @@ export function WhatsAppAccounts() {
               </label>
               <label className="rounded-xl border border-slate-700/80 bg-slate-950/40 p-3">
                 <span className="text-[10px] uppercase tracking-widest text-slate-500 font-bold flex items-center gap-1">
-                  <CheckCircle2 className="w-3 h-3 text-blue-300" />
+                  <CheckCircle2 className="w-3 h-3 text-zinc-300" />
                   Meta de contrataciones
                 </span>
                 <input
@@ -1176,14 +1176,14 @@ export function WhatsAppAccounts() {
               <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_360px] gap-4">
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
                   {[
-                    { label: "Gasto", value: `$${facebookAdsAnalysis.summary.totalSpend}`, icon: DollarSign, color: "text-emerald-300" },
-                    { label: "Leads", value: facebookAdsAnalysis.summary.totalLeads, icon: Target, color: "text-cyan-300" },
-                    { label: "CPL", value: `$${facebookAdsAnalysis.summary.cpl}`, icon: TrendingUp, color: "text-blue-300" },
-                    { label: "CTR", value: `${facebookAdsAnalysis.summary.ctr}%`, icon: BarChart3, color: "text-purple-300" },
-                    { label: "Entrevistas", value: facebookAdsAnalysis.summary.estimatedInterviews, icon: CalendarClock, color: "text-amber-300" },
-                    { label: "Contrataciones", value: facebookAdsAnalysis.summary.estimatedHires, icon: CheckCircle2, color: "text-emerald-300" },
-                    { label: "Costo/contr.", value: `$${facebookAdsAnalysis.summary.costPerEstimatedHire}`, icon: DollarSign, color: "text-rose-300" },
-                    { label: "Presup. sugerido", value: `$${facebookAdsAnalysis.summary.recommendedBudget}`, icon: Target, color: "text-cyan-300" },
+                    { label: "Gasto", value: `$${facebookAdsAnalysis.summary.totalSpend}`, icon: DollarSign, color: "text-zinc-300" },
+                    { label: "Leads", value: facebookAdsAnalysis.summary.totalLeads, icon: Target, color: "text-zinc-300" },
+                    { label: "CPL", value: `$${facebookAdsAnalysis.summary.cpl}`, icon: TrendingUp, color: "text-zinc-300" },
+                    { label: "CTR", value: `${facebookAdsAnalysis.summary.ctr}%`, icon: BarChart3, color: "text-zinc-300" },
+                    { label: "Entrevistas", value: facebookAdsAnalysis.summary.estimatedInterviews, icon: CalendarClock, color: "text-zinc-300" },
+                    { label: "Contrataciones", value: facebookAdsAnalysis.summary.estimatedHires, icon: CheckCircle2, color: "text-zinc-300" },
+                    { label: "Costo/contr.", value: `$${facebookAdsAnalysis.summary.costPerEstimatedHire}`, icon: DollarSign, color: "text-zinc-300" },
+                    { label: "Presup. sugerido", value: `$${facebookAdsAnalysis.summary.recommendedBudget}`, icon: Target, color: "text-zinc-300" },
                   ].map((metric) => (
                     <div key={metric.label} className="rounded-xl border border-slate-700/70 bg-slate-950/40 p-3">
                       <div className="flex items-center gap-2 text-[10px] uppercase tracking-widest text-slate-500 font-bold">
@@ -1195,9 +1195,9 @@ export function WhatsAppAccounts() {
                   ))}
                 </div>
 
-                <div className="rounded-xl border border-blue-500/20 bg-blue-500/5 p-4">
+                <div className="rounded-xl border border-zinc-500/20 bg-zinc-500/5 p-4">
                   <div className="flex items-center gap-2 text-sm font-bold text-white">
-                    <Sparkles className="w-4 h-4 text-blue-300" />
+                    <Sparkles className="w-4 h-4 text-zinc-300" />
                     Recomendación del agente
                   </div>
                   <div className="mt-3 space-y-3 text-xs leading-5 text-slate-300">
@@ -1210,7 +1210,7 @@ export function WhatsAppAccounts() {
                 <div className="xl:col-span-2 grid grid-cols-1 lg:grid-cols-2 gap-4">
                   <div className="rounded-xl border border-slate-700/70 bg-slate-950/30 p-4">
                     <h4 className="text-sm font-bold text-white flex items-center gap-2">
-                      <Clock className="w-4 h-4 text-cyan-300" />
+                      <Clock className="w-4 h-4 text-zinc-300" />
                       Mejores horas para invertir
                     </h4>
                     <div className="mt-3 space-y-2">
@@ -1220,7 +1220,7 @@ export function WhatsAppAccounts() {
                             <p className="text-sm font-semibold text-white">{hour.hour}</p>
                             <p className="text-[11px] text-slate-500">{hour.leads} leads • CTR {hour.ctr}%</p>
                           </div>
-                          <span className="text-sm font-bold text-cyan-300">CPL ${hour.cpl ?? 0}</span>
+                          <span className="text-sm font-bold text-zinc-300">CPL ${hour.cpl ?? 0}</span>
                         </div>
                       ))}
                     </div>
@@ -1228,7 +1228,7 @@ export function WhatsAppAccounts() {
 
                   <div className="rounded-xl border border-slate-700/70 bg-slate-950/30 p-4">
                     <h4 className="text-sm font-bold text-white flex items-center gap-2">
-                      <Facebook className="w-4 h-4 text-blue-300" />
+                      <Facebook className="w-4 h-4 text-zinc-300" />
                       Campañas activas
                     </h4>
                     <div className="mt-3 space-y-2">
@@ -1236,7 +1236,7 @@ export function WhatsAppAccounts() {
                         <div key={campaign.campaign} className="rounded-lg bg-slate-900/80 border border-white/5 px-3 py-2">
                           <div className="flex items-center justify-between gap-3">
                             <p className="text-sm font-semibold text-white truncate">{campaign.campaign}</p>
-                            <span className="text-xs font-bold text-emerald-300">${campaign.spend}</span>
+                            <span className="text-xs font-bold text-zinc-300">${campaign.spend}</span>
                           </div>
                           <p className="mt-1 text-[11px] text-slate-500">{campaign.leads} leads • CPL ${campaign.cpl ?? 0} • CTR {campaign.ctr}%</p>
                         </div>
@@ -1246,7 +1246,7 @@ export function WhatsAppAccounts() {
                 </div>
               </div>
             ) : (
-              <div className="rounded-xl border border-dashed border-blue-500/25 bg-slate-950/30 p-4 text-sm text-slate-400">
+              <div className="rounded-xl border border-dashed border-zinc-500/25 bg-slate-950/30 p-4 text-sm text-slate-400">
                 Ejecuta el análisis para que el agente calcule gasto, CPL, mejor hora y presupuesto recomendado.
               </div>
             )}
@@ -1257,11 +1257,11 @@ export function WhatsAppAccounts() {
       {/* Main Grid Accounts */}
       <div className="grid grid-cols-1 2xl:grid-cols-2 gap-5 xl:gap-6">
         {filteredAccounts.map(account => (
-          <div 
-            key={account.id} 
+          <div
+            key={account.id}
             className={cn(
               "glass-panel rounded-2xl flex min-w-0 flex-col p-5 lg:p-6 border transition-all duration-300 group hover:shadow-xl",
-              account.status === 'connected' ? "hover:border-cyan-500/30 border-white/5" : "border-rose-500/20"
+              account.status === 'connected' ? "hover:border-zinc-500/30 border-white/5" : "border-zinc-500/20"
             )}
           >
             <div className="mb-4 flex flex-col gap-4">
@@ -1269,22 +1269,22 @@ export function WhatsAppAccounts() {
                 <div className="flex min-w-0 items-center gap-4">
                 <div className={cn(
                   "w-12 h-12 rounded-xl flex items-center justify-center shrink-0 border",
-                  account.status === 'connected' ? "bg-cyan-500/10 text-cyan-400 border-cyan-500/20" : "bg-rose-500/20 text-rose-400 border-rose-500/30"
+                  account.status === 'connected' ? "bg-zinc-500/10 text-zinc-400 border-zinc-500/20" : "bg-zinc-500/20 text-zinc-400 border-zinc-500/30"
                 )}>
                   {getPlatformIcon(account.type)}
                 </div>
                 <div className="min-w-0">
-                  <h3 className="break-words text-lg font-bold leading-tight tracking-tight text-white transition-colors group-hover:text-cyan-300">{account.name}</h3>
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-cyan-300">{account.companyName || DEFAULT_COMPANY_NAME}</p>
+                  <h3 className="break-words text-lg font-bold leading-tight tracking-tight text-white transition-colors group-hover:text-zinc-300">{account.name}</h3>
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-300">{account.companyName || DEFAULT_COMPANY_NAME}</p>
                   {account.agentPersonalName && (
-                    <p className="mt-0.5 text-xs font-semibold text-emerald-300">Atiende: {account.agentPersonalName}</p>
+                    <p className="mt-0.5 text-xs font-semibold text-zinc-300">Atiende: {account.agentPersonalName}</p>
                   )}
                   <p className="break-words text-xs font-mono text-slate-400">{account.phone}</p>
                 </div>
                 </div>
                 <div className={cn(
                   "shrink-0 px-2.5 py-1 flex items-center gap-1 rounded-full text-[9px] uppercase tracking-wider font-bold border",
-                  account.status === "connected" ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" : "bg-rose-500/10 text-rose-400 border-rose-500/20"
+                  account.status === "connected" ? "bg-zinc-500/10 text-zinc-400 border-zinc-500/20" : "bg-zinc-500/10 text-zinc-400 border-zinc-500/20"
                 )}>
                   {account.status === "connected" ? <CheckCircle2 className="w-3 h-3" /> : <RotateCcw className="w-3 h-3" />}
                   {account.status === "connected" ? "Conectado" : "Desvinculado"}
@@ -1292,8 +1292,8 @@ export function WhatsAppAccounts() {
               </div>
 
               {getAssignedAgent(account.agentId) && (
-                <div className="rounded-xl border border-cyan-500/10 bg-cyan-500/5 px-4 py-3">
-                  <div className="text-[10px] font-bold uppercase tracking-widest text-cyan-300">Sabe responder sobre</div>
+                <div className="rounded-xl border border-zinc-500/10 bg-zinc-500/5 px-4 py-3">
+                  <div className="text-[10px] font-bold uppercase tracking-widest text-zinc-300">Sabe responder sobre</div>
                   <p className="mt-1 text-sm leading-6 text-slate-300">
                     {getAssignedAgent(account.agentId)?.description}
                   </p>
@@ -1312,7 +1312,7 @@ export function WhatsAppAccounts() {
                   {account.mode || getPlatformMode(account.type)}
                 </span>
                 {account.webhookUrl && (
-                  <span className="text-[10px] text-cyan-300 border border-cyan-500/10 bg-slate-950 px-2 py-1 rounded-lg font-mono">
+                  <span className="text-[10px] text-zinc-300 border border-zinc-500/10 bg-slate-950 px-2 py-1 rounded-lg font-mono">
                     {account.webhookUrl}
                   </span>
                 )}
@@ -1320,8 +1320,8 @@ export function WhatsAppAccounts() {
             </div>
 
             {account.type === "whatsapp_personal" && (
-              <div className="mb-4 rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-3">
-                <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-emerald-300">
+              <div className="mb-4 rounded-xl border border-zinc-500/20 bg-zinc-500/5 p-3">
+                <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-zinc-300">
                   <Shield className="w-3.5 h-3.5" />
                   Aislamiento activo
                 </div>
@@ -1329,10 +1329,10 @@ export function WhatsAppAccounts() {
                   Esta cuenta usa su propia sesion, agente y reglas. Los mensajes entrantes se enrutan solo al agente seleccionado aqui.
                 </p>
                 <div className="mt-3 flex flex-wrap gap-2">
-                  <span className="rounded-lg border border-emerald-500/20 bg-slate-950/70 px-2 py-1 text-[10px] font-mono text-emerald-300">
+                  <span className="rounded-lg border border-zinc-500/20 bg-slate-950/70 px-2 py-1 text-[10px] font-mono text-zinc-300">
                     {getAccountIsolationKey(account)}
                   </span>
-                  <span className="rounded-lg border border-cyan-500/20 bg-slate-950/70 px-2 py-1 text-[10px] text-cyan-300">
+                  <span className="rounded-lg border border-zinc-500/20 bg-slate-950/70 px-2 py-1 text-[10px] text-zinc-300">
                     Agente: {account.agentPersonalName || getAssignedAgent(account.agentId)?.name || "Sin asignar"}
                   </span>
                 </div>
@@ -1340,8 +1340,8 @@ export function WhatsAppAccounts() {
             )}
 
             {account.type === "whatsapp_meta" && (
-              <div className="mb-4 rounded-xl border border-teal-500/20 bg-teal-500/5 p-3">
-                <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-teal-300">
+              <div className="mb-4 rounded-xl border border-zinc-500/20 bg-zinc-500/5 p-3">
+                <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-zinc-300">
                   <Shield className="w-3.5 h-3.5" />
                   Meta Cloud aislado
                 </div>
@@ -1349,10 +1349,10 @@ export function WhatsAppAccounts() {
                   Esta cuenta recibe por webhook oficial de Meta y responde usando WhatsApp Cloud API. No usa QR, no usa sesiones Baileys y no comparte reglas con WhatsApp QR.
                 </p>
                 <div className="mt-3 flex flex-wrap gap-2">
-                  <span className="rounded-lg border border-teal-500/20 bg-slate-950/70 px-2 py-1 text-[10px] font-mono text-teal-300">
+                  <span className="rounded-lg border border-zinc-500/20 bg-slate-950/70 px-2 py-1 text-[10px] font-mono text-zinc-300">
                     WHATSAPP_PHONE_NUMBER_ID
                   </span>
-                  <span className="rounded-lg border border-cyan-500/20 bg-slate-950/70 px-2 py-1 text-[10px] text-cyan-300">
+                  <span className="rounded-lg border border-zinc-500/20 bg-slate-950/70 px-2 py-1 text-[10px] text-zinc-300">
                     Agente: {account.agentPersonalName || getAssignedAgent(account.agentId)?.name || "Sin asignar"}
                   </span>
                 </div>
@@ -1362,11 +1362,11 @@ export function WhatsAppAccounts() {
             <div className="mt-auto pt-4 border-t border-slate-700/50 flex flex-col gap-3">
               <div className="flex flex-col gap-1.5">
                 <label className="text-xs text-slate-400 font-medium uppercase tracking-wider flex items-center gap-1">
-                  <Zap className="w-3 h-3 text-cyan-400" /> Agente AI Asignado
+                  <Zap className="w-3 h-3 text-zinc-400" /> Agente AI Asignado
                 </label>
                 <div className="relative">
-                  <select 
-                    className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 pr-8 text-sm text-slate-200 outline-none focus:border-cyan-500 transition-colors appearance-none"
+                  <select
+                    className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 pr-8 text-sm text-slate-200 outline-none focus:border-zinc-500 transition-colors appearance-none"
                     value={account.agentId}
                     onChange={(e) => assignAgent(account.id, e.target.value)}
                   >
@@ -1385,18 +1385,18 @@ export function WhatsAppAccounts() {
               </div>
 
               <div className="flex items-center justify-between mt-2">
-                <span className="text-[10px] text-slate-550 font-mono">Actualizado: {account.lastSync}</span>
+                <span className="text-[10px] text-slate-500 font-mono">Actualizado: {account.lastSync}</span>
                 <div className="flex items-center gap-1">
-                  <button 
+                  <button
                     onClick={() => openAutomationConfig(account)}
-                    className="text-slate-500 hover:text-cyan-450 p-1.5 rounded-md hover:bg-cyan-500/10 transition-all border border-transparent hover:border-cyan-500/20"
+                    className="text-slate-500 hover:text-zinc-400 p-1.5 rounded-md hover:bg-zinc-500/10 transition-all border border-transparent hover:border-zinc-500/20"
                     title="Configurar Mensajes Automáticos"
                   >
                     <Settings2 className="w-4 h-4" />
                   </button>
-                  <button 
+                  <button
                     onClick={() => confirmRemoveAccount(account)}
-                    className="text-slate-500 hover:text-rose-400 p-1.5 rounded-md hover:bg-rose-500/10 transition-all border border-transparent hover:border-rose-500/20"
+                    className="text-slate-500 hover:text-zinc-400 p-1.5 rounded-md hover:bg-zinc-500/10 transition-all border border-transparent hover:border-zinc-500/20"
                     title="Desvincular cuenta"
                   >
                     <Trash2 className="w-4 h-4" />
@@ -1420,30 +1420,30 @@ export function WhatsAppAccounts() {
       {isModalOpen && (
         <div className="fixed inset-0 bg-slate-900/95 backdrop-blur-md z-50 flex items-start justify-center overflow-y-auto px-4 py-6 md:py-10">
           <div className="bg-slate-900 border border-slate-700/50 rounded-2xl w-full max-w-2xl relative flex max-h-[calc(100vh-3rem)] flex-col glass-panel shadow-2xl">
-            <button 
+            <button
               onClick={() => setIsModalOpen(false)}
               className="absolute top-4 right-4 z-20 text-slate-400 hover:text-white p-2 transition-colors"
             >
               <X className="w-5 h-5" />
             </button>
-            
+
             {modalStep === 'info' && (
               <>
                 <div className="shrink-0 border-b border-white/5 px-5 py-5 pr-14 md:px-7">
-                  <h2 className="flex items-center gap-2 bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-2xl font-bold text-transparent">
+                  <h2 className="flex items-center gap-2 bg-gradient-to-r from-zinc-400 to-zinc-500 bg-clip-text text-2xl font-bold text-transparent">
                    {getPlatformIcon(activeTab)}
                    Vincular {getPlatformLabel(activeTab)}
                   </h2>
                 </div>
-                
+
                 <div className="flex-1 space-y-4 overflow-y-auto px-5 py-5 md:px-7 styled-scrollbar">
                   <div>
                     <label className="text-sm text-slate-300 mb-1.5 block">Nombre Identificador</label>
-                    <input 
-                      type="text" 
+                    <input
+                      type="text"
                       value={newAccountName}
                       onChange={(e) => setNewAccountName(e.target.value)}
-                      className="w-full bg-slate-800 border border-slate-700/80 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-505 transition-all"
+                      className="w-full bg-slate-800 border border-slate-700/80 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 transition-all"
                       placeholder={
                         activeTab === 'whatsapp_meta' ? "Ej: WhatsApp Business Meta Oficial" :
                         activeTab === 'whatsapp_personal' ? "Ej: WhatsApp Baileys reclutamiento QR" :
@@ -1462,7 +1462,7 @@ export function WhatsAppAccounts() {
                       type="text"
                       value={newAccountCompanyName}
                       onChange={(e) => setNewAccountCompanyName(e.target.value)}
-                      className="w-full bg-slate-800 border border-slate-700/80 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition-all"
+                      className="w-full bg-slate-800 border border-slate-700/80 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 transition-all"
                       placeholder="Ej: Heavenly Dreams, Cliente A, Restaurante Norte"
                     />
                     <p className="mt-2 text-xs text-slate-500">
@@ -1476,7 +1476,7 @@ export function WhatsAppAccounts() {
                       type="text"
                       value={newAgentPersonalName}
                       onChange={(e) => setNewAgentPersonalName(e.target.value)}
-                      className="w-full bg-slate-800 border border-slate-700/80 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition-all"
+                      className="w-full bg-slate-800 border border-slate-700/80 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 transition-all"
                       placeholder="Ej: Laura de RH, Edgar Reclutamiento, Asesor Heavenly"
                     />
                     <p className="mt-2 text-xs leading-5 text-slate-500">
@@ -1491,20 +1491,20 @@ export function WhatsAppAccounts() {
                         type="text"
                         value={baileysSessionId}
                         onChange={(e) => setBaileysSessionId(e.target.value)}
-                        className="w-full bg-slate-800 border border-slate-700/80 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all"
+                        className="w-full bg-slate-800 border border-slate-700/80 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 transition-all"
                         placeholder="default"
                       />
                       <p className="text-xs text-slate-500 mt-2 font-light">
                         Usa una sesión por número. El QR se guarda localmente para reutilizar la conexión.
                       </p>
-                      <div className="mt-3 rounded-xl border border-emerald-500/20 bg-emerald-500/5 px-3 py-2">
-                        <p className="text-[10px] font-bold uppercase tracking-widest text-emerald-300">Separación de agentes</p>
+                      <div className="mt-3 rounded-xl border border-zinc-500/20 bg-zinc-500/5 px-3 py-2">
+                        <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-300">Separación de agentes</p>
                         <p className="mt-1 text-[11px] leading-5 text-slate-400">
                           Si abres otra cuenta de WhatsApp, cambia este nombre de sesión. Así cada número queda aislado con su propio agente y no comparte conversaciones.
                         </p>
                       </div>
                       {baileysError && (
-                        <div className="mt-3 rounded-xl border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-xs text-amber-200">
+                        <div className="mt-3 rounded-xl border border-zinc-500/30 bg-zinc-500/10 px-3 py-2 text-xs text-zinc-200">
                           {baileysError}
                         </div>
                       )}
@@ -1512,17 +1512,17 @@ export function WhatsAppAccounts() {
                   )}
 
                   {activeTab === 'whatsapp_meta' && (
-                    <div className="rounded-xl border border-teal-500/20 bg-teal-500/5 px-3 py-3">
-                      <p className="text-[10px] font-bold uppercase tracking-widest text-teal-300">Conexion oficial Meta Cloud API</p>
+                    <div className="rounded-xl border border-zinc-500/20 bg-zinc-500/5 px-3 py-3">
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-300">Conexion oficial Meta Cloud API</p>
                       <p className="mt-1 text-[11px] leading-5 text-slate-400">
                         Este modulo no genera QR. Para funcionar necesita que el servidor tenga token oficial y Phone Number ID, y que Meta envie los mensajes a este webhook.
                       </p>
-                      <p className="mt-2 break-all rounded-lg bg-slate-950/70 px-2 py-2 font-mono text-[10px] text-cyan-200">
+                      <p className="mt-2 break-all rounded-lg bg-slate-950/70 px-2 py-2 font-mono text-[10px] text-zinc-200">
                         {getWebhookUrl('whatsapp_meta')}
                       </p>
                       <div className="mt-3 grid grid-cols-1 gap-2 text-[10px] text-slate-300">
                         {["WHATSAPP_CLOUD_ACCESS_TOKEN", "WHATSAPP_PHONE_NUMBER_ID", "META_APP_SECRET", "META_WEBHOOK_VERIFY_TOKEN"].map((key) => (
-                          <span key={key} className="rounded-lg border border-teal-500/15 bg-slate-950/60 px-2 py-1 font-mono text-teal-200">
+                          <span key={key} className="rounded-lg border border-zinc-500/15 bg-slate-950/60 px-2 py-1 font-mono text-zinc-200">
                             {key}
                           </span>
                         ))}
@@ -1531,13 +1531,13 @@ export function WhatsAppAccounts() {
                   )}
 
                   {(activeTab === 'indeed' || activeTab === 'computrabajo') && (
-                    <div className="rounded-xl border border-sky-500/20 bg-sky-500/5 px-3 py-3">
-                      <p className="text-[10px] font-bold uppercase tracking-widest text-sky-300">Conexion sin API directa</p>
+                    <div className="rounded-xl border border-zinc-500/20 bg-zinc-500/5 px-3 py-3">
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-300">Conexion sin API directa</p>
                       <p className="mt-1 text-[11px] leading-5 text-slate-400">
                         Este canal se alimenta por exportacion CSV, correo parser, feed autorizado o webhook. La cuenta queda separada con su agente para clasificar candidatos y dar seguimiento sin mezclar portales.
                       </p>
                       {getWebhookUrl(activeTab) && (
-                        <p className="mt-2 break-all rounded-lg bg-slate-950/70 px-2 py-2 font-mono text-[10px] text-cyan-200">
+                        <p className="mt-2 break-all rounded-lg bg-slate-950/70 px-2 py-2 font-mono text-[10px] text-zinc-200">
                           {getWebhookUrl(activeTab)}
                         </p>
                       )}
@@ -1546,14 +1546,14 @@ export function WhatsAppAccounts() {
 
                   <div>
                     <label className="text-sm text-slate-300 mb-1.5 block flex items-center gap-1">
-                      <Zap className="w-4 h-4 text-cyan-400 animate-pulse" /> 
+                      <Zap className="w-4 h-4 text-zinc-400 animate-pulse" />
                       Vincular con Agente AI ({getChannelAgentGroupLabel(activeTab)})
                     </label>
                     <div className="relative">
-                      <select 
+                      <select
                         value={selectedAgent}
                         onChange={(e) => setSelectedAgent(e.target.value)}
-                        className="w-full bg-slate-800 border border-slate-700/80 rounded-xl px-4 py-2.5 pr-10 text-sm text-white focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition-all appearance-none"
+                        className="w-full bg-slate-800 border border-slate-700/80 rounded-xl px-4 py-2.5 pr-10 text-sm text-white focus:outline-none focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 transition-all appearance-none"
                       >
                         <option value="">Selecciona un Agente...</option>
                         {getCompatibleAgents(activeTab).map(agent => (
@@ -1568,13 +1568,13 @@ export function WhatsAppAccounts() {
                       {CHANNEL_AGENT_RULES[activeTab].helper} Los agentes de otros canales quedan ocultos para evitar respuestas cruzadas.
                     </p>
                     {getCompatibleAgents(activeTab).length === 0 && (
-                      <div className="mt-3 rounded-xl border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-xs text-amber-200">
+                      <div className="mt-3 rounded-xl border border-zinc-500/30 bg-zinc-500/10 px-3 py-2 text-xs text-zinc-200">
                         No hay agentes compatibles activos para este canal. Activa o crea un agente con canal {getChannelAgentGroupLabel(activeTab)}.
                       </div>
                     )}
                     {getAssignedAgent(selectedAgent) && (
-                      <div className="mt-3 rounded-xl border border-cyan-500/10 bg-slate-950/50 p-3">
-                        <p className="text-[10px] font-bold uppercase tracking-widest text-cyan-300">Agente activo para este canal</p>
+                      <div className="mt-3 rounded-xl border border-zinc-500/10 bg-slate-950/50 p-3">
+                        <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-300">Agente activo para este canal</p>
                         <p className="mt-1 text-xs font-semibold text-white">{getAssignedAgent(selectedAgent)?.name}</p>
                         <p className="mt-1 text-[11px] leading-5 text-slate-400">{getAssignedAgent(selectedAgent)?.description}</p>
                       </div>
@@ -1583,16 +1583,16 @@ export function WhatsAppAccounts() {
                 </div>
 
                 <div className="shrink-0 flex justify-end gap-3 border-t border-white/5 bg-slate-950/30 px-5 py-4 md:px-7">
-                  <button 
+                  <button
                     onClick={() => setIsModalOpen(false)}
                     className="px-5 py-2 rounded-xl font-medium text-sm text-slate-300 hover:bg-white/5 transition-colors"
                   >
                     Cancelar
                   </button>
-                  <button 
+                  <button
                     onClick={startLinking}
                     disabled={!newAccountName || !selectedAgent || isStartingBaileys}
-                    className="bg-cyan-500 hover:bg-cyan-600 text-slate-900 font-semibold px-6 py-2.5 rounded-xl text-sm transition-all shadow-[0_0_15px_rgba(212,212,212,0.2)] disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="bg-zinc-500 hover:bg-zinc-600 text-slate-900 font-semibold px-6 py-2.5 rounded-xl text-sm transition-all shadow-[0_0_15px_rgba(212,212,212,0.2)] disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {isStartingBaileys ? 'Iniciando...' : activeTab === 'whatsapp_personal' ? 'Generar Código QR' : activeTab === 'whatsapp_meta' ? 'Registrar modulo Meta API' : activeTab === 'indeed' || activeTab === 'computrabajo' ? 'Crear entrada sin API' : 'Conectar con API oficial'}
                   </button>
@@ -1604,7 +1604,7 @@ export function WhatsAppAccounts() {
               <div className="flex flex-col items-center justify-center py-6 text-center">
                 <h3 className="text-xl font-bold text-white mb-2">Escanea el código QR de Baileys</h3>
                 <p className="text-sm text-slate-400 mb-8 max-w-[300px]">Abre WhatsApp en tu teléfono, ve a "Dispositivos vinculados" y escanea este QR real para enlazar la sesión local.</p>
-                
+
                 <div className="bg-white p-4 rounded-2xl mb-6 relative min-h-[224px] min-w-[224px] flex items-center justify-center">
                   {baileysStatus?.qrDataUrl ? (
                     <img src={baileysStatus.qrDataUrl} alt="QR Baileys" className="w-56 h-56" />
@@ -1614,10 +1614,10 @@ export function WhatsAppAccounts() {
                       <Loader2 className="w-5 h-5 animate-spin" />
                     </div>
                   )}
-                  <div className="absolute top-0 left-0 w-full h-1 bg-cyan-500 shadow-[0_0_10px_rgba(212,212,212,0.8)] animate-[scan_2s_ease-in-out_infinite]" />
+                  <div className="absolute top-0 left-0 w-full h-1 bg-zinc-500 shadow-[0_0_10px_rgba(212,212,212,0.8)] animate-[scan_2s_ease-in-out_infinite]" />
                 </div>
 
-                <div className="flex items-center gap-2 text-sm text-cyan-400 animate-pulse">
+                <div className="flex items-center gap-2 text-sm text-zinc-400 animate-pulse">
                   <Loader2 className="w-4 h-4 animate-spin" />
                   {baileysStatus?.state === "qr"
                     ? "Esperando escaneo desde tu dispositivo móvil..."
@@ -1632,8 +1632,8 @@ export function WhatsAppAccounts() {
                   <div className={cn(
                     "mt-4 rounded-xl border px-4 py-3 text-xs",
                     baileysStatus?.state === "logged_out"
-                      ? "border-amber-500/30 bg-amber-500/10 text-amber-200"
-                      : "border-rose-500/30 bg-rose-500/10 text-rose-200"
+                      ? "border-zinc-500/30 bg-zinc-500/10 text-zinc-200"
+                      : "border-zinc-500/30 bg-zinc-500/10 text-zinc-200"
                   )}>
                     {baileysError}
                   </div>
@@ -1644,7 +1644,7 @@ export function WhatsAppAccounts() {
             {modalStep === 'oauth_connecting' && (
               <div className="flex flex-col items-center justify-center py-10 text-center space-y-6">
                 <div className="relative flex items-center justify-center">
-                  <div className="w-16 h-16 rounded-full border-t-2 border-r-2 border-cyan-500 animate-spin absolute" />
+                  <div className="w-16 h-16 rounded-full border-t-2 border-r-2 border-zinc-500 animate-spin absolute" />
                   <div className="p-4 bg-slate-800 rounded-full">
                     {getPlatformIcon(activeTab)}
                   </div>
@@ -1661,8 +1661,8 @@ export function WhatsAppAccounts() {
 
             {modalStep === 'success' && (
               <div className="flex flex-col items-center justify-center py-8 text-center animate-in fade-in zoom-in duration-300">
-                <div className="w-20 h-20 bg-emerald-500/20 rounded-full flex items-center justify-center mb-6 border border-emerald-500/30">
-                  <CheckCircle2 className="w-10 h-10 text-emerald-400" />
+                <div className="w-20 h-20 bg-zinc-500/20 rounded-full flex items-center justify-center mb-6 border border-zinc-500/30">
+                  <CheckCircle2 className="w-10 h-10 text-zinc-400" />
                 </div>
                 <h3 className="text-2xl font-bold text-white mb-2">¡Canal Sincronizado!</h3>
                 <p className="text-slate-400 text-sm">El canal {getPlatformLabel(activeTab)} quedo vinculado con su Agente AI y su metodo correcto de entrada.</p>
@@ -1677,25 +1677,25 @@ export function WhatsAppAccounts() {
         <div className="fixed inset-0 bg-slate-900/90 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-slate-900 border border-slate-700/50 p-6 rounded-2xl w-full max-w-sm relative glass-panel shadow-2xl">
             <h3 className="text-xl font-bold text-white mb-2 flex items-center gap-2">
-              <AlertCircle className="w-5 h-5 text-rose-400" />
+              <AlertCircle className="w-5 h-5 text-zinc-400" />
               ¿Estás seguro?
             </h3>
             <p className="text-slate-400 text-sm mb-6">
-              Estás a punto de desvincular el canal <strong className="text-white">{accountToUnlink.name}</strong> ({accountToUnlink.phone}). 
-              El Agente AI asignado ya no procesará ni responderá las interacciones entrantes de esta cuenta. 
+              Estás a punto de desvincular el canal <strong className="text-white">{accountToUnlink.name}</strong> ({accountToUnlink.phone}).
+              El Agente AI asignado ya no procesará ni responderá las interacciones entrantes de esta cuenta.
               <br /><br />
               ¿Estás seguro de continuar con la desconexión?
             </p>
             <div className="flex justify-end gap-3">
-              <button 
+              <button
                 onClick={() => setAccountToUnlink(null)}
                 className="px-4 py-2 rounded-xl font-medium text-sm text-slate-300 hover:bg-white/5 transition-colors"
               >
                 Cancelar
               </button>
-              <button 
+              <button
                 onClick={removeAccount}
-                className="bg-rose-650 hover:bg-rose-600 text-white font-semibold px-4 py-2 rounded-xl text-sm transition-colors shadow-[0_0_15px_rgba(163,163,163,0.2)]"
+                className="bg-zinc-600 hover:bg-zinc-600 text-white font-semibold px-4 py-2 rounded-xl text-sm transition-colors shadow-[0_0_15px_rgba(163,163,163,0.2)]"
               >
                 Sí, Desconectar
               </button>
@@ -1708,7 +1708,7 @@ export function WhatsAppAccounts() {
       {accountToAutomate && (
         <div className="fixed inset-0 bg-slate-900/90 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-slate-900 border border-slate-700/50 p-6 md:p-8 rounded-2xl w-full max-w-3xl relative glass-panel shadow-2xl flex flex-col max-h-[90vh]">
-            <button 
+            <button
               onClick={() => setAccountToAutomate(null)}
               className="absolute top-4 right-4 text-slate-400 hover:text-white p-2 transition-colors"
             >
@@ -1718,28 +1718,28 @@ export function WhatsAppAccounts() {
               {getPlatformIcon(accountToAutomate.type)}
               Mensajería Automática para {getPlatformLabel(accountToAutomate.type)}
             </h3>
-            <p className="text-slate-450 text-xs mb-6">
-              Ajusta los detonadores de conversación e indica respuestas rápidas personalizadas para la conexión: <span className="font-semibold text-cyan-400">{accountToAutomate.name}</span>.
+            <p className="text-slate-400 text-xs mb-6">
+              Ajusta los detonadores de conversación e indica respuestas rápidas personalizadas para la conexión: <span className="font-semibold text-zinc-400">{accountToAutomate.name}</span>.
             </p>
 
             <div className="flex-1 overflow-y-auto pr-2 space-y-8 style-3">
               {accountToAutomate.type === 'whatsapp_personal' && (
                 <div className="space-y-4">
                   <h4 className="text-white text-xs font-bold uppercase tracking-wider flex items-center gap-2 border-b border-white/5 pb-2">
-                    <MessageSquare className="w-4 h-4 text-emerald-400" />
+                    <MessageSquare className="w-4 h-4 text-zinc-400" />
                     Plantillas reales de reclutamiento WhatsApp
                   </h4>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     {WHATSAPP_RECRUITMENT_TEMPLATES.map((template) => (
-                      <div key={template.id} className="rounded-xl border border-emerald-500/15 bg-emerald-500/5 p-3">
+                      <div key={template.id} className="rounded-xl border border-zinc-500/15 bg-zinc-500/5 p-3">
                         <div className="flex items-start justify-between gap-2">
                           <div>
                             <p className="text-xs font-bold text-white">{template.title}</p>
-                            <p className="mt-1 text-[10px] uppercase tracking-widest text-emerald-300">{template.stage}</p>
+                            <p className="mt-1 text-[10px] uppercase tracking-widest text-zinc-300">{template.stage}</p>
                           </div>
                           <button
                             onClick={() => addRecruitmentTemplateRule(template.id)}
-                            className="rounded-lg border border-emerald-400/30 px-2 py-1 text-[10px] font-bold text-emerald-200 hover:bg-emerald-500/10"
+                            className="rounded-lg border border-zinc-400/30 px-2 py-1 text-[10px] font-bold text-zinc-200 hover:bg-zinc-500/10"
                           >
                             Regla
                           </button>
@@ -1768,7 +1768,7 @@ export function WhatsAppAccounts() {
               {/* Basic Automations Section */}
               <div className="space-y-6">
                 <h4 className="text-white text-xs font-bold uppercase tracking-wider flex items-center gap-2 border-b border-white/5 pb-2">
-                  <CheckCircle2 className="w-4 h-4 text-cyan-400" />
+                  <CheckCircle2 className="w-4 h-4 text-zinc-400" />
                   Mensajería de Respuesta Rápida de Entrada
                 </h4>
                 <div>
@@ -1776,24 +1776,24 @@ export function WhatsAppAccounts() {
                     Saludo de Conversación / Formulario
                   </label>
                   <p className="text-[11px] text-slate-500 mb-2">Este mensaje se envía de inmediato cuando un candidato interactúa o se suscribe.</p>
-                  <textarea 
+                  <textarea
                     value={welcomeMessage}
                     onChange={(e) => setWelcomeMessage(e.target.value)}
-                    className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition-all resize-none h-20 font-mono"
+                    className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 transition-all resize-none h-20 font-mono"
                     placeholder="Escribe el mensaje de bienvenida..."
                   />
                 </div>
 
                 <div>
                   <label className="text-sm text-white font-medium mb-1 flex items-center gap-1.5">
-                    <Clock className="w-4 h-4 text-amber-500" />
+                    <Clock className="w-4 h-4 text-zinc-500" />
                     Recordatorio de Reactivación de Candidato
                   </label>
                   <p className="text-[11px] text-slate-500 mb-2">Mensaje automático para reactivar conversaciones frías en las que el aplicante dejó de contestar.</p>
-                  <textarea 
+                  <textarea
                     value={followUpMessage}
                     onChange={(e) => setFollowUpMessage(e.target.value)}
-                    className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all resize-none h-20 font-mono"
+                    className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 transition-all resize-none h-20 font-mono"
                     placeholder="Escribe el mensaje de seguimiento..."
                   />
                 </div>
@@ -1803,26 +1803,26 @@ export function WhatsAppAccounts() {
               <div className="space-y-4">
                 <div className="flex items-center justify-between border-b border-slate-800 pb-2">
                   <h4 className="text-white text-xs font-bold uppercase tracking-wider flex items-center gap-2">
-                    <Zap className="w-4 h-4 text-cyan-500" />
+                    <Zap className="w-4 h-4 text-zinc-500" />
                     Reglas Específicas de Desvío / Filtro
                   </h4>
-                  <button 
+                  <button
                     onClick={addRule}
-                    className="text-xs bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-400 border border-cyan-500/30 px-3 py-1 rounded-lg font-medium transition-colors flex items-center gap-1"
+                    className="text-xs bg-zinc-500/20 hover:bg-zinc-500/30 text-zinc-400 border border-zinc-500/30 px-3 py-1 rounded-lg font-medium transition-colors flex items-center gap-1"
                   >
                     <Plus className="w-3 h-3" /> Añadir Regla
                   </button>
                 </div>
-                
-                <p className="text-[11px] text-slate-450">Intervenga el flujo por defecto aislando respuestas con base en triggers de palabras o acciones específicas.</p>
+
+                <p className="text-[11px] text-slate-400">Intervenga el flujo por defecto aislando respuestas con base en triggers de palabras o acciones específicas.</p>
 
                 <div className="space-y-4">
                   {automationRules.map((rule, idx) => (
                     <div key={rule.id} className="bg-slate-800/40 border border-white/5 rounded-xl p-4 flex flex-col gap-4">
-                      
+
                       <div className="flex items-center justify-between">
                          <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Regla de Filtrado #{idx + 1}</span>
-                         <button onClick={() => removeRule(rule.id)} className="text-slate-500 hover:text-rose-400 transition-colors p-1">
+                         <button onClick={() => removeRule(rule.id)} className="text-slate-500 hover:text-zinc-400 transition-colors p-1">
                            <Trash2 className="w-4 h-4" />
                          </button>
                       </div>
@@ -1830,25 +1830,25 @@ export function WhatsAppAccounts() {
                       <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
                         {/* Trigger Column */}
                         <div className="col-span-12 md:col-span-4 space-y-2">
-                          <label className="text-[11px] font-semibold text-slate-400 flex items-center gap-1"><Zap className="w-3 h-3 text-cyan-400" /> Trigger (Evento)</label>
-                          <select 
+                          <label className="text-[11px] font-semibold text-slate-400 flex items-center gap-1"><Zap className="w-3 h-3 text-zinc-400" /> Trigger (Evento)</label>
+                          <select
                             value={rule.trigger}
                             onChange={(e) => updateRule(rule.id, 'trigger', e.target.value)}
-                            className="w-full bg-slate-900 border border-slate-700/85 rounded-lg px-3 py-2 text-sm text-slate-200 outline-none focus:border-cyan-500 transition-colors"
+                            className="w-full bg-slate-900 border border-slate-700/85 rounded-lg px-3 py-2 text-sm text-slate-200 outline-none focus:border-zinc-500 transition-colors"
                           >
                             <option value="keyword">Mensaje Entrante</option>
                             <option value="form">Envío de Formulario</option>
                             <option value="webhook">Evento de Webhook</option>
                           </select>
                         </div>
-                        
+
                         {/* Condition Column */}
                         <div className="col-span-12 md:col-span-4 space-y-2">
-                          <label className="text-[11px] font-semibold text-slate-400 flex items-center gap-1"><Search className="w-3 h-3 text-cyan-400" /> Regla de Condición</label>
-                          <select 
+                          <label className="text-[11px] font-semibold text-slate-400 flex items-center gap-1"><Search className="w-3 h-3 text-zinc-400" /> Regla de Condición</label>
+                          <select
                             value={rule.condition}
                             onChange={(e) => updateRule(rule.id, 'condition', e.target.value)}
-                            className="w-full bg-slate-900 border border-slate-700/85 rounded-lg px-3 py-2 text-sm text-slate-200 outline-none focus:border-cyan-500 transition-colors"
+                            className="w-full bg-slate-900 border border-slate-700/85 rounded-lg px-3 py-2 text-sm text-slate-200 outline-none focus:border-zinc-500 transition-colors"
                           >
                             <option value="contains">Contiene palabra clave</option>
                             <option value="exact">Coincidencia exacta</option>
@@ -1858,11 +1858,11 @@ export function WhatsAppAccounts() {
 
                         {/* Action Column */}
                         <div className="col-span-12 md:col-span-4 space-y-2">
-                          <label className="text-[11px] font-semibold text-slate-400 flex items-center gap-1"><CheckCircle2 className="w-3 h-3 text-cyan-400" /> Acción del Bot</label>
-                          <select 
+                          <label className="text-[11px] font-semibold text-slate-400 flex items-center gap-1"><CheckCircle2 className="w-3 h-3 text-zinc-400" /> Acción del Bot</label>
+                          <select
                             value={rule.action}
                             onChange={(e) => updateRule(rule.id, 'action', e.target.value)}
-                            className="w-full bg-slate-900 border border-slate-700/85 rounded-lg px-3 py-2 text-sm text-slate-200 outline-none focus:border-cyan-500 transition-colors"
+                            className="w-full bg-slate-900 border border-slate-700/85 rounded-lg px-3 py-2 text-sm text-slate-200 outline-none focus:border-zinc-500 transition-colors"
                           >
                             <option value="send_message">Iniciar Conversación / Respuesta</option>
                             <option value="assign_agent">Asignar a un Agente</option>
@@ -1875,31 +1875,31 @@ export function WhatsAppAccounts() {
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2 border-t border-white/5">
                         {rule.trigger === 'keyword' && rule.condition !== 'any' && (
                           <div className="space-y-1.5">
-                            <label className="text-xs font-medium text-slate-450">Palabras clave (separadas por coma)</label>
-                            <input 
-                              type="text" 
+                            <label className="text-xs font-medium text-slate-400">Palabras clave (separadas por coma)</label>
+                            <input
+                              type="text"
                               value={rule.keywords}
                               onChange={(e) => updateRule(rule.id, 'keywords', e.target.value)}
                               placeholder="Ej: información, aplicar, ayuda"
-                              className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-cyan-500 transition-colors"
+                              className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-zinc-500 transition-colors"
                             />
                           </div>
                         )}
-                        
+
                         <div className="space-y-1.5">
-                          <label className="text-xs font-medium text-slate-450">
-                            {rule.action === 'send_message' ? 'Mensaje de respuesta automática' : 
+                          <label className="text-xs font-medium text-slate-400">
+                            {rule.action === 'send_message' ? 'Mensaje de respuesta automática' :
                              rule.action === 'assign_agent' ? 'ID del Agente de Reclutamiento' : 'Destinatario o Plantilla'}
                           </label>
-                          <input 
-                            type="text" 
+                          <input
+                            type="text"
                             value={rule.actionData}
                             onChange={(e) => updateRule(rule.id, 'actionData', e.target.value)}
                             placeholder={
-                              rule.action === 'send_message' ? "Introduce la respuesta automática..." : 
+                              rule.action === 'send_message' ? "Introduce la respuesta automática..." :
                               rule.action === 'assign_agent' ? "Ej: ag-1" : "Ej: rh@empresa.com"
                             }
-                            className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-cyan-500 transition-colors"
+                            className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-zinc-500 transition-colors"
                           />
                         </div>
                       </div>
@@ -1917,15 +1917,15 @@ export function WhatsAppAccounts() {
             </div>
 
             <div className="mt-8 flex justify-end gap-3 pt-6 border-t border-slate-700/50 shrink-0">
-              <button 
+              <button
                 onClick={() => setAccountToAutomate(null)}
                 className="px-5 py-2.5 rounded-xl font-medium text-sm text-slate-300 hover:bg-white/5 transition-colors"
               >
                 Cancelar
               </button>
-              <button 
+              <button
                 onClick={saveAutomationConfig}
-                className="bg-cyan-500 hover:bg-cyan-600 text-slate-900 font-semibold px-6 py-2.5 rounded-xl text-sm transition-all shadow-[0_0_15px_rgba(212,212,212,0.2)] flex items-center gap-2"
+                className="bg-zinc-500 hover:bg-zinc-600 text-slate-900 font-semibold px-6 py-2.5 rounded-xl text-sm transition-all shadow-[0_0_15px_rgba(212,212,212,0.2)] flex items-center gap-2"
               >
                 <CheckCircle2 className="w-4 h-4" /> Guardar Cambios
               </button>
@@ -1933,7 +1933,7 @@ export function WhatsAppAccounts() {
           </div>
         </div>
       )}
-      
+
       {/* Global styles for animation */}
       <style>{`
         @keyframes scan {

@@ -2,9 +2,9 @@ import { Building, Filter, LayoutDashboard, Users, PieChart, TrendingUp, Calenda
 import { cn } from "@/lib/utils";
 import { useDb } from "@/hooks/useDb";
 import { CDMX_RECRUITMENT_PLAN, OFFICE_LOCATION } from "@/data/recruitmentPlan";
-import { 
-  AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, 
-  BarChart, Bar, Legend, LineChart, Line, ComposedChart, PieChart as RechartsPieChart, Pie, Cell 
+import {
+  AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer,
+  BarChart, Bar, Legend, LineChart, Line, ComposedChart, PieChart as RechartsPieChart, Pie, Cell
 } from 'recharts';
 
 const COLORS = ['#737373', '#737373', '#737373', '#737373', '#737373', '#737373'];
@@ -53,21 +53,21 @@ export function Reports() {
 
   const handleExportCSV = () => {
     let csvContent = "data:text/csv;charset=utf-8,\uFEFF";
-    
+
     // Funnel Data
     csvContent += "=== Embudo de Conversión ===\n";
     csvContent += "Fase,Cantidad\n";
     funnelData.forEach(row => {
       csvContent += `${row.stage},${row.count}\n`;
     });
-    
+
     // Performance Data
     csvContent += "\n=== Rendimiento Histórico ===\n";
     csvContent += "Mes,Contrataciones,Time to Hire (días)\n";
     performanceData.forEach(row => {
       csvContent += `${row.name},${row.hires},${row.timeToHire}\n`;
     });
-    
+
     // Candidates per job data
     csvContent += "\n=== Distribución por Oferta ===\n";
     csvContent += "Oferta,Candidatos\n";
@@ -89,7 +89,7 @@ export function Reports() {
       <div className="flex justify-between items-start">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight text-white flex items-center gap-2">
-            <PieChart className="w-6 h-6 text-cyan-400" />
+            <PieChart className="w-6 h-6 text-zinc-400" />
             Reportes y Analíticas
           </h1>
           <p className="text-slate-400 text-sm font-light mt-1">
@@ -100,19 +100,19 @@ export function Reports() {
           <button className="px-4 py-2 text-xs bg-slate-800/50 border border-white/5 text-slate-300 hover:bg-slate-800 hover:text-white rounded-md transition-colors font-medium flex items-center gap-2">
             <Calendar className="w-3.5 h-3.5" /> Últimos 30 días
           </button>
-          <button 
+          <button
             onClick={handleExportCSV}
-            className="bg-cyan-600/20 border border-cyan-500/50 hover:bg-cyan-600/40 text-cyan-50 hover:text-white px-4 py-2 rounded-lg font-bold text-xs flex items-center gap-2 transition-all shadow-[0_0_15px_rgba(163,163,163,0.2)]">
+            className="bg-zinc-600/20 border border-zinc-500/50 hover:bg-zinc-600/40 text-zinc-50 hover:text-white px-4 py-2 rounded-lg font-bold text-xs flex items-center gap-2 transition-all shadow-[0_0_15px_rgba(163,163,163,0.2)]">
             Exportar CSV
           </button>
         </div>
       </div>
 
-      <div className="glass-panel rounded-2xl border border-cyan-500/20 p-5 overflow-hidden relative">
-        <div className="absolute right-0 top-0 h-40 w-40 bg-cyan-500/10 blur-3xl pointer-events-none" />
+      <div className="glass-panel rounded-2xl border border-zinc-500/20 p-5 overflow-hidden relative">
+        <div className="absolute right-0 top-0 h-40 w-40 bg-zinc-500/10 blur-3xl pointer-events-none" />
         <div className="relative z-10 grid gap-5 xl:grid-cols-[minmax(0,1.1fr)_minmax(320px,0.9fr)]">
           <div>
-            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.18em] text-cyan-300">
+            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.18em] text-zinc-300">
               <MapPin className="h-4 w-4" />
               {OFFICE_LOCATION.name}
             </div>
@@ -127,8 +127,8 @@ export function Reports() {
 
           <div className="grid gap-3 sm:grid-cols-2">
             {CDMX_RECRUITMENT_PLAN.objectives.map((objective) => (
-              <div key={objective} className="rounded-xl border border-cyan-500/15 bg-cyan-500/5 p-3">
-                <Target className="h-4 w-4 text-cyan-300" />
+              <div key={objective} className="rounded-xl border border-zinc-500/15 bg-zinc-500/5 p-3">
+                <Target className="h-4 w-4 text-zinc-300" />
                 <p className="mt-2 text-xs leading-5 text-slate-200">{objective}</p>
               </div>
             ))}
@@ -139,13 +139,13 @@ export function Reports() {
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
         <div className="glass-panel rounded-2xl border border-white/5 p-5 xl:col-span-2">
           <h3 className="text-sm font-bold text-white mb-4 uppercase tracking-widest flex items-center gap-2">
-            <Building className="w-4 h-4 text-cyan-400" />
+            <Building className="w-4 h-4 text-zinc-400" />
             Zonas prioritarias y hallazgos
           </h3>
           <div className="grid gap-3 md:grid-cols-3">
             {CDMX_RECRUITMENT_PLAN.priorityZones.map((item) => (
               <div key={item.zone} className="rounded-xl border border-slate-700/70 bg-slate-950/35 p-4">
-                <p className="text-xs font-bold uppercase tracking-widest text-cyan-300">{item.zone}</p>
+                <p className="text-xs font-bold uppercase tracking-widest text-zinc-300">{item.zone}</p>
                 <p className="mt-2 text-sm font-semibold text-white">{item.areas}</p>
                 <p className="mt-2 text-xs leading-5 text-slate-400">{item.reason}</p>
               </div>
@@ -162,7 +162,7 @@ export function Reports() {
 
         <div className="glass-panel rounded-2xl border border-white/5 p-5">
           <h3 className="text-sm font-bold text-white mb-4 uppercase tracking-widest flex items-center gap-2">
-            <Calendar className="w-4 h-4 text-emerald-400" />
+            <Calendar className="w-4 h-4 text-zinc-400" />
             Cadencia semanal
           </h3>
           <div className="space-y-2">
@@ -178,7 +178,7 @@ export function Reports() {
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
         <div className="glass-panel rounded-2xl border border-white/5 p-5">
           <h3 className="text-sm font-bold text-white mb-4 uppercase tracking-widest flex items-center gap-2">
-            <Megaphone className="w-4 h-4 text-amber-400" />
+            <Megaphone className="w-4 h-4 text-zinc-400" />
             Mensajes por vacante
           </h3>
           <div className="space-y-3">
@@ -189,7 +189,7 @@ export function Reports() {
                     <p className="text-sm font-bold text-white">{persona.role}</p>
                     <p className="text-xs text-slate-500">{persona.persona}</p>
                   </div>
-                  <span className="rounded-md border border-cyan-400/20 bg-cyan-500/10 px-2 py-1 text-[10px] font-bold text-cyan-200">
+                  <span className="rounded-md border border-zinc-400/20 bg-zinc-500/10 px-2 py-1 text-[10px] font-bold text-zinc-200">
                     {persona.channels.split(",")[0]}
                   </span>
                 </div>
@@ -202,7 +202,7 @@ export function Reports() {
 
         <div className="glass-panel rounded-2xl border border-white/5 p-5">
           <h3 className="text-sm font-bold text-white mb-4 uppercase tracking-widest flex items-center gap-2">
-            <Zap className="w-4 h-4 text-purple-400" />
+            <Zap className="w-4 h-4 text-zinc-400" />
             Canales, embudo y metricas
           </h3>
           <div className="space-y-3">
@@ -210,7 +210,7 @@ export function Reports() {
               <div key={channel.channel} className="rounded-xl border border-slate-700/70 bg-slate-950/35 p-3">
                 <p className="text-xs font-bold text-white">{channel.channel}</p>
                 <p className="mt-1 text-[11px] leading-5 text-slate-400">{channel.use}</p>
-                <p className="mt-1 text-[11px] text-cyan-300">{channel.kpi}</p>
+                <p className="mt-1 text-[11px] text-zinc-300">{channel.kpi}</p>
               </div>
             ))}
           </div>
@@ -234,7 +234,7 @@ export function Reports() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="glass-panel p-5 rounded-2xl relative overflow-hidden group">
           <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-            <Users className="w-12 h-12 text-cyan-400" />
+            <Users className="w-12 h-12 text-zinc-400" />
           </div>
           <p className="text-xs text-slate-400 uppercase tracking-widest font-bold mb-1">Time to Hire (Promedio)</p>
           <h3 className="text-3xl font-bold text-white mb-2">{averageTimeToHire} <span className="text-sm font-medium text-slate-500">días</span></h3>
@@ -244,7 +244,7 @@ export function Reports() {
         </div>
         <div className="glass-panel p-5 rounded-2xl relative overflow-hidden group">
           <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-            <Building className="w-12 h-12 text-purple-400" />
+            <Building className="w-12 h-12 text-zinc-400" />
           </div>
           <p className="text-xs text-slate-400 uppercase tracking-widest font-bold mb-1">Candidatos Totales</p>
           <h3 className="text-3xl font-bold text-white mb-2">{totalCandidates}</h3>
@@ -254,7 +254,7 @@ export function Reports() {
         </div>
         <div className="glass-panel p-5 rounded-2xl relative overflow-hidden group">
           <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-            <Zap className="w-12 h-12 text-amber-400" />
+            <Zap className="w-12 h-12 text-zinc-400" />
           </div>
           <p className="text-xs text-slate-400 uppercase tracking-widest font-bold mb-1">Tasa de Conversión</p>
           <h3 className="text-3xl font-bold text-white mb-2">{conversionRate}%</h3>
@@ -268,7 +268,7 @@ export function Reports() {
         {/* Funnel Chart */}
         <div className="glass-panel p-5 rounded-2xl border border-white/5">
           <h3 className="text-sm font-bold text-white mb-6 uppercase tracking-widest flex items-center gap-2">
-            <Filter className="w-4 h-4 text-cyan-400" />
+            <Filter className="w-4 h-4 text-zinc-400" />
             Embudo de Conversión
           </h3>
           <div className="h-[300px] w-full">
@@ -277,7 +277,7 @@ export function Reports() {
                 <CartesianGrid strokeDasharray="3 3" stroke="#404040" opacity={0.5} horizontal={false} />
                 <XAxis type="number" stroke="#a3a3a3" fontSize={10} tickFormatter={(val) => `${val}`} />
                 <YAxis dataKey="stage" type="category" stroke="#a3a3a3" fontSize={11} width={90} />
-                <RechartsTooltip 
+                <RechartsTooltip
                   contentStyle={{ backgroundColor: '#171717', borderColor: '#262626', borderRadius: '8px', color: '#fafafa' }}
                   itemStyle={{ color: '#737373' }}
                 />
@@ -294,7 +294,7 @@ export function Reports() {
         {/* Time to Hire & Performance Chart */}
         <div className="glass-panel p-5 rounded-2xl border border-white/5">
           <h3 className="text-sm font-bold text-white mb-6 uppercase tracking-widest flex items-center gap-2">
-            <TrendingUp className="w-4 h-4 text-emerald-400" />
+            <TrendingUp className="w-4 h-4 text-zinc-400" />
             Rendimiento histórico (Contrataciones vs TTH)
           </h3>
           <div className="h-[300px] w-full">
@@ -304,7 +304,7 @@ export function Reports() {
                 <XAxis dataKey="name" stroke="#a3a3a3" fontSize={12} />
                 <YAxis yAxisId="left" stroke="#a3a3a3" fontSize={12} orientation="left" />
                 <YAxis yAxisId="right" stroke="#a3a3a3" fontSize={12} orientation="right" />
-                <RechartsTooltip 
+                <RechartsTooltip
                   contentStyle={{ backgroundColor: '#171717', borderColor: '#262626', borderRadius: '8px', color: '#fafafa' }}
                 />
                 <Legend wrapperStyle={{ fontSize: '12px' }} />
@@ -318,7 +318,7 @@ export function Reports() {
         {/* Source of Hire (Using Candidates Per Job for now, but pretending it's source) */}
         <div className="glass-panel p-5 rounded-2xl border border-white/5 lg:col-span-2">
           <h3 className="text-sm font-bold text-white mb-6 uppercase tracking-widest flex items-center gap-2">
-            <Users className="w-4 h-4 text-amber-400" />
+            <Users className="w-4 h-4 text-zinc-400" />
             Distribución por Fuente de Candidatos
           </h3>
           <div className="h-[300px] w-full flex itmes-center justify-center">
@@ -333,7 +333,7 @@ export function Reports() {
                 <XAxis dataKey="name" stroke="#a3a3a3" fontSize={12} />
                 <YAxis stroke="#a3a3a3" fontSize={12} />
                 <CartesianGrid strokeDasharray="3 3" stroke="#404040" opacity={0.3} vertical={false} />
-                <RechartsTooltip 
+                <RechartsTooltip
                   contentStyle={{ backgroundColor: '#171717', borderColor: '#262626', borderRadius: '8px', color: '#fafafa' }}
                 />
                 <Area type="monotone" dataKey="count" stroke="#737373" fillOpacity={1} fill="url(#colorHires)" />

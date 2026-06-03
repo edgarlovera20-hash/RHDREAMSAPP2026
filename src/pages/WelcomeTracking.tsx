@@ -111,7 +111,7 @@ export function WelcomeTracking() {
       <div className="flex flex-col gap-4 pt-2 lg:flex-row lg:items-center lg:justify-between">
         <div>
           <h1 className="flex items-center gap-2 text-2xl font-semibold tracking-tight text-white">
-            <UserCheck className="h-6 w-6 text-emerald-400" />
+            <UserCheck className="h-6 w-6 text-zinc-400" />
             Bienvenidas y Seguimiento
           </h1>
           <p className="mt-1 text-sm font-light text-slate-400">Recepción, DDO, primer día, materiales, ventas, asistencia y bienestar.</p>
@@ -127,11 +127,11 @@ export function WelcomeTracking() {
 
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
         {[
-          { label: "Contacto", value: stats.contact, icon: MessageCircle, color: "text-cyan-300" },
-          { label: "Entrevistas", value: stats.interviews, icon: Calendar, color: "text-blue-300" },
-          { label: "DDO", value: stats.ddo, icon: Users, color: "text-amber-300" },
-          { label: "Inventario pendiente", value: stats.pendingInventory, icon: Package, color: "text-orange-300" },
-          { label: "Bienestar prom.", value: stats.avgWellbeing, icon: Heart, color: "text-rose-300" }
+          { label: "Contacto", value: stats.contact, icon: MessageCircle, color: "text-zinc-300" },
+          { label: "Entrevistas", value: stats.interviews, icon: Calendar, color: "text-zinc-300" },
+          { label: "DDO", value: stats.ddo, icon: Users, color: "text-zinc-300" },
+          { label: "Inventario pendiente", value: stats.pendingInventory, icon: Package, color: "text-zinc-300" },
+          { label: "Bienestar prom.", value: stats.avgWellbeing, icon: Heart, color: "text-zinc-300" }
         ].map(item => {
           const Icon = item.icon;
           return (
@@ -157,7 +157,7 @@ export function WelcomeTracking() {
             return (
               <div key={stage} className="rounded-lg border border-white/5 bg-slate-950/30 p-3">
                 <div className="mb-2 flex items-center justify-between">
-                  <span className="flex h-6 w-6 items-center justify-center rounded-full border border-cyan-500/20 bg-cyan-500/10 text-[10px] font-bold text-cyan-300">{index + 1}</span>
+                  <span className="flex h-6 w-6 items-center justify-center rounded-full border border-zinc-500/20 bg-zinc-500/10 text-[10px] font-bold text-zinc-300">{index + 1}</span>
                   <span className="text-xs font-bold text-white">{count}</span>
                 </div>
                 <p className="text-[10px] font-bold uppercase leading-snug tracking-widest text-slate-400">{stage}</p>
@@ -174,14 +174,14 @@ export function WelcomeTracking() {
           {trackedCandidates.map(candidate => {
             const onboarding = defaultOnboarding(candidate);
             const completedMaterials = MATERIALS.filter(item => Boolean(onboarding[item.key as keyof typeof onboarding])).length;
-            const wellbeingColor = onboarding.wellbeingScore >= 4 ? "text-emerald-300" : onboarding.wellbeingScore === 3 ? "text-amber-300" : "text-rose-300";
+            const wellbeingColor = onboarding.wellbeingScore >= 4 ? "text-zinc-300" : onboarding.wellbeingScore === 3 ? "text-zinc-300" : "text-zinc-300";
 
             return (
               <article key={candidate.id} className="glass-panel rounded-2xl border border-slate-700/50 p-5">
                 <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
                   <div className="min-w-0">
                     <div className="flex items-center gap-3">
-                      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-emerald-500/20 bg-emerald-500/10 text-lg font-bold text-emerald-300">
+                      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-zinc-500/20 bg-zinc-500/10 text-lg font-bold text-zinc-300">
                         {candidate.name.charAt(0)}
                       </div>
                       <div className="min-w-0">
@@ -194,7 +194,7 @@ export function WelcomeTracking() {
                     </div>
                     <div className="mt-3 flex flex-wrap gap-1.5">
                       {deriveCandidateTags(candidate).map((tag: string) => (
-                        <span key={tag} className="inline-flex items-center gap-1 rounded-md border border-cyan-500/15 bg-cyan-500/10 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-cyan-300">
+                        <span key={tag} className="inline-flex items-center gap-1 rounded-md border border-zinc-500/15 bg-zinc-500/10 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-zinc-300">
                           <Tag className="h-3 w-3" />
                           {tag}
                         </span>
@@ -214,7 +214,7 @@ export function WelcomeTracking() {
                     <select
                       value={onboarding.processStage}
                       onChange={(event) => updateOnboarding(candidate, { processStage: event.target.value }, true)}
-                      className="w-full rounded-lg border border-slate-700 bg-slate-950/50 px-3 py-2 text-sm text-slate-200 outline-none transition-colors focus:border-emerald-500/50"
+                      className="w-full rounded-lg border border-slate-700 bg-slate-950/50 px-3 py-2 text-sm text-slate-200 outline-none transition-colors focus:border-zinc-500/50"
                     >
                       {PROCESS_STAGES.map(stage => (
                         <option key={stage}>{stage}</option>
@@ -226,7 +226,7 @@ export function WelcomeTracking() {
                     <input
                       defaultValue={inferVisitReason(candidate)}
                       onBlur={(event) => updateVisitReason(candidate, event.target.value)}
-                      className="w-full rounded-lg border border-slate-700 bg-slate-950/50 px-3 py-2 text-sm text-slate-200 outline-none transition-colors placeholder:text-slate-600 focus:border-emerald-500/50"
+                      className="w-full rounded-lg border border-slate-700 bg-slate-950/50 px-3 py-2 text-sm text-slate-200 outline-none transition-colors placeholder:text-slate-600 focus:border-zinc-500/50"
                       placeholder="Entrevista, DDO, bienvenida..."
                     />
                   </div>
@@ -239,7 +239,7 @@ export function WelcomeTracking() {
                       type="date"
                       value={onboarding.ddoDate}
                       onChange={(event) => updateOnboarding(candidate, { ddoDate: event.target.value })}
-                      className="w-full rounded-lg border border-slate-700 bg-slate-950/50 px-3 py-2 text-sm text-slate-200 outline-none transition-colors focus:border-emerald-500/50"
+                      className="w-full rounded-lg border border-slate-700 bg-slate-950/50 px-3 py-2 text-sm text-slate-200 outline-none transition-colors focus:border-zinc-500/50"
                     />
                   </div>
                   <div>
@@ -248,7 +248,7 @@ export function WelcomeTracking() {
                       type="date"
                       value={onboarding.firstDayDate}
                       onChange={(event) => updateOnboarding(candidate, { firstDayDate: event.target.value })}
-                      className="w-full rounded-lg border border-slate-700 bg-slate-950/50 px-3 py-2 text-sm text-slate-200 outline-none transition-colors focus:border-emerald-500/50"
+                      className="w-full rounded-lg border border-slate-700 bg-slate-950/50 px-3 py-2 text-sm text-slate-200 outline-none transition-colors focus:border-zinc-500/50"
                     />
                   </div>
                 </div>
@@ -264,7 +264,7 @@ export function WelcomeTracking() {
                         className={cn(
                           "flex min-h-16 flex-col items-center justify-center gap-1 rounded-lg border px-2 py-2 text-xs font-semibold transition-colors",
                           isChecked
-                            ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-300"
+                            ? "border-zinc-500/30 bg-zinc-500/10 text-zinc-300"
                             : "border-white/10 bg-slate-950/30 text-slate-400 hover:border-slate-500"
                         )}
                       >
@@ -287,7 +287,7 @@ export function WelcomeTracking() {
                       min="0"
                       value={onboarding.salesCount}
                       onChange={(event) => updateOnboarding(candidate, { salesCount: Number(event.target.value) })}
-                      className="w-full rounded-lg border border-slate-700 bg-slate-950/50 px-3 py-2 text-sm text-slate-200 outline-none focus:border-emerald-500/50"
+                      className="w-full rounded-lg border border-slate-700 bg-slate-950/50 px-3 py-2 text-sm text-slate-200 outline-none focus:border-zinc-500/50"
                     />
                   </div>
                   <div className="rounded-lg border border-white/5 bg-slate-950/30 p-3">
@@ -300,7 +300,7 @@ export function WelcomeTracking() {
                       min="0"
                       value={onboarding.attendanceCount}
                       onChange={(event) => updateOnboarding(candidate, { attendanceCount: Number(event.target.value) })}
-                      className="w-full rounded-lg border border-slate-700 bg-slate-950/50 px-3 py-2 text-sm text-slate-200 outline-none focus:border-emerald-500/50"
+                      className="w-full rounded-lg border border-slate-700 bg-slate-950/50 px-3 py-2 text-sm text-slate-200 outline-none focus:border-zinc-500/50"
                     />
                   </div>
                   <div className="rounded-lg border border-white/5 bg-slate-950/30 p-3">
@@ -317,7 +317,7 @@ export function WelcomeTracking() {
                       max="5"
                       value={onboarding.wellbeingScore}
                       onChange={(event) => updateOnboarding(candidate, { wellbeingScore: Number(event.target.value) })}
-                      className="w-full accent-emerald-400"
+                      className="w-full accent-zinc-400"
                     />
                   </div>
                 </div>
@@ -327,7 +327,7 @@ export function WelcomeTracking() {
                   <textarea
                     defaultValue={onboarding.followUpNotes}
                     onBlur={(event) => updateOnboarding(candidate, { followUpNotes: event.target.value }, true)}
-                    className="min-h-20 w-full resize-none rounded-lg border border-slate-700 bg-slate-950/50 px-3 py-2 text-sm text-slate-200 outline-none transition-colors placeholder:text-slate-600 focus:border-emerald-500/50"
+                    className="min-h-20 w-full resize-none rounded-lg border border-slate-700 bg-slate-950/50 px-3 py-2 text-sm text-slate-200 outline-none transition-colors placeholder:text-slate-600 focus:border-zinc-500/50"
                     placeholder="Notas breves del día, estado de ánimo, pendientes y acuerdos..."
                   />
                 </div>
