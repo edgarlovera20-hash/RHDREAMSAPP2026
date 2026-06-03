@@ -231,13 +231,16 @@ body {
   overflow: hidden;
   transition: filter 0.3s ease, background-color 0.3s ease;
   font-family: var(--font-sans);
+  text-rendering: geometricPrecision;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 :root {
-  --neon-soft: rgba(255, 255, 255, 0.10);
-  --neon-mid: rgba(255, 255, 255, 0.18);
-  --neon-bright: rgba(255, 255, 255, 0.62);
-  --neon-panel-shadow: 0 0 0 1px rgba(255, 255, 255, 0.14), 0 0 18px rgba(255, 255, 255, 0.10), 0 0 46px rgba(255, 255, 255, 0.06);
+  --neon-soft: rgba(255, 255, 255, 0.13);
+  --neon-mid: rgba(255, 255, 255, 0.24);
+  --neon-bright: rgba(255, 255, 255, 0.72);
+  --neon-panel-shadow: 0 0 0 1px rgba(255, 255, 255, 0.16), 0 0 22px rgba(255, 255, 255, 0.13), 0 0 54px rgba(255, 255, 255, 0.07);
   --electric-cyan: #00e7ff;
   --electric-blue: #4b8dff;
   --electric-violet: #a66cff;
@@ -245,9 +248,12 @@ body {
   --electric-lime: #77ff9b;
   --electric-amber: #ffd166;
   --electric-mint: #4dffc4;
-  --panel-gray: rgba(28, 28, 30, 0.88);
-  --panel-gray-hover: rgba(38, 38, 40, 0.92);
-  --panel-border: rgba(145, 145, 145, 0.32);
+  --panel-gray: linear-gradient(145deg, rgba(42, 42, 44, 0.88), rgba(14, 14, 16, 0.94));
+  --panel-gray-solid: rgba(26, 26, 28, 0.92);
+  --panel-gray-hover: linear-gradient(145deg, rgba(54, 54, 56, 0.92), rgba(18, 18, 20, 0.96));
+  --panel-border: rgba(178, 178, 178, 0.34);
+  --panel-highlight: rgba(255, 255, 255, 0.78);
+  --surface-polish: inset 0 1px 0 rgba(255,255,255,0.16), inset 0 -1px 0 rgba(255,255,255,0.035), 0 18px 48px rgba(0,0,0,0.72), 0 0 34px rgba(255,255,255,0.045);
 }
 
 #root {
@@ -269,12 +275,14 @@ body {
   
   .glass-panel {
     position: relative;
-    background-color: var(--panel-gray);
-    backdrop-filter: blur(24px) saturate(104%);
-    -webkit-backdrop-filter: blur(24px) saturate(104%);
+    background: var(--panel-gray);
+    backdrop-filter: blur(26px) saturate(112%) contrast(106%);
+    -webkit-backdrop-filter: blur(26px) saturate(112%) contrast(106%);
     border: 1px solid var(--panel-border);
-    box-shadow: inset 0 1px 1px rgba(255,255,255,0.055), 0 18px 46px rgba(0,0,0,0.74);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: var(--surface-polish);
+    isolation: isolate;
+    overflow: hidden;
+    transition: border-color 0.28s ease, box-shadow 0.28s ease, background 0.28s ease, transform 0.28s ease;
   }
 
   .glass-panel::before {
@@ -285,10 +293,24 @@ body {
     pointer-events: none;
     opacity: 0;
     background:
-      radial-gradient(circle at 18% 10%, rgba(255,255,255,0.16), transparent 30%),
-      linear-gradient(135deg, rgba(255,255,255,0.16), transparent 36%, rgba(255,255,255,0.08));
-    box-shadow: var(--neon-panel-shadow), inset 0 0 22px rgba(255,255,255,0.035);
+      radial-gradient(circle at 18% 8%, rgba(255,255,255,0.24), transparent 28%),
+      linear-gradient(135deg, rgba(255,255,255,0.18), transparent 32%, rgba(255,255,255,0.10));
+    box-shadow: var(--neon-panel-shadow), inset 0 0 24px rgba(255,255,255,0.05);
     transition: opacity 0.28s ease, filter 0.28s ease;
+  }
+
+  .glass-panel::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    background:
+      linear-gradient(180deg, rgba(255,255,255,0.13), rgba(255,255,255,0.025) 26%, transparent 58%),
+      linear-gradient(120deg, transparent 0%, rgba(255,255,255,0.10) 18%, transparent 34%);
+    mix-blend-mode: screen;
+    opacity: 0.62;
+    z-index: 0;
   }
 
   .glass-panel:hover::before,
@@ -304,9 +326,9 @@ body {
   }
   
   .glass-panel-hover:hover {
-    background-color: var(--panel-gray-hover);
-    border-color: rgba(255, 255, 255, 0.46);
-    box-shadow: 0 0 22px rgba(255, 255, 255, 0.12), 0 0 58px rgba(255, 255, 255, 0.055), inset 0 1px 1px rgba(255, 255, 255, 0.08);
+    background: var(--panel-gray-hover);
+    border-color: rgba(255, 255, 255, 0.54);
+    box-shadow: 0 0 24px rgba(255, 255, 255, 0.15), 0 0 72px rgba(255, 255, 255, 0.07), inset 0 1px 0 rgba(255, 255, 255, 0.16);
     transform: translateY(-2px);
   }
 
@@ -366,6 +388,61 @@ body {
     outline: 1px solid rgba(245,245,245,0.7);
     outline-offset: 3px;
     box-shadow: 0 0 0 4px rgba(245,245,245,0.08), 0 0 22px rgba(245,245,245,0.16);
+  }
+
+  input,
+  textarea,
+  select {
+    background-color: rgba(12, 12, 14, 0.92);
+    border-color: rgba(255, 255, 255, 0.16);
+    color: #ffffff;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.07), 0 0 0 1px rgba(255,255,255,0.02);
+    transition: border-color 0.22s ease, box-shadow 0.22s ease, background-color 0.22s ease;
+  }
+
+  input:hover,
+  textarea:hover,
+  select:hover {
+    border-color: rgba(255, 255, 255, 0.28);
+    background-color: rgba(18, 18, 20, 0.96);
+  }
+
+  input::placeholder,
+  textarea::placeholder {
+    color: rgba(255,255,255,0.42);
+  }
+
+  input:focus,
+  textarea:focus,
+  select:focus {
+    border-color: rgba(255, 255, 255, 0.56) !important;
+    box-shadow: 0 0 0 3px rgba(255,255,255,0.08), 0 0 24px rgba(255,255,255,0.12), inset 0 1px 0 rgba(255,255,255,0.10);
+  }
+
+  button,
+  a,
+  [role="button"] {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  button:not(:disabled),
+  a,
+  [role="button"] {
+    transition: color 0.22s ease, background-color 0.22s ease, border-color 0.22s ease, box-shadow 0.22s ease, transform 0.22s ease, opacity 0.22s ease;
+  }
+
+  button:not(:disabled):active,
+  a:active,
+  [role="button"]:active {
+    transform: translateY(1px) scale(0.995);
+  }
+
+  :is(.rounded-lg, .rounded-xl, .rounded-2xl):is([class*="border"], [class*="bg-slate"], [class*="bg-neutral"], [class*="bg-[#0a0a0a"], [class*="bg-[#262626"]) {
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 14px 36px rgba(0,0,0,0.44);
+  }
+
+  :is(.rounded-lg, .rounded-xl, .rounded-2xl):is([class*="border"], [class*="bg-slate"], [class*="bg-neutral"], [class*="bg-[#0a0a0a"], [class*="bg-[#262626"]):hover {
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.12), 0 18px 44px rgba(0,0,0,0.52), 0 0 20px rgba(255,255,255,0.055);
   }
 
   .electric-icon {
