@@ -43,17 +43,17 @@ const PATH_MAP: Record<string, string> = {
 };
 
 const NAV_ITEMS = [
-  { name: "Dashboard", path: "/", icon: LayoutDashboard },
-  { name: "Candidatos", path: "/candidates", icon: Users },
-  { name: "Ofertas de Empleo", path: "/jobs", icon: Briefcase },
-  { name: "Mensajes", path: "/messages", icon: MessageSquare },
-  { name: "Agentes AI", path: "/agents", icon: Zap },
-  { name: "Flujos IA", path: "/ai-workflows", icon: GitBranch },
-  { name: "Bienvenidas", path: "/welcome-followup", icon: ClipboardCheck },
-  { name: "Canales de Chat", path: "/whatsapp", icon: Smartphone },
-  { name: "Google Workspace", path: "/workspace", icon: Cloud },
-  { name: "Reportes", path: "/reports", icon: PieChart },
-  { name: "Configuración", path: "/settings", icon: Settings },
+  { name: "Dashboard", path: "/", icon: LayoutDashboard, neonClass: "electric-icon-cyan" },
+  { name: "Candidatos", path: "/candidates", icon: Users, neonClass: "electric-icon-violet" },
+  { name: "Ofertas de Empleo", path: "/jobs", icon: Briefcase, neonClass: "electric-icon-amber" },
+  { name: "Mensajes", path: "/messages", icon: MessageSquare, neonClass: "electric-icon-lime" },
+  { name: "Agentes AI", path: "/agents", icon: Zap, neonClass: "electric-icon-pink" },
+  { name: "Flujos IA", path: "/ai-workflows", icon: GitBranch, neonClass: "electric-icon-blue" },
+  { name: "Bienvenidas", path: "/welcome-followup", icon: ClipboardCheck, neonClass: "electric-icon-mint" },
+  { name: "Canales de Chat", path: "/whatsapp", icon: Smartphone, neonClass: "electric-icon-violet" },
+  { name: "Google Workspace", path: "/workspace", icon: Cloud, neonClass: "electric-icon-cyan" },
+  { name: "Reportes", path: "/reports", icon: PieChart, neonClass: "electric-icon-amber" },
+  { name: "Configuración", path: "/settings", icon: Settings, neonClass: "electric-icon-lime" },
 ];
 
 export function AppLayout() {
@@ -93,23 +93,23 @@ export function AppLayout() {
   };
 
   return (
-    <div className="flex flex-col md:flex-row font-sans text-slate-200" style={{ height: '100dvh', overflow: 'hidden' }}>
+    <div className="flex flex-col md:flex-row font-sans text-white" style={{ height: '100dvh', overflow: 'hidden', backgroundColor: '#000000' }}>
       <NetworkBackground />
-      <div className="pointer-events-none fixed inset-0 z-0 bg-[linear-gradient(90deg,rgba(22,22,22,0.92)_0%,rgba(31,31,31,0.72)_40%,rgba(18,18,18,0.84)_100%)]" />
+      <div className="pointer-events-none fixed inset-0 z-0 bg-[linear-gradient(90deg,rgba(0,0,0,0.95)_0%,rgba(0,0,0,0.76)_42%,rgba(0,0,0,0.94)_100%)]" />
       {/* Mobile nav header */}
       <div className="md:hidden flex items-center justify-between glass-panel p-3 shrink-0 m-2 rounded-xl relative z-40">
         <div className="flex flex-col">
           <div className="flex items-center gap-2 font-bold text-white text-lg tracking-tight">
             <BrandLogoMark className="h-9 w-9" />
-            <span>RH<span className="text-cyan-400">Dreams</span></span>
+            <span>RH<span className="electric-text-cyan">Dreams</span></span>
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <button onClick={toggleTheme} className="p-2 text-slate-400 hover:text-cyan-300 transition-colors">
+          <button onClick={toggleTheme} className="p-2 text-slate-300 hover:electric-text-amber transition-colors">
             {isDarkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
           </button>
           <NotificationsPopover align="right" direction="down" />
-          <button onClick={() => setSidebarOpen(!sidebarOpen)} className="p-2 text-cyan-400 hover:text-cyan-300 transition-colors">
+          <button onClick={() => setSidebarOpen(!sidebarOpen)} className="p-2 electric-text-cyan transition-colors">
             {sidebarOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
         </div>
@@ -134,12 +134,12 @@ export function AppLayout() {
         )}
       >
         <div className={cn("hidden md:flex flex-col justify-center border-b border-white/5 shrink-0 relative overflow-hidden transition-all duration-300", isCollapsed ? "h-20 px-2" : "h-36 px-6")}>
-          <div className="absolute top-0 right-0 p-16 bg-cyan-500/10 blur-2xl rounded-full opacity-50 pointer-events-none"></div>
+          <div className="absolute top-0 right-0 p-16 bg-white/8 blur-2xl rounded-full opacity-50 pointer-events-none"></div>
           
           <button 
             onClick={() => setIsCollapsed(!isCollapsed)} 
             className={cn(
-              "absolute z-20 text-slate-400 hover:text-cyan-300 transition-colors p-1 rounded-md hover:bg-slate-800/50 hidden md:block",
+              "absolute z-20 text-slate-300 hover:electric-text-cyan transition-colors p-1 rounded-md hover:bg-white/10 hidden md:block",
               isCollapsed ? "top-2 right-1/2 translate-x-1/2" : "top-3 right-3"
             )}
           >
@@ -151,7 +151,7 @@ export function AppLayout() {
             {!isCollapsed && (
               <div className="flex min-w-0 flex-col">
                 <span className="whitespace-nowrap font-bold tracking-tight text-[27px] leading-none">RH<span className="text-transparent bg-clip-text bg-gradient-to-r from-neutral-200 to-neutral-500">Dreams</span></span>
-                <span className="mt-2 whitespace-nowrap text-[11px] text-cyan-400/85 uppercase tracking-[0.26em] font-bold">Heavenly Dreams</span>
+                <span className="mt-2 whitespace-nowrap text-[11px] electric-text-cyan uppercase tracking-[0.26em] font-bold">Heavenly Dreams</span>
               </div>
             )}
           </div>
@@ -179,7 +179,7 @@ export function AppLayout() {
                   {isActive && (
                     <span className="pointer-events-none absolute inset-0 rounded-lg bg-[radial-gradient(circle_at_20%_50%,rgba(255,255,255,0.16),transparent_42%)] opacity-80" />
                   )}
-                  <Icon className={cn("w-5 h-5 relative z-10 transition-all shrink-0", isActive ? "text-neutral-100 drop-shadow-[0_0_10px_rgba(245,245,245,0.70)]" : "opacity-70 group-hover:text-neutral-200 group-hover:drop-shadow-[0_0_8px_rgba(212,212,212,0.35)]")} />
+                  <Icon className={cn("w-5 h-5 relative z-10 transition-all shrink-0 electric-icon", item.neonClass, isActive ? "opacity-100 scale-105" : "opacity-70 group-hover:opacity-100")} />
                   {!isCollapsed && <span className={cn("relative z-10 tracking-wide text-[13px] whitespace-nowrap", isActive && "drop-shadow-[0_0_8px_rgba(245,245,245,0.22)]")}>{item.name}</span>}
                   {isActive && !isCollapsed && <div className="absolute right-3 w-1.5 h-1.5 rounded-full bg-neutral-200 shadow-[0_0_10px_rgba(245,245,245,0.85),0_0_18px_rgba(212,212,212,0.45)] animate-pulse relative z-10 shrink-0" />}
                 </Link>
@@ -191,7 +191,7 @@ export function AppLayout() {
             <div className="mt-8 px-4">
                <div className="p-4 bg-slate-900/50 rounded-xl border border-white/5 relative overflow-hidden group">
                  <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/10 to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                 <p className="text-[10px] uppercase font-bold text-slate-500 mb-2 flex items-center gap-2 tracking-widest"><Zap className="w-3 h-3 text-amber-400" /> AI Insights</p>
+                 <p className="text-[10px] uppercase font-bold text-slate-300 mb-2 flex items-center gap-2 tracking-widest"><Zap className="w-3 h-3 electric-icon electric-icon-amber" /> AI Insights</p>
                  <p className="text-xs text-slate-400 leading-relaxed font-light">Conecta tus integraciones para activar insights con datos reales.</p>
                </div>
             </div>
@@ -200,18 +200,18 @@ export function AppLayout() {
         
         <div className={cn("p-4 border-t border-white/5 shrink-0 bg-black/10 flex items-center transition-all duration-300", isCollapsed ? "flex-col gap-4 justify-center" : "justify-between")}>
           <div className={cn("flex items-center gap-3 glass-panel p-2 rounded-xl group cursor-pointer hover:border-cyan-500/30 transition-colors", isCollapsed ? "justify-center w-full" : "flex-1 min-w-0")}>
-            <div className="w-10 h-10 rounded-lg bg-slate-800 border border-slate-600 flex flex-shrink-0 items-center justify-center text-cyan-400 font-bold text-sm shadow-[0_0_10px_rgba(212,212,212,0.08)] group-hover:shadow-[0_0_15px_rgba(212,212,212,0.22)] transition-all">
+            <div className="w-10 h-10 rounded-lg bg-neutral-800 border border-neutral-500/60 flex flex-shrink-0 items-center justify-center electric-text-cyan font-bold text-sm shadow-[0_0_10px_rgba(255,255,255,0.08)] group-hover:shadow-[0_0_15px_rgba(255,255,255,0.22)] transition-all">
               {initials}
             </div>
             {!isCollapsed && (
               <div className="flex flex-col min-w-0">
                 <span className="text-sm font-medium text-slate-200 group-hover:text-white transition-colors truncate">{displayName}</span>
-                <span className="text-[10px] text-cyan-500 uppercase tracking-widest mt-0.5 truncate">{userLabel}</span>
+                <span className="text-[10px] electric-text-cyan uppercase tracking-widest mt-0.5 truncate">{userLabel}</span>
               </div>
             )}
           </div>
           <div className={cn("flex items-center gap-1 shrink-0", isCollapsed ? "flex-col w-full" : "ml-2")}>
-            <button onClick={toggleTheme} className={cn("p-2 text-slate-400 hover:text-cyan-300 transition-colors rounded-full hover:bg-slate-800/50", isCollapsed && "w-10 h-10 flex items-center justify-center")}>
+            <button onClick={toggleTheme} className={cn("p-2 text-slate-300 hover:electric-text-amber transition-colors rounded-full hover:bg-white/10", isCollapsed && "w-10 h-10 flex items-center justify-center")}>
               {isDarkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
             </button>
             <div className={cn(isCollapsed && "flex items-center justify-center w-10 h-10")}>
@@ -240,7 +240,7 @@ export function AppLayout() {
       <main className="flex-1 overflow-auto w-full relative z-10 styled-scrollbar">
         <div className="p-4 pt-5 md:p-7 md:pt-6 max-w-7xl mx-auto min-w-0 flex flex-col min-h-full">
           <div className="flex items-center gap-2 text-sm text-slate-500 mb-4">
-            <Link to="/" className="hover:text-cyan-400 transition-colors flex items-center gap-1">
+            <Link to="/" className="hover:electric-text-cyan transition-colors flex items-center gap-1">
               <Home className="w-4 h-4" />
             </Link>
             {location.pathname !== "/" && (

@@ -5,7 +5,7 @@ import { useNotifications } from "@/contexts/NotificationContext";
 import { useDb } from "@/hooks/useDb";
 import { cn } from "@/lib/utils";
 
-const COLORS = ['#737373', '#737373', '#737373', '#737373', '#737373'];
+const COLORS = ['#6f8f88', '#766a93', '#8a7658', '#6f7f99', '#8b646e'];
 
 const getAlertColors = (type: string) => {
   switch (type) {
@@ -240,40 +240,40 @@ export function Dashboard() {
         </div>
       )}
 
-      <div className="glass-panel rounded-2xl border border-cyan-400/10 bg-slate-950/70 px-5 py-5 md:px-7 md:py-6 relative overflow-hidden">
-        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-cyan-300/40 to-transparent" />
-        <div className="absolute -right-20 -top-24 h-56 w-56 rounded-full bg-cyan-500/12 blur-3xl" />
+      <div className="glass-panel rounded-2xl border border-white/15 bg-neutral-900/80 px-5 py-5 md:px-7 md:py-6 relative overflow-hidden">
+        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/40 to-transparent" />
+        <div className="absolute -right-20 -top-24 h-56 w-56 rounded-full bg-white/10 blur-3xl" />
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-5">
           <div className="min-w-0">
-            <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-cyan-400/20 bg-cyan-400/10 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.24em] text-cyan-200">
-              <Cpu className="w-3.5 h-3.5" />
+            <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.24em] text-white">
+              <Cpu className="w-3.5 h-3.5 electric-icon electric-icon-cyan" />
               Centro de mando
             </div>
             <h1 className="text-3xl md:text-[42px] font-bold tracking-tight text-white flex flex-wrap items-center gap-x-3 gap-y-1 leading-tight">
                <span>Heavenly Dreams</span>
-               <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 via-sky-400 to-blue-500">Metrics</span>
+               <span className="electric-text-cyan">Metrics</span>
             </h1>
-            <p className="text-slate-400 mt-2 font-medium tracking-wide text-sm uppercase">Autonomous matching and conversion analysis</p>
+            <p className="text-slate-200 mt-2 font-medium tracking-wide text-sm uppercase">Autonomous matching and conversion analysis</p>
           </div>
-          <div className="flex items-center gap-3 rounded-full border border-emerald-400/20 bg-emerald-400/10 px-5 py-3 text-xs font-bold uppercase tracking-[0.22em] text-emerald-300 shadow-[0_0_28px_rgba(163,163,163,0.08)]">
-            <div className="w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-[0_0_12px_#a3a3a3] animate-pulse" />
+          <div className="flex items-center gap-3 rounded-full border border-white/20 bg-neutral-800/80 px-5 py-3 text-xs font-bold uppercase tracking-[0.22em] text-white shadow-[0_0_28px_rgba(255,255,255,0.08)]">
+            <div className="w-2.5 h-2.5 rounded-full bg-[#77ff9b] shadow-[0_0_12px_#77ff9b] animate-pulse" />
             System Active
           </div>
         </div>
       </div>
 
       {/* Dynamic Date Filter Toolbar */}
-      <div className="flex flex-col 2xl:flex-row items-stretch 2xl:items-center justify-between gap-4 p-4 glass-panel rounded-2xl border border-cyan-400/10 bg-slate-950/70 shadow-lg relative overflow-visible group">
-        <div className="absolute inset-y-4 left-0 w-1 rounded-r-full bg-gradient-to-b from-cyan-400 to-blue-500"></div>
+      <div className="flex flex-col 2xl:flex-row items-stretch 2xl:items-center justify-between gap-4 p-4 glass-panel rounded-2xl border border-white/15 bg-neutral-900/80 shadow-lg relative overflow-visible group">
+        <div className="absolute inset-y-4 left-0 w-1 rounded-r-full bg-gradient-to-b from-[#00e7ff] to-[#a66cff]"></div>
         <div className="flex items-center gap-4 relative z-10 w-full min-w-0 2xl:max-w-[460px]">
-          <div className="grid h-11 w-11 shrink-0 place-items-center border border-cyan-500/25 bg-cyan-500/12 rounded-xl shadow-[0_0_18px_rgba(163,163,163,0.12)]">
-            <Calendar className="w-5 h-5 text-cyan-400" />
+          <div className="grid h-11 w-11 shrink-0 place-items-center border border-white/20 bg-neutral-800 rounded-xl shadow-[0_0_18px_rgba(255,255,255,0.10)]">
+            <Calendar className="w-5 h-5 electric-icon electric-icon-cyan" />
           </div>
           <div className="min-w-0">
             <h4 className="text-sm md:text-base font-semibold tracking-wide text-slate-100 leading-tight">
               Periodo de análisis
             </h4>
-            <p className="text-xs md:text-sm text-slate-400 font-sans mt-1 leading-snug">Filtra métricas por rango o presets rápidos</p>
+            <p className="text-xs md:text-sm text-slate-200 font-sans mt-1 leading-snug">Filtra métricas por rango o presets rápidos</p>
           </div>
         </div>
         
@@ -305,7 +305,7 @@ export function Dashboard() {
                 className={cn(
                   "px-3 py-2 rounded-lg text-xs font-semibold tracking-wide transition-all border border-transparent whitespace-nowrap",
                   selectedPreset === preset.id 
-                    ? "bg-gradient-to-r from-cyan-500/25 to-blue-500/20 text-cyan-200 shadow-[0_0_16px_rgba(163,163,163,0.18)] border-cyan-500/35"
+                    ? "bg-white/15 text-white shadow-[0_0_16px_rgba(255,255,255,0.16)] border-white/35"
                     : "text-slate-400 hover:text-white hover:bg-slate-800/40"
                 )}
               >
@@ -348,20 +348,20 @@ export function Dashboard() {
         ].map((stat, i) => {
           const Icon = stat.icon;
           const styles = {
-            cyan: { text: "text-cyan-400", bgLine: "via-cyan-500/40", shadow: "group-hover:drop-shadow-[0_0_12px_rgba(163,163,163,0.8)]", dot: "bg-cyan-400", hoverBorder: "hover:border-cyan-500/50" },
-            purple: { text: "text-purple-400", bgLine: "via-purple-500/40", shadow: "group-hover:drop-shadow-[0_0_12px_rgba(163,163,163,0.8)]", dot: "bg-purple-400", hoverBorder: "hover:border-purple-500/50" },
-            emerald: { text: "text-emerald-400", bgLine: "via-emerald-500/40", shadow: "group-hover:drop-shadow-[0_0_12px_rgba(163,163,163,0.8)]", dot: "bg-emerald-400", hoverBorder: "hover:border-emerald-500/50" },
-            rose: { text: "text-rose-400", bgLine: "via-rose-500/40", shadow: "group-hover:drop-shadow-[0_0_12px_rgba(163,163,163,0.8)]", dot: "bg-rose-400", hoverBorder: "hover:border-rose-500/50" },
+            cyan: { text: "electric-text-cyan", bgLine: "via-white/40", shadow: "group-hover:drop-shadow-[0_0_12px_rgba(0,231,255,0.55)]", dot: "bg-[#00e7ff]", hoverBorder: "hover:border-white/40" },
+            purple: { text: "electric-text-violet", bgLine: "via-white/40", shadow: "group-hover:drop-shadow-[0_0_12px_rgba(166,108,255,0.55)]", dot: "bg-[#a66cff]", hoverBorder: "hover:border-white/40" },
+            emerald: { text: "electric-text-lime", bgLine: "via-white/40", shadow: "group-hover:drop-shadow-[0_0_12px_rgba(119,255,155,0.55)]", dot: "bg-[#77ff9b]", hoverBorder: "hover:border-white/40" },
+            rose: { text: "electric-text-pink", bgLine: "via-white/40", shadow: "group-hover:drop-shadow-[0_0_12px_rgba(255,79,216,0.55)]", dot: "bg-[#ff4fd8]", hoverBorder: "hover:border-white/40" },
           }[stat.color];
 
           return (
-            <div key={i} className={`glass-panel p-5 rounded-2xl flex flex-col relative overflow-hidden group border-white/10 bg-slate-950/75 ${styles.hoverBorder} transition-all duration-300`}>
+            <div key={i} className={`glass-panel p-5 rounded-2xl flex flex-col relative overflow-hidden group border-white/15 bg-neutral-900/80 ${styles.hoverBorder} transition-all duration-300`}>
               <div className={`absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent ${styles.bgLine} to-transparent opacity-80 transition-opacity duration-300`}></div>
               <div className="absolute inset-0 bg-gradient-to-br from-white/[0.04] to-transparent pointer-events-none"></div>
               <div className="absolute -right-8 -bottom-10 h-28 w-28 rounded-full bg-cyan-400/5 blur-2xl group-hover:bg-cyan-400/10 transition-colors pointer-events-none"></div>
               
               <div className="flex items-center justify-between pb-4 relative z-10">
-                <p className="text-slate-400 text-[10px] font-bold tracking-[0.18em] uppercase">{stat.title}</p>
+                <p className="text-slate-200 text-[10px] font-bold tracking-[0.18em] uppercase">{stat.title}</p>
                 <div className="grid h-9 w-9 place-items-center rounded-xl border border-white/10 bg-white/[0.03]">
                   <Icon className={`w-[18px] h-[18px] opacity-85 group-hover:opacity-100 transition-all ${styles.text} ${styles.shadow}`} />
                 </div>
@@ -379,10 +379,10 @@ export function Dashboard() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mt-1">
-        <div className="glass-panel p-6 rounded-2xl flex flex-col relative overflow-hidden group border-white/10 bg-slate-950/75 hover:border-cyan-500/30 transition-all duration-300">
-          <div className="absolute top-0 right-0 p-32 bg-cyan-500/8 blur-3xl rounded-full opacity-60 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"></div>
+        <div className="glass-panel p-6 rounded-2xl flex flex-col relative overflow-hidden group border-white/15 bg-neutral-900/80 hover:border-white/35 transition-all duration-300">
+          <div className="absolute top-0 right-0 p-32 bg-white/8 blur-3xl rounded-full opacity-55 group-hover:opacity-85 transition-opacity duration-700 pointer-events-none"></div>
           <h2 className="text-[11px] font-bold text-slate-300 mb-6 uppercase tracking-[0.2em] flex items-center gap-3">
-            <span className="w-2 h-2 bg-cyan-400 rounded-sm shadow-[0_0_8px_#a3a3a3]"></span> Embudo y Tasa de Conversión (%)
+            <span className="w-2 h-2 bg-[#00e7ff] rounded-sm shadow-[0_0_8px_#00e7ff]"></span> Embudo y Tasa de Conversión (%)
           </h2>
           <div className="h-[320px] w-full relative z-10">
             <ResponsiveContainer width="100%" height="100%">
@@ -397,21 +397,21 @@ export function Dashboard() {
                 <Bar dataKey="count" fill="url(#cyanGradient)" radius={[0, 4, 4, 0]} barSize={24} name="Candidatos">
                   <defs>
                     <linearGradient id="cyanGradient" x1="0" y1="0" x2="1" y2="0">
-                      <stop offset="0%" stopColor="#737373" stopOpacity={0.6}/>
-                      <stop offset="100%" stopColor="#737373" stopOpacity={1}/>
+                      <stop offset="0%" stopColor="#5c7773" stopOpacity={0.72}/>
+                      <stop offset="100%" stopColor="#7d928e" stopOpacity={0.95}/>
                     </linearGradient>
                   </defs>
                 </Bar>
-                <Line type="monotone" dataKey="conversion" stroke="#a3a3a3" strokeWidth={3} dot={{ r: 5, fill: '#171717', strokeWidth: 2, stroke: '#a3a3a3' }} activeDot={{ r: 7, fill: '#a3a3a3', strokeWidth: 0, className: "drop-shadow-[0_0_12px_#a3a3a3]" }} name="Conversión %" />
+                <Line type="monotone" dataKey="conversion" stroke="#8a7658" strokeWidth={3} dot={{ r: 5, fill: '#0b0b0b', strokeWidth: 2, stroke: '#8a7658' }} activeDot={{ r: 7, fill: '#8a7658', strokeWidth: 0, className: "drop-shadow-[0_0_10px_rgba(138,118,88,0.45)]" }} name="Conversión %" />
               </ComposedChart>
             </ResponsiveContainer>
           </div>
         </div>
 
-        <div className="glass-panel p-6 rounded-2xl flex flex-col relative overflow-hidden group border-white/10 bg-slate-950/75 hover:border-indigo-500/30 transition-all duration-300">
-          <div className="absolute top-0 right-0 p-32 bg-indigo-500/8 blur-3xl rounded-full opacity-60 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"></div>
+        <div className="glass-panel p-6 rounded-2xl flex flex-col relative overflow-hidden group border-white/15 bg-neutral-900/80 hover:border-white/35 transition-all duration-300">
+          <div className="absolute top-0 right-0 p-32 bg-white/8 blur-3xl rounded-full opacity-55 group-hover:opacity-85 transition-opacity duration-700 pointer-events-none"></div>
           <h2 className="text-[11px] font-bold text-slate-300 mb-6 uppercase tracking-[0.2em] flex items-center gap-3">
-            <span className="w-2 h-2 bg-indigo-400 rounded-sm shadow-[0_0_8px_#a3a3a3]"></span> Candidatos por Oferta Activa
+            <span className="w-2 h-2 bg-[#a66cff] rounded-sm shadow-[0_0_8px_#a66cff]"></span> Candidatos por Oferta Activa
           </h2>
           <div className="h-[320px] w-full relative z-10">
             <ResponsiveContainer width="100%" height="100%">
@@ -441,18 +441,18 @@ export function Dashboard() {
           </div>
         </div>
 
-        <div className="glass-panel p-6 rounded-2xl flex flex-col lg:col-span-2 relative overflow-hidden group border-white/10 bg-slate-950/75 hover:border-sky-500/30 transition-all duration-300">
-          <div className="absolute top-0 right-0 p-32 bg-sky-500/8 blur-3xl rounded-full opacity-60 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"></div>
+        <div className="glass-panel p-6 rounded-2xl flex flex-col lg:col-span-2 relative overflow-hidden group border-white/15 bg-neutral-900/80 hover:border-white/35 transition-all duration-300">
+          <div className="absolute top-0 right-0 p-32 bg-white/8 blur-3xl rounded-full opacity-55 group-hover:opacity-85 transition-opacity duration-700 pointer-events-none"></div>
           <h2 className="text-[11px] font-bold text-slate-300 mb-6 uppercase tracking-[0.2em] flex items-center gap-3">
-            <span className="w-2 h-2 bg-sky-400 rounded-sm shadow-[0_0_8px_#a3a3a3]"></span> Rendimiento de Contratación (y Tiempo al Contratar)
+            <span className="w-2 h-2 bg-[#77ff9b] rounded-sm shadow-[0_0_8px_#77ff9b]"></span> Rendimiento de Contratación (y Tiempo al Contratar)
           </h2>
           <div className="h-[340px] w-full relative z-10">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={computedPerformanceData} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
                 <defs>
                   <linearGradient id="colorHires" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#737373" stopOpacity={0.3}/>
-                    <stop offset="95%" stopColor="#737373" stopOpacity={0}/>
+                    <stop offset="5%" stopColor="#6f8f88" stopOpacity={0.32}/>
+                    <stop offset="95%" stopColor="#6f8f88" stopOpacity={0}/>
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.03)" />
@@ -462,8 +462,8 @@ export function Dashboard() {
                 <RechartsTooltip 
                   contentStyle={{ borderRadius: '12px', border: '1px solid rgba(163,163,163,0.3)', backgroundColor: 'rgba(15, 17, 21, 0.9)', color: '#e5e5e5', boxShadow: '0 8px 32px rgba(0, 0, 0, 0.5)', backdropFilter: 'blur(12px)', fontFamily: 'Inter', fontSize: '12px' }}
                 />
-                <Area yAxisId="left" type="monotone" dataKey="hires" name="Contrataciones" stroke="#737373" strokeWidth={3} fillOpacity={1} fill="url(#colorHires)" activeDot={{ r: 6, fill: '#737373', strokeWidth: 0, className: "drop-shadow-[0_0_12px_#737373]" }} />
-                <Line yAxisId="right" type="monotone" dataKey="timeToHire" name="Tiempo (días)" stroke="#a3a3a3" strokeWidth={3} dot={{ fill: '#171717', strokeWidth: 2, stroke: '#a3a3a3' }} activeDot={{ r: 7, fill: '#a3a3a3', strokeWidth: 0, className: "drop-shadow-[0_0_12px_#a3a3a3]" }} />
+                <Area yAxisId="left" type="monotone" dataKey="hires" name="Contrataciones" stroke="#6f8f88" strokeWidth={3} fillOpacity={1} fill="url(#colorHires)" activeDot={{ r: 6, fill: '#6f8f88', strokeWidth: 0, className: "drop-shadow-[0_0_10px_rgba(111,143,136,0.45)]" }} />
+                <Line yAxisId="right" type="monotone" dataKey="timeToHire" name="Tiempo (días)" stroke="#766a93" strokeWidth={3} dot={{ fill: '#0b0b0b', strokeWidth: 2, stroke: '#766a93' }} activeDot={{ r: 7, fill: '#766a93', strokeWidth: 0, className: "drop-shadow-[0_0_10px_rgba(118,106,147,0.45)]" }} />
               </AreaChart>
             </ResponsiveContainer>
           </div>

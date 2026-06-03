@@ -223,8 +223,8 @@
 }
 
 body {
-  background-color: #1b1b1b;
-  color: #e5e5e5; 
+  background-color: #000000;
+  color: #ffffff; 
   margin: 0;
   height: 100vh;
   height: 100dvh;
@@ -234,15 +234,26 @@ body {
 }
 
 :root {
-  --neon-soft: rgba(245, 245, 245, 0.14);
-  --neon-mid: rgba(229, 229, 229, 0.28);
-  --neon-bright: rgba(250, 250, 250, 0.72);
-  --neon-panel-shadow: 0 0 0 1px rgba(245, 245, 245, 0.14), 0 0 18px rgba(245, 245, 245, 0.12), 0 0 42px rgba(212, 212, 212, 0.08);
+  --neon-soft: rgba(255, 255, 255, 0.10);
+  --neon-mid: rgba(255, 255, 255, 0.18);
+  --neon-bright: rgba(255, 255, 255, 0.62);
+  --neon-panel-shadow: 0 0 0 1px rgba(255, 255, 255, 0.14), 0 0 18px rgba(255, 255, 255, 0.10), 0 0 46px rgba(255, 255, 255, 0.06);
+  --electric-cyan: #00e7ff;
+  --electric-blue: #4b8dff;
+  --electric-violet: #a66cff;
+  --electric-pink: #ff4fd8;
+  --electric-lime: #77ff9b;
+  --electric-amber: #ffd166;
+  --electric-mint: #4dffc4;
+  --panel-gray: rgba(28, 28, 30, 0.88);
+  --panel-gray-hover: rgba(38, 38, 40, 0.92);
+  --panel-border: rgba(145, 145, 145, 0.32);
 }
 
 #root {
   height: 100%;
-  filter: grayscale(1);
+  background: #000000;
+  filter: none;
   transition: filter 0.3s ease;
 }
 
@@ -258,11 +269,11 @@ body {
   
   .glass-panel {
     position: relative;
-    background-color: rgba(6, 7, 10, 0.94);
-    backdrop-filter: blur(28px) saturate(108%);
-    -webkit-backdrop-filter: blur(28px) saturate(108%);
-    border: 1px solid rgba(96, 96, 96, 0.26);
-    box-shadow: inset 0 1px 1px rgba(255,255,255,0.025), 0 18px 46px rgba(0,0,0,0.58);
+    background-color: var(--panel-gray);
+    backdrop-filter: blur(24px) saturate(104%);
+    -webkit-backdrop-filter: blur(24px) saturate(104%);
+    border: 1px solid var(--panel-border);
+    box-shadow: inset 0 1px 1px rgba(255,255,255,0.055), 0 18px 46px rgba(0,0,0,0.74);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
@@ -274,9 +285,9 @@ body {
     pointer-events: none;
     opacity: 0;
     background:
-      radial-gradient(circle at 16% 8%, var(--neon-mid), transparent 28%),
-      linear-gradient(135deg, rgba(250,250,250,0.18), transparent 34%, rgba(212,212,212,0.12));
-    box-shadow: var(--neon-panel-shadow), inset 0 0 18px rgba(255,255,255,0.04);
+      radial-gradient(circle at 18% 10%, rgba(255,255,255,0.16), transparent 30%),
+      linear-gradient(135deg, rgba(255,255,255,0.16), transparent 36%, rgba(255,255,255,0.08));
+    box-shadow: var(--neon-panel-shadow), inset 0 0 22px rgba(255,255,255,0.035);
     transition: opacity 0.28s ease, filter 0.28s ease;
   }
 
@@ -293,9 +304,9 @@ body {
   }
   
   .glass-panel-hover:hover {
-    background-color: rgba(12, 13, 16, 0.96);
-    border-color: rgba(229, 229, 229, 0.56);
-    box-shadow: 0 0 28px rgba(245, 245, 245, 0.15), 0 0 64px rgba(163, 163, 163, 0.09), inset 0 1px 1px rgba(255, 255, 255, 0.08);
+    background-color: var(--panel-gray-hover);
+    border-color: rgba(255, 255, 255, 0.46);
+    box-shadow: 0 0 22px rgba(255, 255, 255, 0.12), 0 0 58px rgba(255, 255, 255, 0.055), inset 0 1px 1px rgba(255, 255, 255, 0.08);
     transform: translateY(-2px);
   }
 
@@ -356,6 +367,30 @@ body {
     outline-offset: 3px;
     box-shadow: 0 0 0 4px rgba(245,245,245,0.08), 0 0 22px rgba(245,245,245,0.16);
   }
+
+  .electric-icon {
+    color: var(--electric-cyan);
+    filter: drop-shadow(0 0 8px color-mix(in srgb, currentColor 62%, transparent)) drop-shadow(0 0 18px color-mix(in srgb, currentColor 28%, transparent));
+  }
+
+  .electric-icon-cyan { color: var(--electric-cyan); }
+  .electric-icon-blue { color: var(--electric-blue); }
+  .electric-icon-violet { color: var(--electric-violet); }
+  .electric-icon-pink { color: var(--electric-pink); }
+  .electric-icon-lime { color: var(--electric-lime); }
+  .electric-icon-amber { color: var(--electric-amber); }
+  .electric-icon-mint { color: var(--electric-mint); }
+
+  .electric-text-cyan { color: var(--electric-cyan); }
+  .electric-text-blue { color: var(--electric-blue); }
+  .electric-text-violet { color: var(--electric-violet); }
+  .electric-text-pink { color: var(--electric-pink); }
+  .electric-text-lime { color: var(--electric-lime); }
+  .electric-text-amber { color: var(--electric-amber); }
+  .electric-text-mint { color: var(--electric-mint); }
+
+  .hover\:electric-text-cyan:hover { color: var(--electric-cyan); }
+  .hover\:electric-text-amber:hover { color: var(--electric-amber); }
 }
 
 .styled-scrollbar::-webkit-scrollbar {
