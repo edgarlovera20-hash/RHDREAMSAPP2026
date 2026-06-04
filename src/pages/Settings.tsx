@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Shield, Users, Mail, Bell, BellRing, Key, Plus, Trash2, Zap, Settings as SettingsIcon, MessageSquare, Video, Globe, Calendar, CheckCircle2, Lock, Smartphone, History, Edit3, Linkedin, X, Check, Facebook, Instagram, Send, Loader2, Copy, AlertCircle, Eye, EyeOff } from "lucide-react";
+import { DigitalOceanBadge } from "@/components/DigitalOceanBadge";
 import { cn } from "@/lib/utils";
 import { useNotifications } from "@/contexts/NotificationContext";
 import { useAuth } from "@/contexts/AuthContext";
@@ -1489,6 +1490,9 @@ export function Settings() {
             )}
           </div>
         </div>
+      </div>
+      <div className="flex justify-center">
+        <DigitalOceanBadge />
       </div>
     </div>
   );

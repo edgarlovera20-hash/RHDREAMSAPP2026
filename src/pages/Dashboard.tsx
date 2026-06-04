@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Users, UserPlus, Briefcase, Clock, Activity, Cpu, AlertCircle, X, CheckCircle2, AlertTriangle, Info, Calendar, Filter } from "lucide-react";
 import { Area, AreaChart, Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip as RechartsTooltip, XAxis, YAxis, PieChart, Pie, Cell, Line, ComposedChart } from "recharts";
+import { DigitalOceanBadge } from "@/components/DigitalOceanBadge";
 import { useNotifications } from "@/contexts/NotificationContext";
 import { useDb } from "@/hooks/useDb";
 import { cn } from "@/lib/utils";
@@ -468,6 +469,9 @@ export function Dashboard() {
             </ResponsiveContainer>
           </div>
         </div>
+      </div>
+      <div className="flex justify-center pt-1">
+        <DigitalOceanBadge />
       </div>
     </div>
   );

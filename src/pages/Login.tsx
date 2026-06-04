@@ -2,6 +2,7 @@ import { FormEvent, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AlertCircle, ArrowRight, Eye, EyeOff, Lock, User } from "lucide-react";
 import AetherFlowHero from "@/components/ui/aether-flow-hero";
+import { DigitalOceanBadge } from "@/components/DigitalOceanBadge";
 import { useAuth } from "@/contexts/AuthContext";
 import { appUrl } from "@/lib/basePath";
 
@@ -44,7 +45,7 @@ export function Login() {
       <AetherFlowHero mode="background" className="opacity-75" />
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.055),transparent_32%),radial-gradient(circle_at_bottom_right,rgba(10,10,10,0.72),transparent_38%),linear-gradient(90deg,rgba(22,22,22,0.9),rgba(31,31,31,0.72),rgba(18,18,18,0.86))]" />
 
-      <section className="relative z-10 flex min-h-screen items-center justify-center px-4 py-8">
+      <section className="relative z-10 flex min-h-screen flex-col items-center justify-center px-4 py-8">
         <div className="grid w-full max-w-5xl overflow-hidden rounded-2xl border border-white/10 bg-slate-950/70 shadow-2xl shadow-zinc-950/20 backdrop-blur-2xl md:grid-cols-[1fr_420px]">
           <div className="hidden min-h-[560px] flex-col justify-between border-r border-white/10 p-10 md:flex">
             <div className="flex items-center gap-3">
@@ -176,6 +177,7 @@ export function Login() {
             </form>
           </div>
         </div>
+        <DigitalOceanBadge className="mt-5 backdrop-blur-xl" />
       </section>
     </main>
   );
