@@ -55,7 +55,7 @@ type SendOptions = {
 
 const DEFAULT_SESSION_ID = process.env.BAILEYS_SESSION_ID || "default";
 const MAX_SESSION_MESSAGES = Math.max(100, Number(process.env.BAILEYS_MAX_SESSION_MESSAGES || 1000));
-const QR_TTL_MS = Math.max(30_000, Number(process.env.BAILEYS_QR_TTL_MS || 75_000));
+const QR_TTL_MS = Math.max(30_000, Number(process.env.BAILEYS_QR_TTL_MS || 120_000)); // Aumentado a 120 segundos
 const CONNECTING_STALE_MS = Math.max(15_000, Number(process.env.BAILEYS_CONNECTING_STALE_MS || 35_000));
 const SESSION_ROOT = path.join(process.cwd(), ".sessions", "baileys");
 const sessions = new Map<string, BaileysSession>();
@@ -125,6 +125,15 @@ const refreshSessionLifecycle = (session: BaileysSession) => {
     ? "El QR expiro. Generando uno nuevo para vincular WhatsApp."
     : "Baileys tardo demasiado en generar QR. Reiniciando la sesion.";
   session.updatedAt = now;
+
+  // Auto-restart cuando QR expira o se vuelve stale
+  if (qrExpired || connectingStale) {
+    setTimeout(() => {
+      startBaileysSession({ sessionId: session.id }).catch((error) => {
+        logger.error("Baileys auto-restart after QR expiry failed", { sessionId: session.id, error });
+      });
+    }, 2000);
+  }
 };
 
 const clearSessionFiles = async (session: BaileysSession) => {
@@ -300,20 +309,50 @@ export async function startBaileysSession(options: StartOptions = {}) {
     const { connection, qr, lastDisconnect } = update;
 
     if (qr) {
-      const now = Date.now();
-      session.qr = qr;
-      session.qrDataUrl = await QRCode.toDataURL(qr, { margin: 1, width: 320 });
-      session.qrCreatedAt = now;
-      session.qrExpiresAt = now + QR_TTL_MS;
-      session.state = "qr";
-      session.updatedAt = now;
+      try {
+        const now = Date.now();
+        session.qr = qr;
+        
+        // Mejorado: Manejo robusto de generación de QR con reintentos
+        let qrDataUrl: string | null = null;
+        let retries = 3;
+        
+        while (retries > 0 && !qrDataUrl) {
+          try {
+            qrDataUrl = await QRCode.toDataURL(qr, { margin: 1, width: 320 });
+            break;
+          } catch (qrError) {
+            retries--;
+            if (retries > 0) {
+              logger.warn("QR generation failed, retrying", { sessionId: session.id, retriesLeft: retries });
+              await new Promise((resolve) => setTimeout(resolve, 500));
+            } else {
+              logger.error("QR generation failed after retries", { sessionId: session.id, qrError });
+              session.lastError = "No se pudo generar el codigo QR. Intenta de nuevo.";
+            }
+          }
+        }
+        
+        if (qrDataUrl) {
+          session.qrDataUrl = qrDataUrl;
+          session.qrCreatedAt = now;
+          session.qrExpiresAt = now + QR_TTL_MS;
+          session.state = "qr";
+          session.updatedAt = now;
+          logger.info("Baileys QR generated successfully", { sessionId: session.id, expiresAt: session.qrExpiresAt });
 
-      const expireTimer = setTimeout(() => {
-        const activeSession = sessions.get(session.id);
-        if (activeSession !== session || session.state !== "qr" || session.qr !== qr) return;
-        refreshSessionLifecycle(session);
-      }, QR_TTL_MS + 1000);
-      (expireTimer as any).unref?.();
+          const expireTimer = setTimeout(() => {
+            const activeSession = sessions.get(session.id);
+            if (activeSession !== session || session.state !== "qr" || session.qr !== qr) return;
+            logger.info("Baileys QR expired, triggering refresh", { sessionId: session.id });
+            refreshSessionLifecycle(session);
+          }, QR_TTL_MS + 1000);
+          (expireTimer as any).unref?.();
+        }
+      } catch (error) {
+        logger.error("Baileys connection.update QR handling failed", { sessionId: session.id, error });
+        session.lastError = "Error procesando QR de WhatsApp.";
+      }
     }
 
     if (connection === "open") {
@@ -323,6 +362,7 @@ export async function startBaileysSession(options: StartOptions = {}) {
       session.lastError = null;
       session.connectedAt = Date.now();
       session.updatedAt = Date.now();
+      logger.info("Baileys session connected", { sessionId: session.id, phone: session.phone });
     }
 
     if (connection === "close") {
@@ -333,6 +373,7 @@ export async function startBaileysSession(options: StartOptions = {}) {
       clearTransientQrState(session);
       session.lastError = lastDisconnect?.error?.message || null;
       session.updatedAt = Date.now();
+      logger.info("Baileys connection closed", { sessionId: session.id, loggedOut, statusCode });
 
       if (loggedOut) {
         clearSessionFiles(session)
@@ -342,12 +383,12 @@ export async function startBaileysSession(options: StartOptions = {}) {
             return startBaileysSession({ sessionId: session.id });
           })
           .catch((error) => {
-            logger.error("Baileys logged-out reset failed", error);
+            logger.error("Baileys logged-out reset failed", { sessionId: session.id, error });
           });
       } else {
         setTimeout(() => {
           startBaileysSession({ sessionId: session.id }).catch((error) => {
-            logger.error("Baileys reconnect failed", error);
+            logger.error("Baileys reconnect failed", { sessionId: session.id, error });
           });
         }, 3000);
       }
@@ -452,7 +493,7 @@ Reglas:
         crmStatus: lead.estatus,
       });
     } catch (error) {
-      logger.error("Baileys autonomous AI reply failed", error);
+      logger.error("Baileys autonomous AI reply failed", { sessionId: session.id, error });
     }
   };
 
