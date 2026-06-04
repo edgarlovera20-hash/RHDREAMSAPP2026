@@ -19,6 +19,14 @@ CRM de reclutamiento para candidatos, vacantes, mensajes, agentes IA, reportes e
 
 ## Despliegue
 
+## Separacion de dominios
+
+- Sitio principal: `https://heavenlydreams.com.mx`
+- App administrativa: `https://app.heavenlydreams.com.mx`
+- App de reclutamiento RHDreams: `https://rh.heavenlydreams.com.mx`
+
+Este repositorio debe desplegarse solo para la app de reclutamiento. Consulta `docs/domain-separation.md` antes de apuntar DNS o proxies.
+
 ### DigitalOcean App Platform
 
 - Build command: `npm run build`
@@ -27,7 +35,7 @@ CRM de reclutamiento para candidatos, vacantes, mensajes, agentes IA, reportes e
 - HTTP port: `3000`
 - Health check: `/health`
 - Runtime recomendado: Node.js 22
-- Configura `NODE_ENV=production`, `PORT=3000`, `APP_URL=https://TU_DOMINIO` y los secretos del `.env.example` en el panel de DigitalOcean.
+- Configura `NODE_ENV=production`, `PORT=3000`, `APP_URL=https://rh.heavenlydreams.com.mx`, `RH_ALLOWED_HOSTS=rh.heavenlydreams.com.mx` y los secretos del `.env.example` en el panel de DigitalOcean.
 
 ### DigitalOcean Droplet / VPS
 

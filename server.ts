@@ -19,6 +19,25 @@ import { restoreSavedBaileysSessions } from "./server/services/baileys.service";
 
 dotenv.config();
 
+const normalizeHost = (host = "") => host.split(":")[0].toLowerCase();
+
+const RH_ALLOWED_HOSTS = new Set(
+  (process.env.RH_ALLOWED_HOSTS || "rh.heavenlydreams.com.mx")
+    .split(",")
+    .map((host) => host.trim().toLowerCase())
+    .filter(Boolean)
+);
+
+const ADMIN_APP_URL = process.env.ADMIN_APP_URL || "https://app.heavenlydreams.com.mx";
+const MAIN_SITE_URL = process.env.MAIN_SITE_URL || "https://heavenlydreams.com.mx";
+
+const isLocalOrPlatformHost = (host: string) =>
+  host === "localhost" ||
+  host === "127.0.0.1" ||
+  host === "::1" ||
+  host.endsWith(".onrender.com") ||
+  host.endsWith(".pages.dev");
+
 async function startServer() {
   try {
     const app = express();
@@ -35,6 +54,41 @@ async function startServer() {
     }));
     app.use(express.urlencoded({ limit: "10mb", extended: true }));
     app.disable("x-powered-by");
+    app.use((req, res, next) => {
+      const host = normalizeHost(req.headers.host);
+      const shouldEnforceRhHost = NODE_ENV === "production" && !isLocalOrPlatformHost(host);
+
+      if (!shouldEnforceRhHost || RH_ALLOWED_HOSTS.has(host)) {
+        next();
+        return;
+      }
+
+      if (host === "app.heavenlydreams.com.mx") {
+        res.status(421).json({
+          success: false,
+          error: "Este dominio esta reservado para la app administrativa.",
+          expectedDomain: ADMIN_APP_URL,
+          rhDomain: "https://rh.heavenlydreams.com.mx",
+        });
+        return;
+      }
+
+      if (host === "heavenlydreams.com.mx" || host === "www.heavenlydreams.com.mx") {
+        res.status(421).json({
+          success: false,
+          error: "Este dominio esta reservado para la pagina principal de Heavenly Dreams.",
+          expectedDomain: MAIN_SITE_URL,
+          rhDomain: "https://rh.heavenlydreams.com.mx",
+        });
+        return;
+      }
+
+      res.status(421).json({
+        success: false,
+        error: "Dominio no autorizado para la app de reclutamiento.",
+        rhDomain: "https://rh.heavenlydreams.com.mx",
+      });
+    });
     app.use((_req, res, next) => {
       res.setHeader("X-Content-Type-Options", "nosniff");
       res.setHeader("X-Frame-Options", "DENY");
