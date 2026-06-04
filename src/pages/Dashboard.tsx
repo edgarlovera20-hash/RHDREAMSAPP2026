@@ -457,8 +457,8 @@ export function Dashboard() {
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.03)" />
                 <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#737373', fontSize: 11, fontWeight: 600, fontFamily: 'Inter' }} dy={15} />
-                <YAxis yAxisId="left" axisLine={false} tickLine={false} tick={{ fill: '#737373', fontSize: 11, fontFamily: 'JetBrains Mono' }} />
-                <YAxis yAxisId="right" orientation="right" axisLine={false} tickLine={false} tick={{ fill: '#737373', fontSize: 11, fontFamily: 'JetBrains Mono' }} />
+                <YAxis yAxisId="left" axisLine={false} tickLine={false} tick={{ fill: '#AAB4C8', fontSize: 11, fontFamily: 'Poppins' }} />
+                <YAxis yAxisId="right" orientation="right" axisLine={false} tickLine={false} tick={{ fill: '#AAB4C8', fontSize: 11, fontFamily: 'Poppins' }} />
                 <RechartsTooltip
                   contentStyle={{ borderRadius: '12px', border: '1px solid rgba(163,163,163,0.3)', backgroundColor: 'rgba(15, 17, 21, 0.9)', color: '#e5e5e5', boxShadow: '0 8px 32px rgba(0, 0, 0, 0.5)', backdropFilter: 'blur(12px)', fontFamily: 'Inter', fontSize: '12px' }}
                 />
