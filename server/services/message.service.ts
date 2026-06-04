@@ -73,6 +73,18 @@ export async function createMessage(
   const status: MessageStatus =
     input.status ||
     (input.direction === "inbound" ? "delivered" : "sent");
+  const messages = await readMessages();
+  const existingByProviderId = input.providerMessageId
+    ? messages.find((message) => message.companyId === companyId && message.providerMessageId === input.providerMessageId)
+    : null;
+  const existingByDedupeKey = input.dedupeKey
+    ? messages.find((message) => message.companyId === companyId && message.dedupeKey === input.dedupeKey)
+    : null;
+
+  if (existingByProviderId || existingByDedupeKey) {
+    return existingByProviderId || existingByDedupeKey;
+  }
+
   const message: MessageRecord = {
     id: input.id || `msg-${crypto.randomUUID()}`,
     companyId,
@@ -102,7 +114,6 @@ export async function createMessage(
     updatedAt: now,
   };
 
-  const messages = await readMessages();
   await writeMessages([message, ...messages].slice(0, 5000));
   await touchConversation(conversation.id, {
     status: status === "pending_approval" ? "pending_human" : "open",
@@ -145,6 +156,27 @@ export async function updateMessageStatus(
   };
 
   await writeMessages(messages.map((message) => message.id === messageId ? updated : message));
+  return updated;
+}
+
+export async function updateMessageStatusByProviderId(
+  providerMessageId: string,
+  companyId: string,
+  status: MessageStatus,
+  patch: Partial<MessageRecord> = {}
+) {
+  const messages = await readMessages();
+  const existing = messages.find((message) => message.providerMessageId === providerMessageId && message.companyId === companyId);
+  if (!existing) return null;
+
+  const updated: MessageRecord = {
+    ...existing,
+    ...patch,
+    status,
+    updatedAt: Date.now(),
+  };
+
+  await writeMessages(messages.map((message) => message.id === existing.id ? updated : message));
   return updated;
 }
 

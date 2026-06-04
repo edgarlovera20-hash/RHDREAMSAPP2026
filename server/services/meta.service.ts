@@ -5,6 +5,7 @@ import {
   recordRecruitmentAssistantReply,
 } from "./conversationSession.service";
 import { logger } from "../utils/logger";
+import { processWhatsAppBusinessWebhook } from "../modules/whatsapp/webhook.service";
 
 type MetaWebhookEvent = {
   id: string;
@@ -29,6 +30,7 @@ const getVerifyToken = () => process.env.META_WEBHOOK_VERIFY_TOKEN || "";
 const getAppSecrets = () =>
   [
     process.env.META_APP_SECRET,
+    process.env.WHATSAPP_APP_SECRET,
     process.env.INSTAGRAM_APP_SECRET,
     process.env.META_INSTAGRAM_APP_SECRET,
   ].filter(Boolean) as string[];
@@ -292,6 +294,7 @@ export async function processMetaWebhookPayload(body: any): Promise<MetaWebhookE
   const isInstagramObject = objectType === "instagram";
   const isWhatsAppObject = objectType === "whatsapp_business_account";
   if (objectType !== "page" && !isInstagramObject && !isWhatsAppObject) return events;
+  if (isWhatsAppObject) return processWhatsAppBusinessWebhook(body) as any;
 
   for (const entry of body.entry || []) {
     const sourceId = String(entry.id || process.env.META_PAGE_ID || "facebook-page");
