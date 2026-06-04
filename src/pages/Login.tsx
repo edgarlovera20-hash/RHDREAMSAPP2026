@@ -1,7 +1,7 @@
 import { FormEvent, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AlertCircle, ArrowRight, Eye, EyeOff, Lock, User } from "lucide-react";
-import { NetworkBackground } from "@/components/layout/NetworkBackground";
+import AetherFlowHero from "@/components/ui/aether-flow-hero";
 import { useAuth } from "@/contexts/AuthContext";
 import { appUrl } from "@/lib/basePath";
 
@@ -41,7 +41,7 @@ export function Login() {
 
   return (
     <main className="relative min-h-screen overflow-hidden bg-[#1b1b1b] text-slate-100">
-      <NetworkBackground />
+      <AetherFlowHero mode="background" className="opacity-75" />
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.055),transparent_32%),radial-gradient(circle_at_bottom_right,rgba(10,10,10,0.72),transparent_38%),linear-gradient(90deg,rgba(22,22,22,0.9),rgba(31,31,31,0.72),rgba(18,18,18,0.86))]" />
 
       <section className="relative z-10 flex min-h-screen items-center justify-center px-4 py-8">
