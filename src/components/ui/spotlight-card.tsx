@@ -110,6 +110,8 @@ const GlowCard: React.FC<GlowCardProps> = ({
 }) => {
   const cardRef = useRef<HTMLDivElement>(null);
   const innerRef = useRef<HTMLDivElement>(null);
+  const base = 220;
+  const spread = 120;
 
   useEffect(() => {
     const syncPointer = (e: PointerEvent) => {
