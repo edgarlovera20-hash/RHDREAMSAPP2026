@@ -9,6 +9,8 @@ type OpenRouterChatInput = {
   messages: OpenRouterChatMessage[];
   model?: string;
   temperature?: number;
+  presencePenalty?: number;
+  frequencyPenalty?: number;
   maxTokens?: number;
 };
 
@@ -59,7 +61,9 @@ export class OpenRouterService {
       body: JSON.stringify({
         model: input.model || this.defaultModel,
         messages: input.messages,
-        temperature: input.temperature ?? 0.4,
+        temperature: input.temperature ?? 0.8,
+        presence_penalty: input.presencePenalty ?? 0.7,
+        frequency_penalty: input.frequencyPenalty ?? 0.8,
         max_tokens: input.maxTokens ?? 700,
       }),
     });

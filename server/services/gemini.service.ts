@@ -89,7 +89,7 @@ export class GeminiService {
       .trim();
   }
 
-  private async callOllama(messages: OllamaMessage[], temperature = 0.7): Promise<string> {
+  private async callOllama(messages: OllamaMessage[], temperature = 0.8): Promise<string> {
     if (!this.ollamaUrl) {
       throw new Error("Ollama no esta configurado. Agrega OLLAMA_URL.");
     }
@@ -155,7 +155,9 @@ export class GeminiService {
       if (groq.isConfigured()) {
         const result = await groq.generateChatCompletion({
           messages,
-          temperature: 0.85,
+          temperature: 0.8,
+          presencePenalty: 0.7,
+          frequencyPenalty: 0.8,
           maxTokens: 420,
         });
         logger.warn("Gemini unavailable; generated reply with Groq fallback", {
@@ -173,7 +175,9 @@ export class GeminiService {
       if (openRouter.isConfigured()) {
         const result = await openRouter.generateChatCompletion({
           messages,
-          temperature: 0.85,
+          temperature: 0.8,
+          presencePenalty: 0.7,
+          frequencyPenalty: 0.8,
           maxTokens: 420,
         });
         logger.warn("Gemini unavailable; generated reply with OpenRouter fallback", {
@@ -354,7 +358,7 @@ export class GeminiService {
 Mensaje o instruccion actual:
 ${userMsg}
 
-Genera una respuesta autonoma, nueva y natural. No reutilices plantillas, no copies mensajes anteriores y evita empezar siempre igual.
+Detecta primero la intencion del mensaje y responde solo a esa intencion. Genera una respuesta autonoma, nueva y natural. No reutilices plantillas, no copies mensajes anteriores y evita empezar siempre igual.
 Variacion interna: ${Date.now()}-${Math.random().toString(16).slice(2)}
       `.trim();
       const contextualUserMsg = `
@@ -364,7 +368,7 @@ ${historyText}
 Mensaje o instruccion actual:
 ${userMsg}
 
-Genera una respuesta autonoma, nueva y natural. No reutilices plantillas, no copies mensajes anteriores y evita empezar siempre igual.
+Detecta primero la intencion del mensaje y responde solo a esa intencion. Genera una respuesta autonoma, nueva y natural. No reutilices plantillas, no copies mensajes anteriores y evita empezar siempre igual.
 Variacion interna: ${Date.now()}-${Math.random().toString(16).slice(2)}
       `.trim();
 
@@ -375,7 +379,7 @@ Variacion interna: ${Date.now()}-${Math.random().toString(16).slice(2)}
             ...this.buildOllamaHistory(history || []),
             { role: "user", content: `/no_think ${currentUserPrompt}` },
           ],
-          0.95
+          0.8
         );
         logger.info("Ollama response generated successfully", {
           candidate: candidate?.name,
@@ -394,7 +398,7 @@ Variacion interna: ${Date.now()}-${Math.random().toString(16).slice(2)}
           contents: this.buildGeminiContents(history || [], currentUserPrompt),
           config: {
             systemInstruction: systemInstruction,
-            temperature: 0.95,
+            temperature: 0.8,
           },
         });
 
@@ -433,10 +437,10 @@ Variacion interna: ${Date.now()}-${Math.random().toString(16).slice(2)}
             ...this.buildOllamaHistory(conversationHistory || []),
             {
               role: "user",
-              content: `/no_think Agente: ${agentName}\nUsuario: ${userPrompt}\n\nResponde con un mensaje autonomo, distinto, humano y breve. No uses plantillas ni respuestas preestablecidas. Variacion: ${Date.now()}-${Math.random().toString(16).slice(2)}`,
+              content: `/no_think Agente: ${agentName}\nUsuario: ${userPrompt}\n\nDetecta primero la intencion del mensaje y responde solo a esa intencion. Responde con un mensaje autonomo, distinto, humano y breve. No uses plantillas ni respuestas preestablecidas. Variacion: ${Date.now()}-${Math.random().toString(16).slice(2)}`,
             },
           ],
-          0.95
+          0.8
         );
         logger.info("Ollama agent response generated", {
           agentName,
@@ -451,7 +455,7 @@ Variacion interna: ${Date.now()}-${Math.random().toString(16).slice(2)}
 Mensaje o instruccion actual:
 ${userPrompt}
 
-Genera una respuesta autonoma, nueva y natural para este contacto. No reutilices plantillas, no copies respuestas anteriores y no empieces siempre con el mismo saludo.
+Detecta primero la intencion del mensaje y responde solo a esa intencion. Genera una respuesta autonoma, nueva y natural para este contacto. No reutilices plantillas, no copies respuestas anteriores y no empieces siempre con el mismo saludo.
 Variacion interna: ${Date.now()}-${Math.random().toString(16).slice(2)}
       `.trim();
       const contextualUserPrompt = `
@@ -461,7 +465,7 @@ ${this.buildConversationContext(conversationHistory || [])}
 Mensaje o instruccion actual:
 ${userPrompt}
 
-Genera una respuesta autonoma, nueva y natural para este contacto. No reutilices plantillas, no copies respuestas anteriores y no empieces siempre con el mismo saludo.
+Detecta primero la intencion del mensaje y responde solo a esa intencion. Genera una respuesta autonoma, nueva y natural para este contacto. No reutilices plantillas, no copies respuestas anteriores y no empieces siempre con el mismo saludo.
 Variacion interna: ${Date.now()}-${Math.random().toString(16).slice(2)}
       `.trim();
       let replyText = "";
@@ -473,7 +477,7 @@ Variacion interna: ${Date.now()}-${Math.random().toString(16).slice(2)}
           contents: this.buildGeminiContents(conversationHistory || [], currentUserPrompt),
           config: {
             systemInstruction,
-            temperature: 0.95,
+            temperature: 0.8,
           },
         });
 

@@ -133,6 +133,171 @@ const formatTime = (value?: number) =>
     ? new Date(value).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
     : "N/A";
 
+const demoInterviewBaseTime = new Date("2026-06-04T15:00:00").getTime();
+
+const createDemoInterviewMessages = (
+  channel: ChannelFilter,
+  rows: Array<["user" | "me", string]>
+): ChatMessage[] =>
+  rows.map(([sender, text], index) => {
+    const createdAt = demoInterviewBaseTime + index * 3 * 60 * 1000;
+    return {
+      id: `demo-${channel}-${index + 1}`,
+      sender,
+      text,
+      timestamp: formatTime(createdAt),
+      createdAt,
+      status: sender === "me" ? "sent" : undefined,
+      aiGenerated: sender === "me",
+      aiConfidence: sender === "me" ? 0.91 : undefined,
+      intent: sender === "me" ? "entrevista_reclutamiento" : undefined,
+    };
+  });
+
+const demoInterviewChats: UnifiedChat[] = [
+  {
+    id: "demo-interview-whatsapp",
+    name: "Mariana Lopez",
+    platform: "whatsapp",
+    avatarColor: "bg-emerald-600",
+    sourceLabel: "WhatsApp Business",
+    email: "mariana.lopez@example.com",
+    phone: "+52 55 1200 8844",
+    role: "Asesora de ventas",
+    stage: "Entrevista completa",
+    rating: 5,
+    location: "CDMX",
+    agentPersonalName: "Valeria IA",
+    companyName: "Heavenly Dreams",
+    rawLastMessageTime: demoInterviewBaseTime,
+    lastMessageTime: formatTime(demoInterviewBaseTime),
+    lastMessage: "Gracias, Mariana. Tu entrevista quedo completa y pasara a revision de RH.",
+    leadProfile: {
+      nombre: "Mariana Lopez",
+      telefono: "+52 55 1200 8844",
+      edad: "27",
+      ciudad: "CDMX",
+      vacante_interes: "Asesora de ventas",
+      canal: "WhatsApp",
+      estatus: "Entrevista completa",
+      fecha_registro: demoInterviewBaseTime,
+      observaciones_ia: "Perfil con experiencia en ventas, disponibilidad inmediata y actitud orientada a metas.",
+    },
+    messages: createDemoInterviewMessages("whatsapp", [
+      ["user", "Hola, buen dia. Vi la vacante de asesora de ventas y me interesa saber si todavia esta disponible."],
+      ["me", "Hola Mariana, buen dia. Si, todavia esta abierta. Te puedo hacer unas preguntas rapidas por aqui para conocer tu perfil y ver si hace match?"],
+      ["user", "Si claro, sin problema."],
+      ["me", "Gracias. Primero para ubicarte bien: en que ciudad estas y que edad tienes?"],
+      ["user", "Estoy en CDMX y tengo 27 anos."],
+      ["me", "Perfecto, gracias. La vacante es de atencion a clientes y ventas. Cuentame, has trabajado antes en algo parecido?"],
+      ["user", "Si, trabaje 2 anos en retail y 1 ano en ventas por telefono."],
+      ["me", "Va, eso nos ayuda bastante. En tu ultimo trabajo, que era lo que mas hacias en el dia a dia?"],
+      ["user", "Atendia clientes, hacia seguimiento por WhatsApp, cotizaciones y cierre de ventas."],
+      ["me", "Suena muy alineado. Y para entender mejor tu cambio: saliste de ese empleo por horario, crecimiento, ambiente o fue otro motivo?"],
+      ["user", "Sali por cambio de horario. Busco algo estable, con crecimiento y comisiones claras."],
+      ["me", "Tiene sentido. Aqui buscamos justo gente que quiera estabilidad y pueda dar seguimiento a clientes con constancia. Podrias trabajar de lunes a sabado si avanzas en el proceso?"],
+      ["user", "Si, puedo de lunes a sabado."],
+      ["me", "Buenisimo. Tambien hay una capacitacion inicial presencial para que conozcas producto, proceso y objeciones comunes. Te funcionaria asistir?"],
+      ["user", "Si, estoy disponible para capacitacion."],
+      ["me", "Excelente. Ya casi terminamos. Para no ofrecerte algo que no vaya con lo que buscas, cual seria tu expectativa mensual aproximada, contando sueldo y comisiones?"],
+      ["user", "Busco entre 12 y 15 mil con comisiones."],
+      ["me", "Gracias por decirmelo claro. Ultima pregunta: si todo avanza bien, cuando podrias iniciar?"],
+      ["user", "Puedo iniciar la proxima semana."],
+      ["me", "Perfecto, Mariana. Con lo que me compartes, tu perfil si se ve compatible para una primera revision. Voy a dejar tu entrevista registrada y RH te contactara para confirmar el siguiente paso si avanzas."],
+    ]),
+  },
+  {
+    id: "demo-interview-instagram",
+    name: "Carlos Rivera",
+    platform: "instagram",
+    avatarColor: "bg-pink-600",
+    sourceLabel: "Instagram DM",
+    email: "carlos.rivera@example.com",
+    phone: "+52 33 1800 5511",
+    role: "Community manager",
+    stage: "Entrevista completa",
+    rating: 4,
+    location: "Guadalajara",
+    agentPersonalName: "Valeria IA",
+    companyName: "Heavenly Dreams",
+    rawLastMessageTime: demoInterviewBaseTime + 60 * 60 * 1000,
+    lastMessageTime: formatTime(demoInterviewBaseTime + 60 * 60 * 1000),
+    lastMessage: "Listo, Carlos. Tu entrevista por Instagram quedo registrada para revision.",
+    leadProfile: {
+      nombre: "Carlos Rivera",
+      telefono: "+52 33 1800 5511",
+      edad: "31",
+      ciudad: "Guadalajara",
+      vacante_interes: "Community manager",
+      canal: "Instagram",
+      estatus: "Entrevista completa",
+      fecha_registro: demoInterviewBaseTime + 60 * 60 * 1000,
+      observaciones_ia: "Buen perfil creativo, experiencia con Meta Business Suite y disponibilidad para prueba tecnica.",
+    },
+    messages: createDemoInterviewMessages("instagram", [
+      ["user", "Hola, llegue por su anuncio de Instagram. Me interesa la vacante de community manager."],
+      ["me", "Hola Carlos. Te hago una entrevista breve por DM. En que ciudad estas y cuantos anos de experiencia tienes?"],
+      ["user", "Estoy en Guadalajara y tengo 4 anos manejando redes."],
+      ["me", "Gracias. Que plataformas has administrado y con que tipo de contenido trabajas mejor?"],
+      ["user", "Instagram, Facebook y TikTok. Me va bien con reels, historias, parrillas y campanas organicas."],
+      ["me", "Has usado herramientas de programacion, metricas o pauta basica?"],
+      ["user", "Si, Meta Business Suite, Metricool, Canva, CapCut y reportes semanales de alcance e interaccion."],
+      ["me", "Excelente. Cuentame un logro concreto en una cuenta que hayas manejado."],
+      ["user", "En una marca local subi la interaccion 38% en tres meses con reels y calendario editorial."],
+      ["me", "Que estilo de trabajo buscas y cual es tu expectativa salarial?"],
+      ["user", "Busco modalidad hibrida o remota. Mi expectativa es de 16 a 19 mil mensuales."],
+      ["me", "Puedes compartir portafolio y realizar una prueba breve de contenido si avanzas?"],
+      ["user", "Si, tengo portafolio en Drive y puedo hacer la prueba esta semana."],
+      ["me", "Listo, Carlos. Tu entrevista por Instagram quedo registrada para revision. Te pediremos portafolio si pasas al siguiente filtro."],
+    ]),
+  },
+  {
+    id: "demo-interview-messenger",
+    name: "Andrea Torres",
+    platform: "messenger",
+    avatarColor: "bg-sky-600",
+    sourceLabel: "Messenger",
+    email: "andrea.torres@example.com",
+    phone: "+52 81 2200 7744",
+    role: "Recepcionista",
+    stage: "Entrevista completa",
+    rating: 5,
+    location: "Monterrey",
+    agentPersonalName: "Valeria IA",
+    companyName: "Heavenly Dreams",
+    rawLastMessageTime: demoInterviewBaseTime + 2 * 60 * 60 * 1000,
+    lastMessageTime: formatTime(demoInterviewBaseTime + 2 * 60 * 60 * 1000),
+    lastMessage: "Gracias, Andrea. La entrevista por Messenger quedo completa.",
+    leadProfile: {
+      nombre: "Andrea Torres",
+      telefono: "+52 81 2200 7744",
+      edad: "24",
+      ciudad: "Monterrey",
+      vacante_interes: "Recepcionista",
+      canal: "Messenger",
+      estatus: "Entrevista completa",
+      fecha_registro: demoInterviewBaseTime + 2 * 60 * 60 * 1000,
+      observaciones_ia: "Perfil ordenado, buena disponibilidad, experiencia administrativa y trato al cliente.",
+    },
+    messages: createDemoInterviewMessages("messenger", [
+      ["user", "Buenas tardes, vi la publicacion en Facebook y quiero saber si sigue abierta la vacante de recepcionista."],
+      ["me", "Buenas tardes, Andrea. Si, sigue abierta. Para entrevistarte por Messenger, dime tu edad, ciudad y disponibilidad."],
+      ["user", "Tengo 24 anos, vivo en Monterrey y puedo iniciar de inmediato."],
+      ["me", "Perfecto. Has trabajado antes en recepcion, agenda o atencion a clientes?"],
+      ["user", "Si, fui recepcionista en una clinica durante 1 ano y tambien apoyaba con llamadas y citas."],
+      ["me", "Que sistemas o herramientas usabas en ese puesto?"],
+      ["user", "Google Calendar, Excel, WhatsApp Business y un sistema interno para pacientes."],
+      ["me", "Como manejas una situacion con un cliente molesto o una agenda saturada?"],
+      ["user", "Primero escucho, confirmo datos, doy opciones reales y aviso al area responsable sin prometer algo que no puedo cumplir."],
+      ["me", "Muy bien. El puesto requiere orden, puntualidad y trato amable. Puedes cubrir horario matutino y sabado medio dia?"],
+      ["user", "Si, el horario matutino me funciona y puedo sabado medio dia."],
+      ["me", "Cual es tu expectativa salarial y tienes referencias laborales?"],
+      ["user", "Busco 10 a 12 mil mensuales. Si tengo referencias de mi ultimo empleo."],
+      ["me", "Gracias, Andrea. La entrevista por Messenger quedo completa. RH revisara tu perfil y te contactara para confirmar siguiente paso."],
+    ]),
+  },
+];
+
 const readChannelAccounts = () => {
   try {
     const stored = localStorage.getItem("rhdreams_channel_accounts");
@@ -342,6 +507,15 @@ export function Messages() {
         agentPersonalName: account.agentPersonalName,
         companyName: account.companyName,
       });
+    });
+
+    demoInterviewChats.forEach((demoChat) => {
+      const chat = ensureChat({
+        ...demoChat,
+        messages: [],
+      });
+      chat.messages.push(...demoChat.messages);
+      chat.leadProfile = demoChat.leadProfile;
     });
 
     Object.entries(localMessagesByChat).forEach(([chatId, localMessages]) => {
