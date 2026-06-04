@@ -8,6 +8,8 @@ interface GlowCardProps {
   width?: string | number;
   height?: string | number;
   customSize?: boolean;
+  base?: number;
+  spread?: number;
 }
 
 const glowToneMap = {
@@ -103,6 +105,8 @@ const GlowCard: React.FC<GlowCardProps> = ({
   width,
   height,
   customSize = false,
+  base = 220,
+  spread = 360,
 }) => {
   const cardRef = useRef<HTMLDivElement>(null);
   const innerRef = useRef<HTMLDivElement>(null);

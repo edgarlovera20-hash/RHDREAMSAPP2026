@@ -374,6 +374,28 @@ export function WhatsAppAccounts() {
     return null;
   };
 
+  const requiresRealProviderValidation = (type: ChannelType) =>
+    ["whatsapp_meta", "facebook", "messenger", "instagram", "tiktok"].includes(type);
+
+  const ensureRealProviderConnection = async (type: ChannelType) => {
+    const response = await apiFetch("/api/integrations/test", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ provider: type }),
+    });
+    const payload = await readApiJson(response);
+    const result = payload.data || payload;
+
+    if (!result?.ok) {
+      const missing = Array.isArray(result?.missing) && result.missing.length > 0
+        ? ` Faltan: ${result.missing.join(", ")}.`
+        : "";
+      throw new Error(`${result?.message || "La conexion real no esta configurada."}${missing}`);
+    }
+
+    return result;
+  };
+
   const testCurrentIntegration = async () => {
     if (activeTab === 'indeed' || activeTab === 'computrabajo') {
       setConnectionTest({
@@ -474,6 +496,11 @@ export function WhatsAppAccounts() {
       setModalStep('qr');
 
       try {
+        if (!localStorage.getItem(API_TOKEN_STORAGE_KEY)) {
+          setBaileysAuthExpired(true);
+          throw new Error("Tu sesion del panel expiro. Inicia sesion de nuevo y vuelve a generar el QR de Baileys.");
+        }
+
         const assignedAgent = getAssignedAgent(selectedAgent);
         const agentName = newAgentPersonalName.trim() || assignedAgent?.name || "Agente de Heavenly Dreams";
         const response = await apiFetch("/api/integrations/baileys/start", {
@@ -507,26 +534,40 @@ export function WhatsAppAccounts() {
       } finally {
         setIsStartingBaileys(false);
       }
-    } else if (activeTab === 'whatsapp_meta' || activeTab === 'indeed' || activeTab === 'computrabajo') {
+    } else if (requiresRealProviderValidation(activeTab)) {
+      setBaileysError("");
+      setConnectionTest(null);
+      setIsStartingBaileys(true);
+      setModalStep('oauth_connecting');
+
+      try {
+        const result = await ensureRealProviderConnection(activeTab);
+        setConnectionTest(result);
+        setModalStep('success');
+        setTimeout(() => {
+          handleCreateAccount(result);
+        }, 900);
+      } catch (error: any) {
+        setModalStep('info');
+        setConnectionTest({
+          ok: false,
+          message: error.message || "No se pudo validar la conexion real del proveedor.",
+        });
+      } finally {
+        setIsStartingBaileys(false);
+      }
+    } else if (activeTab === 'indeed' || activeTab === 'computrabajo') {
       setModalStep('success');
       setTimeout(() => {
         handleCreateAccount();
       }, 900);
-    } else {
-      setModalStep('oauth_connecting');
-      setTimeout(() => {
-        setModalStep('success');
-        setTimeout(() => {
-          handleCreateAccount();
-        }, 1500);
-      }, 2500);
     }
   };
 
-  const handleCreateAccount = () => {
+  const handleCreateAccount = (validatedConnection?: any) => {
     let phoneIdText = "";
     if (activeTab === 'whatsapp_meta') {
-      phoneIdText = "WhatsApp Cloud API: WHATSAPP_PHONE_NUMBER_ID";
+      phoneIdText = "WhatsApp Cloud API: WHATSAPP_PHONE_NUMBER_ID validado";
     } else if (activeTab === 'whatsapp_personal') {
       phoneIdText = baileysStatus?.phone || `Sesion Baileys: ${baileysSessionId.trim() || "default"}`;
     } else if (activeTab === 'indeed') {
@@ -534,13 +575,13 @@ export function WhatsAppAccounts() {
     } else if (activeTab === 'computrabajo') {
       phoneIdText = "Entrada: CSV/correo/webhook Computrabajo";
     } else if (activeTab === 'facebook') {
-      phoneIdText = `ID: pg_${Math.floor(10000000 + Math.random() * 90000000)}`;
+      phoneIdText = "Meta Page ID validado";
     } else if (activeTab === 'messenger') {
-      phoneIdText = `ID: msg_${Math.floor(10000000 + Math.random() * 90000000)}`;
+      phoneIdText = "Meta Messenger Page ID validado";
     } else if (activeTab === 'instagram') {
-      phoneIdText = `ID: ig_${Math.floor(10000000 + Math.random() * 90000000)}`;
+      phoneIdText = "Instagram Messaging API validado";
     } else {
-      phoneIdText = `ID: tt_${Math.floor(10000000 + Math.random() * 90000000)}`;
+      phoneIdText = "TikTok Lead Generation validado";
     }
 
     const added = {
@@ -558,7 +599,9 @@ export function WhatsAppAccounts() {
           ? baileysSessionId.trim() || "default"
           : activeTab === 'whatsapp_meta'
             ? "meta-whatsapp-cloud"
-            : undefined,
+            : requiresRealProviderValidation(activeTab)
+              ? `${activeTab}-${validatedConnection?.mode || "validated"}`
+              : undefined,
       companyName: newAccountCompanyName.trim() || DEFAULT_COMPANY_NAME,
       agentPersonalName: newAgentPersonalName.trim() || undefined,
     };
