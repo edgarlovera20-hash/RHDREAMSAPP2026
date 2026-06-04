@@ -195,6 +195,15 @@ const waitForConnectedSession = async (session: BaileysSession, timeoutMs = 1200
   }
 };
 
+const waitForLinkingState = async (session: BaileysSession, timeoutMs = 15000) => {
+  const startedAt = Date.now();
+  while (Date.now() - startedAt < timeoutMs) {
+    if (session.state === "qr" && session.qrDataUrl) return;
+    if (session.state === "connected" || session.state === "logged_out" || session.state === "error") return;
+    await new Promise((resolve) => setTimeout(resolve, 300));
+  }
+};
+
 const getTimeGreeting = (date = new Date()) => {
   const hour = date.getHours();
   if (hour >= 6 && hour <= 11) return "Hola, buenos dias.";
@@ -311,47 +320,54 @@ export async function startBaileysSession(options: StartOptions = {}) {
     if (qr) {
       try {
         const now = Date.now();
-        session.qr = qr;
-        
-        // Mejorado: Manejo robusto de generación de QR con reintentos
         let qrDataUrl: string | null = null;
         let retries = 3;
-        
+
         while (retries > 0 && !qrDataUrl) {
           try {
-            qrDataUrl = await QRCode.toDataURL(qr, { margin: 1, width: 320 });
-            break;
+            qrDataUrl = await QRCode.toDataURL(qr, {
+              errorCorrectionLevel: "M",
+              margin: 2,
+              scale: 8,
+              width: 360,
+              color: {
+                dark: "#000000",
+                light: "#ffffff",
+              },
+            });
           } catch (qrError) {
-            retries--;
+            retries -= 1;
             if (retries > 0) {
-              logger.warn("QR generation failed, retrying", { sessionId: session.id, retriesLeft: retries });
+              logger.warn("Baileys QR generation failed, retrying", { sessionId: session.id, retriesLeft: retries });
               await new Promise((resolve) => setTimeout(resolve, 500));
             } else {
-              logger.error("QR generation failed after retries", { sessionId: session.id, qrError });
-              session.lastError = "No se pudo generar el codigo QR. Intenta de nuevo.";
+              logger.error("Baileys QR generation failed after retries", { sessionId: session.id, qrError });
+              throw qrError;
             }
           }
         }
-        
-        if (qrDataUrl) {
-          session.qrDataUrl = qrDataUrl;
-          session.qrCreatedAt = now;
-          session.qrExpiresAt = now + QR_TTL_MS;
-          session.state = "qr";
-          session.updatedAt = now;
-          logger.info("Baileys QR generated successfully", { sessionId: session.id, expiresAt: session.qrExpiresAt });
 
-          const expireTimer = setTimeout(() => {
-            const activeSession = sessions.get(session.id);
-            if (activeSession !== session || session.state !== "qr" || session.qr !== qr) return;
-            logger.info("Baileys QR expired, triggering refresh", { sessionId: session.id });
-            refreshSessionLifecycle(session);
-          }, QR_TTL_MS + 1000);
-          (expireTimer as any).unref?.();
-        }
+        session.qr = qr;
+        session.qrDataUrl = qrDataUrl;
+        session.qrCreatedAt = now;
+        session.qrExpiresAt = now + QR_TTL_MS;
+        session.state = "qr";
+        session.lastError = null;
+        session.updatedAt = now;
+        logger.info("Baileys QR generated successfully", { sessionId: session.id, expiresAt: session.qrExpiresAt });
+
+        const expireTimer = setTimeout(() => {
+          const activeSession = sessions.get(session.id);
+          if (activeSession !== session || session.state !== "qr" || session.qr !== qr) return;
+          logger.info("Baileys QR expired, triggering refresh", { sessionId: session.id });
+          refreshSessionLifecycle(session);
+        }, QR_TTL_MS + 1000);
+        (expireTimer as any).unref?.();
       } catch (error) {
         logger.error("Baileys connection.update QR handling failed", { sessionId: session.id, error });
         session.lastError = "Error procesando QR de WhatsApp.";
+        session.state = "error";
+        session.updatedAt = Date.now();
       }
     }
 
@@ -532,6 +548,8 @@ Reglas:
       }
     }
   });
+
+  await waitForLinkingState(session);
 
   return publicSession(session);
 }

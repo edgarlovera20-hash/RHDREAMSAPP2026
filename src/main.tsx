@@ -10,8 +10,10 @@ const registerPushWhenIdle = () => {
   });
 };
 
-if ('requestIdleCallback' in window) {
-  window.requestIdleCallback(registerPushWhenIdle, { timeout: 3500 });
+const requestIdleCallback = window.requestIdleCallback;
+
+if (typeof requestIdleCallback === "function") {
+  requestIdleCallback(registerPushWhenIdle, { timeout: 3500 });
 } else {
   window.setTimeout(registerPushWhenIdle, 2500);
 }

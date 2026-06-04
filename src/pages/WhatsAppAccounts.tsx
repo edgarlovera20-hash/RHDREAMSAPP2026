@@ -622,7 +622,8 @@ export function WhatsAppAccounts() {
     if (!isModalOpen || modalStep !== 'qr' || activeTab !== 'whatsapp_personal' || baileysAuthExpired) return;
 
     const sessionId = baileysSessionId.trim() || "default";
-    const interval = window.setInterval(async () => {
+    let isMounted = true;
+    const refreshBaileysStatus = async () => {
       try {
         const response = await apiFetch(`/api/integrations/baileys/status/${encodeURIComponent(sessionId)}`);
         const payload = await readApiJson(response);
@@ -630,6 +631,7 @@ export function WhatsAppAccounts() {
           throw new Error(payload.error || "No se pudo leer el estado de Baileys.");
         }
 
+        if (!isMounted) return;
         setBaileysStatus(payload.data);
         if (!payload.data?.lastError) {
           setBaileysError("");
@@ -660,6 +662,7 @@ export function WhatsAppAccounts() {
             }),
           });
           const restartPayload = await readApiJson(restartResponse);
+          if (!isMounted) return;
           if (restartPayload?.data) {
             setBaileysStatus(restartPayload.data);
           }
@@ -681,9 +684,15 @@ export function WhatsAppAccounts() {
           )
         );
       }
-    }, 2500);
+    };
 
-    return () => window.clearInterval(interval);
+    refreshBaileysStatus();
+    const interval = window.setInterval(refreshBaileysStatus, 2500);
+
+    return () => {
+      isMounted = false;
+      window.clearInterval(interval);
+    };
   }, [activeTab, baileysAuthExpired, baileysSessionId, isModalOpen, modalStep, baileysStatus?.phone]);
 
   const confirmRemoveAccount = (account: any) => {
