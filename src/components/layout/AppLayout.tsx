@@ -15,7 +15,7 @@ function BrandLogoMark({ className }: { className?: string }) {
   return (
     <div
       className={cn(
-        "relative flex shrink-0 items-center justify-center overflow-visible bg-transparent drop-shadow-[0_0_16px_rgba(34,211,238,0.32)]",
+        "relative flex shrink-0 items-center justify-center overflow-visible bg-transparent",
         className
       )}
     >
