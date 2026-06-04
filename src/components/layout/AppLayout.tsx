@@ -93,7 +93,7 @@ export function AppLayout() {
   };
 
   return (
-    <div className="flex flex-col md:flex-row font-sans text-white" style={{ height: '100dvh', overflow: 'hidden', backgroundColor: '#000000' }}>
+    <div className="flex flex-col md:flex-row font-sans text-white" style={{ height: '100dvh', overflow: 'hidden', backgroundColor: 'var(--hd-color-bg)' }}>
       <NetworkBackground />
       <div className="pointer-events-none fixed inset-0 z-0 bg-[linear-gradient(90deg,rgba(0,0,0,0.78)_0%,rgba(0,0,0,0.46)_42%,rgba(0,0,0,0.76)_100%)]" />
       {/* Mobile nav header */}
