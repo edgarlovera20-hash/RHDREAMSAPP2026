@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { createContext, createElement, useContext, useState, useEffect, useCallback, useMemo, type ReactNode } from "react";
 import {
   collection,
   doc,
@@ -6,6 +6,9 @@ import {
   updateDoc,
   deleteDoc,
   onSnapshot,
+  query,
+  orderBy,
+  limit,
 } from "firebase/firestore";
 import { db, auth, OperationType } from "@/lib/firebase";
 import { apiFetch, readApiJson } from "@/lib/api";
@@ -21,6 +24,7 @@ import {
 } from "@/services/db";
 
 type CollectionUnsubscribe = () => void;
+type DbContextValue = ReturnType<typeof useDbStore>;
 
 const withCompanyId = <T extends Record<string, any>>(data: T): T & { companyId: string } => ({
   ...data,
@@ -37,7 +41,9 @@ const normalizeMessageChannel = (value?: string): Message["channel"] => {
   return "manual";
 };
 
-export function useDb() {
+const DbContext = createContext<DbContextValue | null>(null);
+
+function useDbStore() {
   const [candidates, setCandidates] = useState<Candidate[]>([]);
   const [jobs, setJobs] = useState<Job[]>([]);
   const [appointments, setAppointments] = useState<Appointment[]>([]);
@@ -148,7 +154,7 @@ export function useDb() {
           reportSubscriptionError("appointments", error);
         }),
 
-        onSnapshot(collection(db, "messages"), (snapshot) => {
+        onSnapshot(query(collection(db, "messages"), orderBy("createdAt", "desc"), limit(500)), (snapshot) => {
           const list: Message[] = [];
           snapshot.forEach(doc => {
             list.push({ id: doc.id, ...doc.data() } as Message);
@@ -169,7 +175,7 @@ export function useDb() {
           reportSubscriptionError("automations", error);
         }),
 
-        onSnapshot(collection(db, "notifications"), (snapshot) => {
+        onSnapshot(query(collection(db, "notifications"), orderBy("createdAt", "desc"), limit(100)), (snapshot) => {
           const list: Notification[] = [];
           snapshot.forEach(doc => {
             list.push({ id: doc.id, ...doc.data() } as Notification);
@@ -726,7 +732,7 @@ Modo autonomo:
     await deleteDoc(doc(db, "agents", id));
   };
 
-  return {
+  return useMemo(() => ({
     candidates,
     jobs,
     appointments,
@@ -756,5 +762,30 @@ Modo autonomo:
     approveAiMessage,
     rejectAiMessage,
     triggerAgentDialogue
-  };
+  }), [
+    candidates,
+    jobs,
+    appointments,
+    messages,
+    automations,
+    notifications,
+    agents,
+    loading,
+    runAutomationsForEvent,
+    triggerAgentDialogue,
+  ]);
+}
+
+export function DbProvider({ children }: { children: ReactNode }) {
+  const value = useDbStore();
+
+  return createElement(DbContext.Provider, { value }, children);
+}
+
+export function useDb() {
+  const context = useContext(DbContext);
+  if (!context) {
+    throw new Error("useDb must be used within a DbProvider");
+  }
+  return context;
 }

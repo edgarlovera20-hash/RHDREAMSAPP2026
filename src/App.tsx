@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-d
 import { AppLayout } from '@/components/layout/AppLayout';
 import { NotificationProvider } from '@/contexts/NotificationContext';
 import { AuthProvider, useAuth } from '@/contexts/AuthContext';
+import { DbProvider } from '@/hooks/useDb';
 import { getAppBasePath } from '@/lib/basePath';
 
 const Login = lazy(() => import("@/pages/Login").then((module) => ({ default: module.Login })));
@@ -37,29 +38,31 @@ function ProtectedLayout() {
 export default function App() {
   return (
     <AuthProvider>
-      <NotificationProvider>
-        <Router basename={getAppBasePath()}>
-          <Suspense fallback={<RouteFallback />}>
-            <Routes>
-              <Route path="/login" element={<Login />} />
-              <Route element={<ProtectedLayout />}>
-                <Route path="/" element={<Dashboard />} />
-                <Route path="/candidates" element={<Candidates />} />
-                <Route path="/jobs" element={<Jobs />} />
-                <Route path="/messages" element={<Messages />} />
-                <Route path="/agents" element={<Agents />} />
-                <Route path="/ai-workflows" element={<AIWorkflows />} />
-                <Route path="/welcome-followup" element={<WelcomeTracking />} />
-                <Route path="/whatsapp" element={<WhatsAppAccounts />} />
-                <Route path="/workspace" element={<WorkspaceHub />} />
-                <Route path="/reports" element={<Reports />} />
-                <Route path="/settings" element={<Settings />} />
-              </Route>
-              <Route path="*" element={<Navigate to="/" replace />} />
-            </Routes>
-          </Suspense>
-        </Router>
-      </NotificationProvider>
+      <DbProvider>
+        <NotificationProvider>
+          <Router basename={getAppBasePath()}>
+            <Suspense fallback={<RouteFallback />}>
+              <Routes>
+                <Route path="/login" element={<Login />} />
+                <Route element={<ProtectedLayout />}>
+                  <Route path="/" element={<Dashboard />} />
+                  <Route path="/candidates" element={<Candidates />} />
+                  <Route path="/jobs" element={<Jobs />} />
+                  <Route path="/messages" element={<Messages />} />
+                  <Route path="/agents" element={<Agents />} />
+                  <Route path="/ai-workflows" element={<AIWorkflows />} />
+                  <Route path="/welcome-followup" element={<WelcomeTracking />} />
+                  <Route path="/whatsapp" element={<WhatsAppAccounts />} />
+                  <Route path="/workspace" element={<WorkspaceHub />} />
+                  <Route path="/reports" element={<Reports />} />
+                  <Route path="/settings" element={<Settings />} />
+                </Route>
+                <Route path="*" element={<Navigate to="/" replace />} />
+              </Routes>
+            </Suspense>
+          </Router>
+        </NotificationProvider>
+      </DbProvider>
     </AuthProvider>
   );
 }
