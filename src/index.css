@@ -388,6 +388,8 @@ body {
   --electric-lime: #a3e635;
   --electric-amber: #fbbf24;
   --electric-mint: #34d399;
+  --electric-rose: #fb7185;
+  --electric-orange: #fb923c;
   --panel-gray: linear-gradient(135deg, rgba(8, 23, 45, 0.78), rgba(14, 18, 40, 0.72) 48%, rgba(20, 8, 38, 0.68));
   --panel-gray-solid: rgba(10, 24, 43, 0.82);
   --panel-gray-hover: linear-gradient(135deg, rgba(10, 42, 68, 0.84), rgba(17, 29, 62, 0.82) 52%, rgba(45, 20, 78, 0.74));
@@ -414,11 +416,13 @@ body {
   }
   
   .glass-panel {
+    --panel-accent: var(--electric-cyan);
+    --panel-accent-rgb: 34, 211, 238;
     position: relative;
     background: var(--panel-gray) !important;
     backdrop-filter: blur(24px) saturate(108%) contrast(104%);
     -webkit-backdrop-filter: blur(24px) saturate(108%) contrast(104%);
-    border: 1px solid var(--panel-border);
+    border: 1px solid color-mix(in srgb, var(--panel-accent) 34%, transparent);
     box-shadow: var(--surface-polish);
     isolation: isolate;
     overflow: hidden;
@@ -426,7 +430,61 @@ body {
   }
 
   .glass-panel svg.lucide {
-    filter: drop-shadow(0 0 8px color-mix(in srgb, currentColor 44%, transparent));
+    color: var(--panel-accent) !important;
+    filter: drop-shadow(0 0 10px color-mix(in srgb, var(--panel-accent) 48%, transparent));
+  }
+
+  .glass-panel:nth-of-type(7n + 1) {
+    --panel-accent: var(--electric-cyan);
+    --panel-accent-rgb: 34, 211, 238;
+  }
+
+  .glass-panel:nth-of-type(7n + 2) {
+    --panel-accent: var(--electric-blue);
+    --panel-accent-rgb: 56, 189, 248;
+  }
+
+  .glass-panel:nth-of-type(7n + 3) {
+    --panel-accent: var(--electric-mint);
+    --panel-accent-rgb: 52, 211, 153;
+  }
+
+  .glass-panel:nth-of-type(7n + 4) {
+    --panel-accent: var(--electric-violet);
+    --panel-accent-rgb: 167, 139, 250;
+  }
+
+  .glass-panel:nth-of-type(7n + 5) {
+    --panel-accent: var(--electric-pink);
+    --panel-accent-rgb: 244, 114, 182;
+  }
+
+  .glass-panel:nth-of-type(7n + 6) {
+    --panel-accent: var(--electric-amber);
+    --panel-accent-rgb: 251, 191, 36;
+  }
+
+  .glass-panel:nth-of-type(7n) {
+    --panel-accent: var(--electric-lime);
+    --panel-accent-rgb: 163, 230, 53;
+  }
+
+  .glass-panel :is([class*="bg-zinc-500/10"], [class*="bg-zinc-600/20"], [class*="bg-neutral"], [class*="bg-slate-800"]) {
+    background-color: rgba(var(--panel-accent-rgb), 0.12) !important;
+  }
+
+  .glass-panel :is([class*="border-zinc"], [class*="border-neutral"], [class*="border-slate-700"]) {
+    border-color: rgba(var(--panel-accent-rgb), 0.26) !important;
+  }
+
+  .glass-panel :is([class*="text-zinc"], [class*="text-neutral"]):not(input):not(textarea):not(select) {
+    color: color-mix(in srgb, var(--panel-accent) 82%, white) !important;
+  }
+
+  main svg.lucide:is([class*="text-zinc"], [class*="text-slate"], [class*="text-neutral"]),
+  aside svg.lucide:is([class*="text-zinc"], [class*="text-slate"], [class*="text-neutral"]) {
+    color: var(--electric-cyan) !important;
+    filter: drop-shadow(0 0 10px rgba(34, 211, 238, 0.42));
   }
 
   .glass-panel::before,
