@@ -135,6 +135,38 @@ const CHANNEL_ICON_IMAGES: Partial<Record<ChannelType, string>> = {
   tiktok: "/assets/integrations/tiktok.svg",
 };
 
+const META_INTEGRATION_MODULES: Array<{
+  id: ChannelType | "meta_webhook";
+  label: string;
+  requirement: string;
+}> = [
+  {
+    id: "whatsapp_meta",
+    label: "WhatsApp Cloud API",
+    requirement: "WHATSAPP_PHONE_NUMBER_ID",
+  },
+  {
+    id: "facebook",
+    label: "Facebook Leads / Ads",
+    requirement: "META_PAGE_ID / META_AD_ACCOUNT_ID",
+  },
+  {
+    id: "messenger",
+    label: "Messenger",
+    requirement: "META_PAGE_ACCESS_TOKEN",
+  },
+  {
+    id: "instagram",
+    label: "Instagram DM",
+    requirement: "INSTAGRAM_APP_ID",
+  },
+  {
+    id: "meta_webhook",
+    label: "Webhook Meta",
+    requirement: "/api/integrations/meta/webhook",
+  },
+];
+
 const normalizeAgentText = (agent: any) =>
   [agent?.id, agent?.name, agent?.role, agent?.description, ...(Array.isArray(agent?.channels) ? agent.channels : [])]
     .filter(Boolean)
@@ -368,9 +400,28 @@ export function WhatsAppAccounts() {
      acc.phone.includes(searchFilter))
   );
 
+  const connectedAccountTypes = new Set(accounts.filter((account) => account.status === "connected").map((account) => account.type));
+  const metaIntegrationStatus = META_INTEGRATION_MODULES.map((module) => {
+    const connected =
+      module.id === "meta_webhook"
+        ? Boolean(getWebhookUrl("whatsapp_meta"))
+        : connectedAccountTypes.has(module.id);
+
+    return {
+      ...module,
+      connected,
+    };
+  });
+  const metaConnectedCount = metaIntegrationStatus.filter((module) => module.connected).length;
+  const metaCoveragePct = Math.round((metaConnectedCount / META_INTEGRATION_MODULES.length) * 100);
+
   const providerForActiveTab = () => {
     if (activeTab === 'whatsapp_meta') return 'whatsapp_meta';
     if (activeTab === 'whatsapp_personal') return 'whatsapp_personal';
+    if (activeTab === 'facebook') return 'facebook';
+    if (activeTab === 'messenger') return 'messenger';
+    if (activeTab === 'instagram') return 'instagram';
+    if (activeTab === 'tiktok') return 'tiktok';
     return null;
   };
 
@@ -405,19 +456,11 @@ export function WhatsAppAccounts() {
       return;
     }
 
-    if (activeTab === 'facebook' || activeTab === 'messenger' || activeTab === 'instagram' || activeTab === 'tiktok') {
-      setConnectionTest({
-        ok: false,
-        message: `${getPlatformLabel(activeTab)} requiere credenciales oficiales del proveedor y permisos aprobados antes de activar la conexion real.`,
-      });
-      return;
-    }
-
     const provider = providerForActiveTab();
     if (!provider) {
       setConnectionTest({
         ok: false,
-        message: "Selecciona un canal compatible para probar la conexion.",
+        message: `${getPlatformLabel(activeTab)} requiere credenciales oficiales del proveedor y permisos aprobados antes de activar la conexion real.`,
       });
       return;
     }
@@ -1021,6 +1064,44 @@ export function WhatsAppAccounts() {
             {tab.name}
           </button>
         ))}
+      </div>
+
+      <div className="glass-panel rounded-2xl border border-emerald-400/15 bg-emerald-500/5 p-4">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <div>
+            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.18em] text-emerald-300">
+              <Shield className="h-4 w-4" />
+              Meta Suite
+            </div>
+            <h2 className="mt-2 text-lg font-bold text-white">Cobertura Meta {metaCoveragePct}%</h2>
+            <p className="mt-1 text-xs leading-5 text-slate-400">
+              {metaConnectedCount}/{META_INTEGRATION_MODULES.length} modulos listos para WhatsApp Cloud, Facebook, Messenger, Instagram y webhook oficial.
+            </p>
+          </div>
+          <div className="grid min-w-full grid-cols-1 gap-2 sm:grid-cols-2 lg:min-w-[620px] xl:grid-cols-5">
+            {metaIntegrationStatus.map((module) => (
+              <div
+                key={module.id}
+                className={cn(
+                  "rounded-xl border px-3 py-3",
+                  module.connected
+                    ? "border-emerald-400/25 bg-emerald-400/10"
+                    : "border-slate-700/70 bg-slate-950/45"
+                )}
+              >
+                <div className="flex items-center gap-2">
+                  {module.connected ? (
+                    <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-300" />
+                  ) : (
+                    <AlertCircle className="h-4 w-4 shrink-0 text-amber-300" />
+                  )}
+                  <p className="text-xs font-bold text-white">{module.label}</p>
+                </div>
+                <p className="mt-2 truncate font-mono text-[10px] text-slate-400">{module.requirement}</p>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
 
       {/* Search Filter */}
