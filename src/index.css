@@ -388,12 +388,12 @@ body {
   --electric-lime: #a3e635;
   --electric-amber: #fbbf24;
   --electric-mint: #34d399;
-  --panel-gray: rgba(7, 18, 33, 0.58);
-  --panel-gray-solid: rgba(10, 24, 43, 0.72);
-  --panel-gray-hover: rgba(12, 38, 60, 0.76);
-  --panel-border: rgba(34, 211, 238, 0.18);
-  --panel-highlight: rgba(125, 211, 252, 0.34);
-  --surface-polish: inset 0 1px 0 rgba(255,255,255,0.10), 0 18px 42px rgba(0,0,0,0.48), 0 0 34px rgba(34,211,238,0.08);
+  --panel-gray: linear-gradient(135deg, rgba(8, 23, 45, 0.78), rgba(14, 18, 40, 0.72) 48%, rgba(20, 8, 38, 0.68));
+  --panel-gray-solid: rgba(10, 24, 43, 0.82);
+  --panel-gray-hover: linear-gradient(135deg, rgba(10, 42, 68, 0.84), rgba(17, 29, 62, 0.82) 52%, rgba(45, 20, 78, 0.74));
+  --panel-border: rgba(56, 189, 248, 0.32);
+  --panel-highlight: rgba(125, 211, 252, 0.42);
+  --surface-polish: inset 0 1px 0 rgba(255,255,255,0.12), 0 18px 42px rgba(0,0,0,0.48), 0 0 34px rgba(34,211,238,0.12), 0 0 58px rgba(167,139,250,0.08);
 }
 
 #root {
@@ -423,6 +423,10 @@ body {
     isolation: isolate;
     overflow: hidden;
     transition: border-color 0.28s ease, box-shadow 0.28s ease, background 0.28s ease, transform 0.28s ease;
+  }
+
+  .glass-panel svg.lucide {
+    filter: drop-shadow(0 0 8px color-mix(in srgb, currentColor 44%, transparent));
   }
 
   .glass-panel::before,

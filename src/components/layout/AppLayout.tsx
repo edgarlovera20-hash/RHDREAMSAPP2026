@@ -53,7 +53,7 @@ const NAV_ITEMS = [
   { name: "Canales de Chat", path: "/whatsapp", icon: Smartphone, glassIcon: "text-cyan-300" },
   { name: "Google Workspace", path: "/workspace", icon: Cloud, glassIcon: "text-emerald-300" },
   { name: "Reportes", path: "/reports", icon: PieChart, glassIcon: "text-amber-300" },
-  { name: "Configuración", path: "/settings", icon: Settings, glassIcon: "text-slate-300" },
+  { name: "Configuración", path: "/settings", icon: Settings, glassIcon: "text-rose-300" },
 ];
 
 export function AppLayout() {
@@ -128,13 +128,13 @@ export function AppLayout() {
         className={cn(
           "glass-panel flex-shrink-0 flex-col relative z-50 md:z-50",
           "fixed inset-y-0 left-0 md:static md:flex",
-          "transition-all duration-500 ease-out md:m-4 md:rounded-2xl border-r-0 md:border-r border-slate-700/50",
+          "transition-all duration-500 ease-out md:m-4 md:rounded-2xl border-r-0 md:border-r border-cyan-300/30 shadow-[0_0_36px_rgba(34,211,238,0.12)]",
           sidebarOpen ? "translate-x-0 w-72 h-[100dvh] md:h-auto" : "-translate-x-full md:translate-x-0",
           !sidebarOpen && (isCollapsed ? "md:w-20" : "md:w-72")
         )}
       >
         <div className={cn("hidden md:flex flex-col justify-center border-b border-white/5 shrink-0 relative overflow-hidden transition-all duration-300", isCollapsed ? "h-20 px-2" : "h-36 px-6")}>
-          <div className="absolute top-0 right-0 p-16 bg-white/8 blur-2xl rounded-full opacity-50 pointer-events-none"></div>
+          <div className="absolute top-0 right-0 p-16 bg-cyan-400/18 blur-2xl rounded-full opacity-70 pointer-events-none"></div>
           
           <button 
             onClick={() => setIsCollapsed(!isCollapsed)} 
@@ -172,14 +172,14 @@ export function AppLayout() {
                     "flex items-center rounded-lg font-medium transition-all duration-300 group relative overflow-hidden",
                     isCollapsed ? "justify-center py-3 px-0 w-10 h-10 mx-auto" : "gap-3 px-4 py-3",
                     isActive 
-                      ? "neon-selected text-cyan-50 bg-cyan-500/[0.10] border border-cyan-300/45 shadow-[0_0_18px_rgba(34,211,238,0.20),inset_0_0_14px_rgba(34,211,238,0.08),inset_0_1px_0_rgba(255,255,255,0.16)]" 
-                      : "text-slate-400 hover:text-cyan-50 border border-transparent hover:bg-cyan-500/[0.06] hover:border-cyan-300/25 hover:shadow-[0_0_14px_rgba(34,211,238,0.12)]"
+                      ? "neon-selected text-cyan-50 bg-gradient-to-br from-cyan-500/18 via-blue-500/10 to-violet-500/16 border border-cyan-300/55 shadow-[0_0_22px_rgba(34,211,238,0.24),inset_0_0_16px_rgba(34,211,238,0.10),inset_0_1px_0_rgba(255,255,255,0.18)]" 
+                      : "text-slate-300 hover:text-cyan-50 border border-transparent bg-white/[0.015] hover:bg-gradient-to-br hover:from-cyan-500/[0.10] hover:to-violet-500/[0.08] hover:border-cyan-300/30 hover:shadow-[0_0_16px_rgba(34,211,238,0.14)]"
                   )}
                 >
                   {isActive && (
                     <span className="pointer-events-none absolute inset-0 rounded-lg bg-[radial-gradient(circle_at_20%_50%,rgba(34,211,238,0.20),transparent_42%)] opacity-80" />
                   )}
-                  <Icon className={cn("w-5 h-5 relative z-10 transition-all shrink-0", item.glassIcon, isActive ? "opacity-100 scale-105 text-cyan-100 drop-shadow-[0_0_10px_rgba(34,211,238,0.75)]" : "opacity-75 group-hover:opacity-100 group-hover:text-cyan-100 group-hover:drop-shadow-[0_0_8px_rgba(34,211,238,0.35)]")} />
+                  <Icon className={cn("w-5 h-5 relative z-10 transition-all shrink-0", item.glassIcon, isActive ? "opacity-100 scale-105 drop-shadow-[0_0_12px_rgba(34,211,238,0.85)]" : "opacity-95 group-hover:opacity-100 group-hover:drop-shadow-[0_0_10px_rgba(34,211,238,0.42)]")} />
                   {!isCollapsed && <span className={cn("relative z-10 tracking-wide text-[13px] whitespace-nowrap", isActive && "drop-shadow-[0_0_8px_rgba(34,211,238,0.22)]")}>{item.name}</span>}
                   {isActive && !isCollapsed && <div className="absolute right-3 w-1.5 h-1.5 rounded-full bg-cyan-300 shadow-[0_0_10px_rgba(34,211,238,0.85),0_0_18px_rgba(14,165,233,0.45)] animate-pulse relative z-10 shrink-0" />}
                 </Link>
@@ -189,8 +189,8 @@ export function AppLayout() {
           
           {!isCollapsed && (
             <div className="mt-8 px-4">
-               <div className="p-4 bg-slate-900/50 rounded-xl border border-white/5 relative overflow-hidden group">
-                 <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-white/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+               <div className="p-4 bg-gradient-to-br from-cyan-500/10 via-blue-500/8 to-violet-500/10 rounded-xl border border-cyan-300/20 relative overflow-hidden group">
+                 <div className="absolute inset-0 bg-gradient-to-br from-cyan-400/14 to-violet-400/12 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                  <p className="text-[10px] uppercase font-bold text-slate-300 mb-2 flex items-center gap-2 tracking-widest"><Zap className="w-3 h-3 text-amber-300" /> AI Insights</p>
                  <p className="text-xs text-slate-400 leading-relaxed font-light">Conecta tus integraciones para activar insights con datos reales.</p>
                </div>

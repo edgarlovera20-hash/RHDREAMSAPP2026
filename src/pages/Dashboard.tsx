@@ -6,7 +6,7 @@ import { useNotifications } from "@/contexts/NotificationContext";
 import { useDb } from "@/hooks/useDb";
 import { cn } from "@/lib/utils";
 
-const COLORS = ['#737373', '#858585', '#6b6b6b', '#9ca3af', '#525252'];
+const COLORS = ['#22d3ee', '#38bdf8', '#a78bfa', '#f472b6', '#34d399', '#fbbf24'];
 
 const getAlertColors = (type: string) => {
   switch (type) {
@@ -241,34 +241,35 @@ export function Dashboard() {
         </div>
       )}
 
-      <div className="glass-panel rounded-2xl border border-white/15 bg-neutral-900/80 px-5 py-5 md:px-7 md:py-6 relative overflow-hidden">
-        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/40 to-transparent" />
-        <div className="absolute -right-20 -top-24 h-56 w-56 rounded-full bg-white/10 blur-3xl" />
+      <div className="glass-panel rounded-2xl border border-cyan-300/30 bg-gradient-to-br from-cyan-950/70 via-slate-950/80 to-violet-950/45 px-5 py-5 md:px-7 md:py-6 relative overflow-hidden">
+        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-cyan-300/70 to-transparent" />
+        <div className="absolute -right-20 -top-24 h-56 w-56 rounded-full bg-cyan-400/18 blur-3xl" />
+        <div className="absolute -left-20 -bottom-24 h-56 w-56 rounded-full bg-violet-500/14 blur-3xl" />
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-5">
           <div className="min-w-0">
             <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.24em] text-white">
-              <Cpu className="w-3.5 h-3.5 text-zinc-300" />
+              <Cpu className="w-3.5 h-3.5 text-cyan-300" />
               Centro de mando
             </div>
             <h1 className="text-3xl md:text-[42px] font-bold tracking-tight text-white flex flex-wrap items-center gap-x-3 gap-y-1 leading-tight">
                <span>Heavenly Dreams</span>
-               <span className="text-zinc-300">Metrics</span>
+               <span className="bg-gradient-to-r from-cyan-200 via-sky-300 to-violet-300 bg-clip-text text-transparent">Metrics</span>
             </h1>
             <p className="text-slate-200 mt-2 font-medium tracking-wide text-sm uppercase">Autonomous matching and conversion analysis</p>
           </div>
-          <div className="flex items-center gap-3 rounded-full border border-white/20 bg-neutral-800/80 px-5 py-3 text-xs font-bold uppercase tracking-[0.22em] text-white shadow-[0_0_28px_rgba(255,255,255,0.08)]">
-            <div className="w-2.5 h-2.5 rounded-full bg-zinc-300 shadow-[0_0_12px_rgba(212,212,212,0.55)] animate-pulse" />
+          <div className="flex items-center gap-3 rounded-full border border-emerald-300/35 bg-emerald-500/12 px-5 py-3 text-xs font-bold uppercase tracking-[0.22em] text-emerald-50 shadow-[0_0_28px_rgba(52,211,153,0.18)]">
+            <div className="w-2.5 h-2.5 rounded-full bg-emerald-300 shadow-[0_0_16px_rgba(52,211,153,0.85)] animate-pulse" />
             System Active
           </div>
         </div>
       </div>
 
       {/* Dynamic Date Filter Toolbar */}
-      <div className="flex flex-col 2xl:flex-row items-stretch 2xl:items-center justify-between gap-4 p-4 glass-panel rounded-2xl border border-white/15 bg-neutral-900/80 shadow-lg relative overflow-visible group">
-        <div className="absolute inset-y-4 left-0 w-1 rounded-r-full bg-gradient-to-b from-zinc-300 to-zinc-600"></div>
+      <div className="flex flex-col 2xl:flex-row items-stretch 2xl:items-center justify-between gap-4 p-4 glass-panel rounded-2xl border border-cyan-300/25 bg-gradient-to-r from-cyan-950/50 via-slate-950/70 to-blue-950/45 shadow-lg relative overflow-visible group">
+        <div className="absolute inset-y-4 left-0 w-1 rounded-r-full bg-gradient-to-b from-amber-300 via-cyan-300 to-violet-400"></div>
         <div className="flex items-center gap-4 relative z-10 w-full min-w-0 2xl:max-w-[460px]">
-          <div className="grid h-11 w-11 shrink-0 place-items-center border border-white/20 bg-neutral-800 rounded-xl shadow-[0_0_18px_rgba(255,255,255,0.10)]">
-            <Calendar className="w-5 h-5 text-zinc-300" />
+          <div className="grid h-11 w-11 shrink-0 place-items-center border border-amber-300/35 bg-amber-400/12 rounded-xl shadow-[0_0_18px_rgba(251,191,36,0.18)]">
+            <Calendar className="w-5 h-5 text-amber-300" />
           </div>
           <div className="min-w-0">
             <h4 className="text-sm md:text-base font-semibold tracking-wide text-slate-100 leading-tight">
@@ -306,8 +307,8 @@ export function Dashboard() {
                 className={cn(
                   "px-3 py-2 rounded-lg text-xs font-semibold tracking-wide transition-all border border-transparent whitespace-nowrap",
                   selectedPreset === preset.id
-                    ? "bg-white/15 text-white shadow-[0_0_16px_rgba(255,255,255,0.16)] border-white/35"
-                    : "text-slate-400 hover:text-white hover:bg-slate-800/40"
+                    ? "bg-cyan-400/18 text-cyan-50 shadow-[0_0_18px_rgba(34,211,238,0.22)] border-cyan-300/45"
+                    : "text-slate-300 hover:text-white hover:bg-cyan-400/8 hover:border-cyan-300/20"
                 )}
               >
                 {preset.label}
@@ -349,22 +350,22 @@ export function Dashboard() {
         ].map((stat, i) => {
           const Icon = stat.icon;
           const styles = {
-            tone1: { text: "text-zinc-200", bgLine: "via-zinc-300/40", shadow: "group-hover:drop-shadow-[0_0_12px_rgba(212,212,212,0.45)]", dot: "bg-zinc-300", hoverBorder: "hover:border-white/40" },
-            tone2: { text: "text-zinc-300", bgLine: "via-zinc-400/40", shadow: "group-hover:drop-shadow-[0_0_12px_rgba(190,190,190,0.45)]", dot: "bg-zinc-400", hoverBorder: "hover:border-white/40" },
-            tone3: { text: "text-zinc-400", bgLine: "via-zinc-500/40", shadow: "group-hover:drop-shadow-[0_0_12px_rgba(163,163,163,0.45)]", dot: "bg-zinc-500", hoverBorder: "hover:border-white/40" },
-            tone4: { text: "text-zinc-500", bgLine: "via-zinc-600/40", shadow: "group-hover:drop-shadow-[0_0_12px_rgba(115,115,115,0.45)]", dot: "bg-zinc-600", hoverBorder: "hover:border-white/40" },
+            tone1: { text: "text-cyan-300", bgLine: "via-cyan-300/70", iconBg: "bg-cyan-400/12 border-cyan-300/30", panelBg: "from-cyan-950/60 to-slate-950/80", shadow: "drop-shadow-[0_0_12px_rgba(34,211,238,0.55)]", dot: "bg-cyan-300", hoverBorder: "hover:border-cyan-300/55" },
+            tone2: { text: "text-emerald-300", bgLine: "via-emerald-300/70", iconBg: "bg-emerald-400/12 border-emerald-300/30", panelBg: "from-emerald-950/55 to-slate-950/80", shadow: "drop-shadow-[0_0_12px_rgba(52,211,153,0.55)]", dot: "bg-emerald-300", hoverBorder: "hover:border-emerald-300/55" },
+            tone3: { text: "text-violet-300", bgLine: "via-violet-300/70", iconBg: "bg-violet-400/12 border-violet-300/30", panelBg: "from-violet-950/55 to-slate-950/80", shadow: "drop-shadow-[0_0_12px_rgba(167,139,250,0.55)]", dot: "bg-violet-300", hoverBorder: "hover:border-violet-300/55" },
+            tone4: { text: "text-amber-300", bgLine: "via-amber-300/70", iconBg: "bg-amber-400/12 border-amber-300/30", panelBg: "from-amber-950/45 to-slate-950/80", shadow: "drop-shadow-[0_0_12px_rgba(251,191,36,0.52)]", dot: "bg-amber-300", hoverBorder: "hover:border-amber-300/55" },
           }[stat.color];
 
           return (
-            <div key={i} className={`glass-panel p-5 rounded-2xl flex flex-col relative overflow-hidden group border-white/15 bg-neutral-900/80 ${styles.hoverBorder} transition-all duration-300`}>
+            <div key={i} className={`glass-panel p-5 rounded-2xl flex flex-col relative overflow-hidden group border-white/15 bg-gradient-to-br ${styles.panelBg} ${styles.hoverBorder} transition-all duration-300`}>
               <div className={`absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent ${styles.bgLine} to-transparent opacity-80 transition-opacity duration-300`}></div>
               <div className="absolute inset-0 bg-gradient-to-br from-white/[0.04] to-transparent pointer-events-none"></div>
               <div className="absolute -right-8 -bottom-10 h-28 w-28 rounded-full bg-zinc-400/5 blur-2xl group-hover:bg-zinc-400/10 transition-colors pointer-events-none"></div>
 
               <div className="flex items-center justify-between pb-4 relative z-10">
                 <p className="text-slate-200 text-[10px] font-bold tracking-[0.18em] uppercase">{stat.title}</p>
-                <div className="grid h-9 w-9 place-items-center rounded-xl border border-white/10 bg-white/[0.03]">
-                  <Icon className={`w-[18px] h-[18px] opacity-85 group-hover:opacity-100 transition-all ${styles.text} ${styles.shadow}`} />
+                <div className={`grid h-9 w-9 place-items-center rounded-xl border ${styles.iconBg}`}>
+                  <Icon className={`w-[18px] h-[18px] opacity-100 transition-all ${styles.text} ${styles.shadow}`} />
                 </div>
               </div>
 
@@ -380,10 +381,10 @@ export function Dashboard() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mt-1">
-        <div className="glass-panel p-6 rounded-2xl flex flex-col relative overflow-hidden group border-white/15 bg-neutral-900/80 hover:border-white/35 transition-all duration-300">
-          <div className="absolute top-0 right-0 p-32 bg-white/8 blur-3xl rounded-full opacity-55 group-hover:opacity-85 transition-opacity duration-700 pointer-events-none"></div>
-          <h2 className="text-[11px] font-bold text-slate-300 mb-6 uppercase tracking-[0.2em] flex items-center gap-3">
-            <span className="w-2 h-2 bg-zinc-300 rounded-sm shadow-[0_0_8px_rgba(212,212,212,0.55)]"></span> Embudo y Tasa de Conversión (%)
+        <div className="glass-panel p-6 rounded-2xl flex flex-col relative overflow-hidden group border-cyan-300/20 bg-gradient-to-br from-cyan-950/45 to-slate-950/80 hover:border-cyan-300/45 transition-all duration-300">
+          <div className="absolute top-0 right-0 p-32 bg-cyan-400/12 blur-3xl rounded-full opacity-70 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"></div>
+          <h2 className="text-[11px] font-bold text-cyan-100 mb-6 uppercase tracking-[0.2em] flex items-center gap-3">
+            <span className="w-2 h-2 bg-cyan-300 rounded-sm shadow-[0_0_10px_rgba(34,211,238,0.75)]"></span> Embudo y Tasa de Conversión (%)
           </h2>
           <div className="h-[320px] w-full relative z-10">
             <ResponsiveContainer width="100%" height="100%">
@@ -398,8 +399,8 @@ export function Dashboard() {
                 <Bar dataKey="count" fill="url(#neutralGradient)" radius={[0, 4, 4, 0]} barSize={24} name="Candidatos">
                   <defs>
                     <linearGradient id="neutralGradient" x1="0" y1="0" x2="1" y2="0">
-                      <stop offset="0%" stopColor="#737373" stopOpacity={0.72}/>
-                      <stop offset="100%" stopColor="#a3a3a3" stopOpacity={0.95}/>
+                      <stop offset="0%" stopColor="#22d3ee" stopOpacity={0.72}/>
+                      <stop offset="100%" stopColor="#a78bfa" stopOpacity={0.95}/>
                     </linearGradient>
                   </defs>
                 </Bar>
@@ -409,10 +410,10 @@ export function Dashboard() {
           </div>
         </div>
 
-        <div className="glass-panel p-6 rounded-2xl flex flex-col relative overflow-hidden group border-white/15 bg-neutral-900/80 hover:border-white/35 transition-all duration-300">
-          <div className="absolute top-0 right-0 p-32 bg-white/8 blur-3xl rounded-full opacity-55 group-hover:opacity-85 transition-opacity duration-700 pointer-events-none"></div>
-          <h2 className="text-[11px] font-bold text-slate-300 mb-6 uppercase tracking-[0.2em] flex items-center gap-3">
-            <span className="w-2 h-2 bg-zinc-400 rounded-sm shadow-[0_0_8px_rgba(163,163,163,0.55)]"></span> Candidatos por Oferta Activa
+        <div className="glass-panel p-6 rounded-2xl flex flex-col relative overflow-hidden group border-violet-300/20 bg-gradient-to-br from-violet-950/45 to-slate-950/80 hover:border-violet-300/45 transition-all duration-300">
+          <div className="absolute top-0 right-0 p-32 bg-violet-400/12 blur-3xl rounded-full opacity-70 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"></div>
+          <h2 className="text-[11px] font-bold text-violet-100 mb-6 uppercase tracking-[0.2em] flex items-center gap-3">
+            <span className="w-2 h-2 bg-violet-300 rounded-sm shadow-[0_0_10px_rgba(167,139,250,0.75)]"></span> Candidatos por Oferta Activa
           </h2>
           <div className="h-[320px] w-full relative z-10">
             <ResponsiveContainer width="100%" height="100%">
@@ -442,18 +443,18 @@ export function Dashboard() {
           </div>
         </div>
 
-        <div className="glass-panel p-6 rounded-2xl flex flex-col lg:col-span-2 relative overflow-hidden group border-white/15 bg-neutral-900/80 hover:border-white/35 transition-all duration-300">
-          <div className="absolute top-0 right-0 p-32 bg-white/8 blur-3xl rounded-full opacity-55 group-hover:opacity-85 transition-opacity duration-700 pointer-events-none"></div>
-          <h2 className="text-[11px] font-bold text-slate-300 mb-6 uppercase tracking-[0.2em] flex items-center gap-3">
-            <span className="w-2 h-2 bg-zinc-500 rounded-sm shadow-[0_0_8px_rgba(115,115,115,0.55)]"></span> Rendimiento de Contratación (y Tiempo al Contratar)
+        <div className="glass-panel p-6 rounded-2xl flex flex-col lg:col-span-2 relative overflow-hidden group border-emerald-300/20 bg-gradient-to-br from-emerald-950/38 to-slate-950/80 hover:border-emerald-300/45 transition-all duration-300">
+          <div className="absolute top-0 right-0 p-32 bg-emerald-400/12 blur-3xl rounded-full opacity-70 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"></div>
+          <h2 className="text-[11px] font-bold text-emerald-100 mb-6 uppercase tracking-[0.2em] flex items-center gap-3">
+            <span className="w-2 h-2 bg-emerald-300 rounded-sm shadow-[0_0_10px_rgba(52,211,153,0.72)]"></span> Rendimiento de Contratación (y Tiempo al Contratar)
           </h2>
           <div className="h-[340px] w-full relative z-10">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={computedPerformanceData} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
                 <defs>
                   <linearGradient id="colorHires" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#737373" stopOpacity={0.32}/>
-                    <stop offset="95%" stopColor="#737373" stopOpacity={0}/>
+                    <stop offset="5%" stopColor="#34d399" stopOpacity={0.34}/>
+                    <stop offset="95%" stopColor="#22d3ee" stopOpacity={0}/>
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.03)" />
