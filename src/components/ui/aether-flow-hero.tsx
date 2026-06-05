@@ -179,8 +179,9 @@ export default function AetherFlowHero({
   return (
     <div
       className={cn(
-        "relative flex h-screen w-full flex-col items-center justify-center overflow-hidden bg-black",
-        mode === "background" && "pointer-events-none absolute inset-0 h-full",
+        mode === "background"
+          ? "pointer-events-none absolute inset-0 h-full w-full overflow-hidden bg-black"
+          : "relative flex h-screen w-full flex-col items-center justify-center overflow-hidden bg-black",
         className,
       )}
       aria-hidden={mode === "background"}
