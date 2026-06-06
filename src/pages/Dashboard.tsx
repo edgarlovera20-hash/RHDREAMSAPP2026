@@ -1,28 +1,65 @@
 import { useState, useEffect } from "react";
-import { Users, UserPlus, Briefcase, Clock, Activity, Cpu, AlertCircle, X, CheckCircle2, AlertTriangle, Info, Calendar, Filter } from "lucide-react";
-import { Area, AreaChart, Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip as RechartsTooltip, XAxis, YAxis, PieChart, Pie, Cell, Line, ComposedChart } from "recharts";
+import {
+  Users, UserPlus, Briefcase, Clock, Activity, Cpu,
+  AlertCircle, X, CheckCircle2, AlertTriangle, Info,
+  Calendar, TrendingUp, TrendingDown, Minus, ChevronRight,
+  BarChart2, Target, Award, ArrowUpRight,
+} from "lucide-react";
+import {
+  Area, AreaChart, Bar, BarChart, CartesianGrid,
+  ResponsiveContainer, Tooltip as RechartsTooltip, XAxis, YAxis,
+  PieChart, Pie, Cell, Line, ComposedChart,
+} from "recharts";
 import { DigitalOceanBadge } from "@/components/DigitalOceanBadge";
 import { useNotifications } from "@/contexts/NotificationContext";
 import { useDb } from "@/hooks/useDb";
 import { cn } from "@/lib/utils";
 import { SkeletonCard } from "@/components/ui/SkeletonLoader";
 
-const COLORS = ['#22d3ee', '#38bdf8', '#a78bfa', '#f472b6', '#34d399', '#fbbf24'];
+const COLORS = ["#22d3ee", "#38bdf8", "#a78bfa", "#f472b6", "#34d399", "#fbbf24"];
 
 const getAlertColors = (type: string) => {
   switch (type) {
-    case 'success': return { bg: 'bg-zinc-500/10', border: 'border-zinc-500/30', text: 'text-zinc-500', icon: CheckCircle2, gradient: 'from-zinc-500/5' };
-    case 'warning': return { bg: 'bg-zinc-500/10', border: 'border-zinc-500/30', text: 'text-zinc-500', icon: AlertTriangle, gradient: 'from-zinc-500/5' };
-    case 'error': return { bg: 'bg-zinc-500/10', border: 'border-zinc-500/30', text: 'text-zinc-500', icon: AlertCircle, gradient: 'from-zinc-500/5' };
-    case 'info':
-    default: return { bg: 'bg-zinc-500/10', border: 'border-zinc-500/30', text: 'text-zinc-500', icon: Info, gradient: 'from-zinc-500/5' };
+    case "success":
+      return { bg: "bg-emerald-500/10", border: "border-emerald-500/35", text: "text-emerald-400", icon: CheckCircle2, glow: "shadow-[0_0_20px_rgba(52,211,153,0.12)]" };
+    case "warning":
+      return { bg: "bg-amber-500/10", border: "border-amber-500/35", text: "text-amber-400", icon: AlertTriangle, glow: "shadow-[0_0_20px_rgba(251,191,36,0.12)]" };
+    case "error":
+      return { bg: "bg-red-500/10", border: "border-red-500/35", text: "text-red-400", icon: AlertCircle, glow: "shadow-[0_0_20px_rgba(239,68,68,0.12)]" };
+    case "info":
+    default:
+      return { bg: "bg-cyan-500/10", border: "border-cyan-500/35", text: "text-cyan-400", icon: Info, glow: "shadow-[0_0_20px_rgba(34,211,238,0.12)]" };
   }
 };
+
+const CHART_TOOLTIP_STYLE = {
+  borderRadius: "14px",
+  border: "1px solid rgba(255,255,255,0.08)",
+  backgroundColor: "rgba(10,12,18,0.95)",
+  color: "#e5e5e5",
+  boxShadow: "0 16px 48px rgba(0,0,0,0.7), 0 0 0 1px rgba(34,211,238,0.08)",
+  backdropFilter: "blur(20px)",
+  fontFamily: "Inter, sans-serif",
+  fontSize: "12px",
+  padding: "10px 14px",
+};
+
+const EmptyChart = ({ label }: { label: string }) => (
+  <div className="flex flex-col items-center justify-center h-full gap-3 text-center">
+    <div className="w-12 h-12 rounded-2xl border border-white/8 bg-white/3 flex items-center justify-center">
+      <BarChart2 className="w-5 h-5 text-slate-600" />
+    </div>
+    <div>
+      <p className="text-sm font-semibold text-slate-500">{label}</p>
+      <p className="text-xs text-slate-700 mt-1">Los datos aparecerán cuando haya candidatos registrados</p>
+    </div>
+  </div>
+);
 
 export function Dashboard() {
   const { candidates, jobs, appointments } = useDb();
   const { notifications, markAsRead } = useNotifications();
-  const unreadAlerts = notifications.filter(n => !n.read).slice(0, 3); // Módulos de alerta en el dashboard
+  const unreadAlerts = notifications.filter((n) => !n.read).slice(0, 3);
 
   const [loading, setLoading] = useState(true);
 
@@ -31,234 +68,141 @@ export function Dashboard() {
     return () => clearTimeout(timer);
   }, []);
 
-  // Interactive filter states
   const [selectedPreset, setSelectedPreset] = useState<"7d" | "30d" | "90d" | "all" | "custom">("30d");
   const [startDateStr, setStartDateStr] = useState<string>(() => {
     const d = new Date();
     d.setDate(d.getDate() - 30);
     return d.toISOString().split("T")[0];
   });
-  const [endDateStr, setEndDateStr] = useState<string>(() => {
-    return new Date().toISOString().split("T")[0];
-  });
+  const [endDateStr, setEndDateStr] = useState<string>(() => new Date().toISOString().split("T")[0]);
 
   const uniqueCandidatesMap = new Map();
-  candidates.forEach(c => {
-    uniqueCandidatesMap.set(c.id, c);
-  });
+  candidates.forEach((c) => uniqueCandidatesMap.set(c.id, c));
   const dedupedCandidates = Array.from(uniqueCandidatesMap.values());
 
   const start = new Date(startDateStr + "T00:00:00");
   const end = new Date(endDateStr + "T23:59:59");
 
-  // Dynamic filter logic
-  const filteredCandidates = dedupedCandidates.filter(c => {
-    const createTime = typeof c.createdAt === 'number' ? c.createdAt : Number(c.createdAt || Date.now());
-    return createTime >= start.getTime() && createTime <= end.getTime();
+  const filteredCandidates = dedupedCandidates.filter((c) => {
+    const ct = typeof c.createdAt === "number" ? c.createdAt : Number(c.createdAt || Date.now());
+    return ct >= start.getTime() && ct <= end.getTime();
   });
 
   const totalCandidates = filteredCandidates.length;
-  const newApplications = filteredCandidates.filter(c => c.stage?.toLowerCase() === 'nuevo').length;
-  const activeJobs = jobs.filter(j => j.status === 'Active' || j.status === 'Draft').length;
-
-  // Filter appointments scheduled inside active timeframe
-  const filteredAppointments = appointments.filter(a => {
+  const newApplications = filteredCandidates.filter((c) => c.stage?.toLowerCase() === "nuevo").length;
+  const activeJobs = jobs.filter((j) => j.status === "Active" || j.status === "Draft").length;
+  const filteredAppointments = appointments.filter((a) => {
     if (!a.date) return false;
-    const apptDate = new Date(a.date + "T12:00:00");
-    return apptDate >= start && apptDate <= end;
+    const d = new Date(a.date + "T12:00:00");
+    return d >= start && d <= end;
   });
-  const scheduledCount = filteredAppointments.length > 0 ? filteredAppointments.length : appointments.filter(a => a.status === 'scheduled' || a.status === 'confirmed').length;
-  const calculateAverageTimeToHire = (candidateList: typeof filteredCandidates) => {
-    const hiredCandidates = candidateList.filter(c => ["Contratado", "En capacitación", "DDO y bienvenida"].includes(c.stage));
-    if (hiredCandidates.length === 0) return 0;
+  const scheduledCount =
+    filteredAppointments.length > 0
+      ? filteredAppointments.length
+      : appointments.filter((a) => a.status === "scheduled" || a.status === "confirmed").length;
 
-    const totalDays = hiredCandidates.reduce((sum, candidate) => {
-      const createdAt = typeof candidate.createdAt === "number" ? candidate.createdAt : Number(candidate.createdAt || Date.now());
-      const updatedAt = typeof candidate.updatedAt === "number" ? candidate.updatedAt : Number(candidate.updatedAt || createdAt);
-      return sum + Math.max(0, Math.round((updatedAt - createdAt) / (24 * 60 * 60 * 1000)));
+  const hiredCount = filteredCandidates.filter((c) =>
+    ["Contratado", "En capacitación", "DDO y bienvenida"].includes(c.stage)
+  ).length;
+
+  const conversionRate = totalCandidates > 0 ? Math.round((hiredCount / totalCandidates) * 100) : 0;
+
+  const calculateAverageTimeToHire = (list: typeof filteredCandidates) => {
+    const hired = list.filter((c) => ["Contratado", "En capacitación", "DDO y bienvenida"].includes(c.stage));
+    if (!hired.length) return 0;
+    const total = hired.reduce((sum, c) => {
+      const createdAt = typeof c.createdAt === "number" ? c.createdAt : Number(c.createdAt || Date.now());
+      const updatedAt = typeof c.updatedAt === "number" ? c.updatedAt : Number(c.updatedAt || createdAt);
+      return sum + Math.max(0, Math.round((updatedAt - createdAt) / 86400000));
     }, 0);
-
-    return Math.round(totalDays / hiredCandidates.length);
+    return Math.round(total / hired.length);
   };
 
-  // Compute Funnel Dataset Dynamically
   const computedFunnelData = (() => {
-    const stagesToDisplay = ["Nuevo", "Contactado", "Cita agendada", "Confirmó asistencia", "Entrevista realizada", "Contratado"];
-    const totalInFilter = filteredCandidates.length;
-
-    return stagesToDisplay.map(stage => {
+    const stages = ["Nuevo", "Contactado", "Cita agendada", "Confirmó asistencia", "Entrevista realizada", "Contratado"];
+    return stages.map((stage) => {
       let count = 0;
-      if (stage === "Nuevo") {
-        count = filteredCandidates.length;
-      } else if (stage === "Contactado") {
-        count = filteredCandidates.filter(c => c.stage !== "Nuevo" && c.stage !== "Rechazado").length;
-      } else if (stage === "Cita agendada") {
-        count = filteredCandidates.filter(c => !["Nuevo", "Contactado", "Rechazado"].includes(c.stage)).length;
-      } else if (stage === "Confirmó asistencia") {
-        count = filteredCandidates.filter(c => !["Nuevo", "Contactado", "Cita agendada", "Rechazado", "No asistió"].includes(c.stage)).length;
-      } else if (stage === "Entrevista realizada") {
-        count = filteredCandidates.filter(c => ["Entrevista realizada", "Contratado", "DDO y bienvenida", "En capacitación"].includes(c.stage)).length;
-      } else if (stage === "Contratado") {
-        count = filteredCandidates.filter(c => c.stage === "Contratado" || c.stage === "En capacitación" || c.stage === "DDO y bienvenida").length;
-      }
-
-      const conversion = totalInFilter > 0 ? Math.round((count / totalInFilter) * 100) : 0;
-
-      return {
-        stage,
-        count,
-        conversion
-      };
+      if (stage === "Nuevo") count = filteredCandidates.length;
+      else if (stage === "Contactado") count = filteredCandidates.filter((c) => c.stage !== "Nuevo" && c.stage !== "Rechazado").length;
+      else if (stage === "Cita agendada") count = filteredCandidates.filter((c) => !["Nuevo", "Contactado", "Rechazado"].includes(c.stage)).length;
+      else if (stage === "Confirmó asistencia") count = filteredCandidates.filter((c) => !["Nuevo", "Contactado", "Cita agendada", "Rechazado", "No asistió"].includes(c.stage)).length;
+      else if (stage === "Entrevista realizada") count = filteredCandidates.filter((c) => ["Entrevista realizada", "Contratado", "DDO y bienvenida", "En capacitación"].includes(c.stage)).length;
+      else if (stage === "Contratado") count = hiredCount;
+      return { stage, count, conversion: totalCandidates > 0 ? Math.round((count / totalCandidates) * 100) : 0 };
     });
   })();
 
-  // Compute Performance Trend Dynamically
   const computedPerformanceData = (() => {
-    const diffDays = Math.ceil((end.getTime() - start.getTime()) / (24 * 60 * 60 * 1000));
-
+    const diffDays = Math.ceil((end.getTime() - start.getTime()) / 86400000);
     if (diffDays <= 8 || selectedPreset === "7d") {
-      const result = [];
-      const daysArr = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
-      for (let i = 6; i >= 0; i--) {
+      const days = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
+      return Array.from({ length: 7 }, (_, i) => {
         const d = new Date();
-        d.setDate(d.getDate() - i);
-        const dayName = daysArr[d.getDay()];
-        const dateString = d.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit' });
-        const name = `${dayName} ${dateString}`;
-
-        const startOfDay = new Date(d.getFullYear(), d.getMonth(), d.getDate(), 0, 0, 0).getTime();
-        const endOfDay = new Date(d.getFullYear(), d.getMonth(), d.getDate(), 23, 59, 59).getTime();
-
-        const dayCandidates = filteredCandidates.filter(c => {
-          const ct = typeof c.createdAt === 'number' ? c.createdAt : Number(c.createdAt || Date.now());
-          return ct >= startOfDay && ct <= endOfDay;
-        });
-        const hiresCount = dayCandidates.filter(c => ["Contratado", "En capacitación", "DDO y bienvenida"].includes(c.stage)).length;
-
-        const baseTth = calculateAverageTimeToHire(dayCandidates);
-
-        result.push({
-          name,
-          hires: hiresCount,
-          timeToHire: baseTth
-        });
-      }
-      return result;
+        d.setDate(d.getDate() - (6 - i));
+        const s = new Date(d.getFullYear(), d.getMonth(), d.getDate(), 0, 0, 0).getTime();
+        const e2 = new Date(d.getFullYear(), d.getMonth(), d.getDate(), 23, 59, 59).getTime();
+        const dc = filteredCandidates.filter((c) => { const ct = typeof c.createdAt === "number" ? c.createdAt : Number(c.createdAt || Date.now()); return ct >= s && ct <= e2; });
+        return { name: `${days[d.getDay()]} ${d.toLocaleDateString("es-ES", { day: "2-digit", month: "2-digit" })}`, hires: dc.filter((c) => ["Contratado", "En capacitación", "DDO y bienvenida"].includes(c.stage)).length, timeToHire: calculateAverageTimeToHire(dc) };
+      });
     }
-
     if (diffDays <= 32 || selectedPreset === "30d") {
-      const result = [];
-      for (let i = 3; i >= 0; i--) {
-        const name = `Semana ${4 - i}`;
-        const wStart = new Date(start.getTime() + (3 - i) * 7 * 24 * 60 * 60 * 1000).getTime();
-        const wEnd = i === 0 ? end.getTime() : new Date(start.getTime() + (4 - i) * 7 * 24 * 60 * 60 * 1000).getTime();
-
-        const weekCandidates = filteredCandidates.filter(c => {
-          const ct = typeof c.createdAt === 'number' ? c.createdAt : Number(c.createdAt || Date.now());
-          return ct >= wStart && ct <= wEnd;
-        });
-        const hiresCount = weekCandidates.filter(c => ["Contratado", "En capacitación", "DDO y bienvenida"].includes(c.stage)).length;
-        const baseTth = calculateAverageTimeToHire(weekCandidates);
-
-        result.push({
-          name,
-          hires: hiresCount,
-          timeToHire: baseTth
-        });
-      }
-      return result;
+      return Array.from({ length: 4 }, (_, i) => {
+        const wStart = new Date(start.getTime() + i * 7 * 86400000).getTime();
+        const wEnd = i === 3 ? end.getTime() : new Date(start.getTime() + (i + 1) * 7 * 86400000).getTime();
+        const wc = filteredCandidates.filter((c) => { const ct = typeof c.createdAt === "number" ? c.createdAt : Number(c.createdAt || Date.now()); return ct >= wStart && ct <= wEnd; });
+        return { name: `Sem ${i + 1}`, hires: wc.filter((c) => ["Contratado", "En capacitación", "DDO y bienvenida"].includes(c.stage)).length, timeToHire: calculateAverageTimeToHire(wc) };
+      });
     }
-
-    const monthsEs = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
+    const months = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
     const result = [];
-
-    let currentMonth = start.getMonth();
-    let currentYear = start.getFullYear();
-    const endMonth = end.getMonth();
-    const endYear = end.getFullYear();
-
-    while (currentYear < endYear || (currentYear === endYear && currentMonth <= endMonth)) {
-      const monthName = monthsEs[currentMonth];
-      const name = `${monthName} ${String(currentYear).slice(-2)}`;
-
-      const mStart = new Date(currentYear, currentMonth, 1).getTime();
-      const mEnd = new Date(currentYear, currentMonth + 1, 0, 23, 59, 59).getTime();
-
-      const monthCandidates = filteredCandidates.filter(c => {
-        const ct = typeof c.createdAt === 'number' ? c.createdAt : Number(c.createdAt || Date.now());
-        return ct >= mStart && ct <= mEnd;
-      });
-      const hiresCount = monthCandidates.filter(c => ["Contratado", "En capacitación", "DDO y bienvenida"].includes(c.stage)).length;
-      const baseTth = calculateAverageTimeToHire(monthCandidates);
-
-      result.push({
-        name,
-        hires: hiresCount,
-        timeToHire: baseTth
-      });
-
-      currentMonth++;
-      if (currentMonth > 11) {
-        currentMonth = 0;
-        currentYear++;
-      }
+    let m = start.getMonth(), y = start.getFullYear();
+    while (y < end.getFullYear() || (y === end.getFullYear() && m <= end.getMonth())) {
+      const ms = new Date(y, m, 1).getTime(), me = new Date(y, m + 1, 0, 23, 59, 59).getTime();
+      const mc = filteredCandidates.filter((c) => { const ct = typeof c.createdAt === "number" ? c.createdAt : Number(c.createdAt || Date.now()); return ct >= ms && ct <= me; });
+      result.push({ name: `${months[m]} ${String(y).slice(-2)}`, hires: mc.filter((c) => ["Contratado", "En capacitación", "DDO y bienvenida"].includes(c.stage)).length, timeToHire: calculateAverageTimeToHire(mc) });
+      m++; if (m > 11) { m = 0; y++; }
     }
-
     return result;
   })();
 
-  // Compute Job Pie Chart Dynamically
-  const computedCandidatesPerJobData = (() => {
-    if (jobs.length === 0) {
-      return [];
-    }
-
-    const distribution = jobs.map(job => {
-      const count = filteredCandidates.filter(c => c.jobId === job.id || c.role?.toLowerCase() === job.title?.toLowerCase()).length;
-      return {
-        name: job.title,
-        count
-      };
-    });
-
-    return distribution;
-  })();
+  const computedCandidatesPerJobData = jobs.map((job) => ({
+    name: job.title,
+    count: filteredCandidates.filter((c) => c.jobId === job.id || c.role?.toLowerCase() === job.title?.toLowerCase()).length,
+  }));
 
   if (loading) {
     return (
-      <div className="flex flex-col gap-5 w-full min-h-full pb-8">
+      <div className="flex flex-col gap-5 w-full pb-8">
+        <div className="h-36 rounded-2xl bg-zinc-900/60 animate-pulse" />
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <SkeletonCard key={i} />
-          ))}
+          {Array.from({ length: 4 }).map((_, i) => <SkeletonCard key={i} />)}
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-          {Array.from({ length: 3 }).map((_, i) => (
-            <SkeletonCard key={i} />
-          ))}
+          {Array.from({ length: 3 }).map((_, i) => <SkeletonCard key={i} />)}
         </div>
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col gap-5 w-full min-h-full pb-8">
+    <div className="flex flex-col gap-5 w-full pb-8">
+
+      {/* Alerts */}
       {unreadAlerts.length > 0 && (
         <div className="flex flex-col gap-2">
-          {unreadAlerts.map(alert => {
-            const { bg, border, text, icon: Icon, gradient } = getAlertColors(alert.type);
+          {unreadAlerts.map((alert) => {
+            const { bg, border, text, icon: Icon, glow } = getAlertColors(alert.type);
             return (
-              <div key={alert.id} className={`${bg} border ${border} p-3 rounded-xl flex items-start justify-between relative overflow-hidden group`}>
-                <div className={`absolute inset-0 bg-gradient-to-r ${gradient} to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500`}></div>
-                <div className="flex gap-3 relative z-10 w-full pr-8">
-                  <Icon className={`w-5 h-5 ${text} shrink-0 mt-0.5`} />
+              <div key={alert.id} className={`${bg} border ${border} ${glow} p-3.5 rounded-xl flex items-start justify-between`}>
+                <div className="flex gap-3 w-full pr-8">
+                  <Icon className={`w-4.5 h-4.5 ${text} shrink-0 mt-0.5`} />
                   <div className="flex-1">
                     <h3 className={`text-sm font-semibold ${text}`}>{alert.title}</h3>
-                    <p className="text-sm text-slate-300 mt-1">{alert.message}</p>
+                    <p className="text-sm text-slate-400 mt-0.5">{alert.message}</p>
                   </div>
                 </div>
-                <button onClick={() => markAsRead(alert.id)} className="text-slate-400 hover:text-white transition-colors relative z-10 shrink-0">
-                  <X className="w-5 h-5" />
+                <button onClick={() => markAsRead(alert.id)} className="text-slate-500 hover:text-white transition-colors shrink-0">
+                  <X className="w-4 h-4" />
                 </button>
               </div>
             );
@@ -266,237 +210,337 @@ export function Dashboard() {
         </div>
       )}
 
-      <div className="glass-panel rounded-2xl border border-cyan-300/30 bg-gradient-to-br from-cyan-950/70 via-slate-950/80 to-violet-950/45 px-5 py-5 md:px-7 md:py-6 relative overflow-hidden">
-        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-cyan-300/70 to-transparent" />
-        <div className="absolute -right-20 -top-24 h-56 w-56 rounded-full bg-cyan-400/18 blur-3xl" />
-        <div className="absolute -left-20 -bottom-24 h-56 w-56 rounded-full bg-violet-500/14 blur-3xl" />
-        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-5">
-          <div className="min-w-0">
-            <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.24em] text-white">
-              <Cpu className="w-3.5 h-3.5 text-cyan-300" />
-              Centro de mando
+      {/* Hero Header */}
+      <div className="relative rounded-2xl overflow-hidden border border-white/8 bg-gradient-to-br from-[#0a1628] via-[#0d1117] to-[#0a0e1a]">
+        {/* Background effects */}
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(34,211,238,0.12),transparent)]" />
+        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-cyan-400/60 to-transparent" />
+        <div className="absolute -right-24 -top-24 h-64 w-64 rounded-full bg-cyan-400/10 blur-3xl" />
+        <div className="absolute -left-16 -bottom-16 h-48 w-48 rounded-full bg-violet-500/10 blur-3xl" />
+        {/* Grid pattern */}
+        <div className="absolute inset-0 opacity-[0.015]" style={{ backgroundImage: "linear-gradient(rgba(255,255,255,0.5) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.5) 1px,transparent 1px)", backgroundSize: "32px 32px" }} />
+
+        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6 px-6 py-6 md:px-8 md:py-7">
+          <div>
+            <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-cyan-300/20 bg-cyan-400/8 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.22em] text-cyan-300">
+              <Cpu className="w-3 h-3" /> Centro de Mando
             </div>
-            <h1 className="text-3xl md:text-[42px] font-bold tracking-tight text-white flex flex-wrap items-center gap-x-3 gap-y-1 leading-tight">
-               <span>Heavenly Dreams</span>
-               <span className="bg-gradient-to-r from-cyan-200 via-sky-300 to-violet-300 bg-clip-text text-transparent">Metrics</span>
+            <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-white leading-tight">
+              Heavenly Dreams{" "}
+              <span className="bg-gradient-to-r from-cyan-300 via-sky-300 to-violet-300 bg-clip-text text-transparent">
+                Metrics
+              </span>
             </h1>
-            <p className="text-slate-200 mt-2 font-medium tracking-wide text-sm uppercase">Autonomous matching and conversion analysis</p>
+            <p className="text-slate-500 mt-1.5 text-xs font-semibold uppercase tracking-[0.2em]">
+              Autonomous Matching & Conversion Analysis
+            </p>
           </div>
-          <div className="flex items-center gap-3 rounded-full border border-emerald-300/35 bg-emerald-500/12 px-5 py-3 text-xs font-bold uppercase tracking-[0.22em] text-emerald-50 shadow-[0_0_28px_rgba(52,211,153,0.18)]">
-            <div className="w-2.5 h-2.5 rounded-full bg-emerald-300 shadow-[0_0_16px_rgba(52,211,153,0.85)] animate-pulse" />
-            System Active
+
+          <div className="flex items-center gap-4">
+            {/* Quick KPIs */}
+            <div className="hidden lg:flex items-center gap-3">
+              <div className="text-center px-4 py-2.5 rounded-xl border border-white/6 bg-white/3">
+                <div className="text-xl font-bold text-white font-mono">{conversionRate}%</div>
+                <div className="text-[9px] font-bold uppercase tracking-widest text-slate-500 mt-0.5">Conversión</div>
+              </div>
+              <div className="text-center px-4 py-2.5 rounded-xl border border-white/6 bg-white/3">
+                <div className="text-xl font-bold text-white font-mono">{hiredCount}</div>
+                <div className="text-[9px] font-bold uppercase tracking-widest text-slate-500 mt-0.5">Contratados</div>
+              </div>
+            </div>
+            <div className="flex items-center gap-2.5 rounded-full border border-emerald-400/30 bg-emerald-500/10 px-4 py-2.5 text-xs font-bold uppercase tracking-widest text-emerald-300 shadow-[0_0_24px_rgba(52,211,153,0.15)]">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.9)] animate-pulse" />
+              System Active
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Dynamic Date Filter Toolbar */}
-      <div className="flex flex-col 2xl:flex-row items-stretch 2xl:items-center justify-between gap-4 p-4 glass-panel rounded-2xl border border-cyan-300/25 bg-gradient-to-r from-cyan-950/50 via-slate-950/70 to-blue-950/45 shadow-lg relative overflow-visible group">
-        <div className="absolute inset-y-4 left-0 w-1 rounded-r-full bg-gradient-to-b from-amber-300 via-cyan-300 to-violet-400"></div>
-        <div className="flex items-center gap-4 relative z-10 w-full min-w-0 2xl:max-w-[460px]">
-          <div className="grid h-11 w-11 shrink-0 place-items-center border border-amber-300/35 bg-amber-400/12 rounded-xl shadow-[0_0_18px_rgba(251,191,36,0.18)]">
-            <Calendar className="w-5 h-5 text-amber-300" />
+      {/* Date Filter Bar */}
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 p-3 rounded-xl border border-white/6 bg-zinc-950/80 backdrop-blur-sm">
+        <div className="flex items-center gap-2.5 px-1">
+          <div className="w-7 h-7 rounded-lg border border-amber-400/25 bg-amber-400/8 flex items-center justify-center shrink-0">
+            <Calendar className="w-3.5 h-3.5 text-amber-300" />
           </div>
-          <div className="min-w-0">
-            <h4 className="text-sm md:text-base font-semibold tracking-wide text-slate-100 leading-tight">
-              Periodo de análisis
-            </h4>
-            <p className="text-xs md:text-sm text-slate-200 font-sans mt-1 leading-snug">Filtra métricas por rango o presets rápidos</p>
-          </div>
+          <span className="text-xs font-semibold text-slate-300 whitespace-nowrap">Periodo</span>
         </div>
 
-        <div className="flex flex-col lg:flex-row lg:flex-wrap items-stretch lg:items-center gap-3 relative z-10 w-full 2xl:w-auto 2xl:justify-end">
-          <div className="flex flex-wrap items-center gap-1 p-1 bg-black/35 rounded-xl border border-white/10">
-            {[
-              { id: "7d", label: "7 Días" },
-              { id: "30d", label: "30 Días" },
-              { id: "90d", label: "90 Días" },
-              { id: "all", label: "Todo" },
-              { id: "custom", label: "Rango Libre" }
-            ].map((preset) => (
-              <button
-                key={preset.id}
-                onClick={() => {
-                  setSelectedPreset(preset.id as any);
-                  if (preset.id !== "custom") {
-                    const endPreset = new Date();
-                    const startPreset = new Date();
-                    if (preset.id === "7d") startPreset.setDate(endPreset.getDate() - 7);
-                    else if (preset.id === "30d") startPreset.setDate(endPreset.getDate() - 30);
-                    else if (preset.id === "90d") startPreset.setDate(endPreset.getDate() - 90);
-                    else if (preset.id === "all") startPreset.setDate(endPreset.getDate() - 365); // 1 YEAR
-
-                    setStartDateStr(startPreset.toISOString().split("T")[0]);
-                    setEndDateStr(endPreset.toISOString().split("T")[0]);
-                  }
-                }}
-                className={cn(
-                  "px-3 py-2 rounded-lg text-xs font-semibold tracking-wide transition-all border border-transparent whitespace-nowrap",
-                  selectedPreset === preset.id
-                    ? "bg-cyan-400/18 text-cyan-50 shadow-[0_0_18px_rgba(34,211,238,0.22)] border-cyan-300/45"
-                    : "text-slate-300 hover:text-white hover:bg-cyan-400/8 hover:border-cyan-300/20"
-                )}
-              >
-                {preset.label}
-              </button>
-            ))}
-          </div>
-
-          <div className="flex flex-wrap items-center gap-2 bg-black/35 rounded-xl border border-white/10 py-2 px-3">
-            <span className="text-[10px] uppercase text-slate-500 font-bold tracking-wider">Desde</span>
-            <input
-              type="date"
-              value={startDateStr}
-              onChange={(e) => {
-                setStartDateStr(e.target.value);
-                setSelectedPreset("custom");
+        <div className="flex items-center gap-1 p-1 bg-black/40 rounded-lg border border-white/5 flex-wrap">
+          {([
+            { id: "7d", label: "7D" },
+            { id: "30d", label: "30D" },
+            { id: "90d", label: "90D" },
+            { id: "all", label: "Todo" },
+            { id: "custom", label: "Libre" },
+          ] as const).map((p) => (
+            <button
+              key={p.id}
+              onClick={() => {
+                setSelectedPreset(p.id);
+                if (p.id !== "custom") {
+                  const e2 = new Date();
+                  const s = new Date();
+                  if (p.id === "7d") s.setDate(e2.getDate() - 7);
+                  else if (p.id === "30d") s.setDate(e2.getDate() - 30);
+                  else if (p.id === "90d") s.setDate(e2.getDate() - 90);
+                  else if (p.id === "all") s.setDate(e2.getDate() - 365);
+                  setStartDateStr(s.toISOString().split("T")[0]);
+                  setEndDateStr(e2.toISOString().split("T")[0]);
+                }
               }}
-              className="text-xs font-mono text-slate-200 bg-transparent border-0 focus:outline-none focus:ring-0 cursor-pointer p-0 w-[115px] [color-scheme:dark]"
-            />
-            <span className="text-[10px] uppercase text-slate-500 font-bold tracking-wider ml-1">Hasta</span>
-            <input
-              type="date"
-              value={endDateStr}
-              onChange={(e) => {
-                setEndDateStr(e.target.value);
-                setSelectedPreset("custom");
-              }}
-              className="text-xs font-mono text-slate-200 bg-transparent border-0 focus:outline-none focus:ring-0 cursor-pointer p-0 w-[115px] [color-scheme:dark]"
-            />
-          </div>
+              className={cn(
+                "px-3 py-1.5 rounded-md text-[11px] font-bold tracking-wide transition-all duration-200",
+                selectedPreset === p.id
+                  ? "bg-cyan-400/15 text-cyan-200 border border-cyan-300/35 shadow-[0_0_12px_rgba(34,211,238,0.18)]"
+                  : "text-slate-500 hover:text-slate-300 hover:bg-white/5 border border-transparent"
+              )}
+            >
+              {p.label}
+            </button>
+          ))}
+        </div>
+
+        <div className="flex items-center gap-2 px-3 py-2 bg-black/40 rounded-lg border border-white/5 ml-auto">
+          <span className="text-[10px] font-bold text-slate-600 uppercase tracking-wider">Desde</span>
+          <input
+            type="date"
+            value={startDateStr}
+            onChange={(e) => { setStartDateStr(e.target.value); setSelectedPreset("custom"); }}
+            className="text-xs font-mono text-slate-300 bg-transparent border-0 outline-none w-[110px] [color-scheme:dark] cursor-pointer"
+          />
+          <span className="text-slate-700">–</span>
+          <span className="text-[10px] font-bold text-slate-600 uppercase tracking-wider">Hasta</span>
+          <input
+            type="date"
+            value={endDateStr}
+            onChange={(e) => { setEndDateStr(e.target.value); setSelectedPreset("custom"); }}
+            className="text-xs font-mono text-slate-300 bg-transparent border-0 outline-none w-[110px] [color-scheme:dark] cursor-pointer"
+          />
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      {/* Metric Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {[
-          { title: "Total Candidatos", value: String(totalCandidates), subtitle: "Sincronizado Firestore", icon: Users, color: 'tone1' as const },
-          { title: "Nuevas Aplicaciones", value: String(newApplications), subtitle: "En bandeja 'Nuevo'", icon: Activity, color: 'tone2' as const },
-          { title: "Ofertas Activas", value: String(activeJobs), subtitle: "Vacantes reales cargadas", icon: Briefcase, color: 'tone3' as const },
-          { title: "Citas en Agenda", value: String(scheduledCount), subtitle: "Entrevistas agendadas", icon: Clock, color: 'tone4' as const },
+          {
+            title: "Total Candidatos",
+            value: totalCandidates,
+            sub: "Sincronizado Firestore",
+            icon: Users,
+            color: { accent: "cyan", text: "text-cyan-300", border: "border-cyan-400/20", bg: "from-cyan-950/50", iconBg: "bg-cyan-400/10 border-cyan-300/25", line: "bg-cyan-400", glow: "shadow-[0_0_40px_rgba(34,211,238,0.08)]" },
+            trend: null,
+          },
+          {
+            title: "Nuevas Aplicaciones",
+            value: newApplications,
+            sub: "En bandeja Nuevo",
+            icon: Activity,
+            color: { accent: "emerald", text: "text-emerald-300", border: "border-emerald-400/20", bg: "from-emerald-950/45", iconBg: "bg-emerald-400/10 border-emerald-300/25", line: "bg-emerald-400", glow: "shadow-[0_0_40px_rgba(52,211,153,0.08)]" },
+            trend: null,
+          },
+          {
+            title: "Ofertas Activas",
+            value: activeJobs,
+            sub: "Vacantes reales cargadas",
+            icon: Briefcase,
+            color: { accent: "violet", text: "text-violet-300", border: "border-violet-400/20", bg: "from-violet-950/45", iconBg: "bg-violet-400/10 border-violet-300/25", line: "bg-violet-400", glow: "shadow-[0_0_40px_rgba(167,139,250,0.08)]" },
+            trend: null,
+          },
+          {
+            title: "Citas en Agenda",
+            value: scheduledCount,
+            sub: "Entrevistas agendadas",
+            icon: Clock,
+            color: { accent: "amber", text: "text-amber-300", border: "border-amber-400/20", bg: "from-amber-950/40", iconBg: "bg-amber-400/10 border-amber-300/25", line: "bg-amber-400", glow: "shadow-[0_0_40px_rgba(251,191,36,0.08)]" },
+            trend: null,
+          },
         ].map((stat, i) => {
           const Icon = stat.icon;
-          const styles = {
-            tone1: { text: "text-cyan-300", bgLine: "via-cyan-300/70", iconBg: "bg-cyan-400/12 border-cyan-300/30", panelBg: "from-cyan-950/60 to-slate-950/80", shadow: "drop-shadow-[0_0_12px_rgba(34,211,238,0.55)]", dot: "bg-cyan-300", hoverBorder: "hover:border-cyan-300/55" },
-            tone2: { text: "text-emerald-300", bgLine: "via-emerald-300/70", iconBg: "bg-emerald-400/12 border-emerald-300/30", panelBg: "from-emerald-950/55 to-slate-950/80", shadow: "drop-shadow-[0_0_12px_rgba(52,211,153,0.55)]", dot: "bg-emerald-300", hoverBorder: "hover:border-emerald-300/55" },
-            tone3: { text: "text-violet-300", bgLine: "via-violet-300/70", iconBg: "bg-violet-400/12 border-violet-300/30", panelBg: "from-violet-950/55 to-slate-950/80", shadow: "drop-shadow-[0_0_12px_rgba(167,139,250,0.55)]", dot: "bg-violet-300", hoverBorder: "hover:border-violet-300/55" },
-            tone4: { text: "text-amber-300", bgLine: "via-amber-300/70", iconBg: "bg-amber-400/12 border-amber-300/30", panelBg: "from-amber-950/45 to-slate-950/80", shadow: "drop-shadow-[0_0_12px_rgba(251,191,36,0.52)]", dot: "bg-amber-300", hoverBorder: "hover:border-amber-300/55" },
-          }[stat.color];
-
           return (
-            <div key={i} className={`glass-panel p-5 rounded-2xl flex flex-col relative overflow-hidden group border-white/15 bg-gradient-to-br ${styles.panelBg} ${styles.hoverBorder} transition-all duration-300`}>
-              <div className={`absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent ${styles.bgLine} to-transparent opacity-80 transition-opacity duration-300`}></div>
-              <div className="absolute inset-0 bg-gradient-to-br from-white/[0.04] to-transparent pointer-events-none"></div>
-              <div className="absolute -right-8 -bottom-10 h-28 w-28 rounded-full bg-zinc-400/5 blur-2xl group-hover:bg-zinc-400/10 transition-colors pointer-events-none"></div>
+            <div
+              key={i}
+              className={cn(
+                "relative overflow-hidden rounded-2xl border p-5 flex flex-col gap-4",
+                "bg-gradient-to-br to-zinc-950/95",
+                stat.color.bg,
+                stat.color.border,
+                stat.color.glow,
+                "transition-all duration-300 hover:scale-[1.015] hover:brightness-110 group cursor-default"
+              )}
+            >
+              {/* Top accent line */}
+              <div className={`absolute inset-x-0 top-0 h-[2px] ${stat.color.line} opacity-60`} />
+              {/* Ambient glow */}
+              <div className="absolute -bottom-8 -right-8 w-32 h-32 rounded-full blur-2xl opacity-20 group-hover:opacity-30 transition-opacity" style={{ background: `var(--tw-gradient-from, currentColor)` }} />
 
-              <div className="flex items-center justify-between pb-4 relative z-10">
-                <p className="text-slate-200 text-[10px] font-bold tracking-[0.18em] uppercase">{stat.title}</p>
-                <div className={`grid h-9 w-9 place-items-center rounded-xl border ${styles.iconBg}`}>
-                  <Icon className={`w-[18px] h-[18px] opacity-100 transition-all ${styles.text} ${styles.shadow}`} />
+              <div className="flex items-center justify-between relative z-10">
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.18em] leading-tight">{stat.title}</p>
+                <div className={`w-9 h-9 rounded-xl border flex items-center justify-center shrink-0 ${stat.color.iconBg}`}>
+                  <Icon className={`w-4 h-4 ${stat.color.text}`} />
                 </div>
               </div>
 
               <div className="relative z-10">
-                <div className="text-[42px] font-semibold text-white tracking-tighter font-mono leading-none">{stat.value}</div>
-                <p className={`text-[10px] mt-3 font-semibold uppercase tracking-widest flex items-center gap-2 ${styles.text} opacity-80`}>
-                  <span className={`w-1.5 h-1.5 rounded-full ${styles.dot}`} /> {stat.subtitle}
-                </p>
+                <div className="flex items-end gap-3">
+                  <span className={cn(
+                    "text-5xl font-bold font-mono leading-none tracking-tighter transition-all",
+                    stat.value === 0 ? "text-zinc-600" : "text-white"
+                  )}>
+                    {stat.value === 0 ? "—" : stat.value}
+                  </span>
+                </div>
+                <div className={`flex items-center gap-1.5 mt-3 ${stat.color.text}`}>
+                  <span className={`w-1.5 h-1.5 rounded-full ${stat.color.line} opacity-80`} />
+                  <span className="text-[10px] font-semibold uppercase tracking-widest opacity-80">{stat.sub}</span>
+                </div>
               </div>
             </div>
           );
         })}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mt-1">
-        <div className="glass-panel p-6 rounded-2xl flex flex-col relative overflow-hidden group border-cyan-300/20 bg-gradient-to-br from-cyan-950/45 to-slate-950/80 hover:border-cyan-300/45 transition-all duration-300">
-          <div className="absolute top-0 right-0 p-32 bg-cyan-400/12 blur-3xl rounded-full opacity-70 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"></div>
-          <h2 className="text-[11px] font-bold text-cyan-100 mb-6 uppercase tracking-[0.2em] flex items-center gap-3">
-            <span className="w-2 h-2 bg-cyan-300 rounded-sm shadow-[0_0_10px_rgba(34,211,238,0.75)]"></span> Embudo y Tasa de Conversión (%)
-          </h2>
-          <div className="h-[320px] w-full relative z-10">
-            <ResponsiveContainer width="100%" height="100%">
-              <ComposedChart data={computedFunnelData} layout="vertical" margin={{ top: 0, right: 30, left: 40, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="rgba(255,255,255,0.03)" />
-                <XAxis type="number" hide />
-                <YAxis dataKey="stage" type="category" axisLine={false} tickLine={false} tick={{ fill: '#737373', fontSize: 11, fontWeight: 600, fontFamily: 'Inter' }} />
-                <RechartsTooltip
-                  cursor={{ fill: 'rgba(255,255,255,0.02)' }}
-                  contentStyle={{ borderRadius: '12px', border: '1px solid rgba(163,163,163,0.3)', backgroundColor: 'rgba(15, 17, 21, 0.9)', color: '#e5e5e5', boxShadow: '0 8px 32px rgba(0, 0, 0, 0.5)', backdropFilter: 'blur(12px)', fontFamily: 'Inter', fontSize: '12px' }}
-                />
-                <Bar dataKey="count" fill="url(#neutralGradient)" radius={[0, 4, 4, 0]} barSize={24} name="Candidatos">
+      {/* KPI Summary Strip */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        {[
+          { label: "Tasa de Conversión", value: `${conversionRate}%`, icon: Target, color: "text-cyan-400" },
+          { label: "Contratados", value: hiredCount, icon: Award, color: "text-emerald-400" },
+          { label: "Tiempo Promedio", value: `${calculateAverageTimeToHire(filteredCandidates)}d`, icon: Clock, color: "text-violet-400" },
+          { label: "Activos en proceso", value: filteredCandidates.filter(c => !["Contratado", "Rechazado", "No asistió"].includes(c.stage)).length, icon: TrendingUp, color: "text-amber-400" },
+        ].map((kpi, i) => {
+          const Icon = kpi.icon;
+          return (
+            <div key={i} className="flex items-center gap-3 px-4 py-3 rounded-xl border border-white/5 bg-zinc-950/60 hover:bg-zinc-900/60 transition-colors group">
+              <Icon className={`w-4 h-4 shrink-0 ${kpi.color} opacity-70 group-hover:opacity-100 transition-opacity`} />
+              <div className="min-w-0">
+                <div className={`text-lg font-bold font-mono leading-none ${kpi.value === "0" || kpi.value === "0d" || kpi.value === "0%" ? "text-zinc-600" : "text-white"}`}>
+                  {kpi.value === "0" || kpi.value === "0d" || kpi.value === "0%" ? "—" : kpi.value}
+                </div>
+                <div className="text-[9px] font-bold text-slate-600 uppercase tracking-wider mt-1 truncate">{kpi.label}</div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Charts Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+
+        {/* Funnel Chart */}
+        <div className="relative overflow-hidden rounded-2xl border border-cyan-400/12 bg-gradient-to-br from-cyan-950/30 to-zinc-950/90 p-6 flex flex-col group hover:border-cyan-400/25 transition-all duration-300">
+          <div className="absolute top-0 right-0 w-48 h-48 rounded-full bg-cyan-400/6 blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
+          <div className="flex items-center justify-between mb-6 relative z-10">
+            <div className="flex items-center gap-2.5">
+              <span className="w-2 h-2 rounded-sm bg-cyan-300 shadow-[0_0_8px_rgba(34,211,238,0.8)]" />
+              <h2 className="text-[11px] font-bold text-slate-300 uppercase tracking-[0.2em]">Embudo de Conversión</h2>
+            </div>
+            <span className="text-[10px] font-bold text-cyan-400/60 uppercase tracking-wider">%</span>
+          </div>
+          <div className="h-[300px] w-full relative z-10">
+            {totalCandidates === 0 ? (
+              <EmptyChart label="Sin candidatos en el periodo" />
+            ) : (
+              <ResponsiveContainer width="100%" height="100%">
+                <ComposedChart data={computedFunnelData} layout="vertical" margin={{ top: 0, right: 36, left: 48, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="rgba(255,255,255,0.025)" />
+                  <XAxis type="number" hide />
+                  <YAxis dataKey="stage" type="category" axisLine={false} tickLine={false} tick={{ fill: "#52525b", fontSize: 10, fontWeight: 600 }} width={90} />
+                  <RechartsTooltip contentStyle={CHART_TOOLTIP_STYLE} cursor={{ fill: "rgba(255,255,255,0.015)" }} />
                   <defs>
-                    <linearGradient id="neutralGradient" x1="0" y1="0" x2="1" y2="0">
-                      <stop offset="0%" stopColor="#22d3ee" stopOpacity={0.72}/>
-                      <stop offset="100%" stopColor="#a78bfa" stopOpacity={0.95}/>
+                    <linearGradient id="funnelGrad" x1="0" y1="0" x2="1" y2="0">
+                      <stop offset="0%" stopColor="#22d3ee" stopOpacity={0.7} />
+                      <stop offset="100%" stopColor="#a78bfa" stopOpacity={0.9} />
                     </linearGradient>
                   </defs>
-                </Bar>
-                <Line type="monotone" dataKey="conversion" stroke="#a3a3a3" strokeWidth={3} dot={{ r: 5, fill: '#0b0b0b', strokeWidth: 2, stroke: '#a3a3a3' }} activeDot={{ r: 7, fill: '#a3a3a3', strokeWidth: 0, className: "drop-shadow-[0_0_10px_rgba(163,163,163,0.45)]" }} name="Conversión %" />
-              </ComposedChart>
-            </ResponsiveContainer>
+                  <Bar dataKey="count" fill="url(#funnelGrad)" radius={[0, 6, 6, 0]} barSize={20} name="Candidatos" />
+                  <Line type="monotone" dataKey="conversion" stroke="#3f3f46" strokeWidth={2} strokeDasharray="4 2" dot={{ r: 4, fill: "#18181b", strokeWidth: 2, stroke: "#52525b" }} activeDot={{ r: 6, fill: "#22d3ee", strokeWidth: 0 }} name="Conversión %" />
+                </ComposedChart>
+              </ResponsiveContainer>
+            )}
           </div>
         </div>
 
-        <div className="glass-panel p-6 rounded-2xl flex flex-col relative overflow-hidden group border-violet-300/20 bg-gradient-to-br from-violet-950/45 to-slate-950/80 hover:border-violet-300/45 transition-all duration-300">
-          <div className="absolute top-0 right-0 p-32 bg-violet-400/12 blur-3xl rounded-full opacity-70 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"></div>
-          <h2 className="text-[11px] font-bold text-violet-100 mb-6 uppercase tracking-[0.2em] flex items-center gap-3">
-            <span className="w-2 h-2 bg-violet-300 rounded-sm shadow-[0_0_10px_rgba(167,139,250,0.75)]"></span> Candidatos por Oferta Activa
-          </h2>
-          <div className="h-[320px] w-full relative z-10">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={computedCandidatesPerJobData}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={80}
-                  outerRadius={120}
-                  paddingAngle={10}
-                  dataKey="count"
-                  stroke="none"
-                  label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                  labelLine={false}
-                >
-                  {computedCandidatesPerJobData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} className="drop-shadow-[0_4px_12px_rgba(0,0,0,0.5)] cursor-pointer hover:opacity-90 transition-opacity" />
-                  ))}
-                </Pie>
-                <RechartsTooltip
-                  itemStyle={{ color: '#e5e5e5', fontWeight: 600, fontFamily: 'Inter', fontSize: '12px' }}
-                  contentStyle={{ borderRadius: '12px', border: '1px solid rgba(163,163,163,0.3)', backgroundColor: 'rgba(15, 17, 21, 0.9)', boxShadow: '0 8px 32px rgba(0, 0, 0, 0.5)', backdropFilter: 'blur(12px)' }}
-                />
-              </PieChart>
-            </ResponsiveContainer>
+        {/* Pie Chart */}
+        <div className="relative overflow-hidden rounded-2xl border border-violet-400/12 bg-gradient-to-br from-violet-950/30 to-zinc-950/90 p-6 flex flex-col group hover:border-violet-400/25 transition-all duration-300">
+          <div className="absolute top-0 right-0 w-48 h-48 rounded-full bg-violet-400/6 blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
+          <div className="flex items-center justify-between mb-6 relative z-10">
+            <div className="flex items-center gap-2.5">
+              <span className="w-2 h-2 rounded-sm bg-violet-300 shadow-[0_0_8px_rgba(167,139,250,0.8)]" />
+              <h2 className="text-[11px] font-bold text-slate-300 uppercase tracking-[0.2em]">Candidatos por Oferta</h2>
+            </div>
           </div>
+          <div className="h-[300px] w-full relative z-10">
+            {computedCandidatesPerJobData.every((d) => d.count === 0) || jobs.length === 0 ? (
+              <EmptyChart label="Sin ofertas activas con candidatos" />
+            ) : (
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie data={computedCandidatesPerJobData} cx="50%" cy="50%" innerRadius={72} outerRadius={110} paddingAngle={6} dataKey="count" stroke="none" label={({ name, percent }) => percent > 0.05 ? `${(percent * 100).toFixed(0)}%` : ""} labelLine={false}>
+                    {computedCandidatesPerJobData.map((_, idx) => (
+                      <Cell key={idx} fill={COLORS[idx % COLORS.length]} opacity={0.88} />
+                    ))}
+                  </Pie>
+                  <RechartsTooltip contentStyle={CHART_TOOLTIP_STYLE} />
+                </PieChart>
+              </ResponsiveContainer>
+            )}
+          </div>
+          {/* Legend */}
+          {jobs.length > 0 && (
+            <div className="flex flex-wrap gap-x-4 gap-y-1.5 mt-2 relative z-10">
+              {computedCandidatesPerJobData.slice(0, 6).map((d, i) => (
+                <div key={i} className="flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full shrink-0" style={{ background: COLORS[i % COLORS.length] }} />
+                  <span className="text-[10px] text-slate-500 truncate max-w-[80px]">{d.name}</span>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
-        <div className="glass-panel p-6 rounded-2xl flex flex-col lg:col-span-2 relative overflow-hidden group border-emerald-300/20 bg-gradient-to-br from-emerald-950/38 to-slate-950/80 hover:border-emerald-300/45 transition-all duration-300">
-          <div className="absolute top-0 right-0 p-32 bg-emerald-400/12 blur-3xl rounded-full opacity-70 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"></div>
-          <h2 className="text-[11px] font-bold text-emerald-100 mb-6 uppercase tracking-[0.2em] flex items-center gap-3">
-            <span className="w-2 h-2 bg-emerald-300 rounded-sm shadow-[0_0_10px_rgba(52,211,153,0.72)]"></span> Rendimiento de Contratación (y Tiempo al Contratar)
-          </h2>
-          <div className="h-[340px] w-full relative z-10">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={computedPerformanceData} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
-                <defs>
-                  <linearGradient id="colorHires" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#34d399" stopOpacity={0.34}/>
-                    <stop offset="95%" stopColor="#22d3ee" stopOpacity={0}/>
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.03)" />
-                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#737373', fontSize: 11, fontWeight: 600, fontFamily: 'Inter' }} dy={15} />
-                <YAxis yAxisId="left" axisLine={false} tickLine={false} tick={{ fill: '#AAB4C8', fontSize: 11, fontFamily: 'Poppins' }} />
-                <YAxis yAxisId="right" orientation="right" axisLine={false} tickLine={false} tick={{ fill: '#AAB4C8', fontSize: 11, fontFamily: 'Poppins' }} />
-                <RechartsTooltip
-                  contentStyle={{ borderRadius: '12px', border: '1px solid rgba(163,163,163,0.3)', backgroundColor: 'rgba(15, 17, 21, 0.9)', color: '#e5e5e5', boxShadow: '0 8px 32px rgba(0, 0, 0, 0.5)', backdropFilter: 'blur(12px)', fontFamily: 'Inter', fontSize: '12px' }}
-                />
-                <Area yAxisId="left" type="monotone" dataKey="hires" name="Contrataciones" stroke="#737373" strokeWidth={3} fillOpacity={1} fill="url(#colorHires)" activeDot={{ r: 6, fill: '#737373', strokeWidth: 0, className: "drop-shadow-[0_0_10px_rgba(115,115,115,0.45)]" }} />
-                <Line yAxisId="right" type="monotone" dataKey="timeToHire" name="Tiempo (días)" stroke="#a3a3a3" strokeWidth={3} dot={{ fill: '#0b0b0b', strokeWidth: 2, stroke: '#a3a3a3' }} activeDot={{ r: 7, fill: '#a3a3a3', strokeWidth: 0, className: "drop-shadow-[0_0_10px_rgba(163,163,163,0.45)]" }} />
-              </AreaChart>
-            </ResponsiveContainer>
+        {/* Area Chart — full width */}
+        <div className="relative overflow-hidden rounded-2xl border border-emerald-400/12 bg-gradient-to-br from-emerald-950/25 to-zinc-950/90 p-6 flex flex-col lg:col-span-2 group hover:border-emerald-400/25 transition-all duration-300">
+          <div className="absolute top-0 right-0 w-64 h-64 rounded-full bg-emerald-400/5 blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
+          <div className="flex items-center justify-between mb-6 relative z-10">
+            <div className="flex items-center gap-2.5">
+              <span className="w-2 h-2 rounded-sm bg-emerald-300 shadow-[0_0_8px_rgba(52,211,153,0.8)]" />
+              <h2 className="text-[11px] font-bold text-slate-300 uppercase tracking-[0.2em]">Rendimiento de Contratación</h2>
+            </div>
+            <div className="flex items-center gap-4 text-[10px] font-bold text-slate-600 uppercase tracking-wider">
+              <span className="flex items-center gap-1.5"><span className="w-3 h-0.5 bg-emerald-400/50 rounded" />Contrataciones</span>
+              <span className="flex items-center gap-1.5"><span className="w-3 h-0.5 bg-violet-400/50 rounded" style={{ borderTop: "2px dashed" }} />Días</span>
+            </div>
+          </div>
+          <div className="h-[300px] w-full relative z-10">
+            {totalCandidates === 0 ? (
+              <EmptyChart label="Sin datos de rendimiento en el periodo" />
+            ) : (
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={computedPerformanceData} margin={{ top: 4, right: 16, left: -20, bottom: 0 }}>
+                  <defs>
+                    <linearGradient id="hiresGrad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#34d399" stopOpacity={0.25} />
+                      <stop offset="95%" stopColor="#34d399" stopOpacity={0} />
+                    </linearGradient>
+                    <linearGradient id="tthGrad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#a78bfa" stopOpacity={0.15} />
+                      <stop offset="95%" stopColor="#a78bfa" stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.025)" />
+                  <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: "#3f3f46", fontSize: 10, fontWeight: 600 }} dy={12} />
+                  <YAxis yAxisId="left" axisLine={false} tickLine={false} tick={{ fill: "#3f3f46", fontSize: 10 }} />
+                  <YAxis yAxisId="right" orientation="right" axisLine={false} tickLine={false} tick={{ fill: "#3f3f46", fontSize: 10 }} />
+                  <RechartsTooltip contentStyle={CHART_TOOLTIP_STYLE} />
+                  <Area yAxisId="left" type="monotone" dataKey="hires" name="Contrataciones" stroke="#34d399" strokeWidth={2.5} fill="url(#hiresGrad)" activeDot={{ r: 5, fill: "#34d399", strokeWidth: 0 }} />
+                  <Line yAxisId="right" type="monotone" dataKey="timeToHire" name="Tiempo (días)" stroke="#a78bfa" strokeWidth={2} strokeDasharray="5 3" dot={{ r: 3, fill: "#0a0a0a", strokeWidth: 2, stroke: "#a78bfa" }} activeDot={{ r: 5, fill: "#a78bfa", strokeWidth: 0 }} />
+                </AreaChart>
+              </ResponsiveContainer>
+            )}
           </div>
         </div>
       </div>
-      <div className="flex justify-center pt-1">
+
+      <div className="flex justify-center pt-2">
         <DigitalOceanBadge />
       </div>
     </div>

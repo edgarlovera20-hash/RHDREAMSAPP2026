@@ -133,8 +133,10 @@ export function AppLayout() {
           !sidebarOpen && (isCollapsed ? "md:w-20" : "md:w-72")
         )}
       >
-        <div className={cn("hidden md:flex flex-col justify-center border-b border-white/5 shrink-0 relative overflow-hidden transition-all duration-300", isCollapsed ? "h-20 px-2" : "h-36 px-6")}>
-          <div className="absolute top-0 right-0 p-16 bg-cyan-400/18 blur-2xl rounded-full opacity-70 pointer-events-none"></div>
+        <div className={cn("hidden md:flex flex-col justify-center border-b border-white/5 shrink-0 relative overflow-hidden transition-all duration-300", isCollapsed ? "h-20 px-2" : "h-32 px-5")}>
+          <div className="absolute inset-0 bg-gradient-to-b from-cyan-400/5 to-transparent pointer-events-none" />
+          <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-cyan-400/30 to-transparent pointer-events-none" />
+          <div className="absolute top-0 right-0 p-16 bg-cyan-400/12 blur-3xl rounded-full opacity-60 pointer-events-none"></div>
           
           <button 
             onClick={() => setIsCollapsed(!isCollapsed)} 
@@ -146,18 +148,18 @@ export function AppLayout() {
             {isCollapsed ? <PanelLeftOpen className="w-4 h-4" /> : <PanelLeftClose className="w-4 h-4" />}
           </button>
 
-          <div className={cn("flex items-center gap-4 font-bold text-white text-xl tracking-tight group cursor-pointer relative z-10 min-w-0", isCollapsed ? "justify-center mt-3" : "")}>
-            <BrandLogoMark className={cn("transition-transform duration-300 group-hover:scale-105", isCollapsed ? "h-12 w-12" : "h-16 w-16")} />
+          <div className={cn("flex items-center gap-3.5 font-bold text-white tracking-tight group cursor-pointer relative z-10 min-w-0", isCollapsed ? "justify-center mt-3" : "")}>
+            <BrandLogoMark className={cn("transition-transform duration-300 group-hover:scale-105", isCollapsed ? "h-11 w-11" : "h-14 w-14")} />
             {!isCollapsed && (
               <div className="flex min-w-0 flex-col">
-                <span className="whitespace-nowrap font-bold tracking-tight text-[27px] leading-none">RH<span className="text-cyan-300">Dreams</span></span>
-                <span className="mt-2 whitespace-nowrap text-[11px] text-cyan-300 uppercase tracking-[0.26em] font-bold">Heavenly Dreams</span>
+                <span className="whitespace-nowrap font-extrabold tracking-tight text-[24px] leading-none">RH<span className="text-cyan-300">Dreams</span></span>
+                <span className="mt-1.5 whitespace-nowrap text-[9px] text-cyan-400/70 uppercase tracking-[0.3em] font-bold">Heavenly Dreams</span>
               </div>
             )}
           </div>
         </div>
         <div className="flex-1 overflow-y-auto py-6 styled-scrollbar relative">
-          <nav className={cn("flex flex-col gap-1.5", isCollapsed ? "px-2" : "px-4")}>
+          <nav className={cn("flex flex-col gap-0.5", isCollapsed ? "px-2" : "px-3")}>
             {NAV_ITEMS.map((item) => {
               const Icon = item.icon;
               const isActive = item.path === "/" ? location.pathname === "/" : location.pathname.startsWith(item.path);
@@ -169,48 +171,58 @@ export function AppLayout() {
                   onClick={() => setSidebarOpen(false)}
                   title={isCollapsed ? item.name : undefined}
                   className={cn(
-                    "flex items-center rounded-lg font-medium transition-all duration-300 group relative overflow-hidden",
-                    isCollapsed ? "justify-center py-3 px-0 w-10 h-10 mx-auto" : "gap-3 px-4 py-3",
-                    isActive 
-                      ? "neon-selected text-cyan-50 bg-gradient-to-br from-cyan-500/18 via-blue-500/10 to-violet-500/16 border border-cyan-300/55 shadow-[0_0_22px_rgba(34,211,238,0.24),inset_0_0_16px_rgba(34,211,238,0.10),inset_0_1px_0_rgba(255,255,255,0.18)]" 
-                      : "text-slate-300 hover:text-cyan-50 border border-transparent bg-white/[0.015] hover:bg-gradient-to-br hover:from-cyan-500/[0.10] hover:to-violet-500/[0.08] hover:border-cyan-300/30 hover:shadow-[0_0_16px_rgba(34,211,238,0.14)]"
+                    "flex items-center rounded-xl font-medium transition-all duration-200 group relative overflow-hidden",
+                    isCollapsed ? "justify-center w-10 h-10 mx-auto" : "gap-3 px-3 py-2.5",
+                    isActive
+                      ? "text-cyan-50 bg-gradient-to-r from-cyan-500/15 to-violet-500/10 border border-cyan-300/30 shadow-[0_2px_12px_rgba(34,211,238,0.12)]"
+                      : "text-slate-500 hover:text-slate-200 border border-transparent hover:bg-white/[0.04] hover:border-white/6"
                   )}
                 >
                   {isActive && (
-                    <span className="pointer-events-none absolute inset-0 rounded-lg bg-[radial-gradient(circle_at_20%_50%,rgba(34,211,238,0.20),transparent_42%)] opacity-80" />
+                    <span className="pointer-events-none absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-4 rounded-r-full bg-cyan-300 shadow-[0_0_8px_rgba(34,211,238,0.9)]" />
                   )}
-                  <Icon className={cn("w-5 h-5 relative z-10 transition-all shrink-0", item.glassIcon, isActive ? "opacity-100 scale-105 drop-shadow-[0_0_12px_rgba(34,211,238,0.85)]" : "opacity-95 group-hover:opacity-100 group-hover:drop-shadow-[0_0_10px_rgba(34,211,238,0.42)]")} />
-                  {!isCollapsed && <span className={cn("relative z-10 tracking-wide text-[13px] whitespace-nowrap", isActive && "drop-shadow-[0_0_8px_rgba(34,211,238,0.22)]")}>{item.name}</span>}
-                  {isActive && !isCollapsed && <div className="absolute right-3 w-1.5 h-1.5 rounded-full bg-cyan-300 shadow-[0_0_10px_rgba(34,211,238,0.85),0_0_18px_rgba(14,165,233,0.45)] animate-pulse relative z-10 shrink-0" />}
+                  <Icon className={cn(
+                    "w-4 h-4 relative z-10 transition-all duration-200 shrink-0",
+                    isActive ? `${item.glassIcon} drop-shadow-[0_0_8px_currentColor]` : "opacity-60 group-hover:opacity-90"
+                  )} />
+                  {!isCollapsed && (
+                    <span className={cn("relative z-10 text-[13px] whitespace-nowrap font-medium", isActive ? "text-cyan-50" : "")}>
+                      {item.name}
+                    </span>
+                  )}
+                  {isActive && !isCollapsed && (
+                    <span className="ml-auto w-1.5 h-1.5 rounded-full bg-cyan-400 shadow-[0_0_8px_rgba(34,211,238,0.9)] animate-pulse relative z-10 shrink-0" />
+                  )}
                 </Link>
               );
             })}
           </nav>
           
           {!isCollapsed && (
-            <div className="mt-8 px-4">
-               <div className="p-4 bg-gradient-to-br from-cyan-500/10 via-blue-500/8 to-violet-500/10 rounded-xl border border-cyan-300/20 relative overflow-hidden group">
-                 <div className="absolute inset-0 bg-gradient-to-br from-cyan-400/14 to-violet-400/12 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                 <p className="text-[10px] uppercase font-bold text-slate-300 mb-2 flex items-center gap-2 tracking-widest"><Zap className="w-3 h-3 text-amber-300" /> AI Insights</p>
-                 <p className="text-xs text-slate-400 leading-relaxed font-light">Conecta tus integraciones para activar insights con datos reales.</p>
-               </div>
+            <div className="mt-6 px-3">
+              <div className="p-3.5 rounded-xl border border-cyan-300/10 bg-gradient-to-br from-cyan-500/6 to-violet-500/6 relative overflow-hidden group hover:border-cyan-300/20 transition-colors">
+                <p className="text-[9px] uppercase font-bold text-slate-500 mb-1.5 flex items-center gap-1.5 tracking-widest">
+                  <Zap className="w-3 h-3 text-amber-400" /> AI Insights
+                </p>
+                <p className="text-[11px] text-slate-600 leading-relaxed">Conecta tus integraciones para activar análisis con datos reales.</p>
+              </div>
             </div>
           )}
         </div>
         
-        <div className={cn("p-4 border-t border-white/5 shrink-0 bg-black/10 flex items-center transition-all duration-300", isCollapsed ? "flex-col gap-4 justify-center" : "justify-between")}>
-          <div className={cn("flex items-center gap-3 glass-panel p-2 rounded-xl group cursor-pointer hover:border-zinc-300/30 transition-colors", isCollapsed ? "justify-center w-full" : "flex-1 min-w-0")}>
-            <div className="w-10 h-10 rounded-lg bg-neutral-800 border border-neutral-500/60 flex flex-shrink-0 items-center justify-center text-zinc-200 font-bold text-sm shadow-[0_0_10px_rgba(255,255,255,0.08)] group-hover:shadow-[0_0_15px_rgba(255,255,255,0.22)] transition-all">
+        <div className={cn("p-3 border-t border-white/5 shrink-0 bg-black/20 flex items-center transition-all duration-300", isCollapsed ? "flex-col gap-3 justify-center" : "justify-between gap-2")}>
+          <div className={cn("flex items-center gap-2.5 p-2 rounded-xl border border-white/5 bg-white/[0.02] group cursor-pointer hover:border-white/10 hover:bg-white/[0.04] transition-all", isCollapsed ? "justify-center w-full" : "flex-1 min-w-0")}>
+            <div className="w-8 h-8 rounded-lg bg-zinc-800 border border-zinc-700/60 flex shrink-0 items-center justify-center text-zinc-300 font-bold text-xs">
               {initials}
             </div>
             {!isCollapsed && (
               <div className="flex flex-col min-w-0">
-                <span className="text-sm font-medium text-slate-200 group-hover:text-white transition-colors truncate">{displayName}</span>
-                <span className="text-[10px] text-zinc-300 uppercase tracking-widest mt-0.5 truncate">{userLabel}</span>
+                <span className="text-xs font-semibold text-slate-300 group-hover:text-white transition-colors truncate">{displayName}</span>
+                <span className="text-[9px] text-zinc-600 uppercase tracking-widest mt-0.5 truncate">{userLabel}</span>
               </div>
             )}
           </div>
-          <div className={cn("flex items-center gap-1 shrink-0", isCollapsed ? "flex-col w-full" : "ml-2")}>
+          <div className={cn("flex items-center gap-0.5 shrink-0", isCollapsed ? "flex-col w-full" : "")}>
             <button onClick={toggleTheme} className={cn("p-2 text-slate-300 hover:text-white transition-colors rounded-full hover:bg-white/10", isCollapsed && "w-10 h-10 flex items-center justify-center")}>
               {isDarkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
             </button>
