@@ -6,6 +6,7 @@ import {
 } from "./conversationSession.service";
 import { logger } from "../utils/logger";
 import { processWhatsAppBusinessWebhook } from "../modules/whatsapp/webhook.service";
+import { readRuntimeCollection, writeRuntimeCollection } from "./runtimeStore.service";
 
 type MetaWebhookEvent = {
   id: string;
@@ -300,65 +301,6 @@ export async function processMetaWebhookPayload(body: any): Promise<MetaWebhookE
     const sourceId = String(entry.id || process.env.META_PAGE_ID || "facebook-page");
     const entryTime = Number(entry.time || Date.now());
 
-    if (isWhatsAppObject) {
-      for (const change of entry.changes || []) {
-        if (change.field !== "messages") continue;
-
-        const value = change.value || {};
-        const phoneNumberId = String(value.metadata?.phone_number_id || getWhatsAppPhoneNumberId() || sourceId);
-        const contactsByWaId = new Map<string, string>();
-        for (const contact of value.contacts || []) {
-          contactsByWaId.set(String(contact.wa_id || ""), String(contact.profile?.name || ""));
-        }
-
-        for (const message of value.messages || []) {
-          const from = String(message.from || "");
-          const text = String(readWhatsAppTextMessage(message) || "").trim();
-          const messageId = String(message.id || `whatsapp-${Date.now()}-${from}`);
-          if (!from || !text || !rememberAutoReply(messageId)) continue;
-
-          const createdAt = Number(message.timestamp || entryTime || Date.now());
-          const candidateName = contactsByWaId.get(from) || from;
-          events.push({
-            id: messageId,
-            source: phoneNumberId,
-            channel: "whatsapp",
-            direction: "inbound",
-            sender: from,
-            body: text,
-            candidateName,
-            candidatePhone: from,
-            createdAt: createdAt < 10000000000 ? createdAt * 1000 : createdAt,
-            raw: message,
-          });
-
-          const autonomous = await createAutonomousMetaReply({
-            sourceId: phoneNumberId,
-            psid: from,
-            body: text,
-            channel: "whatsapp",
-          });
-
-          if (autonomous?.reply) {
-            events.push({
-              id: `whatsapp-reply-${Date.now()}-${from}`,
-              source: phoneNumberId,
-              channel: "whatsapp",
-              direction: "outbound",
-              sender: phoneNumberId,
-              body: autonomous.reply,
-              candidateName,
-              candidatePhone: from,
-              createdAt: Date.now(),
-              raw: autonomous,
-            });
-          }
-        }
-      }
-
-      continue;
-    }
-
     for (const item of entry.messaging || []) {
       const psid = String(item.sender?.id || "");
       const text = String(item.message?.text || item.postback?.payload || "");
@@ -428,6 +370,14 @@ export async function processMetaWebhookPayload(body: any): Promise<MetaWebhookE
           details,
         },
       });
+
+      // Persist lead
+      try {
+        const leads = await readRuntimeCollection<any>("facebook-leads.json");
+        leads.unshift({ leadgenId, name, phone, email, createdAt: Date.now(), raw: details });
+        leads.splice(500);
+        await writeRuntimeCollection("facebook-leads.json", leads);
+      } catch (_) {}
     }
   }
 

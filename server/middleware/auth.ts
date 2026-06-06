@@ -36,7 +36,23 @@ export const authMiddleware = (
   try {
     const authHeader = req.headers.authorization;
 
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    // Extract token from Bearer header or fall back to httpOnly cookie
+    let token: string | null = null;
+    if (authHeader && authHeader.startsWith("Bearer ")) {
+      token = authHeader.substring(7);
+    } else {
+      // Parse cookie manually (no cookie-parser dependency)
+      const cookieHeader = req.headers.cookie || "";
+      const cookieMatch = cookieHeader
+        .split(";")
+        .map((c) => c.trim())
+        .find((c) => c.startsWith("rhdreams_token="));
+      if (cookieMatch) {
+        token = decodeURIComponent(cookieMatch.substring("rhdreams_token=".length));
+      }
+    }
+
+    if (!token) {
       logger.warn("Unauthorized attempt - missing or invalid token", {
         ip: req.ip,
         path: req.path,
@@ -47,8 +63,6 @@ export const authMiddleware = (
         code: 401,
       });
     }
-
-    const token = authHeader.substring(7);
 
     try {
       const decoded = jwt.verify(token, requireJwtSecret()) as JWTPayload;

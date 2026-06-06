@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import { ErrorAlert } from "@/components/ui/ErrorAlert";
 import {
-  AlertCircle,
   Bot,
   Briefcase,
   CheckCircle2,
@@ -808,10 +808,10 @@ Personalidad configurada: ${principalAgent?.personalityPrompt || principalAgent?
           </div>
 
           {inboxError && (
-            <div className="rounded-xl border border-zinc-500/20 bg-zinc-500/10 px-3 py-2 text-[11px] text-zinc-100 flex items-start gap-2">
-              <AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-              {inboxError}
-            </div>
+            <ErrorAlert
+              message={inboxError}
+              onDismiss={() => setInboxError("")}
+            />
           )}
 
           <div className="grid grid-cols-3 gap-2.5">

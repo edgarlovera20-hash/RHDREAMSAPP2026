@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { CRM_STAGES } from "@/data/appDefaults";
 import { Search, Filter, Plus, Calendar as CalendarIcon, Mail, Star, Phone, MessageCircle, MoreVertical, MapPin, Briefcase, Clock, Facebook, Map, Image as ImageIcon, Send, Activity, User, FileText, Settings as SettingsIcon, Trash2, Check, X, XCircle, Linkedin, Globe, ArrowDownAZ, Tag } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -10,6 +10,7 @@ import { es } from 'date-fns/locale';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import { useDb } from "@/hooks/useDb";
 import { deriveCandidateTags, inferVisitReason } from "@/utils/candidateTracking";
+import { SkeletonTable } from "@/components/ui/SkeletonLoader";
 
 const locales = {
   'es': es,
@@ -76,6 +77,13 @@ const parseAppointmentDateTime = (date: string, time: string) => {
 
 export function Candidates() {
   const { candidates, appointments, updateCandidate, deleteCandidate, addMessage } = useDb();
+
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setLoading(false), 500);
+    return () => clearTimeout(timer);
+  }, []);
 
   const [activeView, setActiveView] = useState<'list' | 'kanban' | 'calendar'>('kanban');
   const [calendarView, setCalendarView] = useState<CalendarViewMode>('month');
@@ -178,6 +186,14 @@ export function Candidates() {
   const selectedDayEvents = calendarEvents
     .filter((event: any) => isSameCalendarDay(event.start, calendarDate))
     .sort((a: any, b: any) => a.start.getTime() - b.start.getTime());
+
+  if (loading) {
+    return (
+      <div className="flex flex-col gap-6 h-full pb-8">
+        <SkeletonTable rows={8} />
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col gap-6 h-full pb-8">

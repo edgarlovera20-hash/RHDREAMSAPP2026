@@ -58,6 +58,14 @@ export const createAuthRoutes = (): Router => {
 
       const token = generateToken(account.uid, account.role);
 
+      res.cookie("rhdreams_token", token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "strict",
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+        path: "/",
+      });
+
       res.json({
         success: true,
         data: {
@@ -87,6 +95,11 @@ export const createAuthRoutes = (): Router => {
         code: 500,
       });
     }
+  });
+
+  router.post("/logout", (_req, res) => {
+    res.clearCookie("rhdreams_token", { path: "/" });
+    res.json({ success: true });
   });
 
   return router;

@@ -39,6 +39,7 @@ export function apiFetch(input: string, init: RequestInit = {}) {
   Object.entries(authHeaders).forEach(([key, value]) => headers.set(key, value));
   return fetch(apiUrl(input), {
     ...init,
+    credentials: "include",
     headers,
   });
 }

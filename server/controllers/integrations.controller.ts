@@ -30,6 +30,7 @@ import {
 } from "../services/baileys.service";
 import { getRecruitmentLeadProfile } from "../services/conversationSession.service";
 import { logger } from "../utils/logger";
+import { readRuntimeCollection, writeRuntimeCollection } from "../services/runtimeStore.service";
 
 type InboxEvent = {
   id: string;
@@ -45,11 +46,29 @@ type InboxEvent = {
   raw?: unknown;
 };
 
-const integrationInbox: InboxEvent[] = [];
+let integrationInbox: InboxEvent[] = [];
+const INBOX_FILE = "integration-inbox.json";
+const MAX_INBOX = 200;
+
+async function loadInbox() {
+  try {
+    integrationInbox = await readRuntimeCollection<InboxEvent>(INBOX_FILE);
+  } catch (_) {}
+}
+
+async function saveInbox() {
+  try {
+    await writeRuntimeCollection(INBOX_FILE, integrationInbox);
+  } catch (_) {}
+}
+
+// Load on module init
+loadInbox().catch(() => {});
 
 const pushInboxEvent = (event: InboxEvent) => {
   integrationInbox.unshift(event);
-  integrationInbox.splice(200);
+  integrationInbox.splice(MAX_INBOX);
+  saveInbox().catch(() => {});
 };
 
 export const getCatalog = (_req: Request, res: Response) => {

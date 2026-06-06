@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Users, UserPlus, Briefcase, Clock, Activity, Cpu, AlertCircle, X, CheckCircle2, AlertTriangle, Info, Calendar, Filter } from "lucide-react";
 import { Area, AreaChart, Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip as RechartsTooltip, XAxis, YAxis, PieChart, Pie, Cell, Line, ComposedChart } from "recharts";
 import { DigitalOceanBadge } from "@/components/DigitalOceanBadge";
 import { useNotifications } from "@/contexts/NotificationContext";
 import { useDb } from "@/hooks/useDb";
 import { cn } from "@/lib/utils";
+import { SkeletonCard } from "@/components/ui/SkeletonLoader";
 
 const COLORS = ['#22d3ee', '#38bdf8', '#a78bfa', '#f472b6', '#34d399', '#fbbf24'];
 
@@ -22,6 +23,13 @@ export function Dashboard() {
   const { candidates, jobs, appointments } = useDb();
   const { notifications, markAsRead } = useNotifications();
   const unreadAlerts = notifications.filter(n => !n.read).slice(0, 3); // Módulos de alerta en el dashboard
+
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setLoading(false), 600);
+    return () => clearTimeout(timer);
+  }, []);
 
   // Interactive filter states
   const [selectedPreset, setSelectedPreset] = useState<"7d" | "30d" | "90d" | "all" | "custom">("30d");
@@ -215,6 +223,23 @@ export function Dashboard() {
 
     return distribution;
   })();
+
+  if (loading) {
+    return (
+      <div className="flex flex-col gap-5 w-full min-h-full pb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <SkeletonCard key={i} />
+          ))}
+        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <SkeletonCard key={i} />
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col gap-5 w-full min-h-full pb-8">

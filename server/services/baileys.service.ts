@@ -22,6 +22,7 @@ type BaileysSession = {
   qrExpiresAt?: number;
   phone?: string | null;
   lastError?: string | null;
+  reconnectAttempts?: number;
   updatedAt: number;
   connectedAt?: number;
   agentName?: string;
@@ -57,7 +58,9 @@ const DEFAULT_SESSION_ID = process.env.BAILEYS_SESSION_ID || "default";
 const MAX_SESSION_MESSAGES = Math.max(100, Number(process.env.BAILEYS_MAX_SESSION_MESSAGES || 1000));
 const QR_TTL_MS = Math.max(30_000, Number(process.env.BAILEYS_QR_TTL_MS || 120_000)); // Aumentado a 120 segundos
 const CONNECTING_STALE_MS = Math.max(15_000, Number(process.env.BAILEYS_CONNECTING_STALE_MS || 35_000));
-const SESSION_ROOT = path.join(process.cwd(), ".sessions", "baileys");
+const SESSION_ROOT = process.env.BAILEYS_SESSIONS_DIR
+  ? path.resolve(process.env.BAILEYS_SESSIONS_DIR)
+  : path.join(process.cwd(), ".sessions", "baileys");
 const sessions = new Map<string, BaileysSession>();
 
 const getSession = (sessionId = DEFAULT_SESSION_ID) => {
@@ -294,6 +297,16 @@ export async function startBaileysSession(options: StartOptions = {}) {
     return publicSession(session);
   }
 
+  const MAX_CONCURRENT_SESSIONS = Number(process.env.BAILEYS_MAX_SESSIONS || 5);
+  const activeSessions = Array.from(sessions.values()).filter(s =>
+    s.id !== session.id && ["connecting", "qr", "connected"].includes(s.state)
+  ).length;
+  if (activeSessions >= MAX_CONCURRENT_SESSIONS) {
+    session.state = "error";
+    session.lastError = `Limite de sesiones activas alcanzado (${MAX_CONCURRENT_SESSIONS}). Cierra otras sesiones primero.`;
+    return publicSession(session);
+  }
+
   await fs.mkdir(sessionPath(session.id), { recursive: true });
   session.state = "connecting";
   session.lastError = null;
@@ -373,6 +386,7 @@ export async function startBaileysSession(options: StartOptions = {}) {
 
     if (connection === "open") {
       session.state = "connected";
+      session.reconnectAttempts = 0;
       clearTransientQrState(session);
       session.phone = socket.user?.id || null;
       session.lastError = null;
@@ -402,11 +416,15 @@ export async function startBaileysSession(options: StartOptions = {}) {
             logger.error("Baileys logged-out reset failed", { sessionId: session.id, error });
           });
       } else {
+        const attempt = (session.reconnectAttempts || 0) + 1;
+        session.reconnectAttempts = attempt;
+        const backoffMs = Math.min(1000 * Math.pow(2, attempt - 1), 60_000); // 1s, 2s, 4s, 8s... max 60s
+        logger.info("Baileys scheduling reconnect", { sessionId: session.id, attempt, backoffMs });
         setTimeout(() => {
           startBaileysSession({ sessionId: session.id }).catch((error) => {
             logger.error("Baileys reconnect failed", { sessionId: session.id, error });
           });
-        }, 3000);
+        }, backoffMs);
       }
     }
   });
@@ -555,6 +573,13 @@ Reglas:
 }
 
 export async function restoreSavedBaileysSessions() {
+  if (process.env.NODE_ENV === "production" && !process.env.BAILEYS_SESSIONS_DIR) {
+    logger.warn(
+      "Baileys sessions stored in local filesystem. In ephemeral environments (containers, serverless), sessions will be lost on restart. Set BAILEYS_SESSIONS_DIR to a persistent volume path or use a Redis-backed session store.",
+      { sessionRoot: SESSION_ROOT }
+    );
+  }
+
   try {
     await fs.mkdir(SESSION_ROOT, { recursive: true });
     const entries = await fs.readdir(SESSION_ROOT, { withFileTypes: true });
