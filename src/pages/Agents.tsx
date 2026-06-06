@@ -918,7 +918,7 @@ Escribenos por mensaje para recibir requisitos, horarios y siguientes pasos.
                 <div className="flex justify-between items-start mb-4">
                   <div className="flex items-center gap-3">
                     <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-white ${agent.avatarColor} shadow-lg`}>
-                      <Bot className="w-6 h-6" />
+                      <Bot className="w-6 h-6 icon-violet" />
                     </div>
                     <div>
                       <div className="flex flex-wrap items-center gap-2">
@@ -1968,9 +1968,9 @@ Escribenos por mensaje para recibir requisitos, horarios y siguientes pasos.
               <button
                 onClick={handleAddAgent}
                 disabled={!newAgentName.trim() || !newAgentRole.trim()}
-                className="bg-zinc-500 hover:bg-zinc-600 text-slate-900 font-semibold px-6 py-2.5 rounded-xl flex items-center gap-2 transition-all shadow-[0_0_15px_rgba(212,212,212,0.2)] disabled:opacity-50 disabled:cursor-not-allowed"
+                className="btn-primary px-6 py-2.5 rounded-xl flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <Zap className="w-4 h-4 text-slate-900" fill="currentColor" />
+                <Zap className="w-4 h-4" fill="currentColor" />
                 Desplegar Agente
               </button>
             </div>
@@ -2051,12 +2051,12 @@ Escribenos por mensaje para recibir requisitos, horarios y siguientes pasos.
                 <button
                   type="submit"
                   disabled={!currentMessage.trim() || isGenerating}
-                  className="bg-zinc-500 hover:bg-zinc-600 disabled:bg-slate-700 disabled:text-slate-500 text-slate-900 p-2.5 rounded-xl transition-colors flex items-center justify-center shrink-0"
+                  className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed p-2.5 rounded-xl flex items-center justify-center shrink-0"
                 >
                   {isGenerating ? (
-                    <Loader2 className="w-5 h-5 animate-spin text-slate-600" />
+                    <Loader2 className="w-5 h-5 animate-spin" />
                   ) : (
-                    <Send className="w-5 h-5" />
+                    <Send className="w-5 h-5 icon-cyan" />
                   )}
                 </button>
               </form>

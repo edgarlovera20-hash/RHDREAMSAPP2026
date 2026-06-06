@@ -318,13 +318,13 @@ const INITIAL_WORKFLOWS: AiWorkflow[] = [
 ];
 
 const STEP_META: Record<StepType, { label: string; icon: typeof Bot; color: string }> = {
-  ai: { label: "Agente IA", icon: Bot, color: "text-zinc-300 bg-zinc-500/10 border-zinc-400/30" },
-  condition: { label: "Condición", icon: GitBranch, color: "text-zinc-300 bg-zinc-500/10 border-zinc-400/30" },
-  message: { label: "Mensaje", icon: MessageSquare, color: "text-zinc-300 bg-zinc-500/10 border-zinc-400/30" },
-  calendar: { label: "Calendario", icon: Calendar, color: "text-zinc-300 bg-zinc-500/10 border-zinc-400/30" },
-  task: { label: "Tarea CRM", icon: UserCheck, color: "text-zinc-300 bg-zinc-500/10 border-zinc-400/30" },
-  webhook: { label: "Webhook", icon: Database, color: "text-zinc-300 bg-zinc-500/10 border-zinc-400/30" },
-  handoff: { label: "Escalar", icon: ShieldCheck, color: "text-zinc-300 bg-zinc-500/10 border-zinc-400/30" }
+  ai: { label: "Agente IA", icon: Bot, color: "icon-violet bg-violet-500/10 border-violet-400/30" },
+  condition: { label: "Condición", icon: GitBranch, color: "icon-fuchsia bg-fuchsia-500/10 border-fuchsia-400/30" },
+  message: { label: "Mensaje", icon: MessageSquare, color: "icon-cyan bg-cyan-500/10 border-cyan-400/30" },
+  calendar: { label: "Calendario", icon: Calendar, color: "icon-amber bg-amber-500/10 border-amber-400/30" },
+  task: { label: "Tarea CRM", icon: UserCheck, color: "icon-emerald bg-emerald-500/10 border-emerald-400/30" },
+  webhook: { label: "Webhook", icon: Database, color: "icon-sky bg-sky-500/10 border-sky-400/30" },
+  handoff: { label: "Escalar", icon: ShieldCheck, color: "icon-rose bg-rose-500/10 border-rose-400/30" }
 };
 
 function renderWithVariables(template: string, variables: WorkflowVariable[]) {
@@ -908,7 +908,7 @@ export function AIWorkflows() {
                     <Select label="Operador" value={condition.operator} options={["contiene", "igual a", "mayor que", "menor que", "existe", "no existe"]} onChange={(value) => updateCondition(condition.id, { operator: value as ConditionOperator })} />
                     <Field label="Valor" value={condition.value} onChange={(value) => updateCondition(condition.id, { value })} placeholder="Valor esperado, opcional si existe/no existe" />
                     <Select label="Si falla" value={condition.actionOnFail} options={["detener", "escalar", "continuar"]} onChange={(value) => updateCondition(condition.id, { actionOnFail: value as WorkflowCondition["actionOnFail"] })} />
-                    <button onClick={() => updateActiveWorkflow({ conditions: activeWorkflow.conditions.filter((item) => item.id !== condition.id) })} className="mt-6 flex h-10 w-10 items-center justify-center rounded-lg border border-slate-700 text-slate-500 hover:border-zinc-400/40 hover:text-zinc-300">
+                    <button onClick={() => updateActiveWorkflow({ conditions: activeWorkflow.conditions.filter((item) => item.id !== condition.id) })} className="mt-6 flex h-10 w-10 items-center justify-center rounded-lg border border-rose-500/30 bg-rose-500/10 text-rose-400 hover:bg-rose-500/20 hover:text-rose-300">
                       <Trash2 className="h-4 w-4" />
                     </button>
                   </div>
@@ -934,7 +934,7 @@ export function AIWorkflows() {
                           <Select label="Agente" value={step.agent} options={AGENTS} onFocus={() => setActiveStepId(step.id)} onChange={(value) => updateStep(step.id, { agent: value })} />
                           <Select label="Canal" value={step.channel} options={["Sistema", ...CHANNELS]} onFocus={() => setActiveStepId(step.id)} onChange={(value) => updateStep(step.id, { channel: value })} />
                         </div>
-                        <button onClick={() => removeStep(step.id)} disabled={activeWorkflow.steps.length === 1} className="flex h-10 w-10 items-center justify-center rounded-lg border border-slate-700 text-slate-500 hover:border-zinc-400/40 hover:text-zinc-300 disabled:cursor-not-allowed disabled:opacity-40">
+                        <button onClick={() => removeStep(step.id)} disabled={activeWorkflow.steps.length === 1} className="flex h-10 w-10 items-center justify-center rounded-lg border border-rose-500/30 bg-rose-500/10 text-rose-400 hover:bg-rose-500/20 hover:text-rose-300 disabled:cursor-not-allowed disabled:opacity-40">
                           <Trash2 className="h-4 w-4" />
                         </button>
                       </div>
@@ -981,7 +981,7 @@ export function AIWorkflows() {
                           {variable.required ? "Sí" : "No"}
                         </button>
                       </label>
-                      <button onClick={() => updateActiveWorkflow({ variables: activeWorkflow.variables.filter((item) => item.id !== variable.id) })} className="mt-6 flex h-10 w-10 items-center justify-center rounded-lg border border-slate-700 text-slate-500 hover:border-zinc-400/40 hover:text-zinc-300">
+                      <button onClick={() => updateActiveWorkflow({ variables: activeWorkflow.variables.filter((item) => item.id !== variable.id) })} className="mt-6 flex h-10 w-10 items-center justify-center rounded-lg border border-rose-500/30 bg-rose-500/10 text-rose-400 hover:bg-rose-500/20 hover:text-rose-300">
                         <Trash2 className="h-4 w-4" />
                       </button>
                     </div>
