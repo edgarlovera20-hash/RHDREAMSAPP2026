@@ -110,8 +110,8 @@ export function WelcomeTracking() {
     <div className="flex h-full flex-col gap-6 pb-8">
       <div className="flex flex-col gap-4 pt-2 lg:flex-row lg:items-center lg:justify-between">
         <div>
-          <h1 className="flex items-center gap-2 text-2xl font-semibold tracking-tight text-white">
-            <UserCheck className="h-6 w-6 text-zinc-400" />
+          <h1 className="page-title flex items-center gap-2 text-2xl font-semibold tracking-tight">
+            <UserCheck className="h-6 w-6 icon-lime" />
             Bienvenidas y Seguimiento
           </h1>
           <p className="mt-1 text-sm font-light text-slate-400">Recepción, DDO, primer día, materiales, ventas, asistencia y bienestar.</p>
@@ -127,11 +127,11 @@ export function WelcomeTracking() {
 
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
         {[
-          { label: "Contacto", value: stats.contact, icon: MessageCircle, color: "text-zinc-300" },
-          { label: "Entrevistas", value: stats.interviews, icon: Calendar, color: "text-zinc-300" },
-          { label: "DDO", value: stats.ddo, icon: Users, color: "text-zinc-300" },
-          { label: "Inventario pendiente", value: stats.pendingInventory, icon: Package, color: "text-zinc-300" },
-          { label: "Bienestar prom.", value: stats.avgWellbeing, icon: Heart, color: "text-zinc-300" }
+          { label: "Contacto", value: stats.contact, icon: MessageCircle, color: "icon-emerald" },
+          { label: "Entrevistas", value: stats.interviews, icon: Calendar, color: "icon-amber" },
+          { label: "DDO", value: stats.ddo, icon: Users, color: "icon-sky" },
+          { label: "Inventario pendiente", value: stats.pendingInventory, icon: Package, color: "icon-lime" },
+          { label: "Bienestar prom.", value: stats.avgWellbeing, icon: Heart, color: "icon-rose" }
         ].map(item => {
           const Icon = item.icon;
           return (
@@ -141,8 +141,8 @@ export function WelcomeTracking() {
                   <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500">{item.label}</p>
                   <p className="mt-2 text-2xl font-semibold text-white">{item.value}</p>
                 </div>
-                <div className={cn("flex h-10 w-10 items-center justify-center rounded-lg border border-white/10 bg-slate-900/70", item.color)}>
-                  <Icon className="h-5 w-5" />
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-white/10 bg-slate-900/70">
+                  <Icon className={cn("h-5 w-5", item.color)} />
                 </div>
               </div>
             </div>
@@ -174,7 +174,7 @@ export function WelcomeTracking() {
           {trackedCandidates.map(candidate => {
             const onboarding = defaultOnboarding(candidate);
             const completedMaterials = MATERIALS.filter(item => Boolean(onboarding[item.key as keyof typeof onboarding])).length;
-            const wellbeingColor = onboarding.wellbeingScore >= 4 ? "text-zinc-300" : onboarding.wellbeingScore === 3 ? "text-zinc-300" : "text-zinc-300";
+            const wellbeingColor = onboarding.wellbeingScore >= 4 ? "text-emerald-400" : onboarding.wellbeingScore === 3 ? "text-amber-400" : "text-rose-400";
 
             return (
               <article key={candidate.id} className="glass-panel rounded-2xl border border-slate-700/50 p-5">
@@ -264,7 +264,7 @@ export function WelcomeTracking() {
                         className={cn(
                           "flex min-h-16 flex-col items-center justify-center gap-1 rounded-lg border px-2 py-2 text-xs font-semibold transition-colors",
                           isChecked
-                            ? "border-zinc-500/30 bg-zinc-500/10 text-zinc-300"
+                            ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-300"
                             : "border-white/10 bg-slate-950/30 text-slate-400 hover:border-slate-500"
                         )}
                       >

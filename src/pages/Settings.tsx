@@ -440,7 +440,7 @@ export function Settings() {
   return (
     <div className="flex flex-col gap-6 max-w-5xl">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight text-white mt-2">Configuración</h1>
+        <h1 className="page-title mt-2">Configuración</h1>
         <p className="text-slate-400">Maneja tu equipo, roles, permisos y opciones del sistema.</p>
       </div>
 

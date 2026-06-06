@@ -662,13 +662,13 @@ export function WorkspaceHub() {
 
   const neutralToolState = "bg-slate-200/10 border-slate-200/40 text-white shadow-[inset_3px_0_0_rgba(226,232,240,0.55),0_0_18px_rgba(245,245,245,0.10)]";
   const workspaceTools = [
-    { id: "sheets", name: "Google Sheets", desc: "Base de candidatos", icon: FileSpreadsheet },
-    { id: "calendar", name: "Google Calendar", desc: "Agendar entrevistas", icon: CalendarIcon },
-    { id: "gmail", name: "Gmail", desc: "Comunicaciones", icon: Mail },
-    { id: "forms", name: "Google Forms", desc: "Postulantes nuevos", icon: FormInput },
-    { id: "picker", name: "Google Drive Picker", desc: "PDFs, imagenes y CVs", icon: FolderOpen },
-    { id: "photos", name: "Google Photos", desc: "Fotos autorizadas", icon: ImageIcon },
-    { id: "keep", name: "Google Keep", desc: "Apuntes y notas rápidas", icon: StickyNote }
+    { id: "sheets", name: "Google Sheets", desc: "Base de candidatos", icon: FileSpreadsheet, iconClass: "icon-emerald" },
+    { id: "calendar", name: "Google Calendar", desc: "Agendar entrevistas", icon: CalendarIcon, iconClass: "icon-amber" },
+    { id: "gmail", name: "Gmail", desc: "Comunicaciones", icon: Mail, iconClass: "icon-rose" },
+    { id: "forms", name: "Google Forms", desc: "Postulantes nuevos", icon: FormInput, iconClass: "icon-violet" },
+    { id: "picker", name: "Google Drive Picker", desc: "PDFs, imagenes y CVs", icon: FolderOpen, iconClass: "icon-sky" },
+    { id: "photos", name: "Google Photos", desc: "Fotos autorizadas", icon: ImageIcon, iconClass: "icon-orange" },
+    { id: "keep", name: "Google Keep", desc: "Apuntes y notas rápidas", icon: StickyNote, iconClass: "icon-amber" }
   ] as const;
 
   const workspaceSummaryCards = [
@@ -683,8 +683,8 @@ export function WorkspaceHub() {
       {/* Visual Header */}
       <div className="glass-panel flex flex-col lg:flex-row justify-between items-start lg:items-center gap-5 p-5 rounded-2xl border border-white/5">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-white mt-1 flex items-center gap-2">
-            <Sparkles className="w-6 h-6 text-zinc-400 drop-shadow-[0_0_10px_rgba(212,212,212,0.5)]" />
+          <h1 className="page-title mt-1 flex items-center gap-2 text-2xl font-semibold tracking-tight">
+            <Sparkles className="w-6 h-6 icon-sky" />
             Integración Google Workspace
           </h1>
           <p className="text-slate-400 text-sm">Centraliza Sheets, Calendar, Gmail, Forms, Drive, Photos y Keep de Reclutamiento.</p>
@@ -701,7 +701,7 @@ export function WorkspaceHub() {
         <div className="w-full lg:w-auto lg:min-w-[330px] flex items-center justify-between gap-3 bg-slate-950/70 p-4 rounded-xl border border-white/10 shadow-inner">
           <div className="flex flex-col text-left lg:text-right">
             <span className="text-xs text-slate-400 font-bold uppercase tracking-wider">Estado de Conexión</span>
-            <span className={cn("text-xs font-semibold", isLoggedInWithGoogle ? "text-zinc-400" : "text-zinc-400")}>
+            <span className={cn("text-xs font-semibold", isLoggedInWithGoogle ? "text-emerald-400" : "text-slate-400")}>
               {isLoggedInWithGoogle ? "✓ Autenticado con Google" : "Conexión requerida"}
             </span>
             {!isLoggedInWithGoogle && (
@@ -755,7 +755,7 @@ export function WorkspaceHub() {
                     "p-2 rounded-lg bg-slate-950 border border-white/5 transition-transform group-hover:scale-105",
                     activeTab === tool.id ? "border-slate-200/25 bg-slate-800/80" : ""
                   )}>
-                    <tool.icon className="w-4 h-4 text-slate-300" />
+                    <tool.icon className={cn("w-4 h-4", activeTab === tool.id ? tool.iconClass : "text-slate-300")} />
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="font-bold text-xs tracking-wide uppercase truncate">{tool.name}</div>
@@ -809,7 +809,7 @@ export function WorkspaceHub() {
                   <button
                     onClick={handleExportToSheets}
                     disabled={isExporting}
-                    className="mt-auto bg-zinc-600 hover:bg-zinc-500 text-white font-bold text-xs py-2.5 px-4 rounded-xl flex items-center justify-center gap-2 cursor-pointer transition-all"
+                    className="btn-primary mt-auto text-xs py-2.5 px-4 flex items-center justify-center gap-2"
                   >
                     {isExporting ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileSpreadsheet className="w-4 h-4" />}
                     Exportar Candidatos
@@ -886,7 +886,7 @@ export function WorkspaceHub() {
                   </div>
                   <button
                     onClick={confirmImport}
-                    className="w-full bg-zinc-600 hover:bg-zinc-500 text-white font-bold text-xs py-2 px-4 rounded-xl transition-colors"
+                    className="btn-primary w-full text-xs py-2 px-4"
                   >
                     Confirmar Ingesta al CRM local
                   </button>
@@ -1007,7 +1007,7 @@ export function WorkspaceHub() {
                 <button
                   type="submit"
                   disabled={isScheduling}
-                  className="w-full bg-zinc-600 hover:bg-zinc-500 text-white font-bold text-xs py-2 px-4 rounded-xl transition-colors cursor-pointer flex items-center justify-center gap-2"
+                  className="btn-primary w-full text-xs py-2 px-4 flex items-center justify-center gap-2"
                 >
                   {isScheduling ? <Loader2 className="w-4 h-4 animate-spin" /> : <CalendarIcon className="w-4 h-4" />}
                   Crear Evento en Google Calendar
@@ -1133,7 +1133,7 @@ export function WorkspaceHub() {
                 <button
                   type="submit"
                   disabled={isSendingEmail || !gmailForm.candidateEmail}
-                  className="w-full bg-zinc-600 hover:bg-zinc-500 text-white font-bold text-xs py-2.5 px-4 rounded-xl flex items-center justify-center gap-2 transition-colors disabled:opacity-40"
+                  className="btn-primary w-full text-xs py-2.5 px-4 flex items-center justify-center gap-2 disabled:opacity-40"
                 >
                   {isSendingEmail ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
                   Enviar Correo de Forma Directa
@@ -1179,7 +1179,7 @@ export function WorkspaceHub() {
                   <button
                     onClick={handleLinkGoogleForm}
                     disabled={isLinkingForm || !formId}
-                    className="bg-zinc-600 hover:bg-zinc-500 text-white font-bold text-xs py-2 px-4 rounded-xl shrink-0 transition-colors disabled:opacity-40"
+                    className="btn-primary text-xs py-2 px-4 shrink-0 disabled:opacity-40"
                   >
                     Enlazar Form
                   </button>
@@ -1206,7 +1206,7 @@ export function WorkspaceHub() {
                     <button
                       onClick={handleSyncFormResponses}
                       disabled={isSyncingResponses}
-                      className="bg-zinc-600 hover:bg-zinc-500 text-white font-bold text-[11px] py-1.5 px-3.5 rounded-lg flex items-center gap-1 transition-all cursor-pointer"
+                      className="btn-primary text-[11px] py-1.5 px-3.5 flex items-center gap-1"
                     >
                       {isSyncingResponses ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <RefreshCw className="w-3.5 h-3.5" />}
                       Sincronizar Respuestas
@@ -1495,7 +1495,7 @@ export function WorkspaceHub() {
                   <button
                     type="submit"
                     disabled={isCreatingNote || (!newKeepNote.title && !newKeepNote.content)}
-                    className="bg-zinc-600 hover:bg-zinc-500 text-slate-950 font-bold text-[10px] uppercase tracking-wide py-1 px-3.5 rounded-lg transition-transform hover:scale-[1.02] cursor-pointer disabled:opacity-40"
+                    className="btn-primary text-[10px] uppercase tracking-wide py-1 px-3.5 disabled:opacity-40"
                   >
                     Guardar Nota
                   </button>

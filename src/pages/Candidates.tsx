@@ -26,31 +26,31 @@ const localizer = dateFnsLocalizer({
 
 type CalendarViewMode = 'month' | 'week' | 'day';
 
-// Helper function for stage tones
+// Helper function for stage colors — returns badge class or inline class string
 const getStageColor = (stage: string) => {
   const stageLower = stage.toLowerCase();
-  if (['nuevo'].includes(stageLower)) return 'tone1';
-  if (['contactado', 'habló con agente', 'espera de respuesta', 'reagendar'].includes(stageLower)) return 'tone2';
-  if (['cita agendada', 'confirmó asistencia'].includes(stageLower)) return 'tone1';
-  if (['día de observación / ddo', 'ddo y bienvenida'].includes(stageLower)) return 'tone3';
-  if (['bienvenida 1er día', 'inventario y materiales', 'seguimiento y bienestar', 'contratado'].includes(stageLower)) return 'tone4';
-  if (['rechazado', 'no asistió'].includes(stageLower)) return 'tone5';
-  if (['entrevista realizada', 'en capacitación'].includes(stageLower)) return 'tone6';
-  return 'slate';
+  if (['nuevo'].includes(stageLower)) return 'badge-cyan';
+  if (['contactado', 'habló con agente', 'espera de respuesta', 'reagendar'].includes(stageLower)) return 'badge-amber';
+  if (['cita agendada', 'confirmó asistencia'].includes(stageLower)) return 'badge-cyan';
+  if (['día de observación / ddo', 'ddo y bienvenida'].includes(stageLower)) return 'badge-violet';
+  if (['bienvenida 1er día', 'inventario y materiales', 'seguimiento y bienestar', 'contratado'].includes(stageLower)) return 'badge-emerald';
+  if (['rechazado', 'no asistió'].includes(stageLower)) return 'badge-rose';
+  if (['entrevista realizada', 'en capacitación'].includes(stageLower)) return 'bg-sky-500/15 text-sky-300 border border-sky-500/25';
+  return 'badge-gray';
 };
 
 // Helper for source icon & color
 const SourceIcon = ({ source }: { source: string }) => {
   const s = source?.toLowerCase() || '';
-  if (s.includes('linkedin')) return <Linkedin className="w-3 h-3 text-[#737373]" />;
-  if (s.includes('facebook') || s.includes('messenger')) return <Facebook className="w-3 h-3 text-zinc-400" />;
-  if (s.includes('whatsapp')) return <MessageCircle className="w-3 h-3 text-zinc-400" />;
-  if (s.includes('job board') || s.includes('portal')) return <Globe className="w-3 h-3 text-zinc-500" />;
-  if (s.includes('volante') || s.includes('documento')) return <FileText className="w-3 h-3 text-slate-300" />;
-  if (s.includes('lona') || s.includes('física') || s.includes('ubicación')) return <Map className="w-3 h-3 text-zinc-400" />;
-  if (s.includes('instagram') || s.includes('tiktok')) return <ImageIcon className="w-3 h-3 text-zinc-400" />;
-  if (s.includes('referido') || s.includes('referral')) return <User className="w-3 h-3 text-zinc-400" />;
-  return <Briefcase className="w-3 h-3 text-zinc-400" />;
+  if (s.includes('linkedin')) return <Linkedin className="w-3 h-3 text-sky-400" />;
+  if (s.includes('facebook') || s.includes('messenger')) return <Facebook className="w-3 h-3 text-blue-400" />;
+  if (s.includes('whatsapp')) return <MessageCircle className="w-3 h-3 text-emerald-400" />;
+  if (s.includes('job board') || s.includes('portal')) return <Globe className="w-3 h-3 text-violet-400" />;
+  if (s.includes('volante') || s.includes('documento')) return <FileText className="w-3 h-3 text-amber-400" />;
+  if (s.includes('lona') || s.includes('física') || s.includes('ubicación')) return <Map className="w-3 h-3 text-orange-400" />;
+  if (s.includes('instagram') || s.includes('tiktok')) return <ImageIcon className="w-3 h-3 text-fuchsia-400" />;
+  if (s.includes('referido') || s.includes('referral')) return <User className="w-3 h-3 text-cyan-400" />;
+  return <Briefcase className="w-3 h-3 text-slate-400" />;
 };
 
 const formatAppointmentTime = (date: Date) => {
@@ -207,8 +207,8 @@ export function Candidates() {
 
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pt-2">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-white flex items-center gap-2">
-            <Activity className="w-6 h-6 text-zinc-400" />
+          <h1 className="page-title text-2xl font-semibold tracking-tight flex items-center gap-2">
+            <Activity className="w-6 h-6 icon-cyan" />
             CRM Pipeline
           </h1>
           <p className="text-slate-400 text-sm font-light mt-1">Supervisión y flujo en tiempo real de talentos.</p>
@@ -265,7 +265,7 @@ export function Candidates() {
                 type: 'info'
               });
             }}
-            className="bg-slate-200/10 border border-slate-200/35 hover:bg-white/10 hover:border-slate-200/55 text-slate-100 hover:text-white px-4 py-2.5 rounded-lg font-bold text-xs flex items-center gap-2 transition-all shadow-[0_0_15px_rgba(163,163,163,0.2)] hover:shadow-[0_0_24px_rgba(245,245,245,0.16)]">
+            className="btn-primary px-4 py-2.5 rounded-lg font-bold text-xs flex items-center gap-2">
             <Plus className="w-4 h-4" />
             Nuevo Lead
           </button>
@@ -512,22 +512,22 @@ export function Candidates() {
 
               const colorBase = getStageColor(stage);
               const bgLineMap: Record<string, string> = {
-                slate: "via-slate-500/30",
-                tone1: "via-zinc-500/50",
-                tone2: "via-zinc-500/50",
-                tone3: "via-zinc-500/50",
-                tone4: "via-zinc-500/50",
-                tone5: "via-zinc-500/50",
-                tone6: "via-zinc-500/50"
+                'badge-gray': "via-slate-500/30",
+                'badge-cyan': "via-cyan-500/40",
+                'badge-amber': "via-amber-500/40",
+                'badge-violet': "via-violet-500/40",
+                'badge-emerald': "via-emerald-500/40",
+                'badge-rose': "via-rose-500/40",
+                'bg-sky-500/15 text-sky-300 border border-sky-500/25': "via-sky-500/40",
               };
               const textMap: Record<string, string> = {
-                slate: "text-slate-400",
-                tone1: "text-zinc-400",
-                tone2: "text-zinc-400",
-                tone3: "text-zinc-400",
-                tone4: "text-zinc-400",
-                tone5: "text-zinc-400",
-                tone6: "text-zinc-400"
+                'badge-gray': "text-slate-400",
+                'badge-cyan': "text-cyan-400",
+                'badge-amber': "text-amber-400",
+                'badge-violet': "text-violet-400",
+                'badge-emerald': "text-emerald-400",
+                'badge-rose': "text-rose-400",
+                'bg-sky-500/15 text-sky-300 border border-sky-500/25': "text-sky-400",
               };
 
               return (
@@ -891,15 +891,6 @@ export function Candidates() {
             <tbody className="divide-y divide-white/5">
               {paginatedCandidates.map(candidate => {
                 const colorBase = getStageColor(candidate.stage);
-                const bgTintMap: Record<string, string> = {
-                  slate: "bg-slate-500/10 text-slate-400 border-slate-500/20",
-                  tone1: "bg-zinc-500/10 text-zinc-400 border-zinc-500/20",
-                  tone2: "bg-zinc-500/10 text-zinc-400 border-zinc-500/20",
-                  tone3: "bg-zinc-500/10 text-zinc-400 border-zinc-500/20",
-                  tone4: "bg-zinc-500/10 text-zinc-400 border-zinc-500/20",
-                  tone5: "bg-zinc-500/10 text-zinc-400 border-zinc-500/20",
-                  tone6: "bg-zinc-500/10 text-zinc-400 border-zinc-500/20",
-                };
 
                 return (
                 <tr key={candidate.id} className="hover:bg-white/[0.035] hover:shadow-[inset_3px_0_0_rgba(226,232,240,0.45)] transition-all group cursor-pointer" onClick={() => setSelectedCandidate(candidate)}>
@@ -960,7 +951,7 @@ export function Candidates() {
                     </span>
                   </td>
                   <td className="px-6 py-4">
-                    <span className={cn("px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-widest border shadow-[inset_0_0_8px_rgba(255,255,255,0.05)]", bgTintMap[colorBase])}>
+                    <span className={cn("px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-widest border shadow-[inset_0_0_8px_rgba(255,255,255,0.05)]", colorBase)}>
                       {candidate.stage}
                     </span>
                   </td>

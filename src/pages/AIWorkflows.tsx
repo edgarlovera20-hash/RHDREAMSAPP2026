@@ -723,19 +723,19 @@ export function AIWorkflows() {
     <div className="flex h-full flex-col gap-5 pb-8">
       <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
         <div>
-          <h1 className="flex items-center gap-2 text-2xl font-bold tracking-tight text-white">
-            <GitBranch className="h-6 w-6 text-zinc-300" />
+          <h1 className="page-title flex items-center gap-2 text-2xl font-bold tracking-tight">
+            <GitBranch className="h-6 w-6 icon-fuchsia" />
             Creador de Flujos IA
           </h1>
           <p className="mt-1 text-sm text-slate-400">Configura disparadores, condiciones, variables, acciones y aprobaciones para tus agentes.</p>
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
-          <button onClick={addWorkflow} className="flex h-10 items-center gap-2 rounded-lg border border-zinc-400/40 bg-zinc-500/15 px-4 text-sm font-semibold text-zinc-100 transition-colors hover:bg-zinc-500/25">
+          <button onClick={addWorkflow} className="btn-primary flex h-10 items-center gap-2 px-4 text-sm font-semibold">
             <Plus className="h-4 w-4" />
             Crear flujo
           </button>
-          <button className="flex h-10 items-center gap-2 rounded-lg bg-zinc-500 px-4 text-sm font-semibold text-slate-950 transition-colors hover:bg-zinc-400">
+          <button className="btn-secondary flex h-10 items-center gap-2 px-4 text-sm font-semibold">
             <Save className="h-4 w-4" />
             Guardar
           </button>
@@ -768,7 +768,7 @@ export function AIWorkflows() {
             <button
               onClick={generateWorkflowFromPrompt}
               disabled={!flowPrompt.trim()}
-              className="flex h-11 items-center justify-center gap-2 rounded-lg bg-zinc-500 px-4 text-sm font-bold text-slate-950 transition-colors hover:bg-zinc-400 disabled:cursor-not-allowed disabled:opacity-50"
+              className="btn-primary flex h-11 items-center justify-center gap-2 px-4 text-sm font-bold disabled:cursor-not-allowed disabled:opacity-50"
             >
               <Sparkles className="h-4 w-4" />
               Crear flujo con IA
@@ -840,7 +840,7 @@ export function AIWorkflows() {
               >
                 <div className="flex items-start justify-between gap-2">
                   <h3 className="text-sm font-semibold text-white">{workflow.name}</h3>
-                  <span className={cn("rounded px-2 py-0.5 text-[10px] font-bold", workflow.status === "Activo" ? "bg-zinc-500/10 text-zinc-300" : workflow.status === "Pausado" ? "bg-zinc-500/10 text-zinc-300" : "bg-slate-800 text-slate-400")}>{workflow.status}</span>
+                  <span className={cn("rounded px-2 py-0.5 text-[10px] font-bold", workflow.status === "Activo" ? "bg-emerald-500/15 text-emerald-300 border border-emerald-500/30" : workflow.status === "Pausado" ? "bg-amber-500/15 text-amber-300 border border-amber-500/30" : "bg-slate-800 text-slate-400 border border-slate-700")}>{workflow.status}</span>
                 </div>
                 <p className="mt-2 text-xs text-slate-400">{workflow.trigger.event}</p>
                 <div className="mt-3 flex flex-wrap items-center gap-2 text-[11px] text-slate-500">
@@ -1076,7 +1076,7 @@ export function AIWorkflows() {
                     <button
                       onClick={startWorkflowRun}
                       disabled={isStartingWorkflow}
-                      className="flex h-8 items-center gap-2 rounded-lg bg-zinc-500 px-3 text-xs font-bold text-slate-950 hover:bg-zinc-400 disabled:cursor-wait disabled:opacity-70"
+                      className="btn-primary flex h-8 items-center gap-2 px-3 text-xs font-bold disabled:cursor-wait disabled:opacity-70"
                     >
                       {isStartingWorkflow ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <PlayCircle className="h-3.5 w-3.5" />}
                       {isStartingWorkflow ? "Iniciando" : "Ejecutar flujo"}

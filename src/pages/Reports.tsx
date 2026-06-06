@@ -88,8 +88,8 @@ export function Reports() {
     <div className="flex flex-col gap-6">
       <div className="flex justify-between items-start">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-white flex items-center gap-2">
-            <PieChart className="w-6 h-6 text-zinc-400" />
+          <h1 className="page-title text-2xl font-semibold tracking-tight flex items-center gap-2">
+            <PieChart className="w-6 h-6 icon-cyan" />
             Reportes y Analíticas
           </h1>
           <p className="text-slate-400 text-sm font-light mt-1">
@@ -102,7 +102,7 @@ export function Reports() {
           </button>
           <button
             onClick={handleExportCSV}
-            className="bg-zinc-600/20 border border-zinc-500/50 hover:bg-zinc-600/40 text-zinc-50 hover:text-white px-4 py-2 rounded-lg font-bold text-xs flex items-center gap-2 transition-all shadow-[0_0_15px_rgba(163,163,163,0.2)]">
+            className="btn-secondary px-4 py-2 rounded-lg font-bold text-xs flex items-center gap-2">
             Exportar CSV
           </button>
         </div>
@@ -139,7 +139,7 @@ export function Reports() {
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
         <div className="glass-panel rounded-2xl border border-white/5 p-5 xl:col-span-2">
           <h3 className="text-sm font-bold text-white mb-4 uppercase tracking-widest flex items-center gap-2">
-            <Building className="w-4 h-4 text-zinc-400" />
+            <Building className="w-4 h-4 text-violet-400" />
             Zonas prioritarias y hallazgos
           </h3>
           <div className="grid gap-3 md:grid-cols-3">
@@ -162,7 +162,7 @@ export function Reports() {
 
         <div className="glass-panel rounded-2xl border border-white/5 p-5">
           <h3 className="text-sm font-bold text-white mb-4 uppercase tracking-widest flex items-center gap-2">
-            <Calendar className="w-4 h-4 text-zinc-400" />
+            <Calendar className="w-4 h-4 text-amber-400" />
             Cadencia semanal
           </h3>
           <div className="space-y-2">
@@ -178,7 +178,7 @@ export function Reports() {
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
         <div className="glass-panel rounded-2xl border border-white/5 p-5">
           <h3 className="text-sm font-bold text-white mb-4 uppercase tracking-widest flex items-center gap-2">
-            <Megaphone className="w-4 h-4 text-zinc-400" />
+            <Megaphone className="w-4 h-4 text-rose-400" />
             Mensajes por vacante
           </h3>
           <div className="space-y-3">
@@ -202,7 +202,7 @@ export function Reports() {
 
         <div className="glass-panel rounded-2xl border border-white/5 p-5">
           <h3 className="text-sm font-bold text-white mb-4 uppercase tracking-widest flex items-center gap-2">
-            <Zap className="w-4 h-4 text-zinc-400" />
+            <Zap className="w-4 h-4 text-fuchsia-400" />
             Canales, embudo y metricas
           </h3>
           <div className="space-y-3">
@@ -232,33 +232,33 @@ export function Reports() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="glass-panel p-5 rounded-2xl relative overflow-hidden group">
+        <div className="glass-panel p-5 rounded-2xl relative overflow-hidden group border border-cyan-500/20">
           <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-            <Users className="w-12 h-12 text-zinc-400" />
+            <Users className="w-12 h-12 text-cyan-400" />
           </div>
           <p className="text-xs text-slate-400 uppercase tracking-widest font-bold mb-1">Time to Hire (Promedio)</p>
           <h3 className="text-3xl font-bold text-white mb-2">{averageTimeToHire} <span className="text-sm font-medium text-slate-500">días</span></h3>
-          <p className="text-xs text-slate-400 flex items-center gap-1 font-medium">
+          <p className="text-xs text-cyan-400/70 flex items-center gap-1 font-medium">
             <TrendingUp className="w-3 h-3" /> Calculado con candidatos contratados
           </p>
         </div>
-        <div className="glass-panel p-5 rounded-2xl relative overflow-hidden group">
+        <div className="glass-panel p-5 rounded-2xl relative overflow-hidden group border border-emerald-500/20">
           <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-            <Building className="w-12 h-12 text-zinc-400" />
+            <Building className="w-12 h-12 text-emerald-400" />
           </div>
           <p className="text-xs text-slate-400 uppercase tracking-widest font-bold mb-1">Candidatos Totales</p>
           <h3 className="text-3xl font-bold text-white mb-2">{totalCandidates}</h3>
-          <p className="text-xs text-slate-400 flex items-center gap-1 font-medium">
+          <p className="text-xs text-emerald-400/70 flex items-center gap-1 font-medium">
             <TrendingUp className="w-3 h-3" /> Firestore en tiempo real
           </p>
         </div>
-        <div className="glass-panel p-5 rounded-2xl relative overflow-hidden group">
+        <div className="glass-panel p-5 rounded-2xl relative overflow-hidden group border border-violet-500/20">
           <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-            <Zap className="w-12 h-12 text-zinc-400" />
+            <Zap className="w-12 h-12 text-violet-400" />
           </div>
           <p className="text-xs text-slate-400 uppercase tracking-widest font-bold mb-1">Tasa de Conversión</p>
           <h3 className="text-3xl font-bold text-white mb-2">{conversionRate}%</h3>
-          <p className="text-xs text-slate-400 flex items-center gap-1 font-medium">
+          <p className="text-xs text-violet-400/70 flex items-center gap-1 font-medium">
             <TrendingUp className="w-3 h-3" /> Contratados / candidatos totales
           </p>
         </div>
@@ -268,7 +268,7 @@ export function Reports() {
         {/* Funnel Chart */}
         <div className="glass-panel p-5 rounded-2xl border border-white/5">
           <h3 className="text-sm font-bold text-white mb-6 uppercase tracking-widest flex items-center gap-2">
-            <Filter className="w-4 h-4 text-zinc-400" />
+            <Filter className="w-4 h-4 text-cyan-400" />
             Embudo de Conversión
           </h3>
           <div className="h-[300px] w-full">
@@ -281,7 +281,7 @@ export function Reports() {
                   contentStyle={{ backgroundColor: '#171717', borderColor: '#262626', borderRadius: '8px', color: '#fafafa' }}
                   itemStyle={{ color: '#737373' }}
                 />
-                <Bar dataKey="count" fill="#737373" radius={[0, 4, 4, 0]} barSize={20}>
+                <Bar dataKey="count" fill="#22d3ee" radius={[0, 4, 4, 0]} barSize={20}>
                   {funnelData.map((_entry, index) => (
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
@@ -294,7 +294,7 @@ export function Reports() {
         {/* Time to Hire & Performance Chart */}
         <div className="glass-panel p-5 rounded-2xl border border-white/5">
           <h3 className="text-sm font-bold text-white mb-6 uppercase tracking-widest flex items-center gap-2">
-            <TrendingUp className="w-4 h-4 text-zinc-400" />
+            <TrendingUp className="w-4 h-4 text-emerald-400" />
             Rendimiento histórico (Contrataciones vs TTH)
           </h3>
           <div className="h-[300px] w-full">
@@ -308,8 +308,8 @@ export function Reports() {
                   contentStyle={{ backgroundColor: '#171717', borderColor: '#262626', borderRadius: '8px', color: '#fafafa' }}
                 />
                 <Legend wrapperStyle={{ fontSize: '12px' }} />
-                <Bar yAxisId="left" dataKey="hires" name="Contratados" fill="#737373" radius={[4, 4, 0, 0]} barSize={30} />
-                <Line yAxisId="right" type="monotone" dataKey="timeToHire" name="Tiempo (días)" stroke="#737373" strokeWidth={2} dot={{ r: 4 }} activeDot={{ r: 6 }} />
+                <Bar yAxisId="left" dataKey="hires" name="Contratados" fill="#34d399" radius={[4, 4, 0, 0]} barSize={30} />
+                <Line yAxisId="right" type="monotone" dataKey="timeToHire" name="Tiempo (días)" stroke="#a78bfa" strokeWidth={2} dot={{ r: 4 }} activeDot={{ r: 6 }} />
               </ComposedChart>
             </ResponsiveContainer>
           </div>
@@ -318,7 +318,7 @@ export function Reports() {
         {/* Source of Hire (Using Candidates Per Job for now, but pretending it's source) */}
         <div className="glass-panel p-5 rounded-2xl border border-white/5 lg:col-span-2">
           <h3 className="text-sm font-bold text-white mb-6 uppercase tracking-widest flex items-center gap-2">
-            <Users className="w-4 h-4 text-zinc-400" />
+            <Users className="w-4 h-4 text-cyan-400" />
             Distribución por Fuente de Candidatos
           </h3>
           <div className="h-[300px] w-full flex itmes-center justify-center">
@@ -326,8 +326,8 @@ export function Reports() {
               <AreaChart data={sourceDistribution} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
                 <defs>
                   <linearGradient id="colorHires" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#737373" stopOpacity={0.3}/>
-                    <stop offset="95%" stopColor="#737373" stopOpacity={0}/>
+                    <stop offset="5%" stopColor="#22d3ee" stopOpacity={0.3}/>
+                    <stop offset="95%" stopColor="#22d3ee" stopOpacity={0}/>
                   </linearGradient>
                 </defs>
                 <XAxis dataKey="name" stroke="#a3a3a3" fontSize={12} />
@@ -336,7 +336,7 @@ export function Reports() {
                 <RechartsTooltip
                   contentStyle={{ backgroundColor: '#171717', borderColor: '#262626', borderRadius: '8px', color: '#fafafa' }}
                 />
-                <Area type="monotone" dataKey="count" stroke="#737373" fillOpacity={1} fill="url(#colorHires)" />
+                <Area type="monotone" dataKey="count" stroke="#22d3ee" strokeWidth={2} fillOpacity={1} fill="url(#colorHires)" />
               </AreaChart>
             </ResponsiveContainer>
           </div>

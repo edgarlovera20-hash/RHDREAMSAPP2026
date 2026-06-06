@@ -76,12 +76,16 @@ export function Login() {
               </p>
             </div>
 
-            <div className="grid grid-cols-3 gap-3 text-xs text-slate-400">
-              {["Candidatos", "Mensajes", "Agentes IA"].map((item) => (
-                <div key={item} className="rounded-lg border border-zinc-400/15 bg-zinc-400/5 px-3 py-3">
-                  {item}
-                </div>
-              ))}
+            <div className="grid grid-cols-3 gap-3 text-xs">
+              <div className="rounded-lg border border-cyan-400/20 bg-cyan-400/8 px-3 py-3 text-cyan-300">
+                Candidatos
+              </div>
+              <div className="rounded-lg border border-emerald-400/20 bg-emerald-400/8 px-3 py-3 text-emerald-300">
+                Mensajes
+              </div>
+              <div className="rounded-lg border border-violet-400/20 bg-violet-400/8 px-3 py-3 text-violet-300">
+                Agentes IA
+              </div>
             </div>
           </div>
 
@@ -140,7 +144,7 @@ export function Login() {
                   <button
                     type="button"
                     onClick={() => setShowPassword((current) => !current)}
-                    className="rounded-md p-1 text-slate-400 transition-colors hover:bg-white/5 hover:text-cyan-300 focus:outline-none focus:ring-2 focus:ring-cyan-400/50"
+                    className="rounded-md p-1 text-slate-400 hover:text-cyan-300 transition-colors hover:bg-white/5 focus:outline-none focus:ring-2 focus:ring-cyan-400/50"
                     aria-label={showPassword ? "Ocultar contrasena" : "Ver contrasena"}
                     title={showPassword ? "Ocultar contrasena" : "Ver contrasena"}
                   >

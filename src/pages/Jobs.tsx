@@ -151,12 +151,12 @@ export function Jobs() {
     <div className="flex flex-col gap-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-white mt-2">Ofertas de Empleo</h1>
+          <h1 className="page-title text-2xl font-semibold tracking-tight mt-2">Ofertas de Empleo</h1>
           <p className="text-slate-400">Define vacantes claras para que los agentes sepan a quien buscar, que evaluar y que ofrecer.</p>
         </div>
         <button
           onClick={() => setIsModalOpen(true)}
-          className="bg-slate-200/10 border border-slate-200/35 hover:bg-white/10 hover:border-slate-200/55 text-slate-100 hover:text-white px-4 py-2.5 rounded-lg font-bold text-xs flex items-center gap-2 transition-all shadow-[0_0_15px_rgba(163,163,163,0.2)] hover:shadow-[0_0_24px_rgba(245,245,245,0.16)]">
+          className="btn-primary px-4 py-2.5 rounded-lg font-bold text-xs flex items-center gap-2">
           <Plus className="w-4 h-4" />
           Nueva Oferta
         </button>
@@ -200,9 +200,9 @@ export function Jobs() {
               </div>
               <span className={cn(
                 "px-2 py-1 rounded-md text-[10px] uppercase font-bold tracking-widest border shrink-0",
-                job.status === "Active" ? "bg-zinc-500/10 text-zinc-400 border-zinc-500/20" :
-                job.status === "Closed" ? "bg-zinc-500/10 text-zinc-400 border-zinc-500/20" :
-                "bg-slate-800/50 text-slate-400 border-slate-700/50"
+                job.status === "Active" ? "badge-emerald" :
+                job.status === "Closed" ? "badge-gray" :
+                "badge-amber"
               )}>
                 {job.status === "Active" ? "Activa" : job.status === "Closed" ? "Cerrada" : "Borrador"}
               </span>
@@ -235,7 +235,7 @@ export function Jobs() {
 
             <div className="mt-auto pt-5 border-t border-white/5 flex items-center justify-between gap-4">
               <div className="flex items-center gap-3 min-w-0">
-                <Globe className="w-4 h-4 text-slate-500 shrink-0" />
+                <Globe className="w-4 h-4 icon-violet shrink-0" />
                 <div className="flex flex-wrap gap-2">
                   {job.platforms.length > 0 ? job.platforms.map((platform) => (
                     <span key={platform} className="text-[10px] bg-slate-800/50 border border-white/5 text-slate-300 px-2 py-1 rounded-md font-medium uppercase tracking-wider">
@@ -255,8 +255,8 @@ export function Jobs() {
                   Ver ficha
                 </button>
                 {job.status === "Active" && (
-                  <button className="p-2 text-slate-400 hover:text-white hover:bg-white/10 hover:shadow-[0_0_14px_rgba(245,245,245,0.10)] rounded-lg transition-all">
-                    <Share2 className="w-4 h-4" />
+                  <button className="p-2 hover:bg-white/10 hover:shadow-[0_0_14px_rgba(245,245,245,0.10)] rounded-lg transition-all">
+                    <Share2 className="w-4 h-4 icon-cyan" />
                   </button>
                 )}
               </div>

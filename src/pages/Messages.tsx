@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { ErrorAlert } from "@/components/ui/ErrorAlert";
 import {
+  AlertCircle,
   Bot,
   Briefcase,
   CheckCircle2,
@@ -17,10 +18,12 @@ import {
   Send,
   Smile,
   Video,
+  X,
   XCircle,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useDb } from "@/hooks/useDb";
+import { useAuth } from "@/contexts/AuthContext";
 import { apiFetch, readApiJson } from "@/lib/api";
 import { Message } from "@/services/db";
 
@@ -101,17 +104,17 @@ type UnifiedChat = {
   leadProfile?: any;
 };
 
-const platformStyles: Record<string, { label: string; color: string }> = {
-  whatsapp: { label: "WhatsApp", color: "bg-zinc-500" },
-  instagram: { label: "Instagram DM", color: "bg-zinc-500" },
-  messenger: { label: "Messenger", color: "bg-zinc-500" },
-  facebook: { label: "Facebook Leads", color: "bg-zinc-600" },
-  tiktok: { label: "TikTok Leads", color: "bg-zinc-500" },
-  indeed: { label: "Indeed", color: "bg-zinc-500" },
-  computrabajo: { label: "Computrabajo", color: "bg-zinc-500" },
-  email: { label: "Email", color: "bg-zinc-500" },
-  webhook: { label: "Webhook", color: "bg-zinc-500" },
-  manual: { label: "Manual", color: "bg-slate-500" },
+const platformStyles: Record<string, { label: string; color: string; dot: string }> = {
+  whatsapp:     { label: "WhatsApp",        color: "bg-emerald-500/15 text-emerald-300 border border-emerald-500/25", dot: "bg-emerald-400" },
+  instagram:    { label: "Instagram DM",    color: "bg-fuchsia-500/15 text-fuchsia-300 border border-fuchsia-500/25", dot: "bg-fuchsia-400" },
+  messenger:    { label: "Mensajero",       color: "bg-blue-500/15 text-blue-300 border border-blue-500/25", dot: "bg-blue-400" },
+  facebook:     { label: "Facebook Leads",  color: "bg-sky-500/15 text-sky-300 border border-sky-500/25", dot: "bg-sky-400" },
+  tiktok:       { label: "TikTok Leads",    color: "bg-rose-500/15 text-rose-300 border border-rose-500/25", dot: "bg-rose-400" },
+  indeed:       { label: "Indeed",          color: "bg-violet-500/15 text-violet-300 border border-violet-500/25", dot: "bg-violet-400" },
+  computrabajo: { label: "Computrabajo",    color: "bg-amber-500/15 text-amber-300 border border-amber-500/25", dot: "bg-amber-400" },
+  email:        { label: "Email",           color: "bg-cyan-500/15 text-cyan-300 border border-cyan-500/25", dot: "bg-cyan-400" },
+  webhook:      { label: "Webhook",         color: "bg-orange-500/15 text-orange-300 border border-orange-500/25", dot: "bg-orange-400" },
+  manual:       { label: "Manual",          color: "bg-slate-500/15 text-slate-300 border border-slate-500/20", dot: "bg-slate-400" },
 };
 
 const normalizeChannel = (value?: string): ChannelFilter => {
@@ -310,6 +313,7 @@ const readChannelAccounts = () => {
 
 export function Messages() {
   const { candidates, messages, addMessage, triggerAgentDialogue, approveAiMessage, rejectAiMessage, loading } = useDb();
+  const { logout } = useAuth();
 
   const [activeChatId, setActiveChatId] = useState<string | null>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -322,6 +326,7 @@ export function Messages() {
   const [localMessagesByChat, setLocalMessagesByChat] = useState<Record<string, ChatMessage[]>>({});
   const [isAgentReplying, setIsAgentReplying] = useState(false);
   const [inboxError, setInboxError] = useState("");
+  const [isAuthError, setIsAuthError] = useState(false);
   const audioInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -348,7 +353,10 @@ export function Messages() {
         }
       } catch (error: any) {
         if (!cancelled) {
-          setInboxError(error.message || "No se pudo cargar la bandeja de integraciones.");
+          const msg = error.message || "No se pudo cargar la bandeja de integraciones.";
+          const isAuth = /token|sesion|unauthorized|no autenticado/i.test(msg);
+          setIsAuthError(isAuth);
+          setInboxError(isAuth ? "Sesión expirada. Tu token de acceso es inválido." : msg);
         }
       }
     };
@@ -375,7 +383,7 @@ export function Messages() {
         candidateId: options.candidateId,
         name: options.name,
         platform: options.platform,
-        avatarColor: options.avatarColor || style.color,
+        avatarColor: options.avatarColor || style.dot,
         lastMessage: options.lastMessage || "Sin mensajes recibidos todavia.",
         lastMessageTime: options.lastMessageTime || "N/A",
         rawLastMessageTime: options.rawLastMessageTime || 0,
@@ -800,7 +808,7 @@ Personalidad configurada: ${principalAgent?.personalityPrompt || principalAgent?
               onClick={handlePromptAgentDialogue}
               disabled={!activeChat || isAgentReplying || Boolean(activeChat.emptyChannel)}
               title="Solicitar que la IA asista esta conversacion"
-              className="bg-zinc-500/10 text-zinc-400 hover:bg-zinc-500/20 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors border border-zinc-500/20 flex items-center gap-1.5 disabled:opacity-40"
+              className="bg-violet-500/12 text-violet-300 hover:bg-violet-500/20 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors border border-violet-500/25 flex items-center gap-1.5 disabled:opacity-40"
             >
               <Bot className="w-3.5 h-3.5" />
               Auto IA
@@ -808,24 +816,45 @@ Personalidad configurada: ${principalAgent?.personalityPrompt || principalAgent?
           </div>
 
           {inboxError && (
-            <ErrorAlert
-              message={inboxError}
-              onDismiss={() => setInboxError("")}
-            />
+            <div className={`flex items-start gap-3 rounded-xl border px-4 py-3 text-sm ${
+              isAuthError
+                ? "border-amber-500/30 bg-amber-500/10 text-amber-400"
+                : "border-red-500/30 bg-red-500/10 text-red-400"
+            }`}>
+              <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+              <div className="flex-1 min-w-0">
+                <p className="font-semibold">{inboxError}</p>
+                {isAuthError && (
+                  <p className="text-xs mt-1 opacity-80">Cierra sesión y vuelve a entrar para renovar tu acceso.</p>
+                )}
+              </div>
+              {isAuthError ? (
+                <button
+                  onClick={() => logout()}
+                  className="shrink-0 px-3 py-1 rounded-lg bg-amber-500/20 border border-amber-500/30 text-amber-300 text-xs font-bold hover:bg-amber-500/30 transition-colors whitespace-nowrap"
+                >
+                  Cerrar sesión
+                </button>
+              ) : (
+                <button onClick={() => setInboxError("")} className="shrink-0 text-red-400/60 hover:text-red-400">
+                  <X className="w-4 h-4" />
+                </button>
+              )}
+            </div>
           )}
 
           <div className="grid grid-cols-3 gap-2.5">
-            <div className="rounded-xl border border-zinc-500/20 bg-zinc-500/10 p-2.5">
+            <div className="rounded-xl border border-cyan-500/20 bg-cyan-500/8 p-2.5">
               <p className="text-[9px] uppercase tracking-widest text-slate-400">Chats</p>
-              <p className="text-lg font-bold text-white">{chats.length}</p>
+              <p className="text-lg font-bold text-cyan-300">{chats.length}</p>
             </div>
-            <div className="rounded-xl border border-zinc-500/20 bg-zinc-500/10 p-2.5">
+            <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/8 p-2.5">
               <p className="text-[9px] uppercase tracking-widest text-slate-400">Mensajes</p>
-              <p className="text-lg font-bold text-white">{chats.reduce((sum, chat) => sum + chat.messages.length, 0)}</p>
+              <p className="text-lg font-bold text-emerald-300">{chats.reduce((sum, chat) => sum + chat.messages.length, 0)}</p>
             </div>
-            <div className="rounded-xl border border-zinc-500/20 bg-zinc-500/10 p-2.5">
+            <div className="rounded-xl border border-violet-500/20 bg-violet-500/8 p-2.5">
               <p className="text-[9px] uppercase tracking-widest text-slate-400">Canales</p>
-              <p className="text-lg font-bold text-white">{Object.keys(totalsByChannel).length}</p>
+              <p className="text-lg font-bold text-violet-300">{Object.keys(totalsByChannel).length}</p>
             </div>
           </div>
 
@@ -883,7 +912,7 @@ Personalidad configurada: ${principalAgent?.personalityPrompt || principalAgent?
                   <span className="text-[10px] text-slate-500 shrink-0 ml-2 font-mono">{chat.lastMessageTime}</span>
                 </div>
                 <div className="flex items-center gap-2 mb-1">
-                  <span className="rounded-md border border-zinc-500/20 bg-zinc-500/10 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-zinc-300">
+                  <span className={cn("rounded-md px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider", platformStyles[chat.platform]?.color || "bg-slate-500/15 text-slate-300 border border-slate-500/20")}>
                     {platformStyles[chat.platform]?.label || chat.sourceLabel}
                   </span>
                   {chat.emptyChannel && <span className="text-[9px] text-slate-500">sin mensajes</span>}

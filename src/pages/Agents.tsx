@@ -796,8 +796,8 @@ Escribenos por mensaje para recibir requisitos, horarios y siguientes pasos.
       {/* Header section */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-zinc-400 to-zinc-500 flex items-center gap-2">
-            <BrainCircuit className="w-6 h-6 text-zinc-400" />
+          <h1 className="page-title flex items-center gap-2">
+            <BrainCircuit className="w-6 h-6 icon-violet" />
             Flota de Agentes AI
           </h1>
           <p className="text-slate-400 mt-1">Crea, entrena y monitorea los agentes de reclutamiento autónomo.</p>
@@ -813,21 +813,21 @@ Escribenos por mensaje para recibir requisitos, horarios y siguientes pasos.
           />
           <button
             onClick={() => agentsImportRef.current?.click()}
-            className="border border-slate-700 bg-[#0a0a0a]/90 hover:border-zinc-500/50 text-slate-300 hover:text-white font-semibold px-4 py-2 rounded-xl flex items-center justify-center gap-2 transition-all"
+            className="btn-secondary px-4 py-2 rounded-xl flex items-center justify-center gap-2"
           >
             <Upload className="w-4 h-4" />
             Importar datos
           </button>
           <button
             onClick={handleExportAgents}
-            className="border border-slate-700 bg-[#0a0a0a]/90 hover:border-zinc-500/50 text-slate-300 hover:text-white font-semibold px-4 py-2 rounded-xl flex items-center justify-center gap-2 transition-all"
+            className="btn-secondary px-4 py-2 rounded-xl flex items-center justify-center gap-2"
           >
             <Download className="w-4 h-4" />
             Exportar datos
           </button>
           <button
             onClick={() => setIsCreateModalOpen(true)}
-            className="bg-zinc-500 hover:bg-zinc-600 text-slate-900 font-semibold px-4 py-2 rounded-xl flex items-center justify-center gap-2 transition-all shadow-[0_0_15px_rgba(212,212,212,0.2)] hover:shadow-[0_0_20px_rgba(212,212,212,0.4)]"
+            className="btn-primary px-4 py-2 rounded-xl flex items-center justify-center gap-2"
           >
             <Plus className="w-4 h-4" />
             Crear Nuevo Agente
@@ -936,13 +936,13 @@ Escribenos por mensaje para recibir requisitos, horarios y siguientes pasos.
                     </div>
                   </div>
                     <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
-                      <span className={`text-xs font-semibold ${agent.status === 'Active' ? 'text-zinc-400' : 'text-slate-500'}`}>
+                      <span className={`text-xs font-semibold px-2 py-0.5 rounded-full border ${agent.status === 'Active' ? 'bg-emerald-500/12 text-emerald-300 border-emerald-500/25' : 'bg-zinc-500/15 text-zinc-400 border-zinc-500/20'}`}>
                         {agent.status === 'Active' ? 'Activo' : 'Borrador'}
                       </span>
                       <button
                         type="button"
                         onClick={(e) => toggleAgentStatus(agent.id, e as any)}
-                        className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-500 ${agent.status === 'Active' ? 'bg-zinc-500' : 'bg-slate-700'}`}
+                        className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 ${agent.status === 'Active' ? 'bg-emerald-500' : 'bg-slate-700'}`}
                         role="switch"
                         aria-checked={agent.status === 'Active'}
                       >
@@ -1135,7 +1135,7 @@ Escribenos por mensaje para recibir requisitos, horarios y siguientes pasos.
                     type="button"
                     onClick={handleRunConversationTest}
                     disabled={isTestingConversation || !testerMessage.trim()}
-                    className="bg-zinc-500 hover:bg-zinc-600 disabled:bg-slate-700 disabled:text-slate-500 text-slate-900 font-semibold px-5 py-3 rounded-xl flex items-center justify-center gap-2 transition-all"
+                    className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed px-5 py-3 rounded-xl flex items-center justify-center gap-2"
                   >
                     {isTestingConversation ? <Loader2 className="w-4 h-4 animate-spin" /> : <PlayCircle className="w-4 h-4" />}
                     Enviar mensaje
@@ -1144,7 +1144,7 @@ Escribenos por mensaje para recibir requisitos, horarios y siguientes pasos.
                     <button
                       type="button"
                       onClick={resetTesterConversation}
-                      className="border border-slate-700 hover:border-zinc-500/50 text-slate-300 hover:text-white px-5 py-3 rounded-xl flex items-center justify-center gap-2 transition-all"
+                      className="btn-secondary px-5 py-3 rounded-xl flex items-center justify-center gap-2"
                     >
                       <XCircle className="w-4 h-4" />
                       Reiniciar conversación
@@ -1224,7 +1224,7 @@ Escribenos por mensaje para recibir requisitos, horarios y siguientes pasos.
                   <input type="time" value={slotDraft.startTime} onChange={(e) => setSlotDraft(current => ({ ...current, startTime: e.target.value }))} className="bg-slate-900 border border-slate-700 rounded-xl px-3 py-3 text-white text-sm [color-scheme:dark] focus:outline-none focus:border-zinc-500" />
                   <input type="time" value={slotDraft.endTime} onChange={(e) => setSlotDraft(current => ({ ...current, endTime: e.target.value }))} className="bg-slate-900 border border-slate-700 rounded-xl px-3 py-3 text-white text-sm [color-scheme:dark] focus:outline-none focus:border-zinc-500" />
                   <input type="number" min={1} value={slotDraft.capacity} onChange={(e) => setSlotDraft(current => ({ ...current, capacity: Number(e.target.value) }))} className="bg-slate-900 border border-slate-700 rounded-xl px-3 py-3 text-white text-sm focus:outline-none focus:border-zinc-500" />
-                  <button type="button" onClick={handleAddInterviewSlot} className="bg-zinc-500 hover:bg-zinc-600 text-slate-900 font-semibold px-4 py-3 rounded-xl flex items-center justify-center gap-2 transition-all">
+                  <button type="button" onClick={handleAddInterviewSlot} className="btn-primary px-4 py-3 rounded-xl flex items-center justify-center gap-2">
                     <Plus className="w-4 h-4" />
                     Agregar
                   </button>
@@ -1282,7 +1282,7 @@ Escribenos por mensaje para recibir requisitos, horarios y siguientes pasos.
               <div className="p-5 border-b border-slate-700/50 bg-slate-900/70 flex items-center justify-between gap-4">
                 <div>
                   <h3 className="text-lg font-semibold text-white flex items-center gap-2">
-                    <Sparkles className="w-5 h-5 text-zinc-400" />
+                    <Sparkles className="w-5 h-5 icon-fuchsia" />
                     Canva Content Studio
                   </h3>
                   <p className="text-sm text-slate-400 mt-1">Genera briefs para publicaciones, stories, reels y videos de reclutamiento.</p>
@@ -1515,7 +1515,7 @@ Escribenos por mensaje para recibir requisitos, horarios y siguientes pasos.
                     <button
                       type="button"
                       onClick={handleCopyMetaAdPackage}
-                      className="flex items-center justify-center gap-2 rounded-xl bg-zinc-500 px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-zinc-400"
+                      className="btn-primary flex items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm"
                     >
                       <Copy className="h-4 w-4" />
                       {metaPackageCopied ? 'Copiado' : 'Copiar para publicar'}
@@ -1540,11 +1540,11 @@ Escribenos por mensaje para recibir requisitos, horarios y siguientes pasos.
                 </div>
 
                 <div className="flex flex-col sm:flex-row gap-3">
-                  <button type="button" onClick={handleCreateAiImage} disabled={isCreatingAiImage || !canvaCampaign.trim()} className="bg-zinc-400 hover:bg-zinc-500 disabled:bg-slate-700 disabled:text-slate-500 text-slate-950 font-semibold px-5 py-3 rounded-xl flex items-center justify-center gap-2 transition-all">
+                  <button type="button" onClick={handleCreateAiImage} disabled={isCreatingAiImage || !canvaCampaign.trim()} className="btn-secondary disabled:opacity-50 disabled:cursor-not-allowed px-5 py-3 rounded-xl flex items-center justify-center gap-2">
                     {isCreatingAiImage ? <Loader2 className="w-4 h-4 animate-spin" /> : <ImageIcon className="w-4 h-4" />}
                     Crear imagen IA
                   </button>
-                  <button type="button" onClick={handleCreateCanvaDesign} disabled={isCreatingCanva || !canvaCampaign.trim()} className="bg-zinc-500 hover:bg-zinc-600 disabled:bg-slate-700 disabled:text-slate-500 text-slate-900 font-semibold px-5 py-3 rounded-xl flex items-center justify-center gap-2 transition-all">
+                  <button type="button" onClick={handleCreateCanvaDesign} disabled={isCreatingCanva || !canvaCampaign.trim()} className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed px-5 py-3 rounded-xl flex items-center justify-center gap-2">
                     {isCreatingCanva ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
                     Crear en Canva
                   </button>
@@ -1636,7 +1636,7 @@ Escribenos por mensaje para recibir requisitos, horarios y siguientes pasos.
 
             <div className="glass-panel border border-slate-700/50 rounded-2xl p-5 h-fit">
               <h3 className="font-semibold text-white flex items-center gap-2">
-                <Zap className="w-4 h-4 text-zinc-400" />
+                <Zap className="w-4 h-4 icon-amber" />
                 Flujo conectado
               </h3>
               <div className="mt-5 space-y-4">
