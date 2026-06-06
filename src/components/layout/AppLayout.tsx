@@ -43,17 +43,17 @@ const PATH_MAP: Record<string, string> = {
 };
 
 const NAV_ITEMS = [
-  { name: "Dashboard", path: "/", icon: LayoutDashboard, glassIcon: "text-cyan-300" },
-  { name: "Candidatos", path: "/candidates", icon: Users, glassIcon: "text-sky-300" },
-  { name: "Ofertas de Empleo", path: "/jobs", icon: Briefcase, glassIcon: "text-emerald-300" },
-  { name: "Mensajes", path: "/messages", icon: MessageSquare, glassIcon: "text-blue-300" },
-  { name: "Agentes AI", path: "/agents", icon: Zap, glassIcon: "text-violet-300" },
-  { name: "Flujos IA", path: "/ai-workflows", icon: GitBranch, glassIcon: "text-fuchsia-300" },
-  { name: "Bienvenidas", path: "/welcome-followup", icon: ClipboardCheck, glassIcon: "text-amber-300" },
-  { name: "Canales de Chat", path: "/whatsapp", icon: Smartphone, glassIcon: "text-cyan-300" },
-  { name: "Google Workspace", path: "/workspace", icon: Cloud, glassIcon: "text-emerald-300" },
-  { name: "Reportes", path: "/reports", icon: PieChart, glassIcon: "text-amber-300" },
-  { name: "Configuración", path: "/settings", icon: Settings, glassIcon: "text-rose-300" },
+  { name: "Dashboard",        path: "/",                icon: LayoutDashboard, glassIcon: "icon-cyan",    color: "#22d3ee" },
+  { name: "Candidatos",       path: "/candidates",      icon: Users,           glassIcon: "icon-sky",     color: "#38bdf8" },
+  { name: "Ofertas de Empleo",path: "/jobs",            icon: Briefcase,       glassIcon: "icon-emerald", color: "#34d399" },
+  { name: "Mensajes",         path: "/messages",        icon: MessageSquare,   glassIcon: "icon-violet",  color: "#a78bfa" },
+  { name: "Agentes AI",       path: "/agents",          icon: Zap,             glassIcon: "icon-amber",   color: "#fbbf24" },
+  { name: "Flujos IA",        path: "/ai-workflows",    icon: GitBranch,       glassIcon: "icon-fuchsia", color: "#e879f9" },
+  { name: "Bienvenidas",      path: "/welcome-followup",icon: ClipboardCheck,  glassIcon: "icon-lime",    color: "#a3e635" },
+  { name: "Canales de Chat",  path: "/whatsapp",        icon: Smartphone,      glassIcon: "icon-cyan",    color: "#22d3ee" },
+  { name: "Google Workspace", path: "/workspace",       icon: Cloud,           glassIcon: "icon-sky",     color: "#38bdf8" },
+  { name: "Reportes",         path: "/reports",         icon: PieChart,        glassIcon: "icon-orange",  color: "#fb923c" },
+  { name: "Configuración",    path: "/settings",        icon: Settings,        glassIcon: "icon-rose",    color: "#fb7185" },
 ];
 
 export function AppLayout() {
@@ -158,7 +158,7 @@ export function AppLayout() {
             )}
           </div>
         </div>
-        <div className="flex-1 overflow-y-auto py-6 styled-scrollbar relative">
+        <div className="flex-1 overflow-y-auto py-4 styled-scrollbar relative">
           <nav className={cn("flex flex-col gap-0.5", isCollapsed ? "px-2" : "px-3")}>
             {NAV_ITEMS.map((item) => {
               const Icon = item.icon;
@@ -170,28 +170,36 @@ export function AppLayout() {
                   aria-current={isActive ? "page" : undefined}
                   onClick={() => setSidebarOpen(false)}
                   title={isCollapsed ? item.name : undefined}
+                  style={isActive ? { borderColor: `${item.color}30`, boxShadow: `0 2px 12px ${item.color}14` } : undefined}
                   className={cn(
                     "flex items-center rounded-xl font-medium transition-all duration-200 group relative overflow-hidden",
                     isCollapsed ? "justify-center w-10 h-10 mx-auto" : "gap-3 px-3 py-2.5",
                     isActive
-                      ? "text-cyan-50 bg-gradient-to-r from-cyan-500/15 to-violet-500/10 border border-cyan-300/30 shadow-[0_2px_12px_rgba(34,211,238,0.12)]"
+                      ? "text-white border bg-white/[0.06]"
                       : "text-slate-500 hover:text-slate-200 border border-transparent hover:bg-white/[0.04] hover:border-white/6"
                   )}
                 >
                   {isActive && (
-                    <span className="pointer-events-none absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-4 rounded-r-full bg-cyan-300 shadow-[0_0_8px_rgba(34,211,238,0.9)]" />
+                    <span
+                      className="pointer-events-none absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 rounded-r-full"
+                      style={{ background: item.color, boxShadow: `0 0 10px ${item.color}cc` }}
+                    />
                   )}
                   <Icon className={cn(
                     "w-4 h-4 relative z-10 transition-all duration-200 shrink-0",
-                    isActive ? `${item.glassIcon} drop-shadow-[0_0_8px_currentColor]` : "opacity-60 group-hover:opacity-90"
+                    item.glassIcon,
+                    !isActive && "opacity-55 group-hover:opacity-90"
                   )} />
                   {!isCollapsed && (
-                    <span className={cn("relative z-10 text-[13px] whitespace-nowrap font-medium", isActive ? "text-cyan-50" : "")}>
+                    <span className="relative z-10 text-[13px] whitespace-nowrap font-medium">
                       {item.name}
                     </span>
                   )}
                   {isActive && !isCollapsed && (
-                    <span className="ml-auto w-1.5 h-1.5 rounded-full bg-cyan-400 shadow-[0_0_8px_rgba(34,211,238,0.9)] animate-pulse relative z-10 shrink-0" />
+                    <span
+                      className="ml-auto w-1.5 h-1.5 rounded-full animate-pulse relative z-10 shrink-0"
+                      style={{ background: item.color, boxShadow: `0 0 8px ${item.color}dd` }}
+                    />
                   )}
                 </Link>
               );

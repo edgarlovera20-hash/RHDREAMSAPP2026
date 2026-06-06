@@ -7,7 +7,7 @@ import {
   BarChart, Bar, Legend, LineChart, Line, ComposedChart, PieChart as RechartsPieChart, Pie, Cell
 } from 'recharts';
 
-const COLORS = ['#737373', '#737373', '#737373', '#737373', '#737373', '#737373'];
+const COLORS = ['#22d3ee', '#34d399', '#a78bfa', '#fbbf24', '#fb7185', '#38bdf8'];
 
 export function Reports() {
   const { candidates, jobs } = useDb();
