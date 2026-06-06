@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { Plus, Trash2, Zap, Search, CheckCircle2, MessageSquare, Clock } from "lucide-react";
 import { WHATSAPP_RECRUITMENT_TEMPLATES } from "@/data/recruitmentKnowledge";
 
@@ -38,7 +39,7 @@ interface AutomationRulesPanelProps {
   onAddRecruitmentTemplateRule: (templateId: string) => void;
   onApplyRecruitmentTemplateToWelcome: (body: string) => void;
   onApplyRecruitmentTemplateToFollowUp: (body: string) => void;
-  getPlatformIcon: (type: string) => React.ReactNode;
+  getPlatformIcon: (type: string) => ReactNode;
   getPlatformLabel: (type: string) => string;
   onClose: () => void;
   onSave: () => void;
