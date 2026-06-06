@@ -117,10 +117,42 @@ export function AppLayout() {
 
       {/* Mobile Sidebar Backdrop */}
       {sidebarOpen && (
-        <div 
-          className="md:hidden fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-40" 
+        <div
+          className="md:hidden fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-40"
           onClick={() => setSidebarOpen(false)}
         />
+      )}
+
+      {/* Mobile nav drawer */}
+      {sidebarOpen && (
+        <div className="md:hidden fixed top-[72px] left-2 right-2 z-50 glass-panel rounded-xl border border-white/10 shadow-xl overflow-hidden">
+          <nav className="flex flex-col p-2 gap-0.5">
+            {NAV_ITEMS.map((item) => {
+              const Icon = item.icon;
+              const isActive = item.path === "/" ? location.pathname === "/" : location.pathname.startsWith(item.path);
+              return (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  onClick={() => setSidebarOpen(false)}
+                  style={isActive ? { borderColor: `${item.color}40`, borderBottomColor: `${item.color}90` } : undefined}
+                  className={cn(
+                    "flex items-center gap-3 px-3 py-3 rounded-xl border transition-all font-medium text-sm",
+                    isActive
+                      ? "bg-white/[0.07] text-white border-b-2"
+                      : "border-transparent text-slate-400 hover:text-white hover:bg-white/[0.04]"
+                  )}
+                >
+                  <Icon className={cn("w-4 h-4 shrink-0", item.glassIcon)} />
+                  <span>{item.name}</span>
+                  {isActive && (
+                    <span className="ml-auto w-1.5 h-1.5 rounded-full" style={{ background: item.color, boxShadow: `0 0 6px ${item.color}cc` }} />
+                  )}
+                </Link>
+              );
+            })}
+          </nav>
+        </div>
       )}
 
       {/* Sidebar */}
@@ -265,8 +297,8 @@ export function AppLayout() {
             </Link>
             {location.pathname !== "/" && (
               <>
-                <ChevronRight className="w-4 h-4" />
-                <span className="text-slate-300 font-medium">
+                <ChevronRight className="w-4 h-4 text-cyan-600" />
+                <span className="text-slate-200 font-semibold">
                   {PATH_MAP[location.pathname] || location.pathname.split("/").filter(Boolean).pop()}
                 </span>
               </>

@@ -479,12 +479,12 @@ export function Settings() {
               <div>
                 <div className="p-6 border-b border-white/5 flex justify-between items-center bg-slate-900/30">
                   <div>
-                    <h2 className="text-lg font-semibold text-white">Flujos de Automatización</h2>
+                    <h2 className="text-lg font-semibold text-white flex items-center gap-2"><Zap className="w-4 h-4 icon-amber" />Flujos de Automatización</h2>
                     <p className="text-sm text-slate-400 font-light">Configura notificaciones y correos automáticos.</p>
                   </div>
                   <button
                     onClick={() => setIsFlowModalOpen(true)}
-                    className="bg-zinc-600/20 border border-zinc-500/50 hover:bg-zinc-600/40 text-zinc-50 hover:text-white px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wide flex items-center gap-2 transition-all shadow-[0_0_15px_rgba(163,163,163,0.2)]">
+                    className="btn-primary px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wide flex items-center gap-2">
                     <Plus className="w-4 h-4" /> Crear Flujo
                   </button>
                 </div>
@@ -531,12 +531,12 @@ export function Settings() {
               <div>
                 <div className="p-6 border-b border-white/5 flex justify-between items-center bg-slate-900/30">
                   <div>
-                    <h2 className="text-lg font-semibold text-white">Gestión de Usuarios</h2>
+                    <h2 className="text-lg font-semibold text-white flex items-center gap-2"><Users className="w-4 h-4 icon-sky" />Gestión de Usuarios</h2>
                     <p className="text-sm text-slate-400 font-light">Controla quién puede acceder a qué.</p>
                   </div>
                   <button
                     onClick={() => setIsInviteModalOpen(true)}
-                    className="bg-zinc-600/20 border border-zinc-500/50 hover:bg-zinc-600/40 text-zinc-50 hover:text-white px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wide flex items-center gap-2 transition-all shadow-[0_0_15px_rgba(163,163,163,0.2)]">
+                    className="btn-primary px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wide flex items-center gap-2">
                     <Plus className="w-4 h-4" /> Invitar
                   </button>
                 </div>
@@ -618,10 +618,10 @@ export function Settings() {
               <div>
                 <div className="p-6 border-b border-white/5 flex justify-between items-center bg-slate-900/30">
                   <div>
-                    <h2 className="text-lg font-semibold text-white">Preferencias de Notificación</h2>
+                    <h2 className="text-lg font-semibold text-white flex items-center gap-2"><Bell className="w-4 h-4 icon-cyan" />Preferencias de Notificación</h2>
                     <p className="text-sm text-slate-400 font-light">Elige qué eventos activan cada tipo de notificación.</p>
                   </div>
-                  <button className="bg-zinc-600/20 border border-zinc-500/50 hover:bg-zinc-600/40 text-zinc-50 hover:text-white px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wide flex items-center transition-all shadow-[0_0_15px_rgba(163,163,163,0.2)]">
+                  <button className="btn-primary px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wide flex items-center">
                     Guardar Cambios
                   </button>
                 </div>
@@ -705,7 +705,7 @@ export function Settings() {
                                 />
                                 <div className={cn(
                                   "w-9 h-5 rounded-full peer-focus:outline-none transition-all",
-                                  pref.inApp ? "bg-zinc-500 shadow-[0_0_10px_rgba(163,163,163,0.5)]" : "bg-slate-700"
+                                  pref.inApp ? "bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.4)]" : "bg-slate-700"
                                 )}></div>
                                 <div className={cn(
                                   "absolute left-[2px] top-[2px] bg-white border-gray-300 border rounded-full h-4 w-4 transition-all",
@@ -723,7 +723,7 @@ export function Settings() {
                                 />
                                 <div className={cn(
                                   "w-9 h-5 rounded-full peer-focus:outline-none transition-all",
-                                  pref.push ? "bg-zinc-500 shadow-[0_0_10px_rgba(163,163,163,0.5)]" : "bg-slate-700"
+                                  pref.push ? "bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.4)]" : "bg-slate-700"
                                 )}></div>
                                 <div className={cn(
                                   "absolute left-[2px] top-[2px] bg-white border-gray-300 border rounded-full h-4 w-4 transition-all",
@@ -741,7 +741,7 @@ export function Settings() {
                                 />
                                 <div className={cn(
                                   "w-9 h-5 rounded-full peer-focus:outline-none transition-all",
-                                  pref.email ? "bg-zinc-500 shadow-[0_0_10px_rgba(163,163,163,0.5)]" : "bg-slate-700"
+                                  pref.email ? "bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.4)]" : "bg-slate-700"
                                 )}></div>
                                 <div className={cn(
                                   "absolute left-[2px] top-[2px] bg-white border-gray-300 border rounded-full h-4 w-4 transition-all",
@@ -765,7 +765,7 @@ export function Settings() {
                   </div>
                   <button
                     onClick={() => setConfiguringIntegration(integrationsList.find(item => item.provider) || null)}
-                    className="bg-zinc-600/20 border border-zinc-500/50 hover:bg-zinc-600/40 text-zinc-50 hover:text-white px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wide flex items-center gap-2 transition-all shadow-[0_0_15px_rgba(163,163,163,0.2)]"
+                    className="btn-primary px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wide flex items-center gap-2"
                   >
                     <Plus className="w-4 h-4" /> Nueva Integracion
                   </button>
@@ -989,7 +989,7 @@ export function Settings() {
                             <button
                               onClick={saveVaultEntry}
                               disabled={!vaultDraft.apiKey.trim()}
-                              className="w-full rounded-lg bg-zinc-500 px-4 py-2.5 text-sm font-bold text-slate-950 transition-colors hover:bg-zinc-400 disabled:cursor-not-allowed disabled:opacity-50"
+                              className="btn-primary w-full rounded-lg px-4 py-2.5 text-sm font-bold disabled:cursor-not-allowed disabled:opacity-50"
                             >
                               Guardar en bóveda
                             </button>
@@ -1074,13 +1074,13 @@ export function Settings() {
               <div>
                 <div className="p-6 border-b border-white/5 flex justify-between items-center bg-slate-900/30">
                   <div>
-                    <h2 className="text-lg font-semibold text-white">Plantillas de Correo</h2>
+                    <h2 className="text-lg font-semibold text-white flex items-center gap-2"><Mail className="w-4 h-4 icon-violet" />Plantillas de Correo</h2>
                     <p className="text-sm text-slate-400 font-light">Estandariza la comunicación de tu equipo de reclutamiento.</p>
                   </div>
                   {!editingTemplate && (
                     <button
                       onClick={() => setEditingTemplate({ id: Date.now(), name: '', subject: '', type: 'Manual', body: '' })}
-                      className="bg-zinc-600/20 border border-zinc-500/50 hover:bg-zinc-600/40 text-zinc-50 hover:text-white px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wide flex items-center gap-2 transition-all shadow-[0_0_15px_rgba(163,163,163,0.2)]">
+                      className="btn-primary px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wide flex items-center gap-2">
                       <Plus className="w-4 h-4" /> Crear Plantilla
                     </button>
                   )}
@@ -1130,7 +1130,7 @@ export function Settings() {
                              setTemplates([...templates, editingTemplate]);
                           }
                           setEditingTemplate(null);
-                        }} className="bg-zinc-500 text-white px-4 py-2 rounded-lg text-xs font-medium hover:bg-zinc-600 transition-colors flex items-center gap-2">
+                        }} className="btn-primary px-4 py-2 rounded-lg text-xs font-medium flex items-center gap-2">
                           <Check className="w-4 h-4" /> Guardar Plantilla
                         </button>
                       </div>
@@ -1224,7 +1224,7 @@ export function Settings() {
               <div>
                 <div className="p-6 border-b border-white/5 flex justify-between items-center bg-slate-900/30">
                   <div>
-                    <h2 className="text-lg font-semibold text-white">Seguridad y Auditoría</h2>
+                    <h2 className="text-lg font-semibold text-white flex items-center gap-2"><Shield className="w-4 h-4 icon-amber" />Seguridad y Auditoría</h2>
                     <p className="text-sm text-slate-400 font-light">Monitoriza accesos y protege los datos de tu empresa.</p>
                   </div>
                   <button className="bg-slate-800/80 border border-slate-700 hover:bg-slate-800 text-white px-4 py-2 rounded-lg text-xs font-bold transition-all shadow-sm">
@@ -1241,7 +1241,7 @@ export function Settings() {
                         <div className="relative z-10">
                           <label className="relative inline-flex items-center cursor-pointer">
                             <input type="checkbox" className="sr-only peer" defaultChecked />
-                            <div className="w-9 h-5 rounded-full peer-focus:outline-none transition-all bg-zinc-500 shadow-[0_0_10px_rgba(163,163,163,0.5)]"></div>
+                            <div className="w-9 h-5 rounded-full peer-focus:outline-none transition-all bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.4)]"></div>
                             <div className="absolute left-[2px] top-[2px] bg-white border-gray-300 border rounded-full h-4 w-4 transition-all translate-x-full border-white"></div>
                           </label>
                         </div>
@@ -1276,7 +1276,7 @@ export function Settings() {
                               />
                               <div className={cn(
                                 "w-9 h-5 rounded-full peer-focus:outline-none transition-all",
-                                alert.enabled ? "bg-zinc-500 shadow-[0_0_10px_rgba(163,163,163,0.5)]" : "bg-slate-700"
+                                alert.enabled ? "bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.4)]" : "bg-slate-700"
                               )}></div>
                               <div className={cn(
                                 "absolute left-[2px] top-[2px] bg-white border-gray-300 border rounded-full h-4 w-4 transition-all",
@@ -1365,7 +1365,7 @@ export function Settings() {
                           triggerEvent('user_invited', { title: 'Invitación Enviada', message: `Se ha invitado a ${newUserEmail}.`, type: 'success' });
                         }
                       }}
-                      className="w-full bg-zinc-500 hover:bg-zinc-600 text-slate-900 font-semibold py-2 rounded-lg text-sm mt-2 transition-colors"
+                      className="btn-primary w-full py-2 rounded-lg text-sm mt-2"
                     >
                       Enviar Invitación
                     </button>
@@ -1424,7 +1424,7 @@ export function Settings() {
                     </button>
                     <button
                       onClick={saveIntegrationConfig}
-                      className="bg-zinc-500 hover:bg-zinc-600 text-slate-900 font-semibold px-4 py-2 rounded-lg text-xs transition-colors flex items-center gap-2"
+                      className="btn-primary px-4 py-2 rounded-lg text-xs flex items-center gap-2"
                     >
                       <Shield className="w-4 h-4" /> Guardar y probar
                     </button>
@@ -1480,7 +1480,7 @@ export function Settings() {
                           setNewFlowName('');
                         }
                       }}
-                      className="w-full bg-zinc-500 hover:bg-zinc-600 text-slate-900 font-semibold py-2 rounded-lg text-sm mt-2 transition-colors"
+                      className="btn-primary w-full py-2 rounded-lg text-sm mt-2"
                     >
                       Guardar Flujo
                     </button>
