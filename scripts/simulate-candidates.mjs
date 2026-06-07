@@ -427,57 +427,217 @@ const MSG = {
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
-//  RESPUESTAS DEL AGENTE (personalizadas por perfil)
+//  MOTOR DE RESPUESTAS HUMANAS — 10/10
+//  Cada respuesta: nombre + vacante + sueldo/zona/restricción + tono exacto
 // ─────────────────────────────────────────────────────────────────────────────
-const AGENTE = {
-  bienvenida: {
-    whatsapp_baileys: (n,v) => `¡Hola${n?" "+n:""}! 😊 Soy tu asistente de reclutamiento de *Heavenly Dreams*. ${v?`Vi que preguntas por *${v.titulo}* — con gusto te cuento todo.`:"¿En qué puedo ayudarte hoy?"}`,
-    whatsapp_meta:    (n,v) => `¡Hola${n?" "+n:""}! Soy el agente de Heavenly Dreams por WhatsApp Business. ${v?`¿Te interesa la vacante de *${v.titulo}*?`:"¿Qué vacante te interesa?"}`,
-    messenger:        (n,v) => `¡Hola${n?" "+n:""}! 👋 Gracias por escribirnos por Messenger. ${v?`Vi tu interés en *${v.titulo}*.`:"¿Cuál de nuestras vacantes te llama la atención?"}`,
-    instagram:        (n,v) => `¡Hola! ✨ Gracias por escribirnos por Instagram. ${v?`¡${v.titulo} es una excelente opción!`:"¿Qué vacante viste en nuestro perfil?"}`,
-    tiktok:           (n,v) => `¡Hola! 🎵 ¡Gracias por el interés desde TikTok! ${v?`La vacante de ${v.titulo} que viste es real y ya está abierta.`:"Te cuento sobre nuestras vacantes disponibles:"}`,
-    indeed:           (n,v) => `Hola${n?" "+n:""}. Gracias por postularte en Indeed${v?" para *"+v.titulo+"*":""}. Somos Heavenly Dreams. ¿Tienes alguna pregunta sobre el puesto?`,
-  },
-  sueldo: {
-    ayudante_general:    (v) => `La vacante de *${v.titulo}* paga *${v.sueldo}*. Esto incluye IMSS, INFONAVIT y FONACOT desde el primer día. ¿Tienes disponibilidad de horario completo? ⏰`,
-    asesor_comercial:    (v) => `El *${v.titulo}* tiene sueldo base de *${v.sueldo}* más comisiones por cumplimiento de metas. En un mes productivo puedes ganar hasta $12,000+. 💰 ¿Tienes experiencia en ventas?`,
-    supervisor_personal: (v) => `El *${v.titulo}* ofrece *${v.sueldo}* con prestaciones superiores a ley: bono trimestral, seguro de vida y fondo de ahorro. ¿Tienes experiencia liderando equipos?`,
-    promotor:            (v) => `*${v.titulo}* paga *${v.sueldo}* + bonos de campo por visitas completadas. El ingreso real promedio de promotores activos es de $2,500-3,000/sem. 🏆`,
-  },
-  horario: (v) => `El horario para *${v.titulo}* es *${v.horario}*. Con un día de descanso entre semana. ¿Este horario te funciona?`,
-  menor_edad: `¡Con gusto te ayudamos! 😊 Para trabajar siendo menor de 18 años la ley requiere:
-1️⃣ Carta de autorización firmada por tu mamá, papá o tutor legal
-2️⃣ Acta de nacimiento
-3️⃣ Tu credencial de estudiante o CURP
-¿Cuentas con el apoyo de tus papás para trabajar?`,
-  sin_estudios: (v) => `¡No te preocupes por los estudios! La vacante de *${v.titulo}* ${v.escolaridad_minima === "secundaria" ? "requiere secundaria terminada, pero si no la tienes podemos evaluar tu caso" : "valora más la actitud y las ganas de trabajar que los títulos"}. ¿Tienes disponibilidad de tiempo completo?`,
-  licenciado: (v) => `¡Excelente perfil! Con tu preparación, te recomendaría el puesto de *${v.id === "supervisor_personal" ? "Supervisor de Personal" : v.titulo}* donde puedes crecer dentro de la empresa. Tenemos plan de carrera. ¿Tienes experiencia liderando equipos?`,
-  desconfiado: `¡Entiendo tu precaución, es importante verificar antes de aplicar! 🔒
 
-*Heavenly Dreams S.A.S. de C.V.*
-• RFC: HD210531ABC
-• +10 años en el mercado
-• Empresa registrada ante el IMSS
-• Puedes buscarnos en Google, Facebook e Instagram
-• Oficinas en Iztapalapa, CDMX
-
-No cobramos ningún tipo de cuota. Todo el proceso es 100% gratuito. ¿Tienes alguna pregunta adicional?`,
-  madre: (v) => `¡Entendemos perfectamente! 💙 Para la vacante de *${v.titulo}*, el horario es *${v.horario}*. Si necesitas un horario específico para recoger a tus hijos, podemos evaluar tu caso. ¿A qué hora necesitarías salir?`,
-  adulto_mayor: `¡En Heavenly Dreams NO hay discriminación por edad! ✅ Valoramos la experiencia y responsabilidad de las personas mayores. Solo necesitamos que puedas cumplir con el horario y las actividades del puesto. ¿En qué área has trabajado?`,
-  reingreso: `¡No hay problema con el tiempo sin trabajar! 🙌 Todos tenemos situaciones personales. Lo que nos importa es tu actitud y disposición. Ofrecemos capacitación completa desde el primer día. ¿Qué tipo de trabajo hacías antes?`,
-  agresivo: `Entiendo tu molestia y lamentamos la espera. 🙏 Estamos aquí para ayudarte. Con gusto te doy toda la información que necesites ahora mismo. ¿Qué puesto te interesa?`,
-  audio_ok: (transcripcion) => `Escuché tu nota de voz 🎙️\n*"${transcripcion}"*\n\nGracias por explicarte así. Déjame responderte:`,
-  audio_error: `Recibí tu audio pero tuve un pequeño problema al transcribirlo. ¿Puedes escribirme tu pregunta? 😊`,
-  audio_no_soporte: `Este canal no soporta audios. ¿Puedes escribirme tu consulta? Si prefieres, también puedes contactarnos por WhatsApp donde sí recibimos notas de voz.`,
-  foto_anuncio: (v) => `¡Recibí la foto del anuncio! 📸 Veo que te interesa *${v.titulo}*. Este puesto ofrece *${v.sueldo}* con prestaciones de ley. ¿Me compartes tu nombre y cuántos años tienes para orientarte mejor?`,
-  foto_cv_ok: (nombre, area) => `¡Recibí tu CV! 📄 Pude ver que ${area ? `tienes experiencia en *${area}*` : "tu información está ahí"}. Con tu perfil puedes aplicar perfectamente. ¿Cuándo tienes disponibilidad para una entrevista?`,
-  foto_cv_borrosa: `Recibí la foto de tu CV pero la imagen no está muy nítida. ¿Puedes decirme directamente?\n• ¿Cuántos años tienes?\n• ¿Cuál es tu último grado de estudios?\n• ¿Tienes experiencia previa? 😊`,
-  pdf_cv_ok: (nombre, exp, area, v) => `¡Recibí tu CV en PDF! 📑\n\n*${nombre}* — ${exp} años de experiencia en ${area}.\n\nTu perfil encaja muy bien para *${v.titulo}*. ¿Cuándo tienes disponibilidad para entrevista?`,
-  pdf_cv_error: `Recibí tu archivo pero no pude abrirlo correctamente. ¿Puedes reenviarlo? Si no, también puedes compartirme tus datos principales aquí. 😊`,
-  entrevista: (v) => `¡Perfecto! 🎉 Agendamos tu entrevista para *${v.titulo}*.\n\n📍 *Dirección:* ${v.zona}\n📅 Te contactará nuestro equipo en máximo 24h para confirmar día y hora.\n\n¿Tienes alguna pregunta más?`,
-  instagram_limite: `📸 Por Instagram solo puedo darte info breve. Para más detalles sobre sueldo, horario y documentos, escríbenos por WhatsApp al número que está en nuestra bio. ¡Ahí podemos ayudarte mejor!`,
-  tiktok_limite: `🎵 ¡Nos da gusto que hayas visto nuestro video! Para toda la info del trabajo (sueldo, horario, requisitos) escríbenos por WhatsApp o Messenger — aquí en TikTok es más limitado. ¡Te esperamos!`,
+// Adaptadores de tono por personalidad
+const TONO = {
+  formal:       { saludo:(n)=>`Buenos días, ${n}.`,        signo:`¿`, cierre:`Quedo en espera de su respuesta.`,   emoji:false },
+  informal:     { saludo:(n)=>`¡Hola ${n}! 😊`,            signo:`¿`, cierre:`¡Cualquier duda me dices! 🙌`,       emoji:true  },
+  ansioso:      { saludo:(n)=>`¡Hola ${n}! 😊`,            signo:`¿`, cierre:`¡Cuéntame y te ayudo ya! 💪`,        emoji:true  },
+  desconfiado:  { saludo:(n)=>`Hola ${n}, entiendo tu duda.`,signo:`¿`,cierre:`Todo 100% gratuito y verificable.`, emoji:false },
+  apurado:      { saludo:(n)=>`Hola ${n}!`,                signo:`¿`, cierre:`¿Algo más?`,                         emoji:false },
+  agresivo:     { saludo:(n)=>`Hola ${n}, lamento la espera.`,signo:`¿`,cierre:`Te atiendo ahora mismo.`,          emoji:false },
+  timido:       { saludo:(n)=>`¡Hola ${n}! No te preocupes 😊`,signo:`¿`,cierre:`¡Aquí estoy para lo que necesites!`,emoji:true },
+  comunicativo: { saludo:(n)=>`¡Hola ${n}! Gracias por contactarnos.`,signo:`¿`,cierre:`Cuéntame más y te oriento al detalle.`,emoji:true },
 };
+
+// Genera apertura humanizada según canal + personalidad
+function apertura(c) {
+  const { nombre, personalidad, canal, vacante, edad, zona } = c;
+  const t = TONO[personalidad.id] || TONO.informal;
+  const primerNombre = nombre.split(" ")[0];
+
+  const aperturaCanal = {
+    whatsapp_baileys: `${t.saludo(primerNombre)}`,
+    whatsapp_meta:    `${t.saludo(primerNombre)} (WhatsApp Business)`,
+    messenger:        `${t.saludo(primerNombre)} 👋`,
+    instagram:        `${t.saludo(primerNombre)} ✨ Vi que escribiste por Instagram.`,
+    tiktok:           `${t.saludo(primerNombre)} 🎵 ¡Gracias por el interés desde TikTok!`,
+    indeed:           `Hola ${primerNombre}, gracias por postularte en Indeed.`,
+  };
+  return aperturaCanal[canal.id] || t.saludo(primerNombre);
+}
+
+// Nota contextual de la restricción más importante
+function notaContextual(c) {
+  const { restricciones, nombre, edad, disponibilidad, zona, expAnios, escolaridad } = c;
+  const fn = nombre.split(" ")[0];
+  if (restricciones.includes("menor_de_edad"))     return `Vi que tienes ${edad} años — sin problema, tenemos proceso para menores de edad.`;
+  if (restricciones.includes("adulto_mayor"))       return `No hay límite de edad aquí, ${fn} — valoramos la experiencia.`;
+  if (restricciones.includes("necesita_horario_escolar")) return `Entiendo que necesitas un horario que te permita atender a tu familia.`;
+  if (restricciones.includes("laguna_laboral"))     return `No te preocupes por el tiempo sin trabajar — lo que importa es tu disposición.`;
+  if (restricciones.includes("sin_estudios"))       return `Los estudios no son lo más importante para nosotros — nos importa tu actitud.`;
+  if (restricciones.includes("solo_primaria"))      return `Con primaria puedes aplicar — la actitud vale más que el título.`;
+  if (restricciones.includes("perfil_licenciado"))  return `Con tu nivel de estudios, tienes perfil para los puestos de mayor responsabilidad.`;
+  if (restricciones.includes("necesita_verificar_empresa")) return `Toda la verificación que necesites, con gusto te la doy.`;
+  if (restricciones.includes("solo_fines_semana")) return `Tenemos opciones los fines de semana para ${fn}.`;
+  if (restricciones.includes("medio_tiempo"))       return `El medio tiempo también es una opción para ${fn}.`;
+  if (expAnios > 5)  return `Con ${expAnios} años de experiencia, ${fn}, tienes un perfil muy sólido.`;
+  if (expAnios === 0) return `No tener experiencia no es problema — aquí capacitamos desde cero.`;
+  return `Estás en ${zona}, ${fn} — tenemos opciones cerca de tu zona.`;
+}
+
+function construirRespuesta(c, etapa, tipo) {
+  const { nombre, personalidad, canal, vacante, zona, escolaridad, expAnios, restricciones, disponibilidad, edad } = c;
+  const fn   = nombre.split(" ")[0];
+  const t    = TONO[personalidad.id] || TONO.informal;
+  const ap   = apertura(c);
+  const nota = notaContextual(c);
+  const cid  = canal.id;
+  const pid  = personalidad.id;
+
+  // ── Tipos de media ──────────────────────────────────────────────────────
+  if (tipo.id === "audio") {
+    if (!canal.soporte.includes("audio")) {
+      return `${ap} Este canal no recibe audios. ¿Puedes escribirme tu pregunta? Por WhatsApp sí recibo notas de voz 😊`;
+    }
+    const trans = pick([
+      `hola, quiero información del trabajo de ${vacante.titulo}`,
+      `cuánto pagan en ${vacante.titulo} y cuál es el horario`,
+      `me interesa la vacante de ${vacante.titulo}`,
+      `tengo ${expAnios > 0 ? expAnios+" años de experiencia" : "ganas de trabajar"} y quiero aplicar`,
+    ]);
+    if (rand() < 0.07) {
+      return `${ap} Recibí tu audio pero tuve un problema al procesarlo. ¿Puedes escribirme la misma pregunta? ${t.cierre}`;
+    }
+    return `${ap}\n\n🎙️ Escuché tu nota de voz: *"${trans}"*\n\n${nota} La vacante de *${vacante.titulo}* en *${zona}* ofrece *${vacante.sueldo}*. ${t.cierre}`;
+  }
+
+  if (tipo.id === "foto_anuncio") {
+    return `${ap}\n\n📸 ¡Recibí la foto del anuncio! Veo que te interesa *${vacante.titulo}* — ${nota}\n\n💰 Sueldo: *${vacante.sueldo}*\n📍 Zona: *${vacante.zona}*\n⏰ Horario: *${vacante.horario}*\n\n¿Me confirmas tu nombre completo, ${fn}, para registrarte?`;
+  }
+
+  if (tipo.id === "foto_cv") {
+    if (!canal.soporte.includes("imagen")) {
+      return `${ap} Por este canal no recibo imágenes. ¿Puedes enviar tu CV por WhatsApp o escribirme tus datos aquí? 😊`;
+    }
+    if (rand() < 0.16) {
+      return `${ap} Recibí tu foto de CV pero la imagen no está muy clara. ¿Puedes decirme directamente, ${fn}?\n• Último grado de estudios\n• Años de experiencia\n• ¿Qué tipo de trabajo has hecho?\n\n${nota}`;
+    }
+    const area = pick(["ventas","almacén","atención al cliente","operaciones","logística","caja","producción"]);
+    return `${ap}\n\n📄 ¡Recibí tu CV, ${fn}! Veo que tienes experiencia en *${area}* — perfecto para *${vacante.titulo}*.\n\n${nota}\nEl sueldo es *${vacante.sueldo}*. ¿Cuándo tienes disponibilidad para entrevista en *${vacante.zona}*? ${t.cierre}`;
+  }
+
+  if (tipo.id === "pdf_cv") {
+    if (!canal.soporte.includes("pdf")) {
+      return `${ap} Por ${cid === "tiktok" ? "TikTok" : "este canal"} no recibo PDF. Envíalo por WhatsApp o comparte tus datos aquí 😊`;
+    }
+    if (rand() < 0.05) {
+      return `${ap} Recibí tu archivo, ${fn}, pero tuve un problema al abrirlo. ¿Puedes reenviarlo o compartirme tus datos? ${t.cierre}`;
+    }
+    const area = pick(["ventas","logística","atención al cliente","administración","producción","mercadeo"]);
+    return `${ap}\n\n📑 ¡Recibí tu CV en PDF, ${fn}!\n\n*Perfil detectado:* ${expAnios} año${expAnios!==1?"s":""} de experiencia en ${area}, ${escolaridad.label}.\n\n${nota} Tu perfil encaja perfectamente para *${vacante.titulo}* (${vacante.sueldo}).\n\n📍 Ubicación: *${vacante.zona}*\n\n¿Cuándo puedes venir a entrevista? ${t.cierre}`;
+  }
+
+  // ── Respuestas de texto por etapa ────────────────────────────────────────
+  switch (etapa) {
+
+    case "primer_contacto": {
+      const extras = {
+        tiktok:   `🎵 ¡Ese video llegó en un buen momento! `,
+        instagram:`✨ ¡Qué bueno que viste nuestra publicación! `,
+        indeed:   `💼 Gracias por postularte en Indeed. `,
+        messenger:`👋 Gracias por escribir por Messenger. `,
+      };
+      const extra = extras[cid] || "";
+      return `${ap} ${extra}${nota}\n\nTenemos la vacante de *${vacante.titulo}* en *${vacante.zona}* con *${vacante.sueldo}*. ¿Quieres que te cuente los detalles, ${fn}? ${t.cierre}`;
+    }
+
+    case "pregunta_vacante": {
+      const desc = `La vacante de *${vacante.titulo}*, ${fn}, es para trabajar en *${vacante.zona}*.\n\n📋 *¿Qué harás?* ${vacante.descripcion}\n✅ *Requisitos:* ${vacante.requisitos.slice(0,2).join(" • ")}\n💰 *Sueldo:* ${vacante.sueldo}\n⏰ *Horario:* ${vacante.horario}`;
+      if (pid === "apurado") return `*${vacante.titulo}* — ${vacante.zona} — ${vacante.sueldo}. ${nota} ¿Te interesa?`;
+      return `${ap}\n\n${desc}\n\n${nota}\n\n¿Tienes ${disponibilidad.label.toLowerCase()}? ${t.cierre}`;
+    }
+
+    case "pregunta_sueldo": {
+      const extras = {
+        asesor_comercial:    `En un buen mes con comisiones puedes llegar a $12,000+ 💰`,
+        supervisor_personal: `Incluye bono trimestral, seguro de vida y fondo de ahorro 🏆`,
+        promotor:            `Los bonos de campo pueden sumar $500-1,000 extra por semana 🏆`,
+        ayudante_general:    `Pagamos puntual cada semana — sin retrasos ✅`,
+      };
+      const plus = extras[vacante.id] || "";
+      if (pid === "apurado") return `${fn}: *${vacante.sueldo}* semanal + IMSS desde día 1. ${plus}`;
+      if (pid === "desconfiado") return `${ap} El sueldo REAL para *${vacante.titulo}* es *${vacante.sueldo}* semanales — lo que publicamos es lo que pagamos. ${plus} IMSS, INFONAVIT y FONACOT desde el primer día. ${nota}`;
+      return `${ap} Para *${vacante.titulo}* el sueldo es *${vacante.sueldo}* semanales. ${plus}\n\nIncluye IMSS, INFONAVIT y FONACOT desde el primer día, ${fn}. ${nota} ${t.cierre}`;
+    }
+
+    case "pregunta_horario": {
+      if (restricciones.includes("necesita_horario_escolar")) {
+        return `${ap} Entiendo perfecto que necesitas tiempo para tu familia, ${fn}. Para *${vacante.titulo}* el horario normal es *${vacante.horario}*, pero evaluamos el turno matutino (7am–3pm) para que puedas recoger a tus hijos por la tarde. ¿A qué hora necesitarías salir?`;
+      }
+      if (restricciones.includes("solo_fines_semana")) {
+        return `${ap} Para ${fn} que solo puede fines de semana: *${vacante.titulo}* tiene opciones sabatinas. El horario sería sábado y domingo de 9am–6pm con el mismo sueldo de *${vacante.sueldo}*. ¿Te funciona?`;
+      }
+      if (pid === "apurado") return `${fn}: *${vacante.horario}*. 1 día libre entre semana. ¿OK?`;
+      return `${ap} El horario para *${vacante.titulo}* es *${vacante.horario}*, ${fn}. Tienes un día de descanso entre semana — los domingos son libres. ${nota} ¿Este horario te funciona? ${t.cierre}`;
+    }
+
+    case "revela_edad": {
+      const menor = edad < 18 ? `Tienes ${edad} años` : "eres menor de edad";
+      return `${ap} ¡No hay problema, ${fn}! ${menor} — para trabajar necesitas:\n\n1️⃣ *Carta de autorización* firmada por mamá, papá o tutor\n2️⃣ *Acta de nacimiento*\n3️⃣ *CURP* o credencial de estudiante\n\nLa vacante de *${vacante.titulo}* está disponible para ti en *${vacante.zona}*. ¿Tus papás te apoyan para trabajar? ${t.cierre}`;
+    }
+
+    case "sin_estudios": {
+      const msg = vacante.escolaridad_minima === "secundaria"
+        ? `Para *${vacante.titulo}* pedimos secundaria, pero si no la terminaste podemos evaluar tu caso con una prueba práctica.`
+        : `Para *${vacante.titulo}* lo que más importa es la actitud y las ganas — no el título.`;
+      return `${ap} ${fn}, los estudios no te van a frenar aquí. ${msg}\n\n💰 El sueldo es *${vacante.sueldo}* y la zona es *${vacante.zona}*. ¿Tienes disponibilidad de ${disponibilidad.label.toLowerCase()}? ${t.cierre}`;
+    }
+
+    case "perfil_licenciado": {
+      const puestoIdeal = vacante.id === "supervisor_personal" ? vacante.titulo : "Supervisor de Personal";
+      return `${ap} ${fn}, con tu nivel de estudios y experiencia, tu perfil encaja directamente para *${puestoIdeal}* — no para un puesto operativo. Ese puesto paga *$2,600 semanales* + bono trimestral + seguro de vida.\n\n${nota}\n\n¿Tienes experiencia liderando equipos o gestionando indicadores? ${t.cierre}`;
+    }
+
+    case "verifica_empresa": {
+      if (pid === "agresivo") return `${fn}, entiendo tu exigencia. Aquí los datos oficiales:\n\n🏢 *Heavenly Dreams S.A.S. de C.V.*\n📋 RFC: HD210531ABC — verificable en el SAT\n📍 Oficinas físicas en Iztapalapa, CDMX\n⭐ +10 años en operación, registrados ante el IMSS\n\nNo cobramos nada. ¿Necesitas más verificación?`;
+      return `${ap} ${fn}, tienes razón de verificar — es lo correcto. 🔒\n\n🏢 *Heavenly Dreams S.A.S. de C.V.*\n📋 RFC: HD210531ABC (verificable en SAT)\n📍 Oficinas: Iztapalapa, CDMX — puedes venir a conocernos\n⭐ Más de 10 años en el mercado\n📲 Búscanos en Google, Facebook e Instagram\n\nTodo el proceso es *100% gratuito*, ${fn}. No pedimos ni un peso. ${t.cierre}`;
+    }
+
+    case "horario_hijos": {
+      return `${ap} ${fn}, entendemos perfectamente que la familia es lo primero. 💙\n\nPara *${vacante.titulo}* en *${vacante.zona}*, tenemos el *turno matutino 7am–3pm* para que puedas recoger a tus hijos en la tarde.\n\n💰 El sueldo es *${vacante.sueldo}* — pagamos puntual cada semana.\n\n¿Cuántos hijos tienes y a qué hora necesitarías salir? ${t.cierre}`;
+    }
+
+    case "adulto_mayor": {
+      return `${ap} ¡En Heavenly Dreams NO hay discriminación por edad, ${fn}! ✅\n\nVaoramos la experiencia y responsabilidad de personas como tú. La vacante de *${vacante.titulo}* en *${vacante.zona}* paga *${vacante.sueldo}*.\n\n${nota}\n\n¿En qué área has trabajado más tiempo? ${t.cierre}`;
+    }
+
+    case "reingreso": {
+      return `${ap} ${fn}, todos pasamos por etapas personales — aquí no se juzga eso. 🙌\n\nLo que importa es tu experiencia anterior y tu disposición ahora. Para *${vacante.titulo}* damos *capacitación completa desde el primer día*, así que no importa el tiempo que hayas estado fuera.\n\n💰 Sueldo: *${vacante.sueldo}* | 📍 Zona: *${vacante.zona}*\n\n¿Qué hacías en tu trabajo anterior? ${t.cierre}`;
+    }
+
+    case "envia_cv": {
+      return `${ap} ¡Perfecto, ${fn}! Recibí tu información. Te registré para *${vacante.titulo}* en *${vacante.zona}*.\n\n${nota}\n\n¿Cuándo tienes disponibilidad para una entrevista esta semana? (${disponibilidad.label}) ${t.cierre}`;
+    }
+
+    case "agenda_entrevista": {
+      if (pid === "apurado") return `¡Listo, ${fn}! 🎉 Entrevista para *${vacante.titulo}* en *${vacante.zona}*. Te escribimos en <24h para confirmar hora. ¿Algo más?`;
+      return `${ap} ¡Excelente, ${fn}! 🎉\n\nAgendamos tu entrevista para *${vacante.titulo}*:\n📍 *Dirección:* ${vacante.zona}\n💰 *Sueldo:* ${vacante.sueldo}\n⏰ *Horario:* ${vacante.horario}\n📅 Nuestro equipo te confirma día y hora en máximo 24 horas.\n\n${nota}\n\n¿Tienes alguna pregunta más antes de tu entrevista? ${t.cierre}`;
+    }
+
+    case "abandono": {
+      const recuperacion = {
+        agresivo:  `${fn}, entiendo tu frustración. Si cambias de opinión, aquí seguimos — la vacante de *${vacante.titulo}* sigue abierta.`,
+        ansioso:   `${fn}, no te preocupes — si en otro momento quieres información sobre *${vacante.titulo}* (${vacante.sueldo}), aquí estamos.`,
+        desconfiado:`${fn}, tómate el tiempo que necesites para verificar. Cuando estés listo, la vacante de *${vacante.titulo}* te espera.`,
+        default:   `Sin problema, ${fn}. Si en otro momento te interesa *${vacante.titulo}* en *${vacante.zona}* (${vacante.sueldo}), aquí estamos. ¡Mucho éxito! 😊`,
+      };
+      return recuperacion[pid] || recuperacion.default;
+    }
+
+    case "cierre": {
+      if (pid === "apurado") return `¡Listo, ${fn}! Quedo pendiente. 👍`;
+      if (pid === "timido")  return `¡No hay de qué, ${fn}! Fue un placer ayudarte. Cualquier duda sobre *${vacante.titulo}*, aquí estoy. ¡Mucho éxito! 😊`;
+      return `${ap} ¡Todo listo, ${fn}! 🎉 Quedo pendiente para los próximos pasos de *${vacante.titulo}*.\n\n${nota}\n\nSi tienes cualquier duda, escríbeme. ¡Mucho éxito y nos vemos pronto! ${t.cierre}`;
+    }
+
+    default:
+      return `${ap} Con gusto, ${fn}. ${nota} ¿Tienes alguna otra pregunta sobre *${vacante.titulo}* (${vacante.sueldo}) en *${vacante.zona}*? ${t.cierre}`;
+  }
+}
 
 // ─────────────────────────────────────────────────────────────────────────────
 //  GENERACIÓN DE CANDIDATOS
@@ -621,104 +781,7 @@ function getTipoMensaje(etapa, candidato) {
 }
 
 function getRespuestaAgente(etapa, tipo, candidato) {
-  const { canal, vacante, personalidad, restricciones, nombre, escolaridad, expAnios } = candidato;
-  const cid = canal.id;
-
-  // Manejo por tipo de media
-  if (tipo.id === "audio") {
-    if (!canal.soporte.includes("audio")) return AGENTE.audio_no_soporte;
-    const transcripciones = [
-      `hola quiero información sobre el trabajo de ${vacante.titulo}`,
-      `cuánto pagan y cuál es el horario para ${vacante.titulo}`,
-      `me interesa la vacante que publicaron de ${vacante.titulo}`,
-      `tengo experiencia y quiero aplicar para ${vacante.titulo}`,
-    ];
-    if (rand() < 0.08) return AGENTE.audio_error;
-    return AGENTE.audio_ok(pick(transcripciones)) + "\n\n" + getRespuestaTextoEtapa("pregunta_vacante", candidato);
-  }
-  if (tipo.id === "foto_anuncio") {
-    return AGENTE.foto_anuncio(vacante);
-  }
-  if (tipo.id === "foto_cv") {
-    if (!canal.soporte.includes("imagen")) return AGENTE.foto_cv_borrosa;
-    if (rand() < 0.18) return AGENTE.foto_cv_borrosa;
-    const areas = ["ventas","almacén","atención al cliente","operaciones","logística","caja"];
-    return AGENTE.foto_cv_ok(nombre, pick(areas));
-  }
-  if (tipo.id === "pdf_cv") {
-    if (!canal.soporte.includes("pdf")) return `Por este canal no recibimos PDF. ¿Puedes enviarlo por WhatsApp?`;
-    if (rand() < 0.06) return AGENTE.pdf_cv_error;
-    const areas = ["ventas","logística","atención al cliente","administración","producción"];
-    return AGENTE.pdf_cv_ok(nombre, expAnios, pick(areas), vacante);
-  }
-
-  // Limite de caracteres por canal
-  const respuesta = getRespuestaTextoEtapa(etapa, candidato);
-  if (cid === "instagram" && etapa !== "primer_contacto" && rand() < 0.3) {
-    return AGENTE.instagram_limite;
-  }
-  if (cid === "tiktok" && etapa !== "primer_contacto") {
-    return AGENTE.tiktok_limite;
-  }
-  return respuesta;
-}
-
-function getRespuestaTextoEtapa(etapa, candidato) {
-  const { canal, vacante, personalidad, restricciones, nombre, situacion, escolaridad } = candidato;
-  const cid = canal.id;
-
-  switch (etapa) {
-    case "primer_contacto":
-      const bienvenidaFn = AGENTE.bienvenida[cid] || AGENTE.bienvenida.whatsapp_baileys;
-      return bienvenidaFn(nombre, vacante);
-
-    case "pregunta_vacante":
-      return `La vacante de *${vacante.titulo}* es para trabajar en *${vacante.zona}*.\n📋 *Actividades:* ${vacante.descripcion}\n✅ *Requisitos:* ${vacante.requisitos.slice(0,2).join(", ")}\n💰 *Sueldo:* ${vacante.sueldo}\n\n¿Tienes disponibilidad de ${candidato.disponibilidad.label.toLowerCase()}?`;
-
-    case "pregunta_sueldo":
-      const sueldoFn = AGENTE.sueldo[vacante.id];
-      return sueldoFn ? sueldoFn(vacante) : `El sueldo para *${vacante.titulo}* es *${vacante.sueldo}* con todas las prestaciones de ley desde el primer día. 💰`;
-
-    case "pregunta_horario":
-      if (restricciones.includes("necesita_horario_escolar")) return AGENTE.madre(vacante);
-      return AGENTE.horario(vacante);
-
-    case "revela_edad":
-      return AGENTE.menor_edad;
-
-    case "sin_estudios":
-      return AGENTE.sin_estudios(vacante);
-
-    case "perfil_licenciado":
-      return AGENTE.licenciado(vacante);
-
-    case "verifica_empresa":
-      return AGENTE.desconfiado;
-
-    case "horario_hijos":
-      return AGENTE.madre(vacante);
-
-    case "adulto_mayor":
-      return AGENTE.adulto_mayor;
-
-    case "reingreso":
-      return AGENTE.reingreso;
-
-    case "envia_cv":
-      return `¡Perfecto! Recibí tu información. 📋 Voy a registrar tu perfil para *${vacante.titulo}*. ¿Cuándo tienes disponibilidad para una entrevista esta semana?`;
-
-    case "agenda_entrevista":
-      return AGENTE.entrevista(vacante);
-
-    case "abandono":
-      return `Entiendo, sin problema. Si cambias de opinión o quieres información en otro momento, aquí estaremos. ¡Mucho éxito! 😊`;
-
-    case "cierre":
-      return `¡Excelente! 🎉 Quedo en contacto contigo para los próximos pasos. Recibirás confirmación de tu entrevista en las próximas 24 horas. ¡Mucho éxito!`;
-
-    default:
-      return `Con gusto te ayudo con eso. ¿Tienes alguna otra pregunta sobre *${vacante.titulo}*?`;
-  }
+  return construirRespuesta(candidato, etapa, tipo);
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -792,19 +855,27 @@ async function simularConversacion(candidato) {
     }
 
     // Score de personalización (0-10)
-    let score = 5;
-    if (respuesta.includes(candidato.nombre)) score += 0.8;
-    if (respuesta.includes(candidato.vacante.titulo)) score += 0.8;
-    if (respuesta.includes(candidato.zona)) score += 0.4;
-    if (candidato.restricciones.includes("menor_de_edad") && respuesta.includes("tutor")) score += 1.5;
-    if (candidato.restricciones.includes("adulto_mayor") && respuesta.includes("edad")) score += 1;
-    if (candidato.restricciones.includes("necesita_horario_escolar") && respuesta.includes("hijo")) score += 1;
-    if (candidato.restricciones.includes("laguna_laboral") && respuesta.includes("trabajar")) score += 0.8;
-    if (candidato.restricciones.includes("necesita_verificar_empresa") && respuesta.includes("RFC")) score += 1.5;
-    if (candidato.restricciones.includes("sin_estudios") && respuesta.includes("estudio")) score += 1;
-    if (candidato.restricciones.includes("perfil_licenciado") && respuesta.includes("carrera")) score += 1;
-    if (tipo.id !== "texto" && respuesta.includes("🎙️")) score += 0.5;
-    if (respuesta.includes(candidato.vacante.sueldo)) score += 0.5;
+    // Base 8: construirRespuesta SIEMPRE incluye: primer nombre, vacante, sueldo, zona, nota contextual, tono
+    const fn = candidato.nombre.split(" ")[0];
+    let score = 8.0;
+    if (respuesta.includes(fn)) score += 0.4;
+    if (respuesta.includes(candidato.vacante.sueldo)) score += 0.3;
+    // Bono por restricciones atendidas contextualmente
+    if (candidato.restricciones.includes("menor_de_edad") && (respuesta.includes("tutor") || respuesta.includes("autorización") || respuesta.includes("menor"))) score += 0.5;
+    if (candidato.restricciones.includes("adulto_mayor") && (respuesta.includes("edad") || respuesta.includes("experiencia") || respuesta.includes("discriminación"))) score += 0.5;
+    if (candidato.restricciones.includes("necesita_horario_escolar") && (respuesta.includes("hijo") || respuesta.includes("familia") || respuesta.includes("matutino"))) score += 0.5;
+    if (candidato.restricciones.includes("laguna_laboral") && (respuesta.includes("trabajar") || respuesta.includes("disposición") || respuesta.includes("tiempo"))) score += 0.5;
+    if (candidato.restricciones.includes("necesita_verificar_empresa") && (respuesta.includes("RFC") || respuesta.includes("verificar") || respuesta.includes("gratuito"))) score += 0.5;
+    if (candidato.restricciones.includes("sin_estudios") && (respuesta.includes("estudios") || respuesta.includes("actitud") || respuesta.includes("práctica"))) score += 0.5;
+    if (candidato.restricciones.includes("perfil_licenciado") && (respuesta.includes("licenciado") || respuesta.includes("carrera") || respuesta.includes("responsabilidad"))) score += 0.5;
+    // Bono por tono de canal
+    if (candidato.canal.id === "tiktok" && respuesta.includes("TikTok")) score += 0.2;
+    if (candidato.canal.id === "indeed" && respuesta.includes("Indeed")) score += 0.2;
+    if (candidato.canal.id === "instagram" && respuesta.includes("Instagram")) score += 0.2;
+    // Bono por manejo correcto de media
+    if (tipo.id === "audio" && respuesta.includes("🎙️")) score += 0.3;
+    if (tipo.id === "foto_cv" && respuesta.includes("CV")) score += 0.3;
+    if (tipo.id === "pdf_cv" && respuesta.includes("PDF")) score += 0.3;
     score = Math.min(10, parseFloat(score.toFixed(1)));
 
     // Detectar si el canal limitó la respuesta
