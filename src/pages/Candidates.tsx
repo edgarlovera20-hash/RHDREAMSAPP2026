@@ -81,8 +81,7 @@ export function Candidates() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const timer = setTimeout(() => setLoading(false), 500);
-    return () => clearTimeout(timer);
+    setLoading(false);
   }, []);
 
   const [activeView, setActiveView] = useState<'list' | 'kanban' | 'calendar'>('kanban');

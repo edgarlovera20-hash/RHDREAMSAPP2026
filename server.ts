@@ -11,6 +11,7 @@ import { createOpenRouterRoutes } from "./server/routes/openrouter.routes";
 import { createIntegrationRoutes } from "./server/routes/integrations.routes";
 import { createAuthRoutes } from "./server/routes/auth.routes";
 import { createWorkflowRoutes } from "./server/routes/workflows.routes";
+import { createGoogleRoutes } from "./server/routes/google.routes";
 import { createConversationRoutes } from "./server/routes/conversations.routes";
 import { apiLimiter } from "./server/middleware/rateLimiter";
 import { initializeGeminiService } from "./server/services/gemini.service";
@@ -183,6 +184,7 @@ async function startServer() {
     app.use("/api/integrations", createIntegrationRoutes());
     app.use("/api/conversations", createConversationRoutes());
     app.use("/api/workflows", createWorkflowRoutes());
+    app.use("/api/google", createGoogleRoutes());
     app.use("/api", (_req, res) => {
       res.status(404).json({
         success: false,

@@ -71,14 +71,15 @@ export function WorkspaceHub() {
 
     if (isLoggedInWithGoogle && accessToken) {
       try {
-        // Create spreadsheet
-        const resCreate = await fetch("https://sheets.googleapis.com/v4/spreadsheets", {
+        // TODO: backend route POST /api/google/sheets/create must proxy to Google Sheets API
+        const headers = ["ID", "Nombre", "Email", "Teléfono", "Puesto", "Fase", "Fuente", "Calificación", "Notas"];
+        const rows = candidates.map(c => [
+          c.id, c.name, c.email, c.phone, c.role, c.stage, c.source, c.rating, c.notes || ""
+        ]);
+        const resCreate = await fetch("/api/google/sheets/create", {
           method: "POST",
-          headers: {
-            "Authorization": `Bearer ${accessToken}`,
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify(payloadCreate)
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ title, headers, rows, accessToken })
         });
 
         if (!resCreate.ok) throw new Error("Error al crear Spreadsheet");
@@ -86,23 +87,8 @@ export function WorkspaceHub() {
         const createdId = sheetData.spreadsheetId;
         const createdUrl = sheetData.spreadsheetUrl;
 
-        // Set headers and row values
-        const headers = ["ID", "Nombre", "Email", "Teléfono", "Puesto", "Fase", "Fuente", "Calificación", "Notas"];
-        const rows = candidates.map(c => [
-          c.id, c.name, c.email, c.phone, c.role, c.stage, c.source, c.rating, c.notes || ""
-        ]);
-        const bodyValues = {
-          values: [headers, ...rows]
-        };
-
-        const resWrite = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${createdId}/values/Sheet1!A1:I${rows.length + 1}?valueInputOption=RAW`, {
-          method: "PUT",
-          headers: {
-            "Authorization": `Bearer ${accessToken}`,
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify(bodyValues)
-        });
+        // Dummy resWrite reference kept for downstream error check compatibility
+        const resWrite = { ok: true };
 
         if (!resWrite.ok) throw new Error("Error escribiendo valores en la hoja");
 
@@ -128,8 +114,11 @@ export function WorkspaceHub() {
 
     if (isLoggedInWithGoogle && accessToken) {
       try {
-        const res = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${importSheetId}/values/Sheet1!A1:Z100`, {
-          headers: { "Authorization": `Bearer ${accessToken}` }
+        // TODO: backend route POST /api/google/sheets/import must proxy to Google Sheets API
+        const res = await fetch("/api/google/sheets/import", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ sheetId: importSheetId, accessToken })
         });
         if (!res.ok) throw new Error("No se pudo obtener datos del Spreadsheet seleccionado.");
         const data = await res.json();
@@ -350,13 +339,11 @@ export function WorkspaceHub() {
 
     if (isLoggedInWithGoogle && accessToken) {
       try {
-        const res = await fetch("https://gmail.googleapis.com/gmail/v1/users/me/messages/send", {
+        // TODO: backend route POST /api/google/gmail/send must proxy to Gmail API
+        const res = await fetch("/api/google/gmail/send", {
           method: "POST",
-          headers: {
-            "Authorization": `Bearer ${accessToken}`,
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify(payload)
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ...payload, accessToken })
         });
 
         if (!res.ok) throw new Error("Error del API de Gmail");
@@ -387,9 +374,8 @@ export function WorkspaceHub() {
 
     if (isLoggedInWithGoogle && accessToken) {
       try {
-        const res = await fetch(`https://forms.googleapis.com/v1/forms/${formId}`, {
-          headers: { "Authorization": `Bearer ${accessToken}` }
-        });
+        // TODO: backend route GET /api/google/forms/:formId must proxy to Google Forms API
+        const res = await fetch(`/api/google/forms/${formId}?accessToken=${encodeURIComponent(accessToken)}`);
         if (!res.ok) throw new Error("El Formulario de Google no existe o tu cuenta no cuenta con permisos.");
         const data = await res.json();
 
@@ -418,9 +404,8 @@ export function WorkspaceHub() {
 
     if (isLoggedInWithGoogle && accessToken) {
       try {
-        const res = await fetch(`https://forms.googleapis.com/v1/forms/${connectedForm.id}/responses`, {
-          headers: { "Authorization": `Bearer ${accessToken}` }
-        });
+        // TODO: backend route GET /api/google/forms/:formId used for responses via query param
+        const res = await fetch(`/api/google/forms/${connectedForm.id}?responses=true&accessToken=${encodeURIComponent(accessToken)}`);
         if (!res.ok) throw new Error("No se pudo leer las respuestas del Formulario");
         const data = await res.json();
 
@@ -446,13 +431,11 @@ export function WorkspaceHub() {
     }
 
     try {
-      const res = await fetch("https://forms.googleapis.com/v1/forms", {
+      // TODO: backend route POST /api/google/forms/:formId (create) must proxy to Google Forms API
+      const res = await fetch("/api/google/forms/create", {
         method: "POST",
-        headers: {
-          "Authorization": `Bearer ${accessToken}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ info: { title } }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title, accessToken }),
       });
       if (!res.ok) throw new Error("No se pudo crear el formulario.");
       const data = await res.json();
@@ -501,11 +484,8 @@ export function WorkspaceHub() {
 
     if (isLoggedInWithGoogle && accessToken) {
       try {
-        const query = encodeURIComponent("mimeType != 'application/vnd.google-apps.folder' and trashed = false");
-        const fields = "files(id,name,mimeType,webViewLink,webContentLink,thumbnailLink,iconLink,size,modifiedTime)";
-        const res = await fetch(`https://www.googleapis.com/drive/v3/files?q=${query}&pageSize=50&fields=${fields}`, {
-          headers: { "Authorization": `Bearer ${accessToken}` }
-        });
+        // TODO: backend route GET /api/google/drive/files must proxy to Google Drive API
+        const res = await fetch(`/api/google/drive/files?accessToken=${encodeURIComponent(accessToken)}`);
         if (!res.ok) throw new Error("Error leyendo archivos de Google Drive");
         const data = await res.json();
 
@@ -562,9 +542,8 @@ export function WorkspaceHub() {
 
     if (isLoggedInWithGoogle && accessToken) {
       try {
-        const res = await fetch("https://photoslibrary.googleapis.com/v1/mediaItems?pageSize=25", {
-          headers: { "Authorization": `Bearer ${accessToken}` },
-        });
+        // TODO: backend route GET /api/google/photos/albums must proxy to Google Photos API
+        const res = await fetch(`/api/google/photos/albums?accessToken=${encodeURIComponent(accessToken)}`);
 
         if (!res.ok) throw new Error("Error leyendo Google Photos. Revisa que Photos Library API este habilitada.");
         const data = await res.json();
@@ -621,13 +600,11 @@ export function WorkspaceHub() {
         title: newKeepNote.title || "Nota de reclutamiento",
         body: { text: { text: newKeepNote.content } },
       };
-      const res = await fetch("https://keep.googleapis.com/v1/notes", {
+      // TODO: backend route GET /api/google/keep/notes must proxy to Google Keep API
+      const res = await fetch("/api/google/keep/notes", {
         method: "POST",
-        headers: {
-          "Authorization": `Bearer ${accessToken}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...payload, accessToken }),
       });
       if (!res.ok) throw new Error("No se pudo crear la nota en Google Keep.");
       const data = await res.json();

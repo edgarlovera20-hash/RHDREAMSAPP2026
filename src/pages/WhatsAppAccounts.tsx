@@ -528,7 +528,7 @@ export function WhatsAppAccounts() {
         if (payload.data?.state === "connected") {
           baileysCompletedRef.current = true;
           setModalStep('success');
-          setTimeout(() => { handleCreateAccount(); }, 1200);
+          handleCreateAccount();
         }
       } catch (error: any) {
         setBaileysAuthExpired(isBaileysAuthExpiredError(error));
@@ -545,7 +545,7 @@ export function WhatsAppAccounts() {
         const result = await ensureRealProviderConnection(activeTab);
         setConnectionTest(result);
         setModalStep('success');
-        setTimeout(() => { handleCreateAccount(result); }, 900);
+        handleCreateAccount(result);
       } catch (error: any) {
         setModalStep('info');
         setConnectionTest({ ok: false, message: error.message || "No se pudo validar la conexion real del proveedor." });
@@ -554,7 +554,7 @@ export function WhatsAppAccounts() {
       }
     } else if (activeTab === 'indeed' || activeTab === 'computrabajo') {
       setModalStep('success');
-      setTimeout(() => { handleCreateAccount(); }, 900);
+      handleCreateAccount();
     }
   };
 
@@ -646,7 +646,7 @@ export function WhatsAppAccounts() {
         if (payload.data?.state === "connected" && !baileysCompletedRef.current) {
           baileysCompletedRef.current = true;
           setModalStep('success');
-          window.setTimeout(() => { handleCreateAccount(); }, 1200);
+          handleCreateAccount();
         }
       } catch (error: any) {
         setBaileysAuthExpired(isBaileysAuthExpiredError(error));

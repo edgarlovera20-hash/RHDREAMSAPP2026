@@ -25,6 +25,8 @@ export const createWorkflowRoutes = (): Router => {
         userId: req.user?.userId,
       });
 
+      logger.warn("Workflow execution not yet implemented — run queued but will not execute", { runId });
+
       res.json({
         success: true,
         data: {
