@@ -375,6 +375,15 @@ export function WhatsAppAccounts() {
      acc.phone.includes(searchFilter))
   );
 
+  const getWebhookUrl = (type: string) => {
+    switch(type) {
+      case 'whatsapp_meta': return apiUrl('/api/integrations/meta/webhook');
+      case 'indeed': return apiUrl('/api/integrations/webhooks/job-board/indeed');
+      case 'computrabajo': return apiUrl('/api/integrations/webhooks/job-board/computrabajo');
+      default: return undefined;
+    }
+  };
+
   const connectedAccountTypes = new Set(accounts.filter((account) => account.status === "connected").map((account) => account.type));
   const metaIntegrationStatus = META_INTEGRATION_MODULES.map((module) => {
     const connected =
@@ -818,15 +827,6 @@ export function WhatsAppAccounts() {
       case 'instagram': return 'Instagram Messaging API';
       case 'tiktok': return 'TikTok Lead Generation';
       default: return 'Canal externo';
-    }
-  };
-
-  const getWebhookUrl = (type: string) => {
-    switch(type) {
-      case 'whatsapp_meta': return apiUrl('/api/integrations/meta/webhook');
-      case 'indeed': return apiUrl('/api/integrations/webhooks/job-board/indeed');
-      case 'computrabajo': return apiUrl('/api/integrations/webhooks/job-board/computrabajo');
-      default: return undefined;
     }
   };
 
