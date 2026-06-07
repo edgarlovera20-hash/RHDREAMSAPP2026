@@ -41,8 +41,6 @@ export const createWorkflowRoutes = (): Router => {
         logger.error("Workflow execution error (background)", { runId, err });
       });
 
-      logger.warn("Workflow execution not yet implemented — run queued but will not execute", { runId });
-
       res.json({
         success: true,
         data: {
