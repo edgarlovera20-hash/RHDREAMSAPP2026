@@ -19,7 +19,10 @@
     "simulate:1000mpm": "node scripts/simulate-1000mpm.mjs",
     "simulate:1000mpm:live": "node scripts/simulate-1000mpm.mjs --mode=live",
     "simulate:candidates": "node scripts/simulate-candidates.mjs",
-    "simulate:candidates:live": "node scripts/simulate-candidates.mjs --mode=live"
+    "simulate:candidates:live": "node scripts/simulate-candidates.mjs --mode=live",
+    "simulate:full": "node scripts/simulate-full-app.mjs",
+    "simulate:full:live": "node scripts/simulate-full-app.mjs --mode=live",
+    "simulate:full:export": "node scripts/simulate-full-app.mjs --export=true"
   },
   "dependencies": {
     "@google/genai": "^1.29.0",
