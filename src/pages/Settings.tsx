@@ -180,8 +180,35 @@ export function Settings() {
   const [newFlowTrigger, setNewFlowTrigger] = useState('Recibir nueva postulación');
   const [newFlowAction, setNewFlowAction] = useState('Enviar correo a HR');
 
-  const toggleAutomation = (id: number) => {
-    setAutomations(autos => autos.map(a => a.id === id ? { ...a, active: !a.active } : a));
+  useEffect(() => {
+    loadAutomationRulesFromApi();
+  }, []);
+
+  const loadAutomationRulesFromApi = async () => {
+    try {
+      const response = await apiFetch('/api/automation-rules');
+      const payload = await readApiJson(response);
+      if (Array.isArray(payload?.data) && payload.data.length > 0) {
+        setAutomations(payload.data.map((r: any) => ({
+          id: r.id,
+          name: r.name,
+          trigger: r.trigger,
+          action: r.action,
+          active: r.active,
+        })));
+      }
+    } catch (_error) {
+      // Keep default AUTOMATIONS already set in initial state
+    }
+  };
+
+  const toggleAutomation = async (id: number | string) => {
+    setAutomations(autos => autos.map((a: any) => a.id === id ? { ...a, active: !a.active } : a));
+    try {
+      await apiFetch(`/api/automation-rules/${id}/toggle`, { method: 'PATCH' });
+    } catch (_error) {
+      // State already updated locally
+    }
   };
 
   useEffect(() => {
@@ -1473,11 +1500,25 @@ export function Settings() {
                       />
                     </div>
                     <button
-                      onClick={() => {
+                      onClick={async () => {
                         if (newFlowName) {
-                          setAutomations([...automations, { id: Date.now(), name: newFlowName, trigger: newFlowTrigger, action: newFlowAction, active: true }]);
+                          const tempId = Date.now();
+                          setAutomations([...automations, { id: tempId, name: newFlowName, trigger: newFlowTrigger, action: newFlowAction, active: true }]);
                           setIsFlowModalOpen(false);
                           setNewFlowName('');
+                          try {
+                            const response = await apiFetch('/api/automation-rules', {
+                              method: 'POST',
+                              headers: { 'Content-Type': 'application/json' },
+                              body: JSON.stringify({ name: newFlowName, trigger: newFlowTrigger, action: newFlowAction, active: true }),
+                            });
+                            const payload = await readApiJson(response);
+                            if (payload?.data?.id) {
+                              setAutomations(autos => autos.map((a: any) => a.id === tempId ? { ...a, id: payload.data.id } : a));
+                            }
+                          } catch (_error) {
+                            // Saved locally already
+                          }
                         }
                       }}
                       className="btn-primary w-full py-2 rounded-lg text-sm mt-2"

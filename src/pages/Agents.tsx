@@ -265,11 +265,33 @@ Escribenos por mensaje para recibir requisitos, horarios y siguientes pasos.
 
   useEffect(() => {
     loadPersistentAgentMemories();
+    loadInterviewSlotsFromApi();
   }, []);
 
   useEffect(() => {
     localStorage.setItem(INTERVIEW_SCHEDULE_STORAGE_KEY, JSON.stringify(interviewSlots));
   }, [interviewSlots]);
+
+  const loadInterviewSlotsFromApi = async () => {
+    try {
+      const response = await apiFetch('/api/interviews');
+      const payload = await readApiJson(response);
+      if (Array.isArray(payload?.data) && payload.data.length > 0) {
+        const mapped: InterviewSlot[] = payload.data.map((s: any) => ({
+          id: s.id,
+          date: s.date,
+          startTime: s.time ?? '',
+          endTime: s.endTime ?? '',
+          capacity: s.capacity ?? 1,
+          location: s.location ?? '',
+          notes: s.notes ?? '',
+        }));
+        setInterviewSlots(mapped);
+      }
+    } catch (_error) {
+      // Fall back to localStorage (already loaded in initial state)
+    }
+  };
 
   const getIcon = (name: string) => {
     switch (name) {
@@ -408,7 +430,7 @@ Escribenos por mensaje para recibir requisitos, horarios y siguientes pasos.
     }));
   };
 
-  const handleAddInterviewSlot = () => {
+  const handleAddInterviewSlot = async () => {
     if (!slotDraft.date || !slotDraft.startTime || !slotDraft.endTime) return;
     const nextSlot = {
       ...slotDraft,
@@ -417,14 +439,50 @@ Escribenos por mensaje para recibir requisitos, horarios y siguientes pasos.
     };
     setInterviewSlots(current => [...current, nextSlot].sort((a, b) => `${a.date} ${a.startTime}`.localeCompare(`${b.date} ${b.startTime}`)));
     setSlotDraft(current => ({ ...current, notes: '' }));
+    try {
+      const response = await apiFetch('/api/interviews', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          date: nextSlot.date,
+          time: nextSlot.startTime,
+          endTime: nextSlot.endTime,
+          capacity: nextSlot.capacity,
+          location: nextSlot.location,
+          notes: nextSlot.notes,
+        }),
+      });
+      const payload = await readApiJson(response);
+      if (payload?.data?.id) {
+        setInterviewSlots(current =>
+          current.map(s => s.id === nextSlot.id ? { ...s, id: payload.data.id } : s)
+        );
+      }
+    } catch (_error) {
+      // Saved in localStorage already via the useEffect above
+    }
   };
 
-  const updateInterviewSlot = (slotId: string, patch: Partial<InterviewSlot>) => {
+  const updateInterviewSlot = async (slotId: string, patch: Partial<InterviewSlot>) => {
     setInterviewSlots(current => current.map(slot => slot.id === slotId ? { ...slot, ...patch } : slot));
+    try {
+      await apiFetch(`/api/interviews/${slotId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(patch),
+      });
+    } catch (_error) {
+      // Saved in localStorage already via the useEffect above
+    }
   };
 
-  const removeInterviewSlot = (slotId: string) => {
+  const removeInterviewSlot = async (slotId: string) => {
     setInterviewSlots(current => current.filter(slot => slot.id !== slotId));
+    try {
+      await apiFetch(`/api/interviews/${slotId}`, { method: 'DELETE' });
+    } catch (_error) {
+      // Removed from localStorage already via the useEffect above
+    }
   };
 
   const analyzeTestMessage = (message: string) => {
