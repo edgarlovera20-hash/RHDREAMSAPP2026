@@ -9,3 +9,4 @@ logs/
 .sessions/
 .env*
 !.env.example
+.claude
