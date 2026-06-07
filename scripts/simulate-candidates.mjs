@@ -554,9 +554,10 @@ function generarCandidato(id) {
     if (i === 0) tipo = TIPOS_MENSAJE.find(t => t.id === "texto");
     // Solo una etapa puede tener CV (envia_cv)
     if (etapa === "envia_cv") {
-      tipo = pick(["imagen_cv","pdf_cv"].filter(id =>
-        tiposDisponibles.find(t => t.id === id)
-      ).map(id => TIPOS_MENSAJE.find(t => t.id === id)) || [TIPOS_MENSAJE[0]]);
+      const cvTypes = ["imagen_cv","pdf_cv"]
+        .map(id => TIPOS_MENSAJE.find(t => t.id === id))
+        .filter(t => t && canal.soporte.includes(t.id));
+      tipo = cvTypes.length > 0 ? pick(cvTypes) : TIPOS_MENSAJE[0]; // fallback a texto
     }
     return { etapa, tipo };
   });
