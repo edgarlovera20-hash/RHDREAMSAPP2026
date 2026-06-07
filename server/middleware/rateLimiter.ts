@@ -1,27 +1,49 @@
 import rateLimit, {
   ipKeyGenerator,
   RateLimitRequestHandler,
+  Store,
 } from "express-rate-limit";
+import { RedisStore } from "rate-limit-redis";
+import IORedis from "ioredis";
 import { logger } from "../utils/logger";
 
+let redisClient: IORedis | null = null;
+
+function getRedisStore(prefix: string): Store | undefined {
+  const redisUrl = process.env.REDIS_URL;
+  if (!redisUrl) return undefined;
+
+  try {
+    if (!redisClient) {
+      redisClient = new IORedis(redisUrl, {
+        maxRetriesPerRequest: 1,
+        enableReadyCheck: false,
+        lazyConnect: true,
+      });
+      redisClient.on("error", (err) => {
+        logger.warn("Rate-limit Redis error (falling back to memory)", { message: err.message });
+      });
+    }
+    return new RedisStore({
+      sendCommand: (...args: string[]) => (redisClient as any).call(...args),
+      prefix,
+    });
+  } catch {
+    return undefined;
+  }
+}
+
 /**
- * General API rate limiter
- * 100 requests per 15 minutes
+ * General API rate limiter — 300 req / 15 min per user/IP.
+ * Uses Redis when REDIS_URL is set (required for PM2 cluster mode).
  */
 export const apiLimiter: RateLimitRequestHandler = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: Number(process.env.API_RATE_LIMIT_MAX || 300), // Limit each IP to N requests per windowMs
-  message: {
-    success: false,
-    error: "Demasiadas solicitudes. Intenta de nuevo más tarde.",
-    code: 429,
-  },
-  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
-  legacyHeaders: false, // Disable the `X-RateLimit-*` headers
-  keyGenerator: (req) => {
-    // Use user ID if authenticated, otherwise use IP
-    return req.user?.userId || ipKeyGenerator(req.ip || "unknown");
-  },
+  windowMs: 15 * 60 * 1000,
+  max: Number(process.env.API_RATE_LIMIT_MAX || 300),
+  standardHeaders: true,
+  legacyHeaders: false,
+  store: getRedisStore("rhdreams:rl:api"),
+  keyGenerator: (req) => req.user?.userId || ipKeyGenerator(req.ip || "unknown"),
   handler: (req, res) => {
     logger.warn("Rate limit exceeded", {
       ip: req.ip,
@@ -34,30 +56,18 @@ export const apiLimiter: RateLimitRequestHandler = rateLimit({
       code: 429,
     });
   },
-  skip: (req) => {
-    // Skip rate limiting for certain paths if needed
-    return false;
-  },
 });
 
 /**
- * Gemini API rate limiter
- * Stricter: 30 requests per 15 minutes
- * Prevents abuse of expensive AI calls
+ * Gemini/AI rate limiter — 75 req / 15 min.
  */
 export const geminiLimiter: RateLimitRequestHandler = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: Number(process.env.GEMINI_RATE_LIMIT_MAX || 75), // 200/hour needs at least 50 per 15 min plus margin
-  message: {
-    success: false,
-    error: "Has alcanzado el límite de solicitudes de IA. Intenta de nuevo en 15 minutos.",
-    code: 429,
-  },
+  windowMs: 15 * 60 * 1000,
+  max: Number(process.env.GEMINI_RATE_LIMIT_MAX || 75),
   standardHeaders: true,
   legacyHeaders: false,
-  keyGenerator: (req) => {
-    return (req as any).user?.userId || ipKeyGenerator(req.ip || "unknown");
-  },
+  store: getRedisStore("rhdreams:rl:gemini"),
+  keyGenerator: (req) => (req as any).user?.userId || ipKeyGenerator(req.ip || "unknown"),
   handler: (req, res) => {
     logger.warn("Gemini rate limit exceeded", {
       ip: req.ip,
@@ -73,26 +83,17 @@ export const geminiLimiter: RateLimitRequestHandler = rateLimit({
 });
 
 /**
- * Auth endpoint rate limiter
- * Stricter: 5 attempts per 15 minutes
- * Prevents brute force attacks
+ * Auth brute-force limiter — 5 attempts / 15 min per IP.
  */
 export const authLimiter: RateLimitRequestHandler = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 5, // Limit each IP to 5 attempts per windowMs
-  message: {
-    success: false,
-    error: "Demasiados intentos de autenticación. Intenta de nuevo más tarde.",
-    code: 429,
-  },
+  windowMs: 15 * 60 * 1000,
+  max: 5,
   standardHeaders: true,
   legacyHeaders: false,
+  store: getRedisStore("rhdreams:rl:auth"),
   keyGenerator: (req) => ipKeyGenerator(req.ip || "unknown"),
   handler: (req, res) => {
-    logger.warn("Auth rate limit exceeded", {
-      ip: req.ip,
-      path: req.path,
-    });
+    logger.warn("Auth rate limit exceeded", { ip: req.ip, path: req.path });
     res.status(429).json({
       success: false,
       error: "Demasiados intentos de autenticación. Intenta de nuevo más tarde.",
