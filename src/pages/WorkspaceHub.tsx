@@ -796,41 +796,55 @@ export function WorkspaceHub() {
                   <h3 className="text-lg font-bold text-white leading-tight">Mapeo y Base de Datos en Sheets</h3>
                   <p className="text-slate-400 text-xs mt-1">Exporta candidatos filtrados a Excel/Sheets o trae registros directamente.</p>
                 </div>
-                <div className="p-2 bg-zinc-500/10 text-zinc-400 rounded-lg border border-zinc-500/20">
+                <div className="p-2.5 bg-emerald-500/10 text-emerald-400 rounded-xl border border-emerald-500/20">
                   <FileSpreadsheet className="w-5 h-5" />
                 </div>
               </div>
 
               {/* Action Buttons */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="bg-slate-950/60 p-5 rounded-2xl border border-white/5 flex flex-col gap-3">
-                  <div className="font-bold text-xs text-zinc-400 uppercase tracking-wide">Exportación masiva</div>
-                  <p className="text-xs text-slate-400">Genera una nueva hoja de cálculo estructurada con todos los perfiles, fases y notas de contacto actuales.</p>
+                {/* Exportación */}
+                <div className="relative bg-gradient-to-br from-emerald-950/40 to-slate-950/60 p-5 rounded-2xl border border-emerald-500/20 flex flex-col gap-3 overflow-hidden">
+                  <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-500/5 rounded-full -translate-y-8 translate-x-8 pointer-events-none" />
+                  <div className="flex items-center gap-2">
+                    <div className="p-1.5 bg-emerald-500/15 rounded-lg border border-emerald-500/20">
+                      <FileSpreadsheet className="w-3.5 h-3.5 text-emerald-400" />
+                    </div>
+                    <div className="font-bold text-xs text-emerald-400 uppercase tracking-wide">Exportación Masiva</div>
+                  </div>
+                  <p className="text-xs text-slate-400 leading-relaxed">Genera una hoja de cálculo estructurada con todos los perfiles, fases y notas de contacto actuales.</p>
                   <button
                     onClick={handleExportToSheets}
                     disabled={isExporting}
-                    className="btn-primary mt-auto text-xs py-2.5 px-4 flex items-center justify-center gap-2"
+                    className="mt-auto flex items-center justify-center gap-2 bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 border border-emerald-500/30 rounded-xl py-2.5 px-4 text-xs font-bold transition-all disabled:opacity-40"
                   >
                     {isExporting ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileSpreadsheet className="w-4 h-4" />}
                     Exportar Candidatos
                   </button>
                 </div>
 
-                <div className="bg-slate-950/60 p-5 rounded-2xl border border-white/5 flex flex-col gap-3">
-                  <div className="font-bold text-xs text-zinc-400 uppercase tracking-wide">Importación Rápida</div>
-                  <p className="text-xs text-slate-400">Importa perfiles desde documentos compartidos ingresando el Identificador de la hoja de cálculo.</p>
-                  <div className="flex gap-2">
+                {/* Importación */}
+                <div className="relative bg-gradient-to-br from-sky-950/40 to-slate-950/60 p-5 rounded-2xl border border-sky-500/20 flex flex-col gap-3 overflow-hidden">
+                  <div className="absolute top-0 right-0 w-24 h-24 bg-sky-500/5 rounded-full -translate-y-8 translate-x-8 pointer-events-none" />
+                  <div className="flex items-center gap-2">
+                    <div className="p-1.5 bg-sky-500/15 rounded-lg border border-sky-500/20">
+                      <FileSpreadsheet className="w-3.5 h-3.5 text-sky-400" />
+                    </div>
+                    <div className="font-bold text-xs text-sky-400 uppercase tracking-wide">Importación Rápida</div>
+                  </div>
+                  <p className="text-xs text-slate-400 leading-relaxed">Importa perfiles desde documentos compartidos ingresando el ID de la hoja de cálculo.</p>
+                  <div className="flex gap-2 mt-auto">
                     <input
                       type="text"
-                      className="bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white placeholder:text-slate-600 outline-none focus:border-zinc-500 flex-1"
-                      placeholder="Insertar ID del Spreadsheet..."
+                      className="bg-slate-900/80 border border-sky-500/20 rounded-xl px-3 py-2 text-xs text-white placeholder:text-slate-600 outline-none focus:border-sky-400/50 transition-colors flex-1"
+                      placeholder="Pega el ID del Spreadsheet..."
                       value={importSheetId}
                       onChange={(e) => setImportSheetId(e.target.value)}
                     />
                     <button
                       onClick={handleFetchImportPreview}
                       disabled={isImporting || !importSheetId}
-                      className="bg-zinc-600/20 hover:bg-zinc-600/40 text-zinc-400 border border-zinc-500/30 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors disabled:opacity-40"
+                      className="bg-sky-500/15 hover:bg-sky-500/25 text-sky-300 border border-sky-500/30 px-3 py-2 rounded-xl text-xs font-bold transition-all disabled:opacity-40 whitespace-nowrap"
                     >
                       Previsualizar
                     </button>
@@ -840,11 +854,11 @@ export function WorkspaceHub() {
 
               {/* Sheet Success Link */}
               {sheetUrl && (
-                <div className="bg-zinc-500/10 border border-zinc-500/30 p-4 rounded-xl flex items-center justify-between gap-3 animate-in fade-in zoom-in duration-300">
+                <div className="bg-emerald-500/10 border border-emerald-500/30 p-4 rounded-xl flex items-center justify-between gap-3 animate-in fade-in zoom-in duration-300">
                   <div className="flex gap-2.5 items-center">
-                    <CheckCircle2 className="w-5 h-5 text-zinc-400 shrink-0" />
+                    <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
                     <div>
-                      <div className="font-bold text-xs text-zinc-300">Documento Creado con Éxito</div>
+                      <div className="font-bold text-xs text-emerald-300">Documento Creado con Éxito</div>
                       <div className="text-[10px] text-slate-400 truncate max-w-sm font-mono">ID: {sheetId}</div>
                     </div>
                   </div>
@@ -852,7 +866,7 @@ export function WorkspaceHub() {
                     href={sheetUrl}
                     target="_blank"
                     rel="noreferrer"
-                    className="bg-slate-900 hover:bg-slate-850 text-zinc-300 border border-zinc-500/20 px-3 py-1.5 rounded-lg text-[10px] font-bold flex items-center gap-1.5 transition-all text-decoration-none"
+                    className="bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 border border-emerald-500/30 px-3 py-1.5 rounded-lg text-[10px] font-bold flex items-center gap-1.5 transition-all"
                   >
                     Ver en Sheets <ExternalLink className="w-3.5 h-3.5" />
                   </a>
