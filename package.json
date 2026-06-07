@@ -17,7 +17,9 @@
     "simulate:users": "node scripts/simulate-users.mjs",
     "simulate:messages": "node scripts/simulate-message-load.mjs",
     "simulate:1000mpm": "node scripts/simulate-1000mpm.mjs",
-    "simulate:1000mpm:live": "node scripts/simulate-1000mpm.mjs --mode=live"
+    "simulate:1000mpm:live": "node scripts/simulate-1000mpm.mjs --mode=live",
+    "simulate:candidates": "node scripts/simulate-candidates.mjs",
+    "simulate:candidates:live": "node scripts/simulate-candidates.mjs --mode=live"
   },
   "dependencies": {
     "@google/genai": "^1.29.0",
