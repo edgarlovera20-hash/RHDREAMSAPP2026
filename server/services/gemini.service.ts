@@ -155,9 +155,9 @@ export class GeminiService {
       if (groq.isConfigured()) {
         const result = await groq.generateChatCompletion({
           messages,
-          temperature: 0.8,
-          presencePenalty: 0.7,
-          frequencyPenalty: 0.8,
+          temperature: 0.95,
+          presencePenalty: 0.9,
+          frequencyPenalty: 1.0,
           maxTokens: 420,
         });
         logger.warn("Gemini unavailable; generated reply with Groq fallback", {
@@ -175,9 +175,9 @@ export class GeminiService {
       if (openRouter.isConfigured()) {
         const result = await openRouter.generateChatCompletion({
           messages,
-          temperature: 0.8,
-          presencePenalty: 0.7,
-          frequencyPenalty: 0.8,
+          temperature: 0.95,
+          presencePenalty: 0.9,
+          frequencyPenalty: 1.0,
           maxTokens: 420,
         });
         logger.warn("Gemini unavailable; generated reply with OpenRouter fallback", {
@@ -398,7 +398,9 @@ Variacion interna: ${Date.now()}-${Math.random().toString(16).slice(2)}
           contents: this.buildGeminiContents(history || [], currentUserPrompt),
           config: {
             systemInstruction: systemInstruction,
-            temperature: 0.8,
+            temperature: 0.92,
+            topP: 0.92,
+            topK: 50,
           },
         });
 
@@ -588,7 +590,7 @@ Panel maestro de configuracion actual:
 ${JSON.stringify(MASTER_AGENT_SETTINGS, null, 2)}
     `;
   }
-
+
   /**
    * Check whether the Gemini client is ready for live requests.
    */

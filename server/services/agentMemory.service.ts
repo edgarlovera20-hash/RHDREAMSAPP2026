@@ -180,17 +180,13 @@ export async function getRelevantAgentMemories(input: MemoryLookupInput) {
 }
 
 export function formatAgentMemoryContext(memories: AgentMemoryRecord[]) {
-  if (!memories.length) {
-    return "Memoria persistente del agente: sin aprendizajes previos relevantes.";
-  }
+  if (!memories.length) return "";
 
-  return `Memoria persistente del agente:
-${memories.map((memory, index) => `${index + 1}. Intencion: ${memory.intent}
-Leccion: ${memory.lesson}
-Canal/fuente: ${memory.channel || "general"} / ${memory.source}
-Ultimo uso: ${memory.lastUsedAt ? new Date(memory.lastUsedAt).toISOString() : "sin uso previo"}`).join("\n\n")}
+  const top = memories.slice(0, 5);
+  return `MEMORIA DEL AGENTE (aprendizajes de conversaciones anteriores):
+${top.map((m, i) => `${i + 1}. [${m.intent}] ${m.lesson}`).join("\n")}
 
-Usa estas lecciones como contexto. No las repitas palabra por palabra: adapta la respuesta al candidato actual.`;
+Aplica estas lecciones de forma natural. No las menciones explícitamente ni las copies textual.`;
 }
 
 export async function rememberAgentInteraction(input: MemoryWriteInput) {
