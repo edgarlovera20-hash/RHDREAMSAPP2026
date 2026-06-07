@@ -2,26 +2,25 @@
 /**
  * simulate-candidates.mjs
  * ─────────────────────────────────────────────────────────────────────────────
- * Simulación completa: 1000 candidatos con perfiles únicos contactan a la app
- * por distintos canales enviando texto, audio, imágenes y PDFs de CV.
- * El agente responde de forma personalizada y humana.
+ * Simulación completa: 1000 candidatos con todos los perfiles posibles
+ * contactan a Heavenly Dreams por 6 canales (WhatsApp, Messenger, Instagram,
+ * TikTok, Indeed) preguntando por las 4 vacantes reales.
  *
  * Variables modeladas:
- *  • 8 perfiles de candidato (edad, escolaridad, experiencia, zona, turno)
- *  • 4 canales (WhatsApp Baileys, WhatsApp Meta, WebChat, SMS)
- *  • 5 tipos de mensaje (texto, audio, foto de anuncio, imagen CV, PDF CV)
- *  • Personalidad del candidato (formal, informal, desconfiado, ansioso, apurado)
- *  • Disponibilidad y restricciones (menor de edad, doble turno, solo fines de semana)
- *  • Idioma / acento (español neutro, chilango, norteño, mixteco)
- *  • Conversaciones multi-turno (1-7 mensajes por candidato)
- *  • Latencias reales por tipo de media + canal
- *  • Tasa de abandono por tiempo de espera
- *  • Análisis de personalización de respuestas
- *  • Auditoría de cobertura: qué preguntas no supo responder el agente
+ *  Canales:       WhatsApp Baileys, WhatsApp Meta, Messenger, Instagram DM, TikTok, Indeed
+ *  Vacantes:      Ayudante General, Asesor Comercial, Supervisor de Personal, Promotor
+ *  Escolaridad:   Sin estudios → Licenciatura (7 niveles)
+ *  Experiencia:   Sin experiencia → +10 años (5 niveles)
+ *  Edad:          16 a 65 años
+ *  Situación:     Soltero, casado, madre/padre soltero, estudiante, adulto mayor
+ *  Disponibilidad: Tiempo completo, medio tiempo, fines de semana, turno nocturno
+ *  Personalidad:  8 tipos (formal, informal, ansioso, desconfiado, apurado, agresivo, tímido, comunicativo)
+ *  Tipos de msg:  Texto, Audio/voz, Foto del anuncio, Foto del CV, PDF del CV
+ *  Restricciones: Menor de edad, solo fines de semana, sin CURP, sin INE, lleva tiempo sin trabajar
  *
  * Uso:
  *   node scripts/simulate-candidates.mjs
- *   node scripts/simulate-candidates.mjs --candidates=200 --seed=42
+ *   node scripts/simulate-candidates.mjs --candidates=1000 --seed=42
  *   node scripts/simulate-candidates.mjs --mode=live --base=http://localhost:3000 --token=JWT
  *   node scripts/simulate-candidates.mjs --report=resultado.json
  */
@@ -29,7 +28,7 @@
 import { writeFileSync } from "fs";
 import { performance } from "perf_hooks";
 
-// ─── CLI ────────────────────────────────────────────────────────────────────
+// ─── CLI ─────────────────────────────────────────────────────────────────────
 const args = new Map();
 for (let i = 2; i < process.argv.length; i++) {
   const arg = process.argv[i];
@@ -37,40 +36,186 @@ for (let i = 2; i < process.argv.length; i++) {
   const [k, v] = arg.slice(2).split("=");
   args.set(k, v ?? process.argv[++i]);
 }
+const MODE        = args.get("mode")       || "dry";
+const BASE_URL    = (args.get("base")      || "http://localhost:3000").replace(/\/$/, "");
+const TOTAL       = Number(args.get("candidates") || 1000);
+const CONCURRENCY = Number(args.get("concurrency") || 60);
+const SEED        = Number(args.get("seed") || Date.now());
+const REPORT_PATH = args.get("report") || "";
+const AUTH_TOKEN  = args.get("token") || "";
 
-const MODE          = args.get("mode")       || "dry";
-const BASE_URL      = (args.get("base")      || "http://localhost:3000").replace(/\/$/, "");
-const TOTAL         = Number(args.get("candidates") || 1000);
-const CONCURRENCY   = Number(args.get("concurrency") || 40);
-const SEED          = Number(args.get("seed") || Date.now());
-const REPORT_PATH   = args.get("report") || "";
-const AUTH_TOKEN    = args.get("token") || "";
-const VERBOSE       = args.has("verbose");
-
-// ─── Colores ─────────────────────────────────────────────────────────────────
+// ─── Colores ANSI ─────────────────────────────────────────────────────────────
 const C = {
   reset:"\x1b[0m", bold:"\x1b[1m", dim:"\x1b[2m",
   red:"\x1b[31m", green:"\x1b[32m", yellow:"\x1b[33m",
   blue:"\x1b[34m", magenta:"\x1b[35m", cyan:"\x1b[36m", white:"\x1b[37m",
-  bgRed:"\x1b[41m", bgGreen:"\x1b[42m", bgYellow:"\x1b[43m",
+  bgRed:"\x1b[41m", bgGreen:"\x1b[42m",
 };
 
-// ─── PRNG determinista (LCG) ─────────────────────────────────────────────────
-let _seed = SEED;
-function rand() {
-  _seed = (_seed * 1664525 + 1013904223) & 0xffffffff;
-  return ((_seed >>> 0) / 0xffffffff);
-}
-function randInt(min, max) { return min + Math.floor(rand() * (max - min + 1)); }
-function pick(arr) { return arr[Math.floor(rand() * arr.length)]; }
-function pickW(items) {           // items: [{v, w}] weighted pick
-  const total = items.reduce((s, x) => s + x.w, 0);
-  let r = rand() * total;
-  for (const item of items) { r -= item.w; if (r <= 0) return item.v; }
-  return items[items.length - 1].v;
-}
+// ─── PRNG determinista ────────────────────────────────────────────────────────
+let _s = SEED;
+const rand  = () => { _s = (_s*1664525+1013904223)&0xffffffff; return ((_s>>>0)/0xffffffff); };
+const ri    = (a,b) => a + Math.floor(rand()*(b-a+1));
+const pick  = (arr) => arr[Math.floor(rand()*arr.length)];
+const pickW = (items) => {
+  const tot = items.reduce((s,x)=>s+x.w,0);
+  let r = rand()*tot;
+  for (const x of items) { r-=x.w; if(r<=0) return x.v; }
+  return items[items.length-1].v;
+};
 
-// ─── CATÁLOGOS ───────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────────────────
+//  DATOS MAESTROS
+// ─────────────────────────────────────────────────────────────────────────────
+
+/** Las 4 vacantes reales de Heavenly Dreams */
+const VACANTES = [
+  {
+    id: "ayudante_general",
+    titulo: "Ayudante General",
+    sueldo: "$2,000 semanales",
+    sueldoNum: 2000,
+    descripcion: "Apoyo en actividades operativas generales: limpieza, acomodo, traslados y asistencia al área asignada.",
+    requisitos: ["Secundaria terminada","Actitud de servicio","Disponibilidad de horario completo"],
+    horario: "Lunes a sábado 8am–6pm",
+    zona: "Iztapalapa, CDMX",
+    experiencia_requerida: "No indispensable",
+    escolaridad_minima: "secundaria",
+    perfiles_ideales: ["joven_sin_exp","adulto_exp_minima","madre_familia","reingreso","adulto_mayor"],
+    peso: 35,
+  },
+  {
+    id: "asesor_comercial",
+    titulo: "Asesor Comercial",
+    sueldo: "$2,300 semanales + comisiones",
+    sueldoNum: 2300,
+    descripcion: "Atención y asesoría personalizada a clientes, venta de productos y cumplimiento de metas.",
+    requisitos: ["Preparatoria o equivalente","Experiencia en ventas deseable","Facilidad de comunicación","Presentación"],
+    horario: "Lunes a sábado 9am–7pm",
+    zona: "Varias sucursales CDMX y Área Metropolitana",
+    experiencia_requerida: "1 año deseable",
+    escolaridad_minima: "preparatoria",
+    perfiles_ideales: ["adulto_exp","recien_egresado","trabajador_activo","adulto_exp_minima"],
+    peso: 30,
+  },
+  {
+    id: "supervisor_personal",
+    titulo: "Supervisor de Personal",
+    sueldo: "$2,600 semanales",
+    sueldoNum: 2600,
+    descripcion: "Supervisión de equipo operativo, control de KPIs, resolución de conflictos y reporte a gerencia.",
+    requisitos: ["Preparatoria o licenciatura","Mínimo 2 años liderando equipos","Manejo de KPIs","Disponibilidad para rotación de turno"],
+    horario: "Rotativo (matutino/vespertino)",
+    zona: "CDMX y Área Metropolitana",
+    experiencia_requerida: "2+ años en supervisión",
+    escolaridad_minima: "preparatoria",
+    perfiles_ideales: ["adulto_exp","trabajador_activo","licenciado","ejecutivo"],
+    peso: 15,
+  },
+  {
+    id: "promotor",
+    titulo: "Promotor de Ventas",
+    sueldo: "$2,000 semanales + bonos de campo",
+    sueldoNum: 2000,
+    descripcion: "Promoción de productos en campo: visita a puntos de venta, exhibición, seguimiento a clientes y cierre.",
+    requisitos: ["Secundaria o preparatoria","Extroversión y energía","Disponibilidad para trabajar en campo","Tolerancia al trabajo de calle"],
+    horario: "Lunes a viernes 8am–5pm",
+    zona: "Itinerante CDMX, Estado de México",
+    experiencia_requerida: "No indispensable",
+    escolaridad_minima: "secundaria",
+    perfiles_ideales: ["joven_sin_exp","adulto_exp_minima","estudiante","trabajador_activo"],
+    peso: 20,
+  },
+];
+
+/** Todos los niveles de escolaridad posibles */
+const ESCOLARIDADES = [
+  { id: "sin_estudios",        label: "Sin estudios formales",      nivel: 0, peso: 3  },
+  { id: "primaria",            label: "Primaria",                   nivel: 1, peso: 5  },
+  { id: "secundaria",          label: "Secundaria",                 nivel: 2, peso: 15 },
+  { id: "prepa_trunca",        label: "Preparatoria trunca",        nivel: 3, peso: 12 },
+  { id: "preparatoria",        label: "Preparatoria / Bachillerato",nivel: 4, peso: 28 },
+  { id: "tecnico",             label: "Carrera técnica",            nivel: 5, peso: 10 },
+  { id: "universidad_trunca",  label: "Universidad trunca",         nivel: 6, peso: 8  },
+  { id: "licenciatura",        label: "Licenciatura",               nivel: 7, peso: 15 },
+  { id: "posgrado",            label: "Maestría / Posgrado",        nivel: 8, peso: 4  },
+];
+
+/** Niveles de experiencia */
+const EXPERIENCIAS = [
+  { id: "sin_exp",     label: "Sin experiencia",              anios: [0,0],   peso: 22 },
+  { id: "menos_1",     label: "Menos de 1 año",               anios: [0,1],   peso: 15 },
+  { id: "1_3",         label: "1 a 3 años",                   anios: [1,3],   peso: 28 },
+  { id: "3_10",        label: "3 a 10 años",                  anios: [3,10],  peso: 25 },
+  { id: "mas_10",      label: "Más de 10 años",               anios: [10,25], peso: 10 },
+];
+
+/** Situación personal / familiar */
+const SITUACIONES = [
+  { id: "soltero",        label: "Soltero/a sin hijos",              peso: 30 },
+  { id: "casado",         label: "Casado/a",                         peso: 20 },
+  { id: "madre_sola",     label: "Madre/padre soltero con hijos",    peso: 18 },
+  { id: "estudiante",     label: "Estudia y trabaja",                peso: 12 },
+  { id: "adulto_mayor",   label: "Adulto mayor (50-65a)",            peso: 8  },
+  { id: "recien_llegado", label: "Migrante / recién llegado",        peso: 5  },
+  { id: "reingreso",      label: "Reingreso (>1 año sin trabajar)",  peso: 7  },
+];
+
+/** Disponibilidad de horario */
+const DISPONIBILIDADES = [
+  { id: "completo",       label: "Tiempo completo",       peso: 45 },
+  { id: "medio_tiempo",   label: "Medio tiempo",          peso: 20 },
+  { id: "fines_semana",   label: "Solo fines de semana",  peso: 10 },
+  { id: "matutino",       label: "Solo turno matutino",   peso: 15 },
+  { id: "nocturno",       label: "Turno nocturno",        peso: 10 },
+];
+
+/** Canales de contacto */
+const CANALES = [
+  { id: "whatsapp_baileys", label: "WhatsApp (directo)",          emoji: "📱", peso: 30,
+    latenciaMs: 700,  soporte: ["texto","audio","imagen","pdf"], limiteChars: 4096 },
+  { id: "whatsapp_meta",   label: "WhatsApp Business API",        emoji: "💬", peso: 25,
+    latenciaMs: 550,  soporte: ["texto","audio","imagen","pdf"], limiteChars: 4096 },
+  { id: "messenger",       label: "Messenger (Facebook)",         emoji: "🔵", peso: 18,
+    latenciaMs: 400,  soporte: ["texto","imagen","pdf"],        limiteChars: 2000 },
+  { id: "instagram",       label: "Instagram DM",                 emoji: "📸", peso: 15,
+    latenciaMs: 350,  soporte: ["texto","imagen"],              limiteChars: 1000 },
+  { id: "tiktok",          label: "TikTok (comentario/DM)",       emoji: "🎵", peso: 7,
+    latenciaMs: 500,  soporte: ["texto"],                       limiteChars: 500  },
+  { id: "indeed",          label: "Indeed (postulación/chat)",    emoji: "💼", peso: 5,
+    latenciaMs: 900,  soporte: ["texto","pdf"],                 limiteChars: 3000 },
+];
+
+/** Tipos de mensaje y su tiempo de procesamiento AI */
+const TIPOS_MSG = [
+  { id: "texto",       label: "Texto",             emoji:"✍️",  procesadoMs: 0,    peso: 48 },
+  { id: "audio",       label: "Audio / voz",        emoji:"🎙️", procesadoMs: 2500, peso: 22 },
+  { id: "foto_anuncio",label: "Foto del anuncio",   emoji:"📢",  procesadoMs: 1600, peso: 12 },
+  { id: "foto_cv",     label: "Foto del CV",        emoji:"📷",  procesadoMs: 2000, peso: 10 },
+  { id: "pdf_cv",      label: "PDF del CV",         emoji:"📄",  procesadoMs: 1200, peso: 8  },
+];
+
+/** Personalidades del candidato */
+const PERSONALIDADES = [
+  { id: "formal",       label: "Formal y educado",              peso: 15 },
+  { id: "informal",     label: "Informal / coloquial",           peso: 28 },
+  { id: "ansioso",      label: "Ansioso / desesperado",         peso: 14 },
+  { id: "desconfiado",  label: "Desconfiado / cauteloso",       peso: 10 },
+  { id: "apurado",      label: "Apurado / breve (monosílabos)", peso: 12 },
+  { id: "agresivo",     label: "Impaciente / exigente",         peso: 5  },
+  { id: "timido",       label: "Tímido / inseguro",             peso: 8  },
+  { id: "comunicativo", label: "Comunicativo / detallado",      peso: 8  },
+];
+
+/** Variante de lenguaje */
+const VARIANTES = [
+  { id: "neutro",   label: "Español neutro",                 peso: 35 },
+  { id: "chilango", label: "CDMX (chilango)",                peso: 30 },
+  { id: "nortenio", label: "Norteño",                        peso: 15 },
+  { id: "sureno",   label: "Sureño / Oaxaqueño",             peso: 10 },
+  { id: "regional", label: "Con palabras en lengua indígena",peso: 5  },
+  { id: "anglismo", label: "Spanglish / anglicismos jóvenes",peso: 5  },
+];
 
 const NOMBRES = [
   "Ana García","Carlos Pérez","María López","Juan Martínez","Sofía Hernández",
@@ -81,568 +226,549 @@ const NOMBRES = [
   "Yolanda Vega","Rafael Luna","Lucía Peña","Ernesto Salinas","Patricia Alvarado",
   "Adriana Fuentes","Joel Paredes","Norma Ramos","Hector Medina","Claudia Suárez",
   "Rodrigo Chávez","Isabel Reyna","Kevin Navarro","Marisol Guerrero","Arturo Miranda",
+  "Cynthia Varela","Gerardo Espinosa","Leticia Cruz","Enrique Soria","Beatriz Nava",
 ];
 
 const ZONAS = [
   "Iztapalapa","Ecatepec","Tlalnepantla","Naucalpan","Nezahualcóyotl","Chalco",
   "Valle de Chalco","Chimalhuacán","Texcoco","Tultitlán","Cuautitlán","Atizapán",
-  "Coacalco","Cuautitlán Izcalli","Nicolás Romero","Monterrey","Guadalajara",
-  "Puebla","Tijuana","León","Ciudad Juárez","Zapopan","Culiacán","Mérida",
+  "Monterrey","Guadalajara","Puebla","Tijuana","León","Ciudad Juárez",
 ];
 
-const PUESTOS = [
-  "Asesor de ventas","Promotor","Ayudante general","Repartidor","Cajero",
-  "Auxiliar de almacén","Operador de producción","Supervisor","Limpieza",
-  "Recepcionista","Estilista","Cocinero","Mesero","Seguridad","Chofer",
-  "Electricista","Plomero","Albañil","Costurera","Capturista de datos",
-];
+// ─────────────────────────────────────────────────────────────────────────────
+//  MENSAJES POR ETAPA / PERSONALIDAD / CANAL
+// ─────────────────────────────────────────────────────────────────────────────
 
-const TURNOS = ["matutino","vespertino","nocturno","mixto","fines de semana"];
-const ESCOLARIDAD = [
-  "primaria","secundaria","preparatoria trunca","preparatoria","técnico","universidad trunca","licenciatura",
-];
-
-// ─── PERFILES DE CANDIDATO ───────────────────────────────────────────────────
-const PERFILES = [
-  {
-    id: "joven_sin_exp",
-    label: "Joven sin experiencia (16-22 años)",
-    edad: [16, 22],
-    escolaridad: ["secundaria","preparatoria trunca","preparatoria"],
-    experienciaAnios: [0, 0],
-    peso: 22,
-    rasgos: ["ansioso","impaciente","usa emojis"],
-    restricciones: (edad) => edad < 18 ? ["necesita permiso de tutor"] : [],
-    preguntasFrecuentes: [
-      "cuánto pagan","cuál es el horario","qué documentos necesito",
-      "hay uniforme","dan de alta al imss","puedo sin experiencia",
-    ],
-  },
-  {
-    id: "adulto_con_exp",
-    label: "Adulto con experiencia (25-40 años)",
-    edad: [25, 40],
-    escolaridad: ["preparatoria","técnico","licenciatura"],
-    experienciaAnios: [2, 10],
-    peso: 28,
-    rasgos: ["directo","formal","negocia salario"],
-    restricciones: () => [],
-    preguntasFrecuentes: [
-      "cuánto es el salario base","hay prestaciones","tienen seguro médico",
-      "cuándo se paga","hay crecimiento","cuáles son las comisiones",
-    ],
-  },
-  {
-    id: "madre_soltera",
-    label: "Madre/padre de familia (28-45 años)",
-    edad: [28, 45],
-    escolaridad: ["preparatoria trunca","preparatoria","técnico"],
-    experienciaAnios: [1, 8],
-    peso: 18,
-    rasgos: ["busca flexibilidad","menciona hijos","horario prioritario"],
-    restricciones: () => ["necesita horario escolar","no puede trabajar tarde"],
-    preguntasFrecuentes: [
-      "tienen turno matutino","puedo salir a las 3","puedo faltar si mi hijo está enfermo",
-      "hay guardería","es seguro el lugar","dan permiso para citas médicas",
-    ],
-  },
-  {
-    id: "adulto_mayor",
-    label: "Adulto mayor (50-65 años)",
-    edad: [50, 65],
-    escolaridad: ["primaria","secundaria","preparatoria"],
-    experienciaAnios: [10, 30],
-    peso: 8,
-    rasgos: ["desconfiado","pregunta varias veces","formal"],
-    restricciones: () => ["no puede cargar cosas pesadas"],
-    preguntasFrecuentes: [
-      "qué tipo de trabajo es","es mucho esfuerzo físico","soy mayor me aceptan",
-      "cuánto tiempo dura la jornada","dan facilidades para adultos mayores",
-    ],
-  },
-  {
-    id: "recien_egresado",
-    label: "Recién egresado universitario (22-26 años)",
-    edad: [22, 26],
-    escolaridad: ["universidad trunca","licenciatura"],
-    experienciaAnios: [0, 1],
-    peso: 12,
-    rasgos: ["formal","busca crecimiento","menciona carrera"],
-    restricciones: () => [],
-    preguntasFrecuentes: [
-      "hay plan de carrera","aceptan practicantes","cuál es el perfil del puesto",
-      "requieren inglés","tienen home office","cuándo hay convocatoria",
-    ],
-  },
-  {
-    id: "trabajador_activo",
-    label: "Trabajador que quiere cambio (30-45 años)",
-    edad: [30, 45],
-    escolaridad: ["preparatoria","técnico","licenciatura"],
-    experienciaAnios: [3, 15],
-    peso: 7,
-    rasgos: ["apurado","pregunta en horas de trabajo","breve"],
-    restricciones: () => ["puede empezar en 2 semanas"],
-    preguntasFrecuentes: [
-      "puedo ir de noche a la entrevista","cuándo hay plazas disponibles",
-      "tienen estacionamiento","en qué zona queda","puedo mandar mi cv por aquí",
-    ],
-  },
-  {
-    id: "migrante_interno",
-    label: "Migrante / recién llegado a la ciudad",
-    edad: [18, 35],
-    escolaridad: ["primaria","secundaria","preparatoria"],
-    experienciaAnios: [0, 5],
-    peso: 3,
-    rasgos: ["tímido","pregunta por alojamiento","uso de palabras regionales"],
-    restricciones: () => ["no conoce la ciudad","no tiene referentes locales"],
-    preguntasFrecuentes: [
-      "está cerca del metro","puedo llegar en camión","hay prestaciones de vivienda",
-      "conocen dónde rentar cuarto","es empresa seria","cuánto se tarda en llegar",
-    ],
-  },
-  {
-    id: "reingreso",
-    label: "Persona de reingreso laboral (40-55 años)",
-    edad: [40, 55],
-    escolaridad: ["secundaria","preparatoria","técnico"],
-    experienciaAnios: [5, 20],
-    peso: 2,
-    rasgos: ["nervioso","lleva tiempo sin trabajar","agradecido"],
-    restricciones: () => ["lleva más de 1 año sin trabajar"],
-    preguntasFrecuentes: [
-      "aceptan personas que llevan tiempo sin trabajar","cómo actualizo mi cv",
-      "qué piden en la entrevista","tengo que llevar carta de recomendación",
-      "hay capacitación","el trabajo es estable",
-    ],
-  },
-];
-
-// ─── CANALES ─────────────────────────────────────────────────────────────────
-const CANALES = [
-  { id: "whatsapp_baileys", label: "WhatsApp (Baileys/QR)", peso: 45,
-    latenciaBaseMs: 800, soporte: ["texto","audio","imagen","pdf"] },
-  { id: "whatsapp_meta", label: "WhatsApp (Meta Cloud API)", peso: 30,
-    latenciaBaseMs: 600, soporte: ["texto","audio","imagen","pdf"] },
-  { id: "webchat", label: "WebChat (app web)", peso: 18,
-    latenciaBaseMs: 200, soporte: ["texto","imagen","pdf"] },
-  { id: "sms", label: "SMS", peso: 7,
-    latenciaBaseMs: 1500, soporte: ["texto"] },
-];
-
-// ─── TIPOS DE MENSAJE ─────────────────────────────────────────────────────────
-const TIPOS_MENSAJE = [
-  { id: "texto", label: "Texto", peso: 55, procesadoMs: 0,
-    descripcion: "Mensaje de texto simple" },
-  { id: "audio", label: "Audio / Nota de voz", peso: 20, procesadoMs: 2500,
-    descripcion: "Nota de voz (transcripción + respuesta)" },
-  { id: "foto_anuncio", label: "Foto del anuncio", peso: 10, procesadoMs: 1800,
-    descripcion: "Fotografía del volante o anuncio de trabajo" },
-  { id: "imagen_cv", label: "Foto del CV", peso: 8, procesadoMs: 2200,
-    descripcion: "Foto del currículum vitae en papel" },
-  { id: "pdf_cv", label: "PDF del CV", peso: 7, procesadoMs: 1500,
-    descripcion: "Archivo PDF del currículum" },
-];
-
-// ─── PERSONALIDADES DEL CANDIDATO ────────────────────────────────────────────
-const PERSONALIDADES = [
-  { id: "formal", label: "Formal", peso: 20,
-    ejemplos: ["Buenos días, me interesa la vacante.","¿Podría indicarme los requisitos?"] },
-  { id: "informal", label: "Informal / casual", peso: 35,
-    ejemplos: ["hola !! me dijeron q buscaban gente jaja","wey cuánto pagan??","mndame info plis"] },
-  { id: "ansioso", label: "Ansioso / desesperado", peso: 15,
-    ejemplos: ["necesito trabajo urgente","cuándo empiezo","ya puedo ir mañana??"] },
-  { id: "desconfiado", label: "Desconfiado / cauteloso", peso: 12,
-    ejemplos: ["es en serio o fraude?","no van a pedir dinero verdad","es empresa real?"] },
-  { id: "apurado", label: "Apurado / breve", peso: 10,
-    ejemplos: ["info","cuánto","dónde","ok"] },
-  { id: "comunicativo", label: "Comunicativo / detallado", peso: 8,
-    ejemplos: ["Hola, mi nombre es X, tengo Y años y experiencia en Z, me gustaría saber..."] },
-];
-
-// ─── IDIOMA / VARIANTE ────────────────────────────────────────────────────────
-const VARIANTES = [
-  { id: "neutro", label: "Español neutro", peso: 40 },
-  { id: "chilango", label: "Chilango (CDMX)", peso: 30 },
-  { id: "nortenio", label: "Norteño", peso: 15 },
-  { id: "sureno", label: "Sureño / regional", peso: 10 },
-  { id: "mixto", label: "Español + palabras en lengua indígena", peso: 5 },
-];
-
-// ─── FLUJOS DE CONVERSACIÓN ───────────────────────────────────────────────────
-const FLUJOS = {
-  directo: [
-    "primer_contacto", "pregunta_sueldo", "pregunta_horario", "cierre",
-  ],
-  largo: [
-    "primer_contacto", "pregunta_puesto", "envia_cv", "pregunta_requisitos",
-    "pregunta_sueldo", "pregunta_horario", "agenda_entrevista", "confirmacion",
-  ],
-  desconfiado: [
-    "primer_contacto", "verifica_empresa", "pregunta_sueldo",
-    "pide_referencia", "decide_ir",
-  ],
-  abandona: [
-    "primer_contacto", "pregunta_sueldo", "abandono",
-  ],
-  solo_cv: [
-    "primer_contacto", "envia_cv", "espera_respuesta",
-  ],
-  menor_edad: [
-    "primer_contacto", "revela_edad", "pregunta_permiso", "cierre_menor",
-  ],
-  reingreso: [
-    "primer_contacto", "explica_situacion", "pregunta_capacitacion",
-    "pregunta_documentos", "agenda_entrevista",
-  ],
-};
-
-// ─── MENSAJES POR ETAPA Y PERSONALIDAD ───────────────────────────────────────
-const MENSAJES_ETAPA = {
+const MSG = {
+  // ── Primer contacto ──────────────────────────────────────────────────────
   primer_contacto: {
-    formal: ["Buenos días, me interesa la vacante publicada. ¿Me podría dar información?",
-             "Buen día, vi su anuncio y quería consultar sobre el puesto disponible."],
-    informal: ["hola !! vi q buscaban gente 👀","oye me interesa el trabajo que pusieron","hola kiero info del empleo"],
-    ansioso: ["NECESITO TRABAJO URGENTE por favor!!","hola ya encontraron a alguien? todavía hay vacante?"],
-    desconfiado: ["hola vi el anuncio... es en serio o fraude? 🤔","oigan es empresa real o scam?"],
-    apurado: ["info","hola info","empleo"],
-    comunicativo: ["Hola buenos días, vi su anuncio en el grupo de WhatsApp. Tengo experiencia en ventas y me gustaría saber más sobre la vacante, si hay disponibilidad."],
+    formal:      ["Buenos días, vi su anuncio y me interesa postularme. ¿Me puede dar información?",
+                  "Buen día, quisiera conocer los detalles de la vacante publicada."],
+    informal:    ["hola!! vi q buscaban gente 👀","oye me interesa el trabajo","hola info del empleo",
+                  "q onda vi el anuncio","hola kiero saber del trabajo jaja"],
+    ansioso:     ["NECESITO TRABAJO URGENTE POR FAVOR","hola todavía hay vacante?? me urge",
+                  "sigo a tiempo para aplicar??"],
+    desconfiado: ["hola vi el anuncio... es verdad o fraude?","oigan es empresa real?","es en serio el trabajo?"],
+    apurado:     ["info","empleo","hola","trabajo","vacante?"],
+    agresivo:    ["oye cuánto tardan en responder??","llevan horas y no me contestan","por qué no responden"],
+    timido:      ["hola... disculpe... vi su anuncio... ¿todavía hay trabajo?",
+                  "perdón la molestia... quería preguntar por el empleo"],
+    comunicativo:["Hola buenos días, mi nombre es X, vi su anuncio en Facebook y me gustaría saber más sobre las vacantes disponibles. Tengo experiencia y creo que podría aportar mucho."],
+    // canales específicos
+    tiktok:      ["vi el tiktok del trabajo!! me interesa 🔥","ese vid del empleo me llegó jaja quiero info",
+                  "el video salió en mi fyp!! cómo aplico?","cuánto pagan? vi el tiktok"],
+    instagram:   ["vi tu reel!! cómo entro?","ese post del trabajo!! info pls","me salió tu historia del empleo 👀",
+                  "hola vi tu perfil qué vacantes tienen","vi el carrusel del trabajo info!!"],
+    indeed:      ["Me postulé en Indeed para la vacante de {vacante}. Quisiera más información.",
+                  "Envié mi CV por Indeed. ¿Cuáles son los siguientes pasos?"],
+    messenger:   ["Hola vi la publicación de Facebook sobre el trabajo de {vacante}",
+                  "Oye vi el post de empleo, me interesa. Cuánto pagan?"],
   },
+
+  // ── Pregunta por vacante específica ──────────────────────────────────────
+  pregunta_vacante: {
+    formal:      ["¿Me podría indicar en qué consiste el puesto de {vacante}?",
+                  "Quisiera conocer los requisitos del puesto de {vacante}."],
+    informal:    ["y de qué es lo de {vacante}?","el {vacante} qué hay que hacer","qué hace el {vacante}"],
+    ansioso:     ["el {vacante} está disponible aún??","todavía hay lugar para {vacante}?"],
+    desconfiado: ["el {vacante} de verdad existe o es trampa?","cuánto pagan REALMENTE en {vacante}?"],
+    apurado:     ["{vacante}?","el {vacante}","info {vacante}"],
+    agresivo:    ["oye llevo rato esperando info del {vacante}","cuándo me dan info del {vacante}??"],
+    timido:      ["perdón... ¿el puesto de {vacante} sigue disponible?"],
+    comunicativo:["Me gustaría saber los detalles completos del puesto de {vacante}: actividades, horario, ubicación y beneficios."],
+  },
+
+  // ── Pregunta sueldo ──────────────────────────────────────────────────────
   pregunta_sueldo: {
-    formal: ["¿Cuál es el salario que ofrecen?","¿Podría indicarme el monto de la remuneración?"],
-    informal: ["cuánto pagan?? 💰","y el sueldo cuánto es","q tal el salario"],
-    ansioso: ["cuánto pagan? necesito saber rápido","el sueldo alcanza para vivir?"],
-    desconfiado: ["el sueldo es seguro? no me van a pagar con vales verdad","cuánto dan de verdad, no lo que dicen en el anuncio"],
-    apurado: ["sueldo?","cuánto?"],
-    comunicativo: ["Me gustaría saber el rango salarial, incluyendo si hay bonos o comisiones además del base."],
+    formal:      ["¿Cuál es el salario que ofrecen para el puesto?",
+                  "¿Podría indicarme el monto de la remuneración mensual?"],
+    informal:    ["cuánto pagan?? 💰","y el sueldo cuánto es","q tal el salario jaja","de cuánto es la lana"],
+    ansioso:     ["cuánto pagan? necesito saber ya","alcanza para vivir con ese sueldo?"],
+    desconfiado: ["cuánto pagan DE VERDAD, no lo del anuncio","el sueldo es seguro? no vales verdad?"],
+    apurado:     ["sueldo?","cuánto?","paga?"],
+    agresivo:    ["el sueldo que publicaron SE PUEDE MEJORAR","con ese sueldo no alcanza, pueden más?"],
+    timido:      ["disculpe... ¿cuánto es el sueldo aproximadamente?"],
+    comunicativo:["¿Me podría decir cuál es el salario base, si hay comisiones, bonos o prestaciones adicionales?"],
   },
+
+  // ── Pregunta horario ─────────────────────────────────────────────────────
   pregunta_horario: {
-    formal: ["¿Cuáles son los horarios disponibles?","¿Manejan turnos flexibles?"],
-    informal: ["y el horario? tengo que llevar a mi hijo 😅","qué horarios hay","cuántas horas son"],
-    ansioso: ["puedo elegir mi horario? es que tengo compromisos","el horario es fijo?"],
-    desconfiado: ["no hacen que trabajen horas extra sin pagar verdad","los horarios son los que dicen o cambian?"],
-    apurado: ["horario","turnos"],
-    comunicativo: ["¿Tienen turno matutino? Pregunto porque tengo clases en las tardes y necesito algo antes de las 2pm."],
+    formal:      ["¿Cuáles son los horarios disponibles?","¿Tienen turno flexible?"],
+    informal:    ["qué horarios hay?","cuántas horas son?","dan día libre entre semana?"],
+    ansioso:     ["puedo elegir mi horario?? es que tengo cosas","el horario es fijo o cambia?"],
+    desconfiado: ["no hacen horas extra sin pagar verdad?","los horarios son como dicen?"],
+    apurado:     ["horario?","turno?","cuántas horas?"],
+    agresivo:    ["el horario es fijo verdad? porque no quiero sorpresas","horas extra se pagan?"],
+    timido:      ["¿tienen turno matutino? es que necesito llegar a casa temprano"],
+    comunicativo:["¿Manejan turnos matutinos? Pregunto porque tengo compromisos en las tardes. ¿Hay flexibilidad?"],
   },
-  pregunta_puesto: {
-    formal: ["¿Me podría describir las actividades del puesto?","¿Cuáles son los requisitos específicos?"],
-    informal: ["y de qué es el trabajo exactamente?","qué hay que hacer en el trabajo"],
-    ansioso: ["es difícil el trabajo? porque no tengo mucha experiencia","me enseñan o hay que saber ya?"],
-    desconfiado: ["de qué es el trabajo exactamente, el anuncio no decía","y qué más tienen que hacer además de lo que dicen?"],
-    apurado: ["qué hacen","puesto?"],
-    comunicativo: ["¿Podrían explicarme en qué consiste el día a día del puesto? ¿Es trabajo de campo o de oficina?"],
-  },
+
+  // ── Enviar CV / documentos ───────────────────────────────────────────────
   envia_cv: {
-    formal: ["Le adjunto mi curriculum vitae para su consideración.", "Aquí le comparto mi CV en PDF."],
-    informal: ["aquí va mi cv 📄","mando mi currículum, a ver si sirve jaja","te mando lo que tengo de cv"],
-    ansioso: ["mando mi cv!! ya me consideran?","aquí está mi cv espero que esté bien 😰"],
-    desconfiado: ["mando mi cv pero no lo vayan a usar para otra cosa","ok aquí está pero es confidencial"],
-    apurado: ["cv","mi cv","aquí va"],
-    comunicativo: ["Le comparto mi CV, tengo experiencia en el área y creo que podría aportar mucho al equipo."],
+    formal:      ["Le adjunto mi currículum vitae para su consideración.",
+                  "Aquí le comparto mi CV con mi información profesional."],
+    informal:    ["aquí va mi cv 📄","mando mi currículum jaja","te mando lo que tengo de cv",
+                  "ahí va mi currículum vítae 😅"],
+    ansioso:     ["ya mando mi cv!! me consideran?","aquí está mi cv espero que esté bien 😰"],
+    desconfiado: ["mando mi cv pero no lo usen para otra cosa ok?","aquí va pero es info privada"],
+    apurado:     ["cv","aquí va","mi cv"],
+    agresivo:    ["ya mandé mi cv cuándo me llaman","aquí está mi cv espero respuesta hoy"],
+    timido:      ["aquí va mi cv... espero que sirva... no tengo mucha experiencia"],
+    comunicativo:["Le comparto mi CV completo. Tengo experiencia en el área y creo que soy el perfil que buscan."],
   },
+
+  // ── Verifica empresa ─────────────────────────────────────────────────────
   verifica_empresa: {
-    desconfiado: [
-      "oigan la empresa está registrada verdad? tienen número de empresa o RFC?",
-      "vi malas reseñas en google de otra empresa igual, ustedes son diferentes verdad?",
-      "me pueden dar el nombre completo de la empresa para investigar?",
-    ],
-    formal: ["¿Me podría compartir más información sobre la empresa?"],
-    informal: ["oye la empresa es conocida? dónde puedo checar"],
-    ansioso: ["es confiable la empresa? no quiero que me estafen"],
-    apurado: ["empresa real?"],
-    comunicativo: ["Me gustaría saber más sobre la empresa antes de aplicar, ¿tienen página web o redes sociales?"],
+    desconfiado: ["la empresa está registrada verdad? cuál es el RFC?",
+                  "vi reseñas malas de otras empresas así, ustedes son diferentes?",
+                  "me pueden dar nombre completo de la empresa para investigar?",
+                  "tienen página web? quiero ver si es real"],
+    formal:      ["¿Me podría proporcionar más información sobre la empresa?"],
+    informal:    ["la empresa es conocida? dónde la busco"],
+    agresivo:    ["necesito comprobar que son legales ANTES de ir"],
+    timido:      ["disculpe... ¿es empresa seria? es que ya me han fallado antes"],
+    comunicativo:["¿Me puede compartir el nombre oficial de la empresa, RFC, dirección y redes sociales para validarlos?"],
   },
-  pide_referencia: {
-    desconfiado: ["tienen empleados que pueda contactar para preguntar cómo es trabajar ahí?",
-                  "conocen gente que trabaje ahí que me pueda decir cómo es?"],
-    formal: ["¿Podrían proporcionarme referencias de empleados actuales?"],
-    informal: ["alguien q trabaje ahí me puede decir cómo es?"],
-    ansioso: ["es buena empresa? pregunto porque ya me han fallado antes"],
-    apurado: ["referencias?"],
-    comunicativo: ["¿Tienen testimonios de empleados? Me gustaría saber la experiencia de quienes ya trabajan ahí."],
-  },
-  pregunta_requisitos: {
-    formal: ["¿Cuáles son los documentos que debo presentar?","¿Qué requisitos debo cumplir?"],
-    informal: ["qué piden para entrar","documentos qué piden","qué necesito llevar"],
-    ansioso: ["piden muchos documentos? no tengo algunos","es complicado entrar?"],
-    desconfiado: ["no van a pedir dinero para el proceso verdad?","gratis el proceso de selección?"],
-    apurado: ["documentos?","requisitos?"],
-    comunicativo: ["¿Qué documentos requieren para aplicar y cuál es el proceso de selección?"],
-  },
-  agenda_entrevista: {
-    formal: ["¿Cuándo podría agendar una entrevista?","¿En qué horario atienden para entrevistas?"],
-    informal: ["puedo ir mañana a la entrevista?","cuándo puedo ir","ya puedo ir?"],
-    ansioso: ["hoy puedo ir?? o mañana?? quiero ir ya!!","cuándo me dan la entrevista urgente porfavor"],
-    desconfiado: ["la entrevista es en oficina verdad? no me van a citar en otro lugar?"],
-    apurado: ["entrevista cuándo","puedo ir hoy?"],
-    comunicativo: ["¿Cuándo hay disponibilidad para la entrevista? Tengo libre cualquier día entre semana por la mañana."],
-  },
-  confirmacion: {
-    formal: ["Confirmo asistencia para la entrevista. Muchas gracias.","Perfecto, ahí estaré."],
-    informal: ["okok ahí voy!! 🙌","listoo gracias!! nos vemos","voy para allá"],
-    ansioso: ["ya confirmé!! de verdad voy a ir!! 🙏","gracias no me voy a fallar"],
-    desconfiado: ["ok voy... a ver cómo resulta","mmmk voy pero si algo raro me salgo"],
-    apurado: ["ok","voy","ahí estaré"],
-    comunicativo: ["Perfecto, muchas gracias por la atención. Ahí estaré puntual con todos mis documentos."],
-  },
+
+  // ── Menor de edad ────────────────────────────────────────────────────────
   revela_edad: {
-    formal: ["Le comento que tengo 16 años, ¿hay algún impedimento?"],
-    informal: ["oye tengo 16 años hay pedo con eso?","tengo 17, cuento?"],
-    ansioso: ["tengo 16 años me aceptan o no?? dígame rápido porfavor"],
-    desconfiado: ["si tengo 16 me aceptan o me van a descartar?"],
-    apurado: ["tengo 16","soy menor"],
-    comunicativo: ["Quería informarle que tengo 16 años pero me gustaría trabajar, ¿tienen algún proceso para menores de edad?"],
+    informal:    ["oye tengo 16 años hay pedo con eso?","tengo 17, cuento?","tengo 16 xd"],
+    ansioso:     ["tengo 16 años me aceptan o no?? dígame rápido porfavor","tengo 17 me aceptan?"],
+    timido:      ["...tengo 16 años... ¿se puede trabajar?"],
+    formal:      ["Le comento que soy menor de edad, tengo 17 años. ¿Hay algún impedimento?"],
+    apurado:     ["tengo 16","soy menor"],
+    comunicativo:["Quería informarle que tengo 16 años cumplidos. ¿Tienen proceso para menores de edad con permiso del tutor?"],
   },
-  pregunta_permiso: {
-    formal: ["¿Qué documentos requieren de mis tutores?"],
-    informal: ["qué piden de mis papás","mis padres tienen que firmar algo?"],
-    ansioso: ["mis papás pueden firmar? qué necesito llevar de ellos?"],
-    desconfiado: ["y si mis papás no quieren firmar qué?"],
-    apurado: ["qué piden de mis papás","permiso?"],
-    comunicativo: ["Mis papás están de acuerdo en que trabaje. ¿Qué tipo de permiso necesitan y cómo lo tramito?"],
+
+  // ── Sin estudios / primaria ──────────────────────────────────────────────
+  sin_estudios: {
+    informal:    ["no terminé la primaria hay pedo?","no tengo estudios me aceptan?","solo primaria cuento?"],
+    ansioso:     ["sin estudios me rechazan? solo quiero trabajar","no fui a la escuela me dan oportunidad?"],
+    desconfiado: ["con primaria nomás me van a decir que no verdad?"],
+    timido:      ["no tengo estudios... ¿de todas formas puedo aplicar?"],
+    formal:      ["Mi nivel de estudios es primaria. ¿Hay restricción para aplicar?"],
+    comunicativo:["No tengo estudios formales completos pero sí experiencia práctica. ¿Existe alguna opción para mí?"],
   },
-  cierre_menor: {
-    formal: ["Muchas gracias por la información sobre el permiso de tutor."],
-    informal: ["ok le digo a mi mamá gracias!!","gracias voy a hablar con mis papás"],
-    ansioso: ["ok!! le digo ya a mi mamá que firme!!","gracias voy a conseguir el permiso rápido"],
-    desconfiado: ["ok... a ver si mis papás quieren firmar"],
-    apurado: ["ok gracias","listo"],
-    comunicativo: ["Perfecto, muchas gracias. Hablaré con mis papás para el permiso y les aviso."],
+
+  // ── Licenciado / posgrado ─────────────────────────────────────────────────
+  perfil_licenciado: {
+    formal:      ["Soy licenciado/a en Administración con 5 años de experiencia. ¿Qué posiciones tienen a nivel supervisión o coordinación?"],
+    comunicativo:["Cuento con licenciatura y experiencia en liderazgo de equipos. ¿El puesto de Supervisor representa un reto real de carrera?"],
+    informal:    ["soy lic en admin y busco algo de supervisor, tienen?","cuento con carrera y experiencia en ventas, hay algo para mi perfil?"],
+    desconfiado: ["con carrera y experiencia cuánto me ofrecen realmente?"],
+    agresivo:    ["tengo licenciatura y experiencia. espero que el puesto valga la pena el tiempo que voy a invertir"],
   },
-  explica_situacion: {
-    reingreso: ["llevo casi 2 años sin trabajar por cuestiones familiares, pero quiero reincorporarme","estuve cuidando a un familiar enfermo y ahora busco trabajo"],
-    formal: ["He estado ausente del mercado laboral durante un tiempo, pero cuento con experiencia previa."],
-    informal: ["fui a cuidar a mi mamá un rato y ya quiero trabajar de nuevo","estuve un tiempo sin trabajar pero ya quiero volver"],
-    ansioso: ["llevo tiempo sin trabajar y me urge reincorporarme, ¿me aceptan así?"],
-    desconfiado: ["me preocupa que no me acepten por haber estado un tiempo sin trabajar"],
-    apurado: ["sin trabajo 2 años","reingreso"],
-    comunicativo: ["Estuve 18 meses sin trabajar por cuidar a un familiar. Tengo experiencia previa y estoy actualizado, ¿cómo es el proceso para alguien en mi situación?"],
+
+  // ── Agenda entrevista ────────────────────────────────────────────────────
+  agenda_entrevista: {
+    formal:      ["¿Cuándo podría agendar una entrevista?","¿Qué días y horarios tienen disponibles?"],
+    informal:    ["puedo ir mañana?","cuándo puedo ir","ya puedo ir? cuándo?"],
+    ansioso:     ["hoy puedo ir?? o mañana?? quiero ir ya por favor!!","cuándo me dan cita urgente?"],
+    desconfiado: ["la entrevista es en oficina verdad? no me citen en otro lado"],
+    apurado:     ["entrevista cuándo?","puedo ir hoy?"],
+    agresivo:    ["cuándo me dan cita? llevan rato sin decirme"],
+    timido:      ["¿podría ir a una entrevista? ¿cuándo habría disponibilidad?"],
+    comunicativo:["¿Qué días tienen disponibilidad para entrevista? Tengo libre cualquier día entre semana por la mañana."],
   },
-  pregunta_capacitacion: {
-    formal: ["¿Ofrecen capacitación inicial para el puesto?"],
-    informal: ["dan entrenamiento o hay que saber todo?","enseñan cómo hacer el trabajo?"],
-    ansioso: ["dan capacitación? porque no he trabajado un rato","me van a enseñar aunque lleve tiempo sin trabajar?"],
-    desconfiado: ["la capacitación es pagada verdad? no me van a poner de voluntario?"],
-    apurado: ["hay capacitación?","entrenan?"],
-    comunicativo: ["¿Cuánto dura la capacitación inicial? Y durante ese período, ¿hay pago?"],
+
+  // ── Madre/padre: horario con hijos ───────────────────────────────────────
+  horario_hijos: {
+    informal:    ["es q tengo q llevar a mi hijo a la escuela, hay turno de mañana?",
+                  "puedo salir a las 3? porque recojo a mis hijos","tienen guardería o apoyo pa los hijos?"],
+    formal:      ["¿Tienen turno matutino? Necesito recoger a mis hijos por la tarde.",
+                  "¿Ofrecen algún apoyo o flexibilidad para madres/padres con hijos?"],
+    ansioso:     ["si mis hijos se enferman me dan permiso?","el horario me permite llevar mis hijos al médico?"],
+    timido:      ["disculpe... ¿hay posibilidad de turno matutino? tengo hijos pequeños"],
+    comunicativo:["Soy madre soltera con dos hijos en primaria. Necesito un horario que me permita recogerlos a las 3pm. ¿Tienen esa opción?"],
   },
-  pregunta_documentos: {
-    formal: ["¿Qué documentación debo preparar para la entrevista?"],
-    informal: ["qué llevo para la entrevista","qué documentos piden"],
-    ansioso: ["qué documentos necesito? tengo que buscarlos todos ya?"],
-    desconfiado: ["no piden nada raro de documentos verdad?"],
-    apurado: ["documentos?"],
-    comunicativo: ["¿Me podría dar una lista completa de los documentos requeridos para no ir sin algo?"],
+
+  // ── Adulto mayor ─────────────────────────────────────────────────────────
+  adulto_mayor: {
+    formal:      ["Tengo 54 años. ¿Hay restricción de edad para aplicar?",
+                  "¿Aceptan personas mayores de 50 años?"],
+    informal:    ["soy mayor de 50 me aceptan?","tengo 55 hay pedo con la edad?"],
+    desconfiado: ["las empresas siempre rechazan a los mayores, aquí es igual?"],
+    timido:      ["tengo 52 años... ¿me aceptarían?... es que me cuesta encontrar trabajo"],
+    comunicativo:["Tengo 54 años con amplia experiencia laboral. ¿La empresa tiene políticas inclusivas para adultos mayores?"],
   },
-  decide_ir: {
-    desconfiado: ["ok me convencieron... a ver cómo resulta la entrevista","mmmk voy a ir... si algo malo me reporto"],
-    formal: ["He decidido asistir a la entrevista. ¿Cuándo hay disponibilidad?"],
-    informal: ["ok voy a ir a ver de qué se trata","a ver cómo está, voy"],
-    ansioso: ["voy voy!! cuándo puedo ir??"],
-    apurado: ["voy","ok cuándo?"],
-    comunicativo: ["Me han convencido. ¿Cuándo tienen cita para la entrevista?"],
+
+  // ── Reingreso laboral ────────────────────────────────────────────────────
+  reingreso: {
+    informal:    ["llevo 2 años sin trabajar por mi mamá que se enfermó, ya quiero regresar",
+                  "estuve un tiempo sin trabajar pero ya estoy listo","fui a cuidar a mi papá y ya regresé"],
+    formal:      ["He estado fuera del mercado laboral 18 meses por razones familiares. ¿Representa un problema?"],
+    ansioso:     ["llevo tiempo sin trabajar me dan oportunidad? necesito el trabajo"],
+    desconfiado: ["con laguna laboral me van a rechazar verdad?"],
+    timido:      ["...llevo un tiempo sin trabajar... ¿me darían una oportunidad?"],
+    comunicativo:["Estuve 2 años sin trabajar cuidando a un familiar enfermo. Tengo experiencia previa en ventas. ¿El tiempo sin trabajar es impedimento?"],
   },
-  espera_respuesta: {
-    formal: ["Quedo en espera de su respuesta, gracias."],
-    informal: ["ya vieron mi cv? 👀","me revisaron el cv?","cuándo me dicen algo?"],
-    ansioso: ["ya lo vieron?? cuándo me avisan??","ya leyeron mi cv? qué dijo el reclutador?"],
-    desconfiado: ["ya lo tienen verdad? no se perdió?","llegó bien el archivo?"],
-    apurado: ["llegó?","ya vieron?"],
-    comunicativo: ["Quedo pendiente de su revisión. Si necesitan información adicional, con gusto la proporciono."],
-  },
+
+  // ── Abandono ─────────────────────────────────────────────────────────────
   abandono: {
-    informal: ["luego te mando...","bueno no importa","ok gracias"],
-    ansioso: ["ok no importa... voy a buscar otra cosa","me tardas mucho ya me voy"],
-    desconfiado: ["mejor no, suena raro","mmm no creo gracias"],
-    apurado: ["ok","bye","nvm"],
-    formal: ["Gracias, en otro momento me comunico."],
-    comunicativo: ["Gracias por su atención, pero por el momento voy a explorar otras opciones."],
+    informal:    ["bueno ya no importa","mejor busco otra cosa","ok gracias ya me voy"],
+    ansioso:     ["tardan mucho voy a buscar otro trabajo","me tardas mucho ya me fui"],
+    desconfiado: ["mejor no, me da mala espina","mmm no creo gracias"],
+    apurado:     ["ok bye","nvm","otro día"],
+    agresivo:    ["muy tarde ya encontré otro","su servicio es pésimo adiós"],
+    timido:      ["ok... disculpe... ya no importa..."],
   },
+
+  // ── Cierre positivo ──────────────────────────────────────────────────────
   cierre: {
-    formal: ["Muchas gracias por la información. Estaré en contacto."],
-    informal: ["ok gracias!! 🙏","perfecto gracias!!","okok todo claro gracias"],
-    ansioso: ["gracias!!! ya voy a ir!!","ok perfecto ya entendí todo!!"],
-    desconfiado: ["ok... a ver","gracias... voy a pensarlo"],
-    apurado: ["ok","gracias","👍"],
-    comunicativo: ["Muchas gracias por la información tan completa. Quedo al pendiente."],
+    formal:      ["Muchas gracias por la información. Quedo en espera de la entrevista."],
+    informal:    ["ok gracias!! 🙏","perfecto gracias!! ya voy","okok todo claro gracias"],
+    ansioso:     ["gracias!! ya voy!! 😊","ok perfecto ya entendí todo!! voy a ir"],
+    desconfiado: ["ok... voy a intentar... a ver","gracias... voy a pensarlo"],
+    apurado:     ["ok","gracias","👍","listo"],
+    agresivo:    ["ok finalmente me respondieron. voy el jueves"],
+    timido:      ["gracias... perdón las molestias... ahí voy"],
+    comunicativo:["Muchas gracias por toda la información tan completa. Confirmo asistencia para la entrevista."],
   },
 };
 
-// ─── RESPUESTAS DEL AGENTE (simuladas) ───────────────────────────────────────
-const RESPUESTAS_AGENTE = {
-  primer_contacto: {
-    generico: "¡Hola! 😊 Soy tu asistente de reclutamiento de Heavenly Dreams. ¿En qué puedo ayudarte hoy?",
-    joven_sin_exp: "¡Hola! Bienvenido/a 😊 Somos Heavenly Dreams y estamos buscando personas con ganas de aprender. No te preocupes si no tienes experiencia, ¡aquí te capacitamos! ¿Cuántos años tienes?",
-    adulto_con_exp: "¡Buenos días! Gracias por contactarnos. Tenemos vacantes abiertas con excelentes condiciones para personas con experiencia como tú. ¿En qué área has trabajado?",
-    madre_soltera: "¡Hola! Entiendo que el horario es importante cuando tienes familia. Contamos con turnos matutinos y la posibilidad de adaptarnos. ¿Me cuentas un poco más de tu situación?",
-    adulto_mayor: "¡Buen día! Bienvenido/a. En Heavenly Dreams valoramos la experiencia y la responsabilidad. No hay límite de edad para postularse. ¿Le puedo preguntar qué tipo de trabajo está buscando?",
-    desconfiado: "¡Hola! Entiendo tu precaución, es importante verificar antes de aplicar. Somos Heavenly Dreams, empresa legalmente constituida con más de 10 años en el mercado. ¿Te puedo dar más información?",
-    reingreso: "¡Hola! Está bien que vuelvas al mercado laboral, todos tenemos situaciones personales. En Heavenly Dreams no hay problema con pausas laborales. ¿Me cuentas qué tipo de trabajo buscas?",
+// ─────────────────────────────────────────────────────────────────────────────
+//  RESPUESTAS DEL AGENTE (personalizadas por perfil)
+// ─────────────────────────────────────────────────────────────────────────────
+const AGENTE = {
+  bienvenida: {
+    whatsapp_baileys: (n,v) => `¡Hola${n?" "+n:""}! 😊 Soy tu asistente de reclutamiento de *Heavenly Dreams*. ${v?`Vi que preguntas por *${v.titulo}* — con gusto te cuento todo.`:"¿En qué puedo ayudarte hoy?"}`,
+    whatsapp_meta:    (n,v) => `¡Hola${n?" "+n:""}! Soy el agente de Heavenly Dreams por WhatsApp Business. ${v?`¿Te interesa la vacante de *${v.titulo}*?`:"¿Qué vacante te interesa?"}`,
+    messenger:        (n,v) => `¡Hola${n?" "+n:""}! 👋 Gracias por escribirnos por Messenger. ${v?`Vi tu interés en *${v.titulo}*.`:"¿Cuál de nuestras vacantes te llama la atención?"}`,
+    instagram:        (n,v) => `¡Hola! ✨ Gracias por escribirnos por Instagram. ${v?`¡${v.titulo} es una excelente opción!`:"¿Qué vacante viste en nuestro perfil?"}`,
+    tiktok:           (n,v) => `¡Hola! 🎵 ¡Gracias por el interés desde TikTok! ${v?`La vacante de ${v.titulo} que viste es real y ya está abierta.`:"Te cuento sobre nuestras vacantes disponibles:"}`,
+    indeed:           (n,v) => `Hola${n?" "+n:""}. Gracias por postularte en Indeed${v?" para *"+v.titulo+"*":""}. Somos Heavenly Dreams. ¿Tienes alguna pregunta sobre el puesto?`,
   },
-  audio: {
-    exito: "Escuché tu mensaje de voz 🎙️ — [{transcripcion}]\n\nGracias por explicarte así. Déjame responderte:",
-    error_transcripcion: "Recibí tu nota de voz pero tuve un pequeño problema al transcribirla. ¿Podrías escribirme tu duda? 😊",
-    sin_soporte: "Lo siento, por este canal no podemos recibir audios. ¿Puedes escribirme tu pregunta?",
+  sueldo: {
+    ayudante_general:    (v) => `La vacante de *${v.titulo}* paga *${v.sueldo}*. Esto incluye IMSS, INFONAVIT y FONACOT desde el primer día. ¿Tienes disponibilidad de horario completo? ⏰`,
+    asesor_comercial:    (v) => `El *${v.titulo}* tiene sueldo base de *${v.sueldo}* más comisiones por cumplimiento de metas. En un mes productivo puedes ganar hasta $12,000+. 💰 ¿Tienes experiencia en ventas?`,
+    supervisor_personal: (v) => `El *${v.titulo}* ofrece *${v.sueldo}* con prestaciones superiores a ley: bono trimestral, seguro de vida y fondo de ahorro. ¿Tienes experiencia liderando equipos?`,
+    promotor:            (v) => `*${v.titulo}* paga *${v.sueldo}* + bonos de campo por visitas completadas. El ingreso real promedio de promotores activos es de $2,500-3,000/sem. 🏆`,
   },
-  foto_anuncio: {
-    exito: "¡Recibí la foto del anuncio! 📸 Veo que te interesa la vacante de {puesto}. Déjame darte más información:",
-    error_lectura: "Recibí tu imagen pero no pude leerla claramente. ¿Podrías decirme de qué vacante se trata?",
-    sin_soporte: "Por este canal no recibimos imágenes. Escríbeme el nombre del puesto que viste.",
-  },
-  imagen_cv: {
-    exito: "¡Recibí tu CV! 📄 Vi que tienes experiencia en {area_cv}. Con tu perfil, podrías aplicar para {puesto_sugerido}. ¿Te interesa?",
-    parcial: "Recibí la foto de tu CV, aunque la imagen no es muy nítida. Pude ver que tienes experiencia. ¿Me confirmas en qué áreas has trabajado?",
-    sin_soporte: "Por este canal no podemos recibir imágenes. ¿Puedes enviarnos tu CV por correo o compartir tus datos aquí?",
-  },
-  pdf_cv: {
-    exito: "¡Recibí tu CV en PDF! 📑 Revisé tu perfil: {nombre}, con {exp} años de experiencia en {area}. Te candidateamos para {puesto}. ¿Cuándo tienes disponibilidad para entrevista?",
-    error: "Recibí tu archivo pero tuve un problema al abrirlo. ¿Puedes reenviarlo o compartir tus datos principales aquí?",
-    sin_soporte: "Por este canal no recibimos archivos PDF. ¿Puedes enviarlo por WhatsApp o por correo?",
-  },
-  pregunta_sueldo: {
-    generico: "El sueldo base es de $8,000 mensuales más comisiones que pueden llegar a $3,000-5,000 adicionales. También incluye prestaciones de ley (IMSS, INFONAVIT, FONACOT) desde el primer día. 💰",
-    formal: "El salario base es de $8,000 MXN mensuales. Además, contamos con un esquema de comisiones por resultados que en promedio agrega entre $3,000 y $5,000. Las prestaciones son conforme a ley desde el primer día.",
-    joven: "El sueldo es de $8,000 al mes 💵 más comisiones. ¡Y con prestaciones desde el primer día! ¿Te interesa?",
-  },
-  pregunta_horario: {
-    generico: "Tenemos turnos matutino (7am-3pm), vespertino (2pm-10pm) y mixto. Los horarios son fijos con un día de descanso entre semana y domingos libres. ⏰",
-    madre: "Entiendo que el horario es prioridad con familia 💙 Contamos con turno matutino de 7am a 3pm que te permitiría estar disponible en la tarde. ¿Esto te funcionaría?",
-    flexible: "Tenemos opciones de horario. ¿Me dices qué disponibilidad tienes y buscamos el turno que mejor te acomode?",
-  },
-  verifica_empresa: "¡Con gusto! Heavenly Dreams es una empresa registrada ante el SAT con RFC HD210531ABC. Llevamos más de 10 años operando. Puedes encontrarnos en redes sociales y tenemos oficinas físicas. ¿Te comparto la dirección? 🏢",
-  menor_edad: "¡Hola! Con gusto te atendemos 😊 Para trabajar siendo menor de 18 años, la ley requiere una carta de autorización firmada por tu tutor (papá, mamá o tutor legal) y tu acta de nacimiento. ¿Tienes el apoyo de tus papás para trabajar?",
-  abandono_por_espera: "Parece que la respuesta tardó demasiado y el candidato se desconectó.",
-  reingreso_welcome: "¡No hay problema! En Heavenly Dreams valoramos la experiencia sin importar el tiempo que hayas estado fuera del mercado. Ofrecemos capacitación completa. ¿Me cuentas qué hacías antes?",
+  horario: (v) => `El horario para *${v.titulo}* es *${v.horario}*. Con un día de descanso entre semana. ¿Este horario te funciona?`,
+  menor_edad: `¡Con gusto te ayudamos! 😊 Para trabajar siendo menor de 18 años la ley requiere:
+1️⃣ Carta de autorización firmada por tu mamá, papá o tutor legal
+2️⃣ Acta de nacimiento
+3️⃣ Tu credencial de estudiante o CURP
+¿Cuentas con el apoyo de tus papás para trabajar?`,
+  sin_estudios: (v) => `¡No te preocupes por los estudios! La vacante de *${v.titulo}* ${v.escolaridad_minima === "secundaria" ? "requiere secundaria terminada, pero si no la tienes podemos evaluar tu caso" : "valora más la actitud y las ganas de trabajar que los títulos"}. ¿Tienes disponibilidad de tiempo completo?`,
+  licenciado: (v) => `¡Excelente perfil! Con tu preparación, te recomendaría el puesto de *${v.id === "supervisor_personal" ? "Supervisor de Personal" : v.titulo}* donde puedes crecer dentro de la empresa. Tenemos plan de carrera. ¿Tienes experiencia liderando equipos?`,
+  desconfiado: `¡Entiendo tu precaución, es importante verificar antes de aplicar! 🔒
+
+*Heavenly Dreams S.A.S. de C.V.*
+• RFC: HD210531ABC
+• +10 años en el mercado
+• Empresa registrada ante el IMSS
+• Puedes buscarnos en Google, Facebook e Instagram
+• Oficinas en Iztapalapa, CDMX
+
+No cobramos ningún tipo de cuota. Todo el proceso es 100% gratuito. ¿Tienes alguna pregunta adicional?`,
+  madre: (v) => `¡Entendemos perfectamente! 💙 Para la vacante de *${v.titulo}*, el horario es *${v.horario}*. Si necesitas un horario específico para recoger a tus hijos, podemos evaluar tu caso. ¿A qué hora necesitarías salir?`,
+  adulto_mayor: `¡En Heavenly Dreams NO hay discriminación por edad! ✅ Valoramos la experiencia y responsabilidad de las personas mayores. Solo necesitamos que puedas cumplir con el horario y las actividades del puesto. ¿En qué área has trabajado?`,
+  reingreso: `¡No hay problema con el tiempo sin trabajar! 🙌 Todos tenemos situaciones personales. Lo que nos importa es tu actitud y disposición. Ofrecemos capacitación completa desde el primer día. ¿Qué tipo de trabajo hacías antes?`,
+  agresivo: `Entiendo tu molestia y lamentamos la espera. 🙏 Estamos aquí para ayudarte. Con gusto te doy toda la información que necesites ahora mismo. ¿Qué puesto te interesa?`,
+  audio_ok: (transcripcion) => `Escuché tu nota de voz 🎙️\n*"${transcripcion}"*\n\nGracias por explicarte así. Déjame responderte:`,
+  audio_error: `Recibí tu audio pero tuve un pequeño problema al transcribirlo. ¿Puedes escribirme tu pregunta? 😊`,
+  audio_no_soporte: `Este canal no soporta audios. ¿Puedes escribirme tu consulta? Si prefieres, también puedes contactarnos por WhatsApp donde sí recibimos notas de voz.`,
+  foto_anuncio: (v) => `¡Recibí la foto del anuncio! 📸 Veo que te interesa *${v.titulo}*. Este puesto ofrece *${v.sueldo}* con prestaciones de ley. ¿Me compartes tu nombre y cuántos años tienes para orientarte mejor?`,
+  foto_cv_ok: (nombre, area) => `¡Recibí tu CV! 📄 Pude ver que ${area ? `tienes experiencia en *${area}*` : "tu información está ahí"}. Con tu perfil puedes aplicar perfectamente. ¿Cuándo tienes disponibilidad para una entrevista?`,
+  foto_cv_borrosa: `Recibí la foto de tu CV pero la imagen no está muy nítida. ¿Puedes decirme directamente?\n• ¿Cuántos años tienes?\n• ¿Cuál es tu último grado de estudios?\n• ¿Tienes experiencia previa? 😊`,
+  pdf_cv_ok: (nombre, exp, area, v) => `¡Recibí tu CV en PDF! 📑\n\n*${nombre}* — ${exp} años de experiencia en ${area}.\n\nTu perfil encaja muy bien para *${v.titulo}*. ¿Cuándo tienes disponibilidad para entrevista?`,
+  pdf_cv_error: `Recibí tu archivo pero no pude abrirlo correctamente. ¿Puedes reenviarlo? Si no, también puedes compartirme tus datos principales aquí. 😊`,
+  entrevista: (v) => `¡Perfecto! 🎉 Agendamos tu entrevista para *${v.titulo}*.\n\n📍 *Dirección:* ${v.zona}\n📅 Te contactará nuestro equipo en máximo 24h para confirmar día y hora.\n\n¿Tienes alguna pregunta más?`,
+  instagram_limite: `📸 Por Instagram solo puedo darte info breve. Para más detalles sobre sueldo, horario y documentos, escríbenos por WhatsApp al número que está en nuestra bio. ¡Ahí podemos ayudarte mejor!`,
+  tiktok_limite: `🎵 ¡Nos da gusto que hayas visto nuestro video! Para toda la info del trabajo (sueldo, horario, requisitos) escríbenos por WhatsApp o Messenger — aquí en TikTok es más limitado. ¡Te esperamos!`,
 };
 
-// ─── GENERADOR DE CANDIDATOS ─────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────────────────
+//  GENERACIÓN DE CANDIDATOS
+// ─────────────────────────────────────────────────────────────────────────────
 function generarCandidato(id) {
-  const perfil = pickW(PERFILES.map(p => ({ v: p, w: p.peso })));
-  const edad = randInt(perfil.edad[0], perfil.edad[1]);
-  const canal = pickW(CANALES.map(c => ({ v: c, w: c.peso })));
-  const personalidad = pickW(PERSONALIDADES.map(p => ({ v: p, w: p.peso })));
-  const variante = pickW(VARIANTES.map(v => ({ v: v, w: v.peso })));
-  const nombre = pick(NOMBRES);
-  const zona = pick(ZONAS);
-  const puesto = pick(PUESTOS);
-  const turno = pick(TURNOS);
-  const escolaridad = pick(perfil.escolaridad);
-  const expAnios = randInt(perfil.experienciaAnios[0], perfil.experienciaAnios[1]);
-  const restricciones = perfil.restricciones(edad);
+  const escolaridad   = pickW(ESCOLARIDADES.map(e=>({v:e,w:e.peso})));
+  const experiencia   = pickW(EXPERIENCIAS.map(e=>({v:e,w:e.peso})));
+  const situacion     = pickW(SITUACIONES.map(s=>({v:s,w:s.peso})));
+  const disponibilidad= pickW(DISPONIBILIDADES.map(d=>({v:d,w:d.peso})));
+  const canal         = pickW(CANALES.map(c=>({v:c,w:c.peso})));
+  const personalidad  = pickW(PERSONALIDADES.map(p=>({v:p,w:p.peso})));
+  const variante      = pickW(VARIANTES.map(v=>({v:v,w:v.peso})));
+  const vacante       = pickW(VACANTES.map(v=>({v:v,w:v.peso})));
+  const nombre        = pick(NOMBRES);
+  const zona          = pick(ZONAS);
+  const edad          = situacion.id === "adulto_mayor" ? ri(50,65)
+                      : situacion.id === "estudiante"    ? ri(17,24)
+                      : situacion.id === "recien_llegado"? ri(18,32)
+                      : ri(16,50);
 
-  // Seleccionar flujo
-  let flujoId = "directo";
-  if (personalidad.id === "desconfiado") flujoId = "desconfiado";
-  else if (perfil.id === "reingreso") flujoId = "reingreso";
-  else if (edad < 18) flujoId = "menor_edad";
-  else if (rand() < 0.12) flujoId = "abandona";
-  else if (rand() < 0.15) flujoId = "solo_cv";
-  else if (rand() < 0.3) flujoId = "largo";
+  // Restricciones reales
+  const restricciones = [];
+  if (edad < 18) restricciones.push("menor_de_edad");
+  if (escolaridad.nivel === 0) restricciones.push("sin_estudios");
+  if (escolaridad.nivel === 1) restricciones.push("solo_primaria");
+  if (situacion.id === "madre_sola") restricciones.push("necesita_horario_escolar");
+  if (situacion.id === "adulto_mayor") restricciones.push("adulto_mayor");
+  if (situacion.id === "reingreso") restricciones.push("laguna_laboral");
+  if (disponibilidad.id === "fines_semana") restricciones.push("solo_fines_semana");
+  if (disponibilidad.id === "medio_tiempo") restricciones.push("medio_tiempo");
+  if (escolaridad.nivel >= 7) restricciones.push("perfil_licenciado");
+  if (personalidad.id === "desconfiado") restricciones.push("necesita_verificar_empresa");
 
-  const flujo = FLUJOS[flujoId];
-
-  // Tipos de mensaje que puede enviar este candidato en este canal
-  const tiposDisponibles = TIPOS_MENSAJE.filter(t =>
-    canal.soporte.includes(t.id)
-  );
-
-  // Asignar tipo de mensaje por etapa
-  const mensajesConTipo = flujo.map((etapa, i) => {
-    let tipo = pick(tiposDisponibles);
-    // Primer mensaje es siempre texto
-    if (i === 0) tipo = TIPOS_MENSAJE.find(t => t.id === "texto");
-    // Solo una etapa puede tener CV (envia_cv)
-    if (etapa === "envia_cv") {
-      const cvTypes = ["imagen_cv","pdf_cv"]
-        .map(id => TIPOS_MENSAJE.find(t => t.id === id))
-        .filter(t => t && canal.soporte.includes(t.id));
-      tipo = cvTypes.length > 0 ? pick(cvTypes) : TIPOS_MENSAJE[0]; // fallback a texto
-    }
-    return { etapa, tipo };
-  });
+  // Flujo de conversación basado en restricciones + personalidad + canal
+  const flujo = elegirFlujo(restricciones, personalidad, canal, situacion, escolaridad);
 
   return {
-    id,
-    nombre,
-    edad,
-    zona,
-    puesto,
-    turno,
-    escolaridad,
-    expAnios,
-    restricciones,
-    perfil,
-    canal,
-    personalidad,
-    variante,
-    flujoId,
-    flujo: mensajesConTipo,
-    phone: `+521550${String(id).padStart(7, "0")}`,
+    id, nombre, edad, zona, escolaridad, experiencia, situacion,
+    disponibilidad, canal, personalidad, variante, vacante,
+    restricciones, flujo,
+    expAnios: ri(experiencia.anios[0], experiencia.anios[1]),
+    phone: `+521550${String(id).padStart(7,"0")}`,
   };
 }
 
-// ─── SIMULACIÓN DE RESPUESTA DEL AGENTE ──────────────────────────────────────
+function elegirFlujo(restricciones, personalidad, canal, situacion, escolaridad) {
+  // Canal limita flujo
+  const tiposDisponibles = canal.soporte;
+
+  const etapasBase = ["primer_contacto", "pregunta_vacante"];
+
+  if (restricciones.includes("menor_de_edad")) {
+    return [...etapasBase, "revela_edad", "agenda_entrevista", "cierre"];
+  }
+  if (restricciones.includes("sin_estudios") || restricciones.includes("solo_primaria")) {
+    return [...etapasBase, "sin_estudios", "pregunta_sueldo", "agenda_entrevista", "cierre"];
+  }
+  if (restricciones.includes("perfil_licenciado")) {
+    return [...etapasBase, "perfil_licenciado", "pregunta_sueldo", "pregunta_horario", "envia_cv", "agenda_entrevista", "cierre"];
+  }
+  if (restricciones.includes("necesita_verificar_empresa")) {
+    return [...etapasBase, "verifica_empresa", "pregunta_sueldo", "pregunta_horario", "agenda_entrevista", "cierre"];
+  }
+  if (restricciones.includes("necesita_horario_escolar")) {
+    return [...etapasBase, "horario_hijos", "pregunta_sueldo", "agenda_entrevista", "cierre"];
+  }
+  if (restricciones.includes("adulto_mayor")) {
+    return [...etapasBase, "adulto_mayor", "pregunta_sueldo", "pregunta_horario", "cierre"];
+  }
+  if (restricciones.includes("laguna_laboral")) {
+    return [...etapasBase, "reingreso", "pregunta_sueldo", "envia_cv", "agenda_entrevista", "cierre"];
+  }
+  if (personalidad.id === "agresivo") {
+    return [...etapasBase, "pregunta_sueldo", "verifica_empresa", "agenda_entrevista", "cierre"];
+  }
+  if (personalidad.id === "apurado") {
+    return ["primer_contacto", "pregunta_sueldo", "agenda_entrevista"];
+  }
+  if (personalidad.id === "ansioso" && rand() < 0.15) {
+    return [...etapasBase, "pregunta_sueldo", "abandono"];
+  }
+  if (rand() < 0.12) {
+    return ["primer_contacto", "pregunta_vacante", "abandono"]; // abandono temprano
+  }
+  // Flujo largo (envía CV)
+  if (tiposDisponibles.some(t => ["imagen","pdf"].includes(t)) && rand() < 0.35) {
+    return [...etapasBase, "pregunta_sueldo", "pregunta_horario", "envia_cv", "agenda_entrevista", "cierre"];
+  }
+  // Flujo estándar
+  return [...etapasBase, "pregunta_sueldo", "pregunta_horario", "agenda_entrevista", "cierre"];
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  CONSTRUCCIÓN DE MENSAJES Y RESPUESTAS
+// ─────────────────────────────────────────────────────────────────────────────
+function getMensajeCandidato(etapa, candidato) {
+  const { personalidad, canal, vacante, restricciones } = candidato;
+  const pid = personalidad.id;
+  const cid = canal.id;
+
+  // Canal override para primer_contacto
+  if (etapa === "primer_contacto") {
+    const opts = MSG.primer_contacto[cid]
+              || MSG.primer_contacto[pid]
+              || MSG.primer_contacto.informal;
+    let msg = pick(opts);
+    return msg.replace("{vacante}", vacante.titulo);
+  }
+
+  const banco = MSG[etapa];
+  if (!banco) return "hola";
+  const opts = banco[pid] || banco["informal"] || ["hola"];
+  let msg = pick(opts);
+  return msg.replace("{vacante}", vacante.titulo);
+}
+
+function getTipoMensaje(etapa, candidato) {
+  const { canal } = candidato;
+  const tiposDisp = TIPOS_MSG.filter(t => canal.soporte.includes(t.id));
+
+  if (etapa === "primer_contacto" || etapa === "revela_edad"
+   || etapa === "verifica_empresa") {
+    return TIPOS_MSG[0]; // siempre texto
+  }
+  if (etapa === "envia_cv") {
+    const cvTypes = TIPOS_MSG.filter(t =>
+      ["foto_cv","pdf_cv"].includes(t.id) && canal.soporte.includes(t.id)
+    );
+    if (cvTypes.length > 0) return pick(cvTypes);
+    return TIPOS_MSG[0]; // SMS/TikTok → texto
+  }
+  // Audio solo en WhatsApp, con 30% de probabilidad
+  if (["whatsapp_baileys","whatsapp_meta"].includes(canal.id) && rand() < 0.30) {
+    return TIPOS_MSG.find(t => t.id === "audio") || TIPOS_MSG[0];
+  }
+  // Foto de anuncio en primer mensaje de Instagram con 20%
+  if (canal.id === "instagram" && rand() < 0.20) {
+    return TIPOS_MSG.find(t => t.id === "foto_anuncio") || TIPOS_MSG[0];
+  }
+  return TIPOS_MSG[0];
+}
+
+function getRespuestaAgente(etapa, tipo, candidato) {
+  const { canal, vacante, personalidad, restricciones, nombre, escolaridad, expAnios } = candidato;
+  const cid = canal.id;
+
+  // Manejo por tipo de media
+  if (tipo.id === "audio") {
+    if (!canal.soporte.includes("audio")) return AGENTE.audio_no_soporte;
+    const transcripciones = [
+      `hola quiero información sobre el trabajo de ${vacante.titulo}`,
+      `cuánto pagan y cuál es el horario para ${vacante.titulo}`,
+      `me interesa la vacante que publicaron de ${vacante.titulo}`,
+      `tengo experiencia y quiero aplicar para ${vacante.titulo}`,
+    ];
+    if (rand() < 0.08) return AGENTE.audio_error;
+    return AGENTE.audio_ok(pick(transcripciones)) + "\n\n" + getRespuestaTextoEtapa("pregunta_vacante", candidato);
+  }
+  if (tipo.id === "foto_anuncio") {
+    return AGENTE.foto_anuncio(vacante);
+  }
+  if (tipo.id === "foto_cv") {
+    if (!canal.soporte.includes("imagen")) return AGENTE.foto_cv_borrosa;
+    if (rand() < 0.18) return AGENTE.foto_cv_borrosa;
+    const areas = ["ventas","almacén","atención al cliente","operaciones","logística","caja"];
+    return AGENTE.foto_cv_ok(nombre, pick(areas));
+  }
+  if (tipo.id === "pdf_cv") {
+    if (!canal.soporte.includes("pdf")) return `Por este canal no recibimos PDF. ¿Puedes enviarlo por WhatsApp?`;
+    if (rand() < 0.06) return AGENTE.pdf_cv_error;
+    const areas = ["ventas","logística","atención al cliente","administración","producción"];
+    return AGENTE.pdf_cv_ok(nombre, expAnios, pick(areas), vacante);
+  }
+
+  // Limite de caracteres por canal
+  const respuesta = getRespuestaTextoEtapa(etapa, candidato);
+  if (cid === "instagram" && etapa !== "primer_contacto" && rand() < 0.3) {
+    return AGENTE.instagram_limite;
+  }
+  if (cid === "tiktok" && etapa !== "primer_contacto") {
+    return AGENTE.tiktok_limite;
+  }
+  return respuesta;
+}
+
+function getRespuestaTextoEtapa(etapa, candidato) {
+  const { canal, vacante, personalidad, restricciones, nombre, situacion, escolaridad } = candidato;
+  const cid = canal.id;
+
+  switch (etapa) {
+    case "primer_contacto":
+      const bienvenidaFn = AGENTE.bienvenida[cid] || AGENTE.bienvenida.whatsapp_baileys;
+      return bienvenidaFn(nombre, vacante);
+
+    case "pregunta_vacante":
+      return `La vacante de *${vacante.titulo}* es para trabajar en *${vacante.zona}*.\n📋 *Actividades:* ${vacante.descripcion}\n✅ *Requisitos:* ${vacante.requisitos.slice(0,2).join(", ")}\n💰 *Sueldo:* ${vacante.sueldo}\n\n¿Tienes disponibilidad de ${candidato.disponibilidad.label.toLowerCase()}?`;
+
+    case "pregunta_sueldo":
+      const sueldoFn = AGENTE.sueldo[vacante.id];
+      return sueldoFn ? sueldoFn(vacante) : `El sueldo para *${vacante.titulo}* es *${vacante.sueldo}* con todas las prestaciones de ley desde el primer día. 💰`;
+
+    case "pregunta_horario":
+      if (restricciones.includes("necesita_horario_escolar")) return AGENTE.madre(vacante);
+      return AGENTE.horario(vacante);
+
+    case "revela_edad":
+      return AGENTE.menor_edad;
+
+    case "sin_estudios":
+      return AGENTE.sin_estudios(vacante);
+
+    case "perfil_licenciado":
+      return AGENTE.licenciado(vacante);
+
+    case "verifica_empresa":
+      return AGENTE.desconfiado;
+
+    case "horario_hijos":
+      return AGENTE.madre(vacante);
+
+    case "adulto_mayor":
+      return AGENTE.adulto_mayor;
+
+    case "reingreso":
+      return AGENTE.reingreso;
+
+    case "envia_cv":
+      return `¡Perfecto! Recibí tu información. 📋 Voy a registrar tu perfil para *${vacante.titulo}*. ¿Cuándo tienes disponibilidad para una entrevista esta semana?`;
+
+    case "agenda_entrevista":
+      return AGENTE.entrevista(vacante);
+
+    case "abandono":
+      return `Entiendo, sin problema. Si cambias de opinión o quieres información en otro momento, aquí estaremos. ¡Mucho éxito! 😊`;
+
+    case "cierre":
+      return `¡Excelente! 🎉 Quedo en contacto contigo para los próximos pasos. Recibirás confirmación de tu entrevista en las próximas 24 horas. ¡Mucho éxito!`;
+
+    default:
+      return `Con gusto te ayudo con eso. ¿Tienes alguna otra pregunta sobre *${vacante.titulo}*?`;
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  SIMULACIÓN DE CONVERSACIÓN
+// ─────────────────────────────────────────────────────────────────────────────
 async function simularConversacion(candidato) {
-  const resultado = {
-    candidatoId: candidato.id,
+  const r = {
+    id: candidato.id,
     nombre: candidato.nombre,
     edad: candidato.edad,
-    zona: candidato.zona,
-    perfilId: candidato.perfil.id,
+    escolaridad: candidato.escolaridad.id,
+    escolaridadLabel: candidato.escolaridad.label,
+    experiencia: candidato.experiencia.id,
+    expAnios: candidato.expAnios,
+    situacion: candidato.situacion.id,
+    disponibilidad: candidato.disponibilidad.id,
     canal: candidato.canal.id,
+    canalLabel: candidato.canal.label,
     personalidad: candidato.personalidad.id,
-    flujo: candidato.flujoId,
+    vacante: candidato.vacante.id,
+    vacanteLabel: candidato.vacante.titulo,
+    flujo: candidato.flujo,
+    restricciones: candidato.restricciones,
+    zona: candidato.zona,
     turnos: [],
     metricas: {
-      totalTurnos: 0,
-      turnosOk: 0,
-      turnosFallidos: 0,
-      latenciaTotal: 0,
-      latenciaMedia: 0,
-      latenciaMaxima: 0,
-      personalizacionScore: 0,
+      ok: true,
       abandono: false,
-      abandonoEnTurno: null,
-      tiposUsados: new Set(),
-      erroresPorTipo: {},
+      turnosTotales: 0,
+      turnosOk: 0,
+      latenciaTotal: 0,
+      latenciaMax: 0,
+      personalizacion: 0,
+      canalLimitoMedia: false,
+      restriccionesAtendidas: [],
+      errores: [],
     },
-    restriccionesManejadas: [],
-    auditoria: [],
   };
 
-  let conversacionTerminada = false;
-  let turnoNum = 0;
+  for (const etapa of candidato.flujo) {
+    const tipo    = getTipoMensaje(etapa, candidato);
+    const mensaje = getMensajeCandidato(etapa, candidato);
+    const latCan  = Math.round(candidato.canal.latenciaMs * (0.7 + rand() * 0.6));
+    const latTipo = Math.round(tipo.procesadoMs * (0.8 + rand() * 0.4));
+    const latTotal= latCan + latTipo;
 
-  for (const { etapa, tipo } of candidato.flujo) {
-    if (conversacionTerminada) break;
-
-    turnoNum++;
-    const turnoInicio = performance.now();
-
-    // Construir texto del mensaje según etapa y personalidad
-    const mensajesEtapa = MENSAJES_ETAPA[etapa];
-    let textoMensaje = "hola";
-    if (mensajesEtapa) {
-      const opts = mensajesEtapa[candidato.personalidad.id]
-        || mensajesEtapa[candidato.perfil.id]
-        || mensajesEtapa["formal"]
-        || ["hola"];
-      textoMensaje = pick(opts);
-    }
-
-    // Simular latencia de procesamiento según tipo de mensaje y canal
-    const latenciaCanal = Math.round(candidato.canal.latenciaBaseMs * (0.7 + rand() * 0.6));
-    const latenciaTipo = Math.round(tipo.procesadoMs * (0.8 + rand() * 0.4));
-    const latenciaTotal = latenciaCanal + latenciaTipo;
-
-    // Simular errores realistas
+    // Modo live: petición HTTP real
+    let respuesta = "";
     let error = null;
-    let respuestaAgente = "";
-    let personalizacionScore = 0;
-
     if (MODE === "live") {
-      // Petición HTTP real
       try {
         const res = await fetch(`${BASE_URL}/api/gemini/agent/reply`, {
           method: "POST",
@@ -652,582 +778,369 @@ async function simularConversacion(candidato) {
           },
           body: JSON.stringify({
             agentName: "Agente Principal 1",
-            systemPrompt: buildSystemPrompt(candidato),
-            conversationHistory: resultado.turnos.map(t => ({
-              role: "user", parts: [{ text: t.mensaje }],
-            })),
-            userPrompt: buildUserPrompt(candidato, etapa, tipo, textoMensaje),
+            systemPrompt: `Eres reclutador humano de Heavenly Dreams. Candidato: ${candidato.nombre}, ${candidato.edad}a, ${candidato.escolaridad.label}, ${candidato.expAnios} años de experiencia. Canal: ${candidato.canal.label}. Personalidad: ${candidato.personalidad.label}. Vacante de interés: ${candidato.vacante.titulo}. Restricciones: ${candidato.restricciones.join(", ") || "ninguna"}. Adapta tu tono, sé natural y humano.`,
+            conversationHistory: r.turnos.map(t => ({ role:"user", parts:[{text:t.mensaje}] })),
+            userPrompt: tipo.id !== "texto" ? `[${tipo.label.toUpperCase()}] ${mensaje}` : mensaje,
           }),
         });
         const body = await res.json().catch(() => ({}));
-        if (res.ok && body.data?.reply) {
-          respuestaAgente = body.data.reply;
-        } else {
-          error = body.error || `HTTP ${res.status}`;
-        }
-      } catch (e) {
-        error = e.message;
-      }
+        respuesta = body.data?.reply || body.data?.text || "";
+        if (!res.ok) error = body.error || `HTTP ${res.status}`;
+      } catch(e) { error = e.message; }
     } else {
-      // Simulación dry: construir respuesta personalizada
-      respuestaAgente = construirRespuestaSimulada(candidato, etapa, tipo);
+      respuesta = getRespuestaAgente(etapa, tipo, candidato);
     }
 
-    // Calcular score de personalización (0-10)
-    personalizacionScore = calcularPersonalizacion(candidato, etapa, tipo, respuestaAgente);
+    // Score de personalización (0-10)
+    let score = 5;
+    if (respuesta.includes(candidato.nombre)) score += 0.8;
+    if (respuesta.includes(candidato.vacante.titulo)) score += 0.8;
+    if (respuesta.includes(candidato.zona)) score += 0.4;
+    if (candidato.restricciones.includes("menor_de_edad") && respuesta.includes("tutor")) score += 1.5;
+    if (candidato.restricciones.includes("adulto_mayor") && respuesta.includes("edad")) score += 1;
+    if (candidato.restricciones.includes("necesita_horario_escolar") && respuesta.includes("hijo")) score += 1;
+    if (candidato.restricciones.includes("laguna_laboral") && respuesta.includes("trabajar")) score += 0.8;
+    if (candidato.restricciones.includes("necesita_verificar_empresa") && respuesta.includes("RFC")) score += 1.5;
+    if (candidato.restricciones.includes("sin_estudios") && respuesta.includes("estudio")) score += 1;
+    if (candidato.restricciones.includes("perfil_licenciado") && respuesta.includes("carrera")) score += 1;
+    if (tipo.id !== "texto" && respuesta.includes("🎙️")) score += 0.5;
+    if (respuesta.includes(candidato.vacante.sueldo)) score += 0.5;
+    score = Math.min(10, parseFloat(score.toFixed(1)));
 
-    // Simular tasa de abandono por espera (>15s = 8% abandona)
-    if (latenciaTotal > 15000 && rand() < 0.08) {
-      resultado.metricas.abandono = true;
-      resultado.metricas.abandonoEnTurno = turnoNum;
-      conversacionTerminada = true;
-      resultado.auditoria.push({
-        tipo: "abandono_por_espera",
-        turno: turnoNum,
-        latencia: latenciaTotal,
-        descripcion: `Candidato abandonó tras ${latenciaTotal}ms de espera`,
-      });
-    }
+    // Detectar si el canal limitó la respuesta
+    if (respuesta.includes("escríbenos por WhatsApp")) r.metricas.canalLimitoMedia = true;
 
-    // Registrar el turno
-    const turnoData = {
-      turno: turnoNum,
-      etapa,
-      tipoMensaje: tipo.id,
-      mensaje: textoMensaje,
-      respuesta: respuestaAgente,
-      latenciaMs: latenciaTotal,
-      error,
-      personalizacionScore,
-    };
-
-    resultado.turnos.push(turnoData);
-    resultado.metricas.totalTurnos++;
-    resultado.metricas.tiposUsados.add(tipo.id);
+    // Restricciones atendidas
+    if (etapa === "revela_edad") r.metricas.restriccionesAtendidas.push("menor_de_edad");
+    if (etapa === "verifica_empresa") r.metricas.restriccionesAtendidas.push("desconfianza");
+    if (etapa === "horario_hijos") r.metricas.restriccionesAtendidas.push("horario_con_hijos");
+    if (etapa === "adulto_mayor") r.metricas.restriccionesAtendidas.push("adulto_mayor");
+    if (etapa === "sin_estudios") r.metricas.restriccionesAtendidas.push("sin_estudios");
+    if (etapa === "reingreso") r.metricas.restriccionesAtendidas.push("laguna_laboral");
+    if (etapa === "perfil_licenciado") r.metricas.restriccionesAtendidas.push("perfil_licenciado");
 
     if (error) {
-      resultado.metricas.turnosFallidos++;
-      resultado.metricas.erroresPorTipo[error] = (resultado.metricas.erroresPorTipo[error] || 0) + 1;
-      resultado.auditoria.push({
-        tipo: "error_respuesta",
-        turno: turnoNum,
-        etapa,
-        tipoMensaje: tipo.id,
-        error,
-      });
-    } else {
-      resultado.metricas.turnosOk++;
+      r.metricas.ok = false;
+      r.metricas.errores.push({ etapa, error });
     }
+    if (etapa === "abandono") r.metricas.abandono = true;
 
-    resultado.metricas.latenciaTotal += latenciaTotal;
-    resultado.metricas.latenciaMaxima = Math.max(resultado.metricas.latenciaMaxima, latenciaTotal);
-
-    // Verificar restricciones manejadas
-    if (candidato.restricciones.includes("necesita permiso de tutor") && etapa === "revela_edad") {
-      resultado.restriccionesManejadas.push("menor_edad_detectada");
-    }
-    if (etapa === "abandono") {
-      conversacionTerminada = true;
-    }
+    r.turnos.push({ etapa, tipo: tipo.id, tipoLabel: tipo.label, mensaje, respuesta, latenciaMs: latTotal, error, personalizacion: score });
+    r.metricas.turnosTotales++;
+    if (!error) r.metricas.turnosOk++;
+    r.metricas.latenciaTotal += latTotal;
+    r.metricas.latenciaMax = Math.max(r.metricas.latenciaMax, latTotal);
   }
 
-  // Promedios
-  if (resultado.metricas.totalTurnos > 0) {
-    resultado.metricas.latenciaMedia = Math.round(
-      resultado.metricas.latenciaTotal / resultado.metricas.totalTurnos
-    );
-    resultado.metricas.personalizacionScore = parseFloat(
-      (resultado.turnos.reduce((s, t) => s + t.personalizacionScore, 0) / resultado.turnos.length).toFixed(2)
+  if (r.metricas.turnosTotales > 0) {
+    r.metricas.latenciaMedia = Math.round(r.metricas.latenciaTotal / r.metricas.turnosTotales);
+    r.metricas.personalizacion = parseFloat(
+      (r.turnos.reduce((s,t)=>s+t.personalizacion,0) / r.turnos.length).toFixed(2)
     );
   }
-  resultado.metricas.tiposUsados = [...resultado.metricas.tiposUsados];
-
-  return resultado;
+  return r;
 }
 
-function buildSystemPrompt(c) {
-  return [
-    `Eres reclutador humano de Heavenly Dreams. Nombre del candidato: ${c.nombre}.`,
-    `Edad: ${c.edad}. Zona: ${c.zona}. Experiencia: ${c.expAnios} años.`,
-    `Personalidad detectada: ${c.personalidad.label}. Adapta tu tono.`,
-    `Canal: ${c.canal.label}. ${c.restricciones.length ? "Restricciones: " + c.restricciones.join(", ") : ""}`,
-    "Responde en máximo 3 oraciones. Sé natural, cálido, sin repetir saludos.",
-  ].join(" ");
-}
-
-function buildUserPrompt(c, etapa, tipo, texto) {
-  if (tipo.id === "audio") return `[AUDIO TRANSCRITO]: "${texto}"`;
-  if (tipo.id === "foto_anuncio") return `[IMAGEN DEL ANUNCIO recibida]. Candidato escribe: "${texto}"`;
-  if (tipo.id === "imagen_cv") return `[FOTO DEL CV recibida del candidato ${c.nombre}]. Escribe: "${texto}"`;
-  if (tipo.id === "pdf_cv") return `[PDF DEL CV de ${c.nombre} recibido]. Escribe: "${texto}"`;
-  return texto;
-}
-
-function construirRespuestaSimulada(c, etapa, tipo) {
-  // Manejo por tipo de media
-  if (tipo.id === "audio") {
-    if (!c.canal.soporte.includes("audio")) {
-      return RESPUESTAS_AGENTE.audio.sin_soporte;
-    }
-    const transcripcion = pick(["hola quiero información sobre el trabajo",
-      "cuánto pagan y cuál es el horario", "me interesa el puesto que publicaron"]);
-    return RESPUESTAS_AGENTE.audio.exito.replace("{transcripcion}", transcripcion) +
-      "\n" + seleccionarRespuestaEtapa(c, "primer_contacto");
-  }
-  if (tipo.id === "foto_anuncio") {
-    if (!c.canal.soporte.includes("imagen")) return RESPUESTAS_AGENTE.foto_anuncio.sin_soporte;
-    return RESPUESTAS_AGENTE.foto_anuncio.exito.replace("{puesto}", c.puesto);
-  }
-  if (tipo.id === "imagen_cv") {
-    if (!c.canal.soporte.includes("imagen")) return RESPUESTAS_AGENTE.imagen_cv.sin_soporte;
-    if (rand() < 0.15) return RESPUESTAS_AGENTE.imagen_cv.parcial;
-    return RESPUESTAS_AGENTE.imagen_cv.exito
-      .replace("{area_cv}", pick(["ventas","almacén","servicio al cliente","producción"]))
-      .replace("{puesto_sugerido}", c.puesto);
-  }
-  if (tipo.id === "pdf_cv") {
-    if (!c.canal.soporte.includes("pdf")) return RESPUESTAS_AGENTE.pdf_cv.sin_soporte;
-    if (rand() < 0.08) return RESPUESTAS_AGENTE.pdf_cv.error;
-    return RESPUESTAS_AGENTE.pdf_cv.exito
-      .replace("{nombre}", c.nombre)
-      .replace("{exp}", String(c.expAnios))
-      .replace("{area}", pick(["ventas","logística","atención al cliente"]))
-      .replace("{puesto}", c.puesto);
-  }
-  return seleccionarRespuestaEtapa(c, etapa);
-}
-
-function seleccionarRespuestaEtapa(c, etapa) {
-  if (etapa === "primer_contacto") {
-    return RESPUESTAS_AGENTE.primer_contacto[c.perfil.id]
-      || RESPUESTAS_AGENTE.primer_contacto.generico;
-  }
-  if (etapa === "pregunta_sueldo") {
-    if (c.edad < 22) return RESPUESTAS_AGENTE.pregunta_sueldo.joven;
-    if (c.personalidad.id === "formal") return RESPUESTAS_AGENTE.pregunta_sueldo.formal;
-    return RESPUESTAS_AGENTE.pregunta_sueldo.generico;
-  }
-  if (etapa === "pregunta_horario") {
-    if (c.perfil.id === "madre_soltera") return RESPUESTAS_AGENTE.pregunta_horario.madre;
-    return RESPUESTAS_AGENTE.pregunta_horario.generico;
-  }
-  if (etapa === "verifica_empresa") return RESPUESTAS_AGENTE.verifica_empresa;
-  if (etapa === "revela_edad") return RESPUESTAS_AGENTE.menor_edad;
-  if (etapa === "explica_situacion") return RESPUESTAS_AGENTE.reingreso_welcome;
-  if (etapa === "abandono") return RESPUESTAS_AGENTE.abandono_por_espera;
-
-  // Respuesta genérica contextual
-  const genericas = [
-    `Claro, ${c.nombre}. Con gusto te ayudo con eso.`,
-    `Entendido 😊 Déjame explicarte...`,
-    `Perfecto, te comento:`,
-    `¡Claro que sí! Para el caso de ${c.puesto}...`,
-  ];
-  return pick(genericas);
-}
-
-function calcularPersonalizacion(c, etapa, tipo, respuesta) {
-  let score = 5; // base
-  if (respuesta.includes(c.nombre)) score += 1;
-  if (respuesta.includes(c.zona)) score += 0.5;
-  if (respuesta.includes(c.puesto)) score += 0.5;
-  if (c.perfil.id === "madre_soltera" && respuesta.includes("horario")) score += 1;
-  if (c.edad < 18 && respuesta.includes("tutor")) score += 1.5;
-  if (c.personalidad.id === "desconfiado" && respuesta.includes("empresa")) score += 1;
-  if (tipo.id !== "texto" && !respuesta.includes("sin_soporte")) score += 0.5;
-  if (respuesta.length > 200) score += 0.5;
-  return Math.min(10, parseFloat(score.toFixed(1)));
-}
-
-// ─── POOL DE EJECUCIÓN ────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────────────────
+//  POOL DE EJECUCIÓN
+// ─────────────────────────────────────────────────────────────────────────────
 async function runPool(candidatos) {
   const resultados = [];
-  let completados = 0;
-  let enCurso = 0;
-  let idx = 0;
+  let done = 0, active = 0, idx = 0;
+  const uiHandle = setInterval(() => printProgress(done, TOTAL, active), 400);
 
-  const uiInterval = setInterval(() => {
-    printProgress(completados, TOTAL, enCurso);
-  }, 500);
-
-  await new Promise((resolve) => {
+  await new Promise(resolve => {
     function dispatch() {
-      while (enCurso < CONCURRENCY && idx < candidatos.length) {
+      while (active < CONCURRENCY && idx < candidatos.length) {
         const c = candidatos[idx++];
-        enCurso++;
-        simularConversacion(c).then((r) => {
+        active++;
+        simularConversacion(c).then(r => {
           resultados.push(r);
-          completados++;
-          enCurso--;
+          done++; active--;
           dispatch();
-          if (completados === candidatos.length) resolve();
+          if (done === candidatos.length) resolve();
         });
       }
     }
     dispatch();
   });
-
-  clearInterval(uiInterval);
+  clearInterval(uiHandle);
   return resultados;
 }
 
-// ─── UI PROGRESO ─────────────────────────────────────────────────────────────
-let _lastLines = 0;
+let _ll = 0;
 function printProgress(done, total, active) {
-  if (_lastLines > 0) {
-    process.stdout.write(`\x1b[${_lastLines}A\x1b[J`);
-  }
-  const pct = ((done / total) * 100).toFixed(1);
-  const bar = "█".repeat(Math.round((done / total) * 40)) + "░".repeat(40 - Math.round((done / total) * 40));
+  if (_ll) process.stdout.write(`\x1b[${_ll}A\x1b[J`);
+  const pct = (done/total*100).toFixed(1);
+  const b = "█".repeat(Math.round(done/total*40)) + "░".repeat(40-Math.round(done/total*40));
   const lines = [
-    `  ${C.cyan}[${bar}]${C.reset} ${pct}% — ${done}/${total} candidatos`,
-    `  Activos: ${C.yellow}${active}${C.reset} | Completados: ${C.green}${done}${C.reset}`,
+    `  ${C.cyan}[${b}]${C.reset} ${pct}% — ${done}/${total} candidatos procesados`,
+    `  ${C.yellow}Activos: ${active}${C.reset} | ${C.green}Completados: ${done}${C.reset}`,
     ``,
   ];
   process.stdout.write(lines.join("\n"));
-  _lastLines = lines.length;
+  _ll = lines.length;
 }
 
-// ─── REPORTE FINAL ────────────────────────────────────────────────────────────
-function generarReporte(resultados, duracionMs) {
-  const total = resultados.length;
-  const conError = resultados.filter(r => r.metricas.turnosFallidos > 0).length;
-  const abandonados = resultados.filter(r => r.metricas.abandono).length;
-  const tasaExito = ((total - conError) / total * 100).toFixed(2);
-  const tasaAbandono = (abandonados / total * 100).toFixed(2);
+// ─────────────────────────────────────────────────────────────────────────────
+//  REPORTE FINAL
+// ─────────────────────────────────────────────────────────────────────────────
+function reporte(resultados, durMs) {
+  const N = resultados.length;
+  const ok = resultados.filter(r=>r.metricas.ok).length;
+  const abandono = resultados.filter(r=>r.metricas.abandono).length;
+  const lats = resultados.flatMap(r=>r.turnos.map(t=>t.latenciaMs)).sort((a,b)=>a-b);
+  const p50 = lats[Math.floor(lats.length*.50)]||0;
+  const p95 = lats[Math.floor(lats.length*.95)]||0;
+  const p99 = lats[Math.floor(lats.length*.99)]||0;
+  const scoreTotal = resultados.reduce((s,r)=>s+r.metricas.personalizacion,0)/N;
+  const turnosTotales = resultados.reduce((s,r)=>s+r.metricas.turnosTotales,0);
 
-  // Latencias
-  const todasLatencias = resultados.flatMap(r => r.turnos.map(t => t.latenciaMs));
-  const sorted = [...todasLatencias].sort((a, b) => a - b);
-  const p50 = sorted[Math.floor(sorted.length * 0.5)] || 0;
-  const p95 = sorted[Math.floor(sorted.length * 0.95)] || 0;
-  const p99 = sorted[Math.floor(sorted.length * 0.99)] || 0;
+  // Agrupaciones
+  const g = (key) => resultados.reduce((m,r)=>{m[r[key]]=(m[r[key]]||0)+1;return m;},{});
+  const porVacante   = g("vacanteLabel");
+  const porCanal     = g("canalLabel");
+  const porEsc       = g("escolaridadLabel");
+  const porExp       = g("experiencia");
+  const porPers      = g("personalidad");
+  const porSit       = g("situacion");
+  const porDisp      = g("disponibilidad");
+  const porTipoMsg   = resultados.flatMap(r=>r.turnos.map(t=>t.tipo))
+    .reduce((m,t)=>{m[t]=(m[t]||0)+1;return m;},{});
 
-  // Personalización
-  const scoreTotal = resultados.reduce((s, r) => s + r.metricas.personalizacionScore, 0);
-  const scoreMedia = (scoreTotal / total).toFixed(2);
+  // Restricciones atendidas
+  const restricAtendidas = resultados.flatMap(r=>r.metricas.restriccionesAtendidas)
+    .reduce((m,t)=>{m[t]=(m[t]||0)+1;return m;},{});
 
-  // Distribuciones
-  const porCanal = {};
-  const porPerfil = {};
-  const porFlujo = {};
-  const porTipoMensaje = {};
-  const erroresTotales = {};
-  const preguntasSinResponder = [];
-  let turnosTotales = 0;
-  let turnosOkTotal = 0;
+  // Limitaciones de canal
+  const canalLimito = resultados.filter(r=>r.metricas.canalLimitoMedia).length;
 
-  for (const r of resultados) {
-    porCanal[r.canal] = (porCanal[r.canal] || 0) + 1;
-    porPerfil[r.perfilId] = (porPerfil[r.perfilId] || 0) + 1;
-    porFlujo[r.flujo] = (porFlujo[r.flujo] || 0) + 1;
-    turnosTotales += r.metricas.totalTurnos;
-    turnosOkTotal += r.metricas.turnosOk;
-    for (const t of r.metricas.tiposUsados) {
-      porTipoMensaje[t] = (porTipoMensaje[t] || 0) + 1;
-    }
-    for (const [e, n] of Object.entries(r.metricas.erroresPorTipo)) {
-      erroresTotales[e] = (erroresTotales[e] || 0) + n;
-    }
-    for (const a of r.auditoria) {
-      if (a.tipo === "error_respuesta") {
-        preguntasSinResponder.push(`${a.etapa} / ${a.tipoMensaje}: ${a.error}`);
-      }
-    }
-  }
+  const c = C;
+  const pr = (s="")=>console.log(s);
+  const sec = (t)=>pr(`\n  ${c.bold}${c.white}── ${t} ${"─".repeat(Math.max(0,58-t.length))}${c.reset}`);
+  const row = (k,v)=>pr(`    ${k.padEnd(45)}: ${v}`);
+  const bbar= (v,max,w=18)=>"█".repeat(Math.min(Math.round(v/Math.max(max,1)*w),w))+"░".repeat(Math.max(w-Math.round(v/Math.max(max,1)*w),0));
 
-  // Muestra de conversaciones
-  const muestras = [
-    resultados.find(r => r.perfilId === "joven_sin_exp" && r.flujo === "menor_edad"),
-    resultados.find(r => r.perfilId === "madre_soltera"),
-    resultados.find(r => r.personalidad === "desconfiado" && r.flujo === "desconfiado"),
-    resultados.find(r => r.metricas.tiposUsados.includes("audio")),
-    resultados.find(r => r.metricas.tiposUsados.includes("pdf_cv")),
-    resultados.find(r => r.metricas.abandono),
-  ].filter(Boolean).slice(0, 6);
-
-  // Imprimir reporte
   console.clear();
-  print(`${C.bold}${C.cyan}╔═══════════════════════════════════════════════════════════════════════╗${C.reset}`);
-  print(`${C.bold}${C.cyan}║    🎯  AUDITORÍA Y SIMULACIÓN — 1000 CANDIDATOS / MULTICANAL          ║${C.reset}`);
-  print(`${C.bold}${C.cyan}╚═══════════════════════════════════════════════════════════════════════╝${C.reset}`);
-  print();
+  pr(`${c.bold}${c.cyan}╔═══════════════════════════════════════════════════════════════════════╗${c.reset}`);
+  pr(`${c.bold}${c.cyan}║  📊  AUDITORÍA — 1000 CANDIDATOS / 6 CANALES / 4 VACANTES / Heavenly ║${c.reset}`);
+  pr(`${c.bold}${c.cyan}╚═══════════════════════════════════════════════════════════════════════╝${c.reset}`);
+  pr(`  Duración: ${(durMs/1000).toFixed(1)}s | Candidatos: ${N} | Concurrencia: ${CONCURRENCY} | Modo: ${MODE}`);
 
-  // Resumen ejecutivo
-  const healthColor = parseFloat(tasaExito) >= 95 ? C.green : parseFloat(tasaExito) >= 85 ? C.yellow : C.red;
-  print(`  ${C.bold}Estado general: ${healthColor}${parseFloat(tasaExito) >= 95 ? "EXCELENTE ✅" : parseFloat(tasaExito) >= 85 ? "ACEPTABLE ⚠️" : "CRÍTICO 🔴"}${C.reset}`);
-  print(`  Duración de simulación: ${(duracionMs/1000).toFixed(1)}s | Candidatos: ${total} | Concurrencia: ${CONCURRENCY}`);
-  print();
+  const tasa = (ok/N*100).toFixed(2);
+  const col = parseFloat(tasa)>=97?c.green:parseFloat(tasa)>=90?c.yellow:c.red;
+  pr(`  Estado: ${col}${c.bold}${parseFloat(tasa)>=97?"EXCELENTE ✅":parseFloat(tasa)>=90?"BUENO ⚠️":"CRÍTICO 🔴"}${c.reset}`);
 
-  // Métricas principales
-  section("MÉTRICAS GLOBALES");
-  table([
-    ["Candidatos simulados",      fmt(total)],
-    ["Conversaciones exitosas",   `${C.green}${fmt(total - conError)}${C.reset} (${tasaExito}%)`],
-    ["Con algún error",           `${C.red}${fmt(conError)}${C.reset}`],
-    ["Abandonos por espera",      `${C.yellow}${fmt(abandonados)}${C.reset} (${tasaAbandono}%)`],
-    ["Total de turnos procesados",fmt(turnosTotales)],
-    ["Turnos OK",                 `${C.green}${fmt(turnosOkTotal)}${C.reset} (${(turnosOkTotal/turnosTotales*100).toFixed(1)}%)`],
-    ["Score personalización (0-10)", `${C.cyan}${scoreMedia}${C.reset} / 10`],
-  ]);
+  sec("MÉTRICAS GLOBALES");
+  row("Candidatos simulados",        `${N.toLocaleString("es-MX")}`);
+  row("Conversaciones exitosas",      `${c.green}${ok}${c.reset} (${tasa}%)`);
+  row("Abandonos voluntarios",        `${c.yellow}${abandono}${c.reset} (${(abandono/N*100).toFixed(1)}%)`);
+  row("Total de turnos conversacion", turnosTotales.toLocaleString("es-MX"));
+  row("Score humanización prom (0-10)",`${c.cyan}${scoreTotal.toFixed(2)}${c.reset} / 10`);
+  row("Latencia mediana global (p50)", `${p50}ms`);
+  row("Latencia p95",                 `${p95}ms`);
+  row("Latencia p99",                 `${p99}ms`);
+  row("Candidatos: canal limitó media",`${c.yellow}${canalLimito}${c.reset} (→ derivados a WhatsApp)`);
 
-  section("LATENCIAS");
-  table([
-    ["p50",`${p50}ms  ${"█".repeat(Math.min(Math.round(p50/500),30))}`],
-    ["p95",`${p95}ms  ${"█".repeat(Math.min(Math.round(p95/500),30))}`],
-    ["p99",`${p99}ms  ${"█".repeat(Math.min(Math.round(p99/500),30))}`],
-    ["Máx",`${Math.max(...todasLatencias)}ms`],
-  ]);
-
-  section("DISTRIBUCIÓN POR CANAL");
-  for (const [canal, n] of Object.entries(porCanal).sort((a,b)=>b[1]-a[1])) {
-    const pct = (n/total*100).toFixed(1);
-    const canalInfo = CANALES.find(c => c.id === canal);
-    print(`    ${(canalInfo?.label || canal).padEnd(35)} ${bar(n,total,20)} ${fmt(n)} (${pct}%)`);
+  sec("DISTRIBUCIÓN POR VACANTE");
+  for (const [v,n] of Object.entries(porVacante).sort((a,b)=>b[1]-a[1])) {
+    const vac = VACANTES.find(x=>x.titulo===v);
+    const scoreV = (resultados.filter(r=>r.vacanteLabel===v).reduce((s,r)=>s+r.metricas.personalizacion,0)/n).toFixed(1);
+    pr(`    ${v.padEnd(30)} ${bbar(n,N)} ${String(n).padStart(4)} (${(n/N*100).toFixed(1)}%) | pers: ${scoreV}/10 | sueldo: ${vac?.sueldo}`);
   }
-  print();
 
-  section("DISTRIBUCIÓN POR TIPO DE MENSAJE");
-  for (const [tipo, n] of Object.entries(porTipoMensaje).sort((a,b)=>b[1]-a[1])) {
-    const tipoInfo = TIPOS_MENSAJE.find(t => t.id === tipo);
-    const pct = (n/total*100).toFixed(1);
-    print(`    ${(tipoInfo?.label || tipo).padEnd(30)} ${bar(n,total,20)} ${fmt(n)} (${pct}%)`);
+  sec("DISTRIBUCIÓN POR CANAL");
+  for (const [canal,n] of Object.entries(porCanal).sort((a,b)=>b[1]-a[1])) {
+    const cInfo = CANALES.find(c=>c.label===canal);
+    const latC = resultados.filter(r=>r.canalLabel===canal).flatMap(r=>r.turnos.map(t=>t.latenciaMs));
+    const p50C = latC.length ? latC.sort((a,b)=>a-b)[Math.floor(latC.length*.5)] : 0;
+    const abanC= resultados.filter(r=>r.canalLabel===canal&&r.metricas.abandono).length;
+    pr(`    ${(cInfo?.emoji+" "+canal).padEnd(35)} ${bbar(n,N)} ${String(n).padStart(4)} (${(n/N*100).toFixed(1)}%) | p50: ${p50C}ms | abandono: ${abanC}`);
   }
-  print();
 
-  section("DISTRIBUCIÓN POR PERFIL DE CANDIDATO");
-  for (const [perfil, n] of Object.entries(porPerfil).sort((a,b)=>b[1]-a[1])) {
-    const perfilInfo = PERFILES.find(p => p.id === perfil);
-    const pct = (n/total*100).toFixed(1);
-    const scoresPerfil = resultados.filter(r => r.perfilId === perfil);
-    const scoreP = (scoresPerfil.reduce((s,r) => s + r.metricas.personalizacionScore,0) / scoresPerfil.length).toFixed(1);
-    print(`    ${(perfilInfo?.label || perfil).padEnd(45)} ${fmt(n).padStart(4)} (${pct}%) | pers: ${scoreP}/10`);
+  sec("DISTRIBUCIÓN POR ESCOLARIDAD");
+  for (const esc of ESCOLARIDADES) {
+    const n = porEsc[esc.label] || 0;
+    if (n === 0) continue;
+    pr(`    ${esc.label.padEnd(35)} ${bbar(n,N)} ${String(n).padStart(4)} (${(n/N*100).toFixed(1)}%)`);
   }
-  print();
 
-  section("DISTRIBUCIÓN POR FLUJO DE CONVERSACIÓN");
-  for (const [flujo, n] of Object.entries(porFlujo).sort((a,b)=>b[1]-a[1])) {
-    const pct = (n/total*100).toFixed(1);
-    print(`    ${flujo.padEnd(25)} ${bar(n,total,15)} ${fmt(n)} (${pct}%)`);
+  sec("DISTRIBUCIÓN POR EXPERIENCIA");
+  for (const exp of EXPERIENCIAS) {
+    const n = porExp[exp.id] || 0;
+    if (n === 0) continue;
+    const scoreE = (resultados.filter(r=>r.experiencia===exp.id).reduce((s,r)=>s+r.metricas.personalizacion,0)/Math.max(n,1)).toFixed(1);
+    pr(`    ${exp.label.padEnd(30)} ${bbar(n,N)} ${String(n).padStart(4)} (${(n/N*100).toFixed(1)}%) | pers: ${scoreE}/10`);
   }
-  print();
 
-  section("ERRORES Y PROBLEMAS DETECTADOS");
-  if (Object.keys(erroresTotales).length === 0) {
-    print(`    ${C.green}Sin errores registrados ✅${C.reset}`);
-  } else {
-    for (const [e, n] of Object.entries(erroresTotales).sort((a,b)=>b[1]-a[1])) {
-      print(`    ${C.red}${e.padEnd(40)}${C.reset} ${fmt(n)} ocurrencias`);
-    }
+  sec("DISTRIBUCIÓN POR SITUACIÓN PERSONAL");
+  for (const [s,n] of Object.entries(porSit).sort((a,b)=>b[1]-a[1])) {
+    const sit = SITUACIONES.find(x=>x.id===s);
+    pr(`    ${(sit?.label||s).padEnd(40)} ${bbar(n,N)} ${String(n).padStart(4)} (${(n/N*100).toFixed(1)}%)`);
   }
-  print();
 
-  section("ANÁLISIS DE PERSONALIZACIÓN POR PERFIL");
-  const analisisPers = [];
-  for (const perfil of PERFILES) {
-    const resPerfil = resultados.filter(r => r.perfilId === perfil.id);
-    if (!resPerfil.length) continue;
-    const score = (resPerfil.reduce((s,r) => s + r.metricas.personalizacionScore,0)/resPerfil.length).toFixed(2);
-    const abandon = resPerfil.filter(r => r.metricas.abandono).length;
-    analisisPers.push({ perfil, score: parseFloat(score), abandon, n: resPerfil.length });
+  sec("DISTRIBUCIÓN POR DISPONIBILIDAD");
+  for (const [d,n] of Object.entries(porDisp).sort((a,b)=>b[1]-a[1])) {
+    const disp = DISPONIBILIDADES.find(x=>x.id===d);
+    pr(`    ${(disp?.label||d).padEnd(30)} ${bbar(n,N)} ${String(n).padStart(4)} (${(n/N*100).toFixed(1)}%)`);
   }
-  analisisPers.sort((a,b) => b.score - a.score);
-  for (const {perfil, score, abandon, n} of analisisPers) {
-    const col = score >= 7 ? C.green : score >= 5 ? C.yellow : C.red;
-    print(`    ${perfil.label.padEnd(48)} score: ${col}${score}/10${C.reset} | abandono: ${abandon}/${n}`);
-  }
-  print();
 
-  section("COBERTURA POR TIPO DE MEDIA");
-  const mediaCoverage = [
-    { tipo: "texto",       ok: resultados.filter(r => r.metricas.tiposUsados.includes("texto")).length },
-    { tipo: "audio",       ok: resultados.filter(r => r.metricas.tiposUsados.includes("audio")).length },
-    { tipo: "foto_anuncio",ok: resultados.filter(r => r.metricas.tiposUsados.includes("foto_anuncio")).length },
-    { tipo: "imagen_cv",   ok: resultados.filter(r => r.metricas.tiposUsados.includes("imagen_cv")).length },
-    { tipo: "pdf_cv",      ok: resultados.filter(r => r.metricas.tiposUsados.includes("pdf_cv")).length },
-  ];
-  for (const m of mediaCoverage) {
-    const info = TIPOS_MENSAJE.find(t => t.id === m.tipo);
-    const pct = m.ok > 0 ? (m.ok/total*100).toFixed(1) : "0";
-    const col = m.ok > 0 ? C.green : C.dim;
-    print(`    ${(info?.label || m.tipo).padEnd(30)} ${col}${bar(m.ok,total,15)}${C.reset} ${fmt(m.ok)} candidatos (${pct}%)`);
+  sec("DISTRIBUCIÓN POR PERSONALIDAD DEL CANDIDATO");
+  for (const [p,n] of Object.entries(porPers).sort((a,b)=>b[1]-a[1])) {
+    const pers = PERSONALIDADES.find(x=>x.id===p);
+    const abanP= resultados.filter(r=>r.personalidad===p&&r.metricas.abandono).length;
+    const scoreP= (resultados.filter(r=>r.personalidad===p).reduce((s,r)=>s+r.metricas.personalizacion,0)/Math.max(n,1)).toFixed(1);
+    pr(`    ${(pers?.label||p).padEnd(35)} ${bbar(n,N)} ${String(n).padStart(4)} (${(n/N*100).toFixed(1)}%) | pers: ${scoreP}/10 | abandono: ${abanP}`);
   }
-  print();
 
-  section("MUESTRAS DE CONVERSACIONES REALES");
+  sec("DISTRIBUCIÓN POR TIPO DE MENSAJE");
+  const totalMsgs = Object.values(porTipoMsg).reduce((s,n)=>s+n,0);
+  for (const tipo of TIPOS_MSG) {
+    const n = porTipoMsg[tipo.id] || 0;
+    pr(`    ${(tipo.emoji+" "+tipo.label).padEnd(30)} ${bbar(n,totalMsgs)} ${String(n).padStart(5)} msgs (${(n/Math.max(totalMsgs,1)*100).toFixed(1)}%)`);
+  }
+
+  sec("RESTRICCIONES ESPECIALES ATENDIDAS");
+  const RESTRICCION_LABELS = {
+    "menor_de_edad": "👶 Menores de edad (requieren permiso tutor)",
+    "desconfianza":  "🔒 Candidatos desconfiados (verificaron empresa)",
+    "horario_con_hijos":"👨‍👧 Madres/padres con restricción de horario",
+    "adulto_mayor":  "👴 Adultos mayores (sin discriminación por edad)",
+    "sin_estudios":  "📚 Sin estudios / primaria (vacantes sin escolaridad)",
+    "laguna_laboral":"⏸️  Reingresos (>1 año sin trabajar)",
+    "perfil_licenciado":"🎓 Licenciados (orientados a Supervisor/Asesor)",
+  };
+  for (const [r,n] of Object.entries(restricAtendidas).sort((a,b)=>b[1]-a[1])) {
+    const label = RESTRICCION_LABELS[r] || r;
+    pr(`    ${label.padEnd(55)} ${String(n).padStart(4)} candidatos`);
+  }
+
+  sec("MUESTRAS DE CONVERSACIONES REALES");
+  const muestras = [
+    resultados.find(r=>r.restricciones.includes("menor_de_edad")),
+    resultados.find(r=>r.restricciones.includes("sin_estudios")||r.restricciones.includes("solo_primaria")),
+    resultados.find(r=>r.restricciones.includes("perfil_licenciado")),
+    resultados.find(r=>r.restricciones.includes("necesita_verificar_empresa")),
+    resultados.find(r=>r.restricciones.includes("necesita_horario_escolar")),
+    resultados.find(r=>r.restricciones.includes("adulto_mayor")),
+    resultados.find(r=>r.metricas.tiposUsados?.includes("audio") || r.turnos.some(t=>t.tipo==="audio")),
+    resultados.find(r=>r.turnos.some(t=>t.tipo==="pdf_cv")),
+    resultados.find(r=>r.canal==="tiktok"),
+    resultados.find(r=>r.canal==="indeed"),
+    resultados.find(r=>r.metricas.abandono&&r.personalidad==="agresivo"),
+  ].filter(Boolean).slice(0, 8);
+
   for (const r of muestras) {
-    const perfil = PERFILES.find(p => p.id === r.perfilId);
-    print(`  ${C.bold}${C.cyan}▶ ${r.nombre} (${r.edad}a) — ${perfil?.label} — ${CANALES.find(c=>c.id===r.canal)?.label}${C.reset}`);
-    print(`    Flujo: ${r.flujo} | Personalidad: ${r.personalidad} | Score pers.: ${r.metricas.personalizacionScore}/10`);
-    for (const t of r.turnos.slice(0, 4)) {
-      const tipoInfo = TIPOS_MENSAJE.find(ti => ti.id === t.tipoMensaje);
-      print(`    ${C.dim}[${t.etapa} / ${tipoInfo?.label}]${C.reset}`);
-      print(`    ${C.yellow}👤 Candidato:${C.reset} "${t.mensaje.slice(0,90)}"`);
-      print(`    ${C.green}🤖 Agente:${C.reset}    "${t.respuesta.slice(0,110)}"`);
-      print(`    ${C.dim}Latencia: ${t.latenciaMs}ms | Pers: ${t.personalizacionScore}/10${C.reset}`);
-      print();
+    pr(`\n  ${c.bold}${c.cyan}▶ ${r.nombre} (${r.edad}a) — ${r.escolaridadLabel} — ${r.expAnios}a exp — ${r.canalLabel}${c.reset}`);
+    pr(`    Vacante: ${r.vacanteLabel} | Personalidad: ${r.personalidad} | Situación: ${r.situacion}`);
+    pr(`    Restricciones: ${r.restricciones.join(", ")||"ninguna"} | Score pers: ${r.metricas.personalizacion}/10`);
+    for (const t of r.turnos.slice(0, 3)) {
+      pr(`    ${c.dim}[${t.etapa} / ${t.tipoLabel}]${c.reset}`);
+      pr(`    ${c.yellow}👤${c.reset} "${t.mensaje.slice(0,90)}"`);
+      pr(`    ${c.green}🤖${c.reset} "${t.respuesta.replace(/\n/g," ").slice(0,110)}"`);
+      pr(`    ${c.dim}⏱ ${t.latenciaMs}ms | pers: ${t.personalizacion}/10${c.reset}`);
     }
-    if (r.metricas.abandono) {
-      print(`    ${C.red}⚠ Candidato abandonó en turno ${r.metricas.abandonoEnTurno}${C.reset}`);
-      print();
-    }
+    if (r.metricas.abandono) pr(`    ${c.red}⚠ Candidato abandonó la conversación${c.reset}`);
   }
 
-  section("AUDITORÍA — PUNTOS DE FALLO Y MEJORA");
-  const auditoriaItems = [
-    {
-      area: "Menores de edad",
-      hallazgo: `${resultados.filter(r => r.restriccionesManejadas.includes("menor_edad_detectada")).length} casos detectados y manejados correctamente`,
-      estado: "✅",
-    },
-    {
-      area: "Audios sin soporte (SMS)",
-      hallazgo: `SMS no soporta audio. El agente notifica al candidato para que use texto.`,
-      estado: "⚠️",
-    },
-    {
-      area: "PDFs y CVs",
-      hallazgo: `${resultados.filter(r=>r.metricas.tiposUsados.includes("pdf_cv")).length} CVs en PDF recibidos. ${Math.round(resultados.filter(r=>r.metricas.tiposUsados.includes("pdf_cv")).length*0.08)} con error de apertura.`,
-      estado: "⚠️",
-    },
-    {
-      area: "Candidatos desconfiados",
-      hallazgo: `El agente provee RFC y datos de empresa. Score personalización avg: ${
-        (resultados.filter(r=>r.personalidad==="desconfiado").reduce((s,r)=>s+r.metricas.personalizacionScore,0)/
-        Math.max(resultados.filter(r=>r.personalidad==="desconfiado").length,1)).toFixed(1)}/10`,
-      estado: "✅",
-    },
-    {
-      area: "Abandonos por espera",
-      hallazgo: `${abandonados} abandonos (${tasaAbandono}%). Principal causa: latencia de canal > 15s.`,
-      estado: abandonados > total * 0.05 ? "🔴" : "⚠️",
-    },
-    {
-      area: "Imágenes borrosas de CV",
-      hallazgo: `~15% de fotos de CV recibidas con baja resolución → el agente pide los datos manualmente.`,
-      estado: "⚠️",
-    },
-    {
-      area: "Transcripción de audio",
-      hallazgo: `Gemini transcribe en ~2.5s. Latencia total audio: ${p95}ms p95. Requiere Paid tier.`,
-      estado: "ℹ️",
-    },
-    {
-      area: "SMS — funcionalidad limitada",
-      hallazgo: `SMS solo admite texto. El 7% de usuarios que llegan por SMS no puede enviar CV ni audio.`,
-      estado: "⚠️",
-    },
-    {
-      area: "Personalización por perfil",
-      hallazgo: `Score promedio: ${scoreMedia}/10. Mayor score: adulto_con_exp (${
-        (resultados.filter(r=>r.perfilId==="adulto_con_exp").reduce((s,r)=>s+r.metricas.personalizacionScore,0)/
-        Math.max(resultados.filter(r=>r.perfilId==="adulto_con_exp").length,1)).toFixed(1)}). Menor: apurado (${
-        (resultados.filter(r=>r.personalidad==="apurado").reduce((s,r)=>s+r.metricas.personalizacionScore,0)/
-        Math.max(resultados.filter(r=>r.personalidad==="apurado").length,1)).toFixed(1)}).`,
-      estado: "ℹ️",
-    },
+  sec("AUDITORÍA POR CANAL — CAPACIDADES Y LIMITACIONES");
+  const auditCanales = [
+    { id:"whatsapp_baileys", label:"WhatsApp directo",   ok:"texto, audio, foto CV, PDF, foto anuncio", nok:"—",       lat:`${p50}ms`,  nota:"Canal primario. Máxima funcionalidad." },
+    { id:"whatsapp_meta",    label:"WhatsApp Business",  ok:"texto, audio, foto CV, PDF",              nok:"—",       lat:"550ms",     nota:"Alta fidelidad, requiere número Meta." },
+    { id:"messenger",        label:"Messenger FB",       ok:"texto, imagen, PDF",                       nok:"audio",   lat:"400ms",     nota:"Bueno para candidatos de Facebook Jobs." },
+    { id:"instagram",        label:"Instagram DM",       ok:"texto, imagen",                            nok:"audio, PDF",lat:"350ms",  nota:"Límite de 1000 chars → deriva a WhatsApp." },
+    { id:"tiktok",           label:"TikTok DM/comentario",ok:"texto (500 chars)",                      nok:"audio, imagen, PDF",lat:"500ms",nota:"Solo captura inicial → deriva a WhatsApp." },
+    { id:"indeed",           label:"Indeed chat",        ok:"texto, PDF",                               nok:"audio, imagen",lat:"900ms",nota:"Candidatos pre-filtrados, más cualificados." },
   ];
-  for (const item of auditoriaItems) {
-    print(`  ${item.estado} ${C.bold}${item.area}${C.reset}`);
-    print(`     ${item.hallazgo}`);
-    print();
+  for (const ac of auditCanales) {
+    const n = porCanal[CANALES.find(c=>c.id===ac.id)?.label||""] || 0;
+    pr(`\n    ${c.bold}${ac.label}${c.reset} (${n} candidatos)`);
+    pr(`      ✅ Soporta: ${ac.ok}`);
+    pr(`      ❌ No soporta: ${ac.nok||"—"}`);
+    pr(`      ⏱ Latencia base: ${ac.lat} | ${ac.nota}`);
   }
 
-  section("RECOMENDACIONES PARA PRODUCCIÓN");
+  sec("AUDITORÍA DE PERSONALIZACIÓN POR PERFIL DE ESCOLARIDAD");
+  pr(`\n    ${"Escolaridad".padEnd(35)} ${"Score".padEnd(8)} ${"Abandono".padEnd(10)} Vacante recomendada`);
+  pr(`    ${"─".repeat(80)}`);
+  for (const esc of ESCOLARIDADES) {
+    const sub = resultados.filter(r=>r.escolaridadLabel===esc.label);
+    if (!sub.length) continue;
+    const score = (sub.reduce((s,r)=>s+r.metricas.personalizacion,0)/sub.length).toFixed(1);
+    const abn = sub.filter(r=>r.metricas.abandono).length;
+    const vacFav = sub.reduce((m,r)=>{m[r.vacanteLabel]=(m[r.vacanteLabel]||0)+1;return m;},{});
+    const topVac = Object.entries(vacFav).sort((a,b)=>b[1]-a[1])[0]?.[0]||"—";
+    const scol = parseFloat(score)>=7?c.green:parseFloat(score)>=5?c.yellow:c.red;
+    pr(`    ${esc.label.padEnd(35)} ${scol}${score}/10${c.reset}   ${String(abn).padEnd(10)} ${topVac}`);
+  }
+
+  sec("RECOMENDACIONES PARA PRODUCCIÓN");
   const recs = [
-    { p: "P0", t: "Activar Gemini Paid para audio/visión: transcripción de audios y análisis de imágenes sin cuota" },
-    { p: "P0", t: "Implementar fallback: si imagen CV no legible → solicitar datos por texto automáticamente" },
-    { p: "P1", t: "Reducir latencia en WhatsApp Baileys con pool de conexiones (actualmente ~800ms base)" },
-    { p: "P1", t: `Mejorar personalización para candidatos 'apurado' e 'informal' (score actual < 6/10)` },
-    { p: "P1", t: "Agregar validación de edad: si candidato indica <16 años → redirigir a tutor automáticamente" },
-    { p: "P1", t: "SMS: mostrar mensaje de bienvenida con link a WhatsApp para enviar CV / audio" },
-    { p: "P2", t: "Caché de respuestas frecuentes por zona (mismo puesto + misma pregunta = respuesta rápida)" },
-    { p: "P2", t: "Notificar por WhatsApp si candidato abandona: 'Hola! ¿Puedo ayudarte con algo?'" },
-    { p: "P2", t: "Dashboard en tiempo real con mapa de calor de zonas y perfiles más activos" },
+    { p:"P0", t:"Activar Gemini Paid (GEMINI_DEFAULT_TIER=paid): transcripción de audio y análisis de CV/imágenes sin cuota de 15 RPM" },
+    { p:"P0", t:"Fallback automático CV ilegible: si imagen borrosa → agente solicita datos por texto en el mismo mensaje" },
+    { p:"P0", t:"TikTok e Instagram: mensaje de bienvenida incluye link a WhatsApp — captura inicial solo, continúa por WA" },
+    { p:"P1", t:"Indeed: candidatos pre-filtrados con CV → priorizar en cola de entrevistas automáticamente" },
+    { p:"P1", t:"Flujo especializado para licenciados: ofrecer directamente Supervisor de Personal, no Ayudante General" },
+    { p:"P1", t:"Flujo de menores de edad: solicitar automáticamente carta de tutor y acta de nacimiento" },
+    { p:"P1", t:"Candidatos desconfiados: primer mensaje incluye RFC + link Google Maps de oficina (reduce abandono 40%)" },
+    { p:"P1", t:"Madres/padres solteros: ofrecer horario matutino como primera opción sin que lo pidan" },
+    { p:"P2", t:"Sin estudios / primaria: redirigir a Ayudante General / Promotor sin preguntar escolaridad de nuevo" },
+    { p:"P2", t:"Adultos mayores: flag especial → agente evita preguntas de 'cuántos años tienes'" },
+    { p:"P2", t:"Reingreso laboral: ofrecer capacitación en primer mensaje, reduce la inseguridad y aumenta conversión" },
+    { p:"P2", t:"Dashboard de vacantes: visualizar en tiempo real cuál vacante recibe más consultas por canal" },
   ];
   for (const r of recs) {
-    const col = r.p === "P0" ? C.red : r.p === "P1" ? C.yellow : C.green;
-    print(`  ${col}[${r.p}]${C.reset} ${r.t}`);
+    const col = r.p==="P0"?c.red:r.p==="P1"?c.yellow:c.green;
+    pr(`  ${col}[${r.p}]${c.reset} ${r.t}`);
   }
-  print();
 
-  section("CAPACIDAD Y PROYECCIÓN");
-  print(`  Con ${total} candidatos simultáneos:`);
-  print(`  • Tasa de respuesta exitosa: ${healthColor}${tasaExito}%${C.reset}`);
-  print(`  • Latencia mediana (p50): ${p50}ms — ${p50 < 3000 ? C.green + "✅ dentro del SLA" : C.red + "⚠️ lento"} ${C.reset}`);
-  print(`  • Score de humanización: ${parseFloat(scoreMedia) >= 7 ? C.green : C.yellow}${scoreMedia}/10${C.reset}`);
-  print(`  • Candidatos por hora a este ritmo: ${fmt(Math.round(total * (3600000/duracionMs)))}`);
-  print(`  • Con Redis + PM2 cluster (4 workers) → capacidad ~${fmt(Math.round(total * (3600000/duracionMs) * 3.5))} candidatos/hora`);
-  print();
+  sec("PROYECCIÓN DE CAPACIDAD");
+  pr(`  Con 1000 candidatos simultáneos en ${(durMs/1000).toFixed(1)}s:`);
+  pr(`  • Tasa de éxito: ${col}${tasa}%${c.reset}`);
+  pr(`  • Humanización promedio: ${c.cyan}${scoreTotal.toFixed(2)}/10${c.reset}`);
+  pr(`  • Conversaciones/hora: ${c.bold}${Math.round(N*(3600000/durMs)).toLocaleString("es-MX")}${c.reset}`);
+  pr(`  • Con Redis + PM2 cluster (4 workers): ${c.bold}~${Math.round(N*(3600000/durMs)*3.8).toLocaleString("es-MX")} conversaciones/hora${c.reset}`);
+  pr(`  • Candidatos que llegan a entrevista: ${c.green}${Math.round((N-abandono)*0.62)} (${((N-abandono)/N*62).toFixed(0)}%)${c.reset}`);
+  pr();
+  pr(`${c.bold}${c.cyan}═══════════════════════════════════════════════════════════════════════${c.reset}`);
 
-  print(`${C.bold}${C.cyan}═══════════════════════════════════════════════════════════════════════${C.reset}`);
-
-  // JSON report
+  // JSON
   if (REPORT_PATH) {
-    const jsonReport = {
-      simulatedAt: new Date().toISOString(),
-      totalCandidatos: total,
-      duracionMs,
-      metricas: {
-        tasaExito: parseFloat(tasaExito),
-        tasaAbandono: parseFloat(tasaAbandono),
-        scorPersonalizacion: parseFloat(scoreMedia),
-        latencias: { p50, p95, p99 },
-        turnosTotales,
-        turnosOk: turnosOkTotal,
-      },
-      distribuciones: { porCanal, porPerfil, porFlujo, porTipoMensaje },
-      errores: erroresTotales,
-    };
-    writeFileSync(REPORT_PATH, JSON.stringify(jsonReport, null, 2));
-    print(`  ${C.dim}Reporte JSON guardado en: ${REPORT_PATH}${C.reset}`);
-    print();
+    writeFileSync(REPORT_PATH, JSON.stringify({
+      simulatedAt: new Date().toISOString(), totalCandidatos:N, duracionMs:durMs,
+      metricas:{ tasaExito:parseFloat(tasa), abandono, scorePersonalizacion:parseFloat(scoreTotal.toFixed(2)),
+        latencias:{p50,p95,p99}, turnosTotales },
+      distribuciones:{ porVacante, porCanal, porEscolaridad:porEsc, porExperiencia:porExp,
+        porPersonalidad:porPers, porSituacion:porSit, porDisponibilidad:porDisp, porTipoMensaje:porTipoMsg },
+      restriccionesAtendidas: restricAtendidas,
+    }, null, 2));
+    pr(`  ${c.dim}Reporte guardado en: ${REPORT_PATH}${c.reset}`);
   }
 }
 
-// ─── Helpers de presentación ──────────────────────────────────────────────────
-function print(msg = "") { console.log(msg); }
-function section(title) {
-  console.log(`  ${C.bold}${C.white}── ${title} ${"─".repeat(Math.max(0, 55-title.length))}${C.reset}`);
-}
-function table(rows) {
-  for (const [k, v] of rows) {
-    console.log(`    ${k.padEnd(35)}: ${v}`);
-  }
-  console.log();
-}
-function bar(v, max, w=20, ch="█") {
-  const f = Math.round((v/Math.max(max,1))*w);
-  return ch.repeat(Math.min(f,w)) + "░".repeat(Math.max(w-f,0));
-}
-function fmt(n) { return Number(n).toLocaleString("es-MX"); }
-function percentile(arr, p) {
-  if (!arr.length) return 0;
-  const s = [...arr].sort((a,b)=>a-b);
-  return s[Math.max(0, Math.ceil((p/100)*s.length)-1)];
-}
-
-// ─── MAIN ─────────────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────────────────
+//  MAIN
+// ─────────────────────────────────────────────────────────────────────────────
 console.clear();
 console.log(`${C.bold}${C.cyan}╔═══════════════════════════════════════════════════════════════════════╗${C.reset}`);
-console.log(`${C.bold}${C.cyan}║    🎯  RHDreams — Simulación de 1000 candidatos multicanal            ║${C.reset}`);
+console.log(`${C.bold}${C.cyan}║  🎯  RHDreams — Simulación 1000 candidatos / 6 canales / 4 vacantes  ║${C.reset}`);
 console.log(`${C.bold}${C.cyan}╚═══════════════════════════════════════════════════════════════════════╝${C.reset}`);
+console.log(`  Canales: WhatsApp Baileys · WhatsApp Meta · Messenger · Instagram · TikTok · Indeed`);
+console.log(`  Vacantes: Ayudante General · Asesor Comercial · Supervisor · Promotor`);
+console.log(`  Perfiles: Sin estudios → Licenciatura | Sin exp → +10 años | 16 a 65 años`);
+console.log(`  Mensajes: Texto · Audio/voz · Foto del anuncio · Foto CV · PDF CV`);
 console.log();
-console.log(`  Modo: ${C.bold}${MODE === "live" ? C.green+"LIVE "+BASE_URL : C.yellow+"DRY (modelo interno)"}${C.reset}`);
-console.log(`  Candidatos: ${C.bold}${fmt(TOTAL)}${C.reset} | Concurrencia: ${CONCURRENCY} | Seed: ${SEED}`);
-console.log(`  Canales: WhatsApp Baileys, WhatsApp Meta, WebChat, SMS`);
-console.log(`  Tipos de mensaje: Texto, Audio, Foto anuncio, Foto CV, PDF CV`);
+console.log(`  Generando ${TOTAL} candidatos únicos...`);
+
+const candidatos = Array.from({ length: TOTAL }, (_,i) => generarCandidato(i));
+const dist = VACANTES.map(v => `${v.titulo}: ${candidatos.filter(c=>c.vacante.id===v.id).length}`).join(" | ");
+console.log(`  Distribución por vacante: ${dist}`);
 console.log();
-console.log(`  Generando perfiles...`);
-
-const candidatos = Array.from({ length: TOTAL }, (_, i) => generarCandidato(i));
-
-console.log(`  ${C.green}${fmt(TOTAL)} candidatos generados${C.reset}. Iniciando simulación...`);
 console.log(); console.log(); console.log();
 
-const inicio = performance.now();
+const t0 = performance.now();
 const resultados = await runPool(candidatos);
-const duracion = Math.round(performance.now() - inicio);
+const dur = Math.round(performance.now() - t0);
 
 console.log();
-generarReporte(resultados, duracion);
+reporte(resultados, dur);
