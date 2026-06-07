@@ -9,31 +9,21 @@ const getAdminAccounts = () => {
   const username = process.env.RHDREAMS_ADMIN_USERNAME || "";
   const email = process.env.RHDREAMS_ADMIN_EMAIL || "";
   const passwordHash = process.env.RHDREAMS_ADMIN_PASSWORD_HASH || "";
-  const password = process.env.RHDREAMS_ADMIN_PASSWORD || "";
 
   return [
     {
       username,
       email,
       passwordHash,
-      password,
       uid: process.env.RHDREAMS_ADMIN_UID || "admin",
       displayName: process.env.RHDREAMS_ADMIN_NAME || "Administrador",
       role: process.env.RHDREAMS_ADMIN_ROLE || "Admin",
     },
-  ].filter((account) => (account.username || account.email) && (account.passwordHash || account.password));
+  ].filter((account) => (account.username || account.email) && account.passwordHash);
 };
 
 const isPasswordValid = async (plainText: string, account: ReturnType<typeof getAdminAccounts>[number]) => {
-  if (account.passwordHash) {
-    return bcrypt.compare(plainText, account.passwordHash);
-  }
-
-  if (process.env.NODE_ENV === "production") {
-    return false;
-  }
-
-  return plainText === account.password;
+  return bcrypt.compare(plainText, account.passwordHash);
 };
 
 export const createAuthRoutes = (): Router => {

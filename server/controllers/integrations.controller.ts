@@ -400,6 +400,17 @@ export const receiveJobBoardWebhook = (req: Request, res: Response) => {
       });
     }
 
+    if (!expectedSecret && process.env.NODE_ENV !== "production") {
+      // Require dev-local source header to prevent completely open webhooks in development
+      if (req.header("x-webhook-source") !== "dev-local") {
+        return res.status(401).json({
+          success: false,
+          error: "Webhook no autorizado: se requiere x-webhook-source: dev-local en desarrollo",
+          code: 401,
+        });
+      }
+    }
+
     if (expectedSecret && providedSecret !== expectedSecret) {
       return res.status(401).json({
         success: false,
@@ -475,6 +486,17 @@ export const receiveGenericWebhook = (req: Request, res: Response) => {
         error: "Webhook no configurado",
         code: 503,
       });
+    }
+
+    if (!expectedSecret && process.env.NODE_ENV !== "production") {
+      // Require dev-local source header to prevent completely open webhooks in development
+      if (req.header("x-webhook-source") !== "dev-local") {
+        return res.status(401).json({
+          success: false,
+          error: "Webhook no autorizado: se requiere x-webhook-source: dev-local en desarrollo",
+          code: 401,
+        });
+      }
     }
 
     if (expectedSecret && providedSecret !== expectedSecret) {

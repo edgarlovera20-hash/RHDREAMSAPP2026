@@ -13,7 +13,7 @@ import { approveMessage, createMessage, listMessages, rejectMessage } from "../s
 import { logger } from "../utils/logger";
 
 const getCompanyId = (req: AuthRequest) =>
-  String(req.user?.companyId || req.body?.companyId || req.query?.companyId || DEFAULT_COMPANY_ID);
+  String(req.user?.companyId || DEFAULT_COMPANY_ID);
 
 const handleControllerError = (res: Response, error: unknown, fallback: string) => {
   if (error instanceof ZodError) {

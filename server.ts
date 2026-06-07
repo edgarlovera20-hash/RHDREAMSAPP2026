@@ -1,4 +1,5 @@
 import express from "express";
+import cors from "cors";
 import type { ServeStaticOptions } from "serve-static";
 import path from "path";
 import { createServer as createViteServer } from "vite";
@@ -44,6 +45,24 @@ async function startServer() {
     const PORT = parseInt(process.env.PORT || "3000", 10);
     const NODE_ENV = process.env.NODE_ENV || "development";
     app.set("trust proxy", 1);
+
+    // CORS
+    const allowedOrigins = process.env.ALLOWED_ORIGINS
+      ? process.env.ALLOWED_ORIGINS.split(",").map((o) => o.trim()).filter(Boolean)
+      : [];
+    app.use(
+      cors({
+        origin: (origin, callback) => {
+          // Allow same-origin (no origin header) or explicitly listed origins
+          if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+          } else {
+            callback(new Error("Not allowed by CORS"));
+          }
+        },
+        credentials: true,
+      })
+    );
 
     // Middleware
     app.use(express.json({
@@ -92,8 +111,12 @@ async function startServer() {
     app.use((_req, res, next) => {
       res.setHeader("X-Content-Type-Options", "nosniff");
       res.setHeader("X-Frame-Options", "DENY");
+      res.setHeader("X-XSS-Protection", "1; mode=block");
       res.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");
       res.setHeader("Permissions-Policy", "camera=(), microphone=(), geolocation=()");
+      if (NODE_ENV === "production") {
+        res.setHeader("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
+      }
       next();
     });
 
