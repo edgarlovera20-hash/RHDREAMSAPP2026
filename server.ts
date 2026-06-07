@@ -49,19 +49,20 @@ async function startServer() {
     const NODE_ENV = process.env.NODE_ENV || "development";
     app.set("trust proxy", 1);
 
-    // CORS
+    // CORS — allow same-origin requests and any explicitly listed origins
     const allowedOrigins = process.env.ALLOWED_ORIGINS
       ? process.env.ALLOWED_ORIGINS.split(",").map((o) => o.trim()).filter(Boolean)
       : [];
     app.use(
       cors({
         origin: (origin, callback) => {
-          // Allow same-origin (no origin header) or explicitly listed origins
-          if (!origin || allowedOrigins.includes(origin)) {
-            callback(null, true);
-          } else {
-            callback(new Error("Not allowed by CORS"));
-          }
+          // No origin = same-origin request (curl, server-to-server, nginx proxy) → always allow
+          if (!origin) return callback(null, true);
+          // Explicitly listed origins → allow
+          if (allowedOrigins.length && allowedOrigins.includes(origin)) return callback(null, true);
+          // No list configured → allow all (single-tenant self-hosted deployment)
+          if (!allowedOrigins.length) return callback(null, true);
+          callback(new Error("Not allowed by CORS"));
         },
         credentials: true,
       })
