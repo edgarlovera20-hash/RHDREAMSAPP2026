@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, Outlet, useLocation } from "react-router-dom";
-import { 
-  Menu, X, LayoutDashboard, Users, Briefcase, Settings, PieChart, Zap, ChevronRight, Home, Sun, Moon, Smartphone, MessageSquare, PanelLeftClose, PanelLeftOpen, Cloud, GitBranch, ClipboardCheck, LogOut
+import {
+  Menu, X, LayoutDashboard, Users, Briefcase, Settings, PieChart, Zap, ChevronRight, Home, Smartphone, MessageSquare, PanelLeftClose, PanelLeftOpen, Cloud, GitBranch, ClipboardCheck, LogOut
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { NetworkBackground } from "./NetworkBackground";
@@ -59,7 +59,6 @@ const NAV_ITEMS = [
 export function AppLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const [isDarkMode, setIsDarkMode] = useState(true);
   const location = useLocation();
   const { user, logout } = useAuth();
   const displayName = user?.displayName || user?.email || "Sin sesión";
@@ -71,31 +70,10 @@ export function AppLayout() {
     .map((part) => part[0]?.toUpperCase())
     .join("") || "RH";
 
-  useEffect(() => {
-    // Check local storage or default to dark
-    const storedTheme = localStorage.getItem('theme');
-    if (storedTheme === 'light') {
-      setIsDarkMode(false);
-      document.body.classList.add('light-theme');
-    }
-  }, []);
-
-  const toggleTheme = () => {
-    const newIsDark = !isDarkMode;
-    setIsDarkMode(newIsDark);
-    if (newIsDark) {
-      document.body.classList.remove('light-theme');
-      localStorage.setItem('theme', 'dark');
-    } else {
-      document.body.classList.add('light-theme');
-      localStorage.setItem('theme', 'light');
-    }
-  };
-
   return (
     <div className="flex flex-col md:flex-row font-sans text-white" style={{ height: '100dvh', overflow: 'hidden', backgroundColor: 'var(--hd-color-bg)' }}>
       <NetworkBackground />
-      <div className="pointer-events-none fixed inset-0 z-0 bg-[linear-gradient(90deg,rgba(0,0,0,0.78)_0%,rgba(0,0,0,0.46)_42%,rgba(0,0,0,0.76)_100%)]" />
+      <div className="pointer-events-none fixed inset-0 z-0 bg-[linear-gradient(90deg,rgba(0,0,0,0.55)_0%,rgba(0,0,0,0.28)_42%,rgba(0,0,0,0.52)_100%)]" />
       {/* Mobile nav header */}
       <div className="md:hidden flex items-center justify-between glass-panel p-3 shrink-0 m-2 rounded-xl relative z-40">
         <div className="flex flex-col">
@@ -105,9 +83,6 @@ export function AppLayout() {
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <button onClick={toggleTheme} className="p-2 text-slate-300 hover:text-white transition-colors">
-            {isDarkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-          </button>
           <NotificationsPopover align="right" direction="down" />
           <button onClick={() => setSidebarOpen(!sidebarOpen)} className="p-2 text-zinc-200 transition-colors">
             {sidebarOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
@@ -128,7 +103,7 @@ export function AppLayout() {
         className={cn(
           "glass-panel flex-shrink-0 flex-col relative z-50 md:z-50",
           "fixed inset-y-0 left-0 md:static md:flex",
-          "transition-all duration-500 ease-out md:m-4 md:rounded-2xl border-r-0 md:border-r border-cyan-300/30 shadow-[0_0_36px_rgba(34,211,238,0.12)]",
+          "transition-all duration-500 ease-out md:m-4 md:rounded-2xl",
           sidebarOpen ? "translate-x-0 w-72 h-[100dvh] md:h-auto" : "-translate-x-full md:translate-x-0",
           !sidebarOpen && (isCollapsed ? "md:w-20" : "md:w-72")
         )}
@@ -211,9 +186,6 @@ export function AppLayout() {
             )}
           </div>
           <div className={cn("flex items-center gap-1 shrink-0", isCollapsed ? "flex-col w-full" : "ml-2")}>
-            <button onClick={toggleTheme} className={cn("p-2 text-slate-300 hover:text-white transition-colors rounded-full hover:bg-white/10", isCollapsed && "w-10 h-10 flex items-center justify-center")}>
-              {isDarkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
-            </button>
             <div className={cn(isCollapsed && "flex items-center justify-center w-10 h-10")}>
               <NotificationsPopover align={isCollapsed ? "center" : "left"} direction={isCollapsed ? "right" : "up"} />
             </div>

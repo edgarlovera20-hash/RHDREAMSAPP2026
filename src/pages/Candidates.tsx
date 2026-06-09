@@ -9,6 +9,7 @@ import { Calendar, dateFnsLocalizer } from 'react-big-calendar';
 import { format, parse, startOfWeek, getDay } from 'date-fns';
 import { es } from 'date-fns/locale';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
+import '@/styles/calendar.css';
 import { useDb } from "@/hooks/useDb";
 import { deriveCandidateTags, inferVisitReason } from "@/utils/candidateTracking";
 
@@ -492,7 +493,7 @@ export function Candidates() {
 
       {activeView === 'kanban' && (
         <div className="flex-1 overflow-x-auto min-h-0 pb-4 styled-scrollbar">
-          <div className="flex gap-4 h-full snap-x">
+          <div className="flex gap-3 h-full snap-x px-1">
             {kanbanStages.map((stage, index) => {
               const count = displayedCandidates.filter(c => c.stage === stage).length;
               if (!isEditingStages && count === 0 && !['Nuevo', 'Entrevista realizada', 'Contratado'].includes(stage)) return null; // Hide empty columns mostly
@@ -518,7 +519,7 @@ export function Candidates() {
               };
 
               return (
-              <div key={stage} className={cn("flex flex-col w-[320px] flex-shrink-0 glass-panel rounded-xl p-3 snap-start relative overflow-hidden border border-slate-700/30")}>
+              <div key={stage} className={cn("flex flex-col w-[min(320px,80vw)] flex-shrink-0 glass-panel rounded-xl p-3 snap-start relative overflow-hidden border border-slate-700/30")}>
                 <div className={`absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-transparent ${bgLineMap[colorBase]} to-transparent opacity-80`}></div>
 
                 <div className="flex items-center justify-between mb-3 px-1 relative z-10 pt-1">
@@ -801,203 +802,237 @@ export function Candidates() {
               </div>
             </aside>
           </div>
-           <style>
-             {`
-                /* Custom Calendar Styling for Dark Mode */
-                .rbc-theme-custom .rbc-header {
-                  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-                  padding: 8px;
-                  font-weight: 600;
-                }
-                .rbc-theme-custom .rbc-month-view,
-                .rbc-theme-custom .rbc-time-view,
-                .rbc-theme-custom .rbc-agenda-view {
-                  border: 1px solid rgba(255, 255, 255, 0.1);
-                  border-radius: 0.5rem;
-                  overflow: hidden;
-                }
-                .rbc-theme-custom .rbc-day-bg + .rbc-day-bg,
-                .rbc-theme-custom .rbc-month-row + .rbc-month-row,
-                .rbc-theme-custom .rbc-header + .rbc-header,
-                .rbc-theme-custom .rbc-time-header-content {
-                  border-left-color: rgba(255, 255, 255, 0.1);
-                  border-top-color: rgba(255, 255, 255, 0.1);
-                }
-                .rbc-theme-custom .rbc-off-range-bg {
-                  background: rgba(0, 0, 0, 0.2);
-                }
-                .rbc-theme-custom .rbc-today {
-                  background: rgba(163, 163, 163, 0.05); /* subtle neutral */
-                }
-                .rbc-theme-custom .rbc-btn-group button {
-                  color: #d4d4d4;
-                  border-color: rgba(255, 255, 255, 0.1);
-                  background: transparent;
-                  cursor: pointer;
-                  pointer-events: auto;
-                }
-                .rbc-theme-custom .rbc-btn-group button:hover,
-                .rbc-theme-custom .rbc-btn-group button:focus {
-                  background: rgba(255, 255, 255, 0.05);
-                  color: white;
-                }
-                .rbc-theme-custom .rbc-btn-group button.rbc-active {
-                  background: rgba(163, 163, 163, 0.2);
-                  color: #a3a3a3;
-                  border-color: rgba(163, 163, 163, 0.5);
-                  box-shadow: none;
-                }
-                .rbc-theme-custom .rbc-toolbar button {
-                   transition: all 0.2s;
-                }
-                .rbc-theme-custom .rbc-event {
-                  padding: 2px 4px;
-                }
-                .rbc-time-content { border-top: 1px solid rgba(255, 255, 255, 0.1) !important; }
-                .rbc-timeslot-group { border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important; }
-                .rbc-day-slot .rbc-time-slot { border-top: 1px solid rgba(255, 255, 255, 0.02) !important; }
-             `}
-           </style>
         </div>
       )}
 
       {activeView === 'list' && (
-        <div className="glass-panel overflow-hidden overflow-x-auto rounded-2xl border border-slate-700/50">
-          <table className="w-full text-left border-collapse text-sm whitespace-nowrap">
-            <thead>
-              <tr className="bg-slate-900/40 border-b border-white/5">
-                <th className="px-6 py-4 font-semibold text-slate-400 text-[10px] uppercase tracking-widest">Candidato</th>
-                <th className="px-6 py-4 font-semibold text-slate-400 text-[10px] uppercase tracking-widest">Vacante & Exp</th>
-                <th className="px-6 py-4 font-semibold text-slate-400 text-[10px] uppercase tracking-widest">Etiquetas & Motivo</th>
-                <th className="px-6 py-4 font-semibold text-slate-400 text-[10px] uppercase tracking-widest">Contacto</th>
-                <th className="px-6 py-4 font-semibold text-slate-400 text-[10px] uppercase tracking-widest">Fuente de Reclutamiento</th>
-                <th className="px-6 py-4 font-semibold text-slate-400 text-[10px] uppercase tracking-widest">Estatus</th>
-                <th className="px-6 py-4 font-semibold text-slate-400 text-[10px] uppercase tracking-widest text-right">Acciones</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-white/5">
-              {paginatedCandidates.map(candidate => {
-                const colorBase = getStageColor(candidate.stage);
-                const bgTintMap: Record<string, string> = {
-                  slate:  "bg-slate-500/10 text-slate-400 border-slate-500/20",
-                  tone1:  "bg-sky-500/10 text-sky-400 border-sky-500/20",
-                  tone2:  "bg-amber-500/10 text-amber-400 border-amber-500/20",
-                  tone3:  "bg-violet-500/10 text-violet-400 border-violet-500/20",
-                  tone4:  "bg-emerald-500/15 text-emerald-400 border-emerald-500/30",
-                  tone5:  "bg-rose-500/15 text-rose-400 border-rose-500/30",
-                  tone6:  "bg-cyan-500/10 text-cyan-400 border-cyan-500/20",
-                };
-
-                return (
-                <tr key={candidate.id} className="hover:bg-white/[0.035] hover:shadow-[inset_3px_0_0_rgba(226,232,240,0.45)] transition-all group cursor-pointer" onClick={() => setSelectedCandidate(candidate)}>
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-full bg-slate-800 text-slate-300 flex items-center justify-center font-bold text-xs border border-slate-700">
-                        {candidate.name.charAt(0)}
-                      </div>
-                      <div>
-                        <div className="font-medium text-white group-hover:text-white group-hover:drop-shadow-[0_0_8px_rgba(212,212,212,0.35)] transition-all flex items-center gap-2">
-                          {candidate.name} {candidate.age && <span className="text-slate-500 font-normal">({candidate.age})</span>}
-                          {candidate.rating > 0 && (
-                            <div className="flex items-center">
-                              <Star className="w-3 h-3 fill-zinc-400 text-zinc-400" />
-                              <span className="text-[10px] text-zinc-400 font-bold ml-0.5">{candidate.rating}</span>
-                            </div>
-                          )}
-                        </div>
-                        <div className="text-xs text-slate-400 flex items-center gap-1 mt-0.5"><MapPin className="w-3 h-3" /> {candidate.location}</div>
-                      </div>
+        <div>
+          {/* Mobile card list — visible only on xs/sm screens */}
+          <div className="flex flex-col gap-3 sm:hidden">
+            {paginatedCandidates.map(candidate => {
+              const colorBase = getStageColor(candidate.stage);
+              const bgTintMap: Record<string, string> = {
+                slate: "bg-slate-500/10 text-slate-400 border-slate-500/20",
+                tone1: "bg-sky-500/10 text-sky-400 border-sky-500/20",
+                tone2: "bg-amber-500/10 text-amber-400 border-amber-500/20",
+                tone3: "bg-violet-500/10 text-violet-400 border-violet-500/20",
+                tone4: "bg-emerald-500/15 text-emerald-400 border-emerald-500/30",
+                tone5: "bg-rose-500/15 text-rose-400 border-rose-500/30",
+                tone6: "bg-cyan-500/10 text-cyan-400 border-cyan-500/20",
+              };
+              return (
+                <div
+                  key={candidate.id}
+                  onClick={() => setSelectedCandidate(candidate)}
+                  className="glass-panel rounded-xl p-4 flex flex-col gap-3 cursor-pointer active:scale-[0.99] transition-transform"
+                >
+                  <div className="flex items-start gap-3">
+                    <div className="w-10 h-10 rounded-full bg-slate-800 text-slate-300 flex items-center justify-center font-bold text-sm border border-slate-700 shrink-0">
+                      {candidate.name.charAt(0)}
                     </div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="text-slate-300">{candidate.role}</div>
-                    <div className="text-[10px] text-slate-500 font-medium">{candidate.experience || candidate.experienceTime || '6 años'} • {candidate.lastJob || 'Heavenly Dreams Aplicante'}</div>
-                  </td>
-                  <td className="px-6 py-4 max-w-[280px]">
-                    <div className="flex flex-wrap gap-1.5 mb-1.5">
-                      {deriveCandidateTags(candidate).length > 0 ? deriveCandidateTags(candidate).slice(0, 3).map((tag: string) => (
-                        <span key={tag} className="inline-flex items-center gap-1 rounded-md border border-zinc-500/15 bg-zinc-500/10 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-zinc-300">
-                          <Tag className="w-2.5 h-2.5" />
-                          {tag}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between gap-2">
+                        <p className="font-semibold text-white text-sm truncate">{candidate.name}</p>
+                        <span className={cn("shrink-0 px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-widest border", bgTintMap[colorBase])}>
+                          {candidate.stage}
                         </span>
-                      )) : (
-                        <span className="text-[10px] text-slate-600">Sin etiquetas</span>
-                      )}
+                      </div>
+                      <p className="text-xs text-slate-400 mt-0.5 flex items-center gap-1">
+                        <Briefcase className="w-3 h-3 shrink-0" /> {candidate.role}
+                      </p>
+                      <p className="text-xs text-slate-500 flex items-center gap-1 mt-0.5">
+                        <MapPin className="w-3 h-3 shrink-0" /> {candidate.location}
+                      </p>
                     </div>
-                    <p className="max-w-[260px] truncate text-[11px] text-slate-400">
-                      {inferVisitReason(candidate)}
-                    </p>
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-3">
-                      {(candidate.whatsapp || candidate.source?.toLowerCase().includes('whatsapp')) ? (
-                         <div className="flex items-center gap-1.5 text-zinc-400 text-xs font-mono">
-                           <MessageCircle className="w-3.5 h-3.5" /> {candidate.phone}
-                         </div>
-                      ) : (
-                        <div className="flex items-center gap-1.5 text-slate-400 text-xs font-mono">
-                          <Phone className="w-3.5 h-3.5" /> {candidate.phone}
-                        </div>
-                      )}
+                  </div>
+                  <div className="flex items-center justify-between gap-2 pt-2 border-t border-white/5">
+                    <div className="flex items-center gap-1.5 text-xs text-slate-400 font-mono">
+                      {(candidate.whatsapp || candidate.source?.toLowerCase().includes('whatsapp'))
+                        ? <MessageCircle className="w-3.5 h-3.5" />
+                        : <Phone className="w-3.5 h-3.5" />}
+                      {candidate.phone}
                     </div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <span className="flex items-center gap-1.5 text-xs text-slate-400">
-                      <SourceIcon source={candidate.source} /> {candidate.source}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4">
-                    <span className={cn("px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-widest border shadow-[inset_0_0_8px_rgba(255,255,255,0.05)]", bgTintMap[colorBase])}>
-                      {candidate.stage}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 text-right">
-                    <div className="flex items-center justify-end gap-3">
+                    <div className="flex items-center gap-2">
                       {candidate.linkedin && (
                         <button
                           onClick={(e) => { e.stopPropagation(); window.open(candidate.linkedin.startsWith('http') ? candidate.linkedin : `https://${candidate.linkedin}`, '_blank'); }}
-                          className="text-[#737373] hover:text-[#737373]/80 transition-colors p-1 bg-[#737373]/10 hover:bg-[#737373]/20 rounded" title="Contactar por LinkedIn"
+                          className="p-1.5 rounded-lg bg-[#737373]/10 text-[#737373]"
                         >
-                          <Linkedin className="w-4 h-4" />
+                          <Linkedin className="w-3.5 h-3.5" />
                         </button>
                       )}
                       <button
                         onClick={(e) => { e.stopPropagation(); setSelectedCandidate(candidate); }}
-                        className="text-slate-400 hover:text-zinc-400 font-medium text-sm transition-colors hover:drop-shadow-[0_0_8px_rgba(163,163,163,0.8)]"
+                        className="text-xs font-medium text-slate-400 hover:text-white transition-colors"
                       >
                         Analizar
                       </button>
                     </div>
-                  </td>
-                </tr>
-              )})}
-            </tbody>
-          </table>
-
-          {totalPages > 1 && (
-            <div className="flex items-center justify-between px-6 py-3 border-t border-white/5 bg-slate-900/40">
-              <span className="text-xs text-slate-500">
-                Mostrando {(currentPage - 1) * itemsPerPage + 1} a {Math.min(currentPage * itemsPerPage, displayedCandidates.length)} de {displayedCandidates.length} candidatos
-              </span>
-              <div className="flex gap-1">
-                <button
-                  onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                  disabled={currentPage === 1}
-                  className="px-3 py-1 text-xs border border-white/5 rounded-md text-slate-400 hover:text-white hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                >
-                  Anterior
-                </button>
-                <div className="px-3 py-1 text-xs text-slate-300 font-medium">
-                  {currentPage} / {totalPages}
+                  </div>
                 </div>
-                <button
-                  onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-                  disabled={currentPage === totalPages}
-                  className="px-3 py-1 text-xs border border-white/5 rounded-md text-slate-400 hover:text-white hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                >
-                  Siguiente
-                </button>
+              );
+            })}
+          </div>
+
+          {/* Desktop table — hidden on xs/sm */}
+          <div className="hidden sm:block glass-panel overflow-hidden overflow-x-auto rounded-2xl border border-slate-700/50">
+            <table className="w-full text-left border-collapse text-sm whitespace-nowrap">
+              <thead>
+                <tr className="bg-slate-900/40 border-b border-white/5">
+                  <th className="px-6 py-4 font-semibold text-slate-400 text-[10px] uppercase tracking-widest">Candidato</th>
+                  <th className="px-6 py-4 font-semibold text-slate-400 text-[10px] uppercase tracking-widest">Vacante & Exp</th>
+                  <th className="px-6 py-4 font-semibold text-slate-400 text-[10px] uppercase tracking-widest">Etiquetas & Motivo</th>
+                  <th className="px-6 py-4 font-semibold text-slate-400 text-[10px] uppercase tracking-widest">Contacto</th>
+                  <th className="px-6 py-4 font-semibold text-slate-400 text-[10px] uppercase tracking-widest">Fuente de Reclutamiento</th>
+                  <th className="px-6 py-4 font-semibold text-slate-400 text-[10px] uppercase tracking-widest">Estatus</th>
+                  <th className="px-6 py-4 font-semibold text-slate-400 text-[10px] uppercase tracking-widest text-right">Acciones</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-white/5">
+                {paginatedCandidates.map(candidate => {
+                  const colorBase = getStageColor(candidate.stage);
+                  const bgTintMap: Record<string, string> = {
+                    slate: "bg-slate-500/10 text-slate-400 border-slate-500/20",
+                    tone1: "bg-sky-500/10 text-sky-400 border-sky-500/20",
+                    tone2: "bg-amber-500/10 text-amber-400 border-amber-500/20",
+                    tone3: "bg-violet-500/10 text-violet-400 border-violet-500/20",
+                    tone4: "bg-emerald-500/15 text-emerald-400 border-emerald-500/30",
+                    tone5: "bg-rose-500/15 text-rose-400 border-rose-500/30",
+                    tone6: "bg-cyan-500/10 text-cyan-400 border-cyan-500/20",
+                  };
+                  return (
+                    <tr key={candidate.id} className="hover:bg-white/[0.035] hover:shadow-[inset_3px_0_0_rgba(226,232,240,0.45)] transition-all group cursor-pointer" onClick={() => setSelectedCandidate(candidate)}>
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 rounded-full bg-slate-800 text-slate-300 flex items-center justify-center font-bold text-xs border border-slate-700">
+                            {candidate.name.charAt(0)}
+                          </div>
+                          <div>
+                            <div className="font-medium text-white flex items-center gap-2">
+                              {candidate.name} {candidate.age && <span className="text-slate-500 font-normal">({candidate.age})</span>}
+                              {candidate.rating > 0 && (
+                                <div className="flex items-center">
+                                  <Star className="w-3 h-3 fill-zinc-400 text-zinc-400" />
+                                  <span className="text-[10px] text-zinc-400 font-bold ml-0.5">{candidate.rating}</span>
+                                </div>
+                              )}
+                            </div>
+                            <div className="text-xs text-slate-400 flex items-center gap-1 mt-0.5"><MapPin className="w-3 h-3" /> {candidate.location}</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="text-slate-300">{candidate.role}</div>
+                        <div className="text-[10px] text-slate-500 font-medium">{candidate.experience || candidate.experienceTime || '6 años'} • {candidate.lastJob || 'Heavenly Dreams Aplicante'}</div>
+                      </td>
+                      <td className="px-6 py-4 max-w-[280px]">
+                        <div className="flex flex-wrap gap-1.5 mb-1.5">
+                          {deriveCandidateTags(candidate).length > 0 ? deriveCandidateTags(candidate).slice(0, 3).map((tag: string) => (
+                            <span key={tag} className="inline-flex items-center gap-1 rounded-md border border-zinc-500/15 bg-zinc-500/10 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-zinc-300">
+                              <Tag className="w-2.5 h-2.5" />
+                              {tag}
+                            </span>
+                          )) : (
+                            <span className="text-[10px] text-slate-600">Sin etiquetas</span>
+                          )}
+                        </div>
+                        <p className="max-w-[260px] truncate text-[11px] text-slate-400">
+                          {inferVisitReason(candidate)}
+                        </p>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-3">
+                          {(candidate.whatsapp || candidate.source?.toLowerCase().includes('whatsapp')) ? (
+                            <div className="flex items-center gap-1.5 text-zinc-400 text-xs font-mono">
+                              <MessageCircle className="w-3.5 h-3.5" /> {candidate.phone}
+                            </div>
+                          ) : (
+                            <div className="flex items-center gap-1.5 text-slate-400 text-xs font-mono">
+                              <Phone className="w-3.5 h-3.5" /> {candidate.phone}
+                            </div>
+                          )}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className="flex items-center gap-1.5 text-xs text-slate-400">
+                          <SourceIcon source={candidate.source} /> {candidate.source}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className={cn("px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-widest border", bgTintMap[colorBase])}>
+                          {candidate.stage}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-right">
+                        <div className="flex items-center justify-end gap-3">
+                          {candidate.linkedin && (
+                            <button
+                              onClick={(e) => { e.stopPropagation(); window.open(candidate.linkedin.startsWith('http') ? candidate.linkedin : `https://${candidate.linkedin}`, '_blank'); }}
+                              className="text-[#737373] hover:text-[#737373]/80 transition-colors p-1 bg-[#737373]/10 hover:bg-[#737373]/20 rounded" title="Contactar por LinkedIn"
+                            >
+                              <Linkedin className="w-4 h-4" />
+                            </button>
+                          )}
+                          <button
+                            onClick={(e) => { e.stopPropagation(); setSelectedCandidate(candidate); }}
+                            className="text-slate-400 hover:text-zinc-400 font-medium text-sm transition-colors"
+                          >
+                            Analizar
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+
+            {totalPages > 1 && (
+              <div className="flex items-center justify-between px-6 py-3 border-t border-white/5 bg-slate-900/40">
+                <span className="text-xs text-slate-500">
+                  Mostrando {(currentPage - 1) * itemsPerPage + 1} a {Math.min(currentPage * itemsPerPage, displayedCandidates.length)} de {displayedCandidates.length} candidatos
+                </span>
+                <div className="flex gap-1">
+                  <button
+                    onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                    disabled={currentPage === 1}
+                    className="px-3 py-1 text-xs border border-white/5 rounded-md text-slate-400 hover:text-white hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  >
+                    Anterior
+                  </button>
+                  <div className="px-3 py-1 text-xs text-slate-300 font-medium">
+                    {currentPage} / {totalPages}
+                  </div>
+                  <button
+                    onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                    disabled={currentPage === totalPages}
+                    className="px-3 py-1 text-xs border border-white/5 rounded-md text-slate-400 hover:text-white hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  >
+                    Siguiente
+                  </button>
+                </div>
               </div>
+            )}
+          </div>
+
+          {/* Mobile pagination */}
+          {totalPages > 1 && (
+            <div className="flex sm:hidden items-center justify-between px-2 py-3">
+              <button
+                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
+                className="px-4 py-2 text-xs border border-white/10 rounded-lg text-slate-400 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                Anterior
+              </button>
+              <span className="text-xs text-slate-400">{currentPage} / {totalPages}</span>
+              <button
+                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                disabled={currentPage === totalPages}
+                className="px-4 py-2 text-xs border border-white/10 rounded-lg text-slate-400 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                Siguiente
+              </button>
             </div>
           )}
         </div>
