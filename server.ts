@@ -206,6 +206,12 @@ async function startServer() {
           status: "ok",
           environment: NODE_ENV,
           timestamp: new Date().toISOString(),
+          ai: {
+            hasGeminiKey: !!(process.env.GEMINI_API_KEY || process.env.GEMINI_FREE_API_KEY || process.env.GEMINI_PAID_API_KEY),
+            hasGroqKey: !!process.env.GROQ_API_KEY,
+            hasOpenRouterKey: !!process.env.OPENROUTER_API_KEY,
+            hasMicrosoftKey: !!process.env.MICROSOFT_CLIENT_SECRET,
+          },
         },
       });
     });
