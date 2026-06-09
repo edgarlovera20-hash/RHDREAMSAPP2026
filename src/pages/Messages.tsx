@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import { Button } from "@/components/ui/Button";
 import {
   AlertCircle,
   Bot,
@@ -102,16 +103,16 @@ type UnifiedChat = {
 };
 
 const platformStyles: Record<string, { label: string; color: string }> = {
-  whatsapp: { label: "WhatsApp", color: "bg-zinc-500" },
-  instagram: { label: "Instagram DM", color: "bg-zinc-500" },
-  messenger: { label: "Messenger", color: "bg-zinc-500" },
-  facebook: { label: "Facebook Leads", color: "bg-zinc-600" },
-  tiktok: { label: "TikTok Leads", color: "bg-zinc-500" },
-  indeed: { label: "Indeed", color: "bg-zinc-500" },
-  computrabajo: { label: "Computrabajo", color: "bg-zinc-500" },
-  email: { label: "Email", color: "bg-zinc-500" },
-  webhook: { label: "Webhook", color: "bg-zinc-500" },
-  manual: { label: "Manual", color: "bg-slate-500" },
+  whatsapp:     { label: "WhatsApp",        color: "bg-emerald-600" },
+  instagram:    { label: "Instagram DM",    color: "bg-fuchsia-600" },
+  messenger:    { label: "Messenger",       color: "bg-sky-600" },
+  facebook:     { label: "Facebook Leads",  color: "bg-blue-700" },
+  tiktok:       { label: "TikTok Leads",    color: "bg-rose-700" },
+  indeed:       { label: "Indeed",          color: "bg-violet-700" },
+  computrabajo: { label: "Computrabajo",    color: "bg-amber-700" },
+  email:        { label: "Email",           color: "bg-sky-700" },
+  webhook:      { label: "Webhook",         color: "bg-slate-600" },
+  manual:       { label: "Manual",          color: "bg-slate-500" },
 };
 
 const normalizeChannel = (value?: string): ChannelFilter => {
@@ -798,15 +799,16 @@ Personalidad configurada: ${principalAgent?.personalityPrompt || principalAgent?
               </h2>
               <p className="text-[11px] text-slate-500 mt-1">Todos los canales en un solo inbox</p>
             </div>
-            <button
+            <Button
+              variant="secondary"
+              size="sm"
               onClick={handlePromptAgentDialogue}
               disabled={!activeChat || isAgentReplying || Boolean(activeChat.emptyChannel)}
               title="Solicitar que la IA asista esta conversacion"
-              className="bg-zinc-500/10 text-zinc-400 hover:bg-zinc-500/20 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors border border-zinc-500/20 flex items-center gap-1.5 disabled:opacity-40"
             >
               <Bot className="w-3.5 h-3.5" />
               Auto IA
-            </button>
+            </Button>
           </div>
 
           {inboxError && (
