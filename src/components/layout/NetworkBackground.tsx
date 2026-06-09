@@ -45,8 +45,8 @@ export function NetworkBackground() {
         if (!ctx) return;
         ctx.beginPath();
         ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(56, 189, 248, 0.34)';
-        ctx.shadowColor = 'rgba(0, 102, 255, 0.30)';
+        ctx.fillStyle = 'rgba(1, 238, 238, 0.38)';
+        ctx.shadowColor = 'rgba(6, 170, 177, 0.40)';
         ctx.shadowBlur = 10;
         ctx.fill();
         ctx.shadowBlur = 0;
@@ -74,9 +74,9 @@ export function NetworkBackground() {
             ctx.moveTo(particles[i].x, particles[i].y);
             ctx.lineTo(particles[j].x, particles[j].y);
             const opacity = (1 - distance / 155) * 0.30;
-            ctx.strokeStyle = `rgba(56, 189, 248, ${opacity})`;
+            ctx.strokeStyle = `rgba(1, 238, 238, ${opacity})`;
             ctx.lineWidth = 1;
-            ctx.shadowColor = 'rgba(0, 163, 255, 0.16)';
+            ctx.shadowColor = 'rgba(6, 170, 177, 0.22)';
             ctx.shadowBlur = 6;
             ctx.stroke();
             ctx.shadowBlur = 0;
@@ -108,12 +108,14 @@ export function NetworkBackground() {
   }, []);
 
   return (
-    <div className="fixed inset-0 z-[-1] overflow-hidden bg-[var(--hd-color-bg)]">
-      {/* Subtle diagonal tech lines / grid hologram */}
-      <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.04)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.032)_1px,transparent_1px)] bg-[size:3rem_3rem] opacity-22" />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_12%,rgba(0,102,255,0.26),transparent_28%),radial-gradient(circle_at_82%_8%,rgba(56,189,248,0.18),transparent_30%),radial-gradient(circle_at_52%_92%,rgba(0,163,255,0.14),transparent_34%),linear-gradient(90deg,#0A0F1C_0%,#111827_48%,#0A0F1C_100%)]" />
-      <div className="absolute inset-0 bg-[linear-gradient(115deg,transparent_0%,rgba(255,255,255,0.045)_18%,transparent_38%,transparent_100%)] opacity-70" />
-      <canvas ref={canvasRef} className="absolute inset-0 h-full w-full opacity-28" />
+    <div className="fixed inset-0 z-[-1] overflow-hidden" style={{ background: 'radial-gradient(ellipse at 50% 0%, #0C1928 0%, #091623 55%, #07131F 100%)' }}>
+      {/* Circuit grid overlay */}
+      <div className="absolute inset-0 bg-[linear-gradient(rgba(1,238,238,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(1,238,238,0.03)_1px,transparent_1px)] bg-[size:3rem_3rem]" />
+      {/* Radial teal glows */}
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_12%,rgba(0,113,188,0.22),transparent_30%),radial-gradient(circle_at_82%_8%,rgba(6,170,177,0.14),transparent_32%),radial-gradient(circle_at_52%_90%,rgba(1,85,161,0.18),transparent_36%)]" />
+      {/* Outer blue edge vignette — matches the blue outer frame */}
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(0,113,188,0.18)_0%,transparent_12%,transparent_88%,rgba(0,113,188,0.18)_100%)]" />
+      <canvas ref={canvasRef} className="absolute inset-0 h-full w-full opacity-30" />
     </div>
   );
 }

@@ -144,8 +144,8 @@
 }
 
 body {
-  background-color: #000000;
-  color: #ffffff; 
+  background: linear-gradient(135deg, var(--bg-blue) 0%, var(--bg-blue-dark) 100%);
+  color: #ffffff;
   margin: 0;
   height: 100vh;
   height: 100dvh;
@@ -158,30 +158,48 @@ body {
 }
 
 :root {
-  --neon-soft: rgba(34, 211, 238, 0.13);
-  --neon-mid: rgba(14, 165, 233, 0.18);
-  --neon-bright: rgba(34, 211, 238, 0.66);
-  --neon-panel-shadow: 0 0 0 1px rgba(34, 211, 238, 0.20), 0 18px 44px rgba(0, 0, 0, 0.56), 0 0 32px rgba(14, 165, 233, 0.12);
-  --electric-cyan: #22d3ee;
-  --electric-blue: #38bdf8;
+  /* === RHDreams Brand Palette === */
+  --bg-blue: #0071BC;
+  --bg-blue-dark: #0155A1;
+  --panel-dark: #091623;
+  --panel-navy: #0C1928;
+  --panel-shadow: #07131F;
+  --neon-cyan: #01EEEE;
+  --neon-teal: #06AAB1;
+  --teal-dark: #057C85;
+  --blue-glow: #0067B1;
+
+  /* Neon & glow utilities */
+  --neon-soft: rgba(1, 238, 238, 0.13);
+  --neon-mid: rgba(6, 170, 177, 0.20);
+  --neon-bright: rgba(1, 238, 238, 0.66);
+  --neon-panel-shadow: 0 0 28px rgba(1, 238, 238, 0.35), 0 0 0 1px rgba(6, 170, 177, 0.28);
+
+  /* Electric accent palette (for nth-of-type icon accents — unchanged) */
+  --electric-cyan: #01EEEE;
+  --electric-blue: #0071BC;
   --electric-violet: #a78bfa;
   --electric-pink: #f472b6;
   --electric-lime: #a3e635;
   --electric-amber: #fbbf24;
-  --electric-mint: #34d399;
+  --electric-mint: #06AAB1;
   --electric-rose: #fb7185;
   --electric-orange: #fb923c;
-  --panel-gray: linear-gradient(135deg, rgba(8, 23, 45, 0.78), rgba(14, 18, 40, 0.72) 48%, rgba(20, 8, 38, 0.68));
-  --panel-gray-solid: rgba(10, 24, 43, 0.82);
-  --panel-gray-hover: linear-gradient(135deg, rgba(10, 42, 68, 0.84), rgba(17, 29, 62, 0.82) 52%, rgba(45, 20, 78, 0.74));
-  --panel-border: rgba(56, 189, 248, 0.32);
-  --panel-highlight: rgba(125, 211, 252, 0.42);
-  --surface-polish: inset 0 1px 0 rgba(255,255,255,0.12), 0 18px 42px rgba(0,0,0,0.48), 0 0 34px rgba(34,211,238,0.12), 0 0 58px rgba(167,139,250,0.08);
+
+  /* Panel surfaces */
+  --panel-gray: radial-gradient(circle at 50% 30%, #0C1928 0%, #091623 60%, #07131F 100%);
+  --panel-gray-solid: #091623;
+  --panel-gray-hover: radial-gradient(circle at 50% 30%, #0d2035 0%, #0a1c2a 60%, #08151f 100%);
+  --panel-border: rgba(6, 170, 177, 0.32);
+  --panel-highlight: rgba(1, 238, 238, 0.42);
+  --surface-polish: inset 0 1px 0 rgba(1, 238, 238, 0.09),
+                    0 0 28px rgba(1, 238, 238, 0.28),
+                    0 18px 42px rgba(7, 19, 31, 0.72);
 }
 
 #root {
   height: 100%;
-  background: #000000;
+  background: radial-gradient(ellipse at 50% 0%, var(--panel-navy) 0%, var(--panel-dark) 55%, var(--panel-shadow) 100%);
   filter: none;
   transition: filter 0.3s ease;
 }
@@ -197,13 +215,13 @@ body {
   }
   
   .glass-panel {
-    --panel-accent: var(--electric-cyan);
-    --panel-accent-rgb: 34, 211, 238;
+    --panel-accent: var(--neon-cyan);
+    --panel-accent-rgb: 1, 238, 238;
     position: relative;
     background: var(--panel-gray) !important;
-    backdrop-filter: blur(24px) saturate(108%) contrast(104%);
-    -webkit-backdrop-filter: blur(24px) saturate(108%) contrast(104%);
-    border: 1px solid color-mix(in srgb, var(--panel-accent) 34%, transparent);
+    backdrop-filter: blur(20px) saturate(110%) contrast(102%);
+    -webkit-backdrop-filter: blur(20px) saturate(110%) contrast(102%);
+    border: 1px solid var(--neon-teal);
     box-shadow: var(--surface-polish);
     isolation: isolate;
     overflow: hidden;
@@ -285,9 +303,9 @@ body {
   }
   
   .glass-panel-hover:hover {
-    background: var(--panel-gray-hover);
-    border-color: rgba(34, 211, 238, 0.42);
-    box-shadow: 0 20px 46px rgba(0, 0, 0, 0.54), 0 0 28px rgba(34, 211, 238, 0.16), inset 0 1px 0 rgba(255, 255, 255, 0.10);
+    background: var(--panel-gray-hover) !important;
+    border-color: var(--neon-cyan);
+    box-shadow: 0 0 36px rgba(1, 238, 238, 0.45), 0 18px 42px rgba(7, 19, 31, 0.72), inset 0 1px 0 rgba(1, 238, 238, 0.12);
     transform: translateY(-2px);
   }
 
