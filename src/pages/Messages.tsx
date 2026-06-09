@@ -509,14 +509,16 @@ export function Messages() {
       });
     });
 
-    demoInterviewChats.forEach((demoChat) => {
-      const chat = ensureChat({
-        ...demoChat,
-        messages: [],
+    if (((import.meta as any).env?.VITE_ENABLE_DEMO_DATA as string | undefined) === "true") {
+      demoInterviewChats.forEach((demoChat) => {
+        const chat = ensureChat({
+          ...demoChat,
+          messages: [],
+        });
+        chat.messages.push(...demoChat.messages);
+        chat.leadProfile = demoChat.leadProfile;
       });
-      chat.messages.push(...demoChat.messages);
-      chat.leadProfile = demoChat.leadProfile;
-    });
+    }
 
     Object.entries(localMessagesByChat).forEach(([chatId, localMessages]) => {
       const chat = grouped.get(chatId);
