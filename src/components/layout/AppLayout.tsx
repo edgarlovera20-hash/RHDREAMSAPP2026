@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Link, Outlet, useLocation } from "react-router-dom";
 import {
   Menu, X, LayoutDashboard, Users, Briefcase, Settings, PieChart, Zap, ChevronRight, Home, Smartphone, MessageSquare, PanelLeftClose, PanelLeftOpen, Cloud, GitBranch, ClipboardCheck, LogOut
