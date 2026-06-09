@@ -1,5 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
+import { useDb } from '@/hooks/useDb';
 import { Bot, Plus, Search, BrainCircuit, Activity, Zap, MessageSquare, Briefcase, FileText, CheckCircle2, XCircle, Settings2, Code, Users, Download, Upload, Filter, Send, Copy, Loader2, Sparkles, Video, Image as ImageIcon, ExternalLink, Mic, Volume2, CalendarClock, Trash2, PlayCircle, ShieldCheck } from 'lucide-react';
+import { Button } from '@/components/ui/Button';
 import { EMPTY_AGENTS, EMPTY_AGENT_LOGS, EMPTY_AGENT_TEMPLATES } from '@/data/appDefaults';
 import { CANVA_TEMPLATE_CATEGORIES, CANVA_TEMPLATE_PACKS, type CanvaTemplatePack } from '@/data/canvaTemplateLibrary';
 import { AgentConfigModal } from '@/components/AgentConfigModal';
@@ -91,27 +93,10 @@ Audio:
   `.trim();
 };
 
-const AGENTS_STORAGE_KEY = 'rhdreams_agents';
-
-const mergeDefaultAgents = (storedAgents: any[]) => {
-  const storedIds = new Set(storedAgents.map(agent => agent.id));
-  const missingDefaults = EMPTY_AGENTS.filter(agent => !storedIds.has(agent.id));
-  return [...missingDefaults, ...storedAgents];
-};
-
-const loadStoredAgents = () => {
-  try {
-    const stored = localStorage.getItem(AGENTS_STORAGE_KEY);
-    if (!stored) return EMPTY_AGENTS;
-    const parsed = JSON.parse(stored);
-    return Array.isArray(parsed) && parsed.length > 0 ? mergeDefaultAgents(parsed) : EMPTY_AGENTS;
-  } catch (_error) {
-    return EMPTY_AGENTS;
-  }
-};
 
 export function Agents() {
-  const [agents, setAgents] = useState<any[]>(loadStoredAgents);
+  const { agents: dbAgents, addAgent, updateAgent, deleteAgent, loading: dbLoading } = useDb();
+  const agents = dbAgents as any[];
   const [activeTab, setActiveTab] = useState<'agents' | 'templates' | 'tester' | 'schedule' | 'canva' | 'memory'>('agents');
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const agentsImportRef = useRef<HTMLInputElement>(null);
@@ -249,9 +234,20 @@ Escribenos por mensaje para recibir requisitos, horarios y siguientes pasos.
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [chatMessages]);
 
+  // Seed default agents on first load if Firestore is empty
   useEffect(() => {
-    localStorage.setItem(AGENTS_STORAGE_KEY, JSON.stringify(agents));
-  }, [agents]);
+    if (dbLoading || agents.length > 0) return;
+    const seedDefaults = async () => {
+      for (const agent of EMPTY_AGENTS) {
+        try {
+          await addAgent(agent);
+        } catch (_error) {
+          // Ignore seed errors (e.g. duplicate IDs)
+        }
+      }
+    };
+    seedDefaults();
+  }, [dbLoading, agents.length]);
 
   const loadPersistentAgentMemories = async () => {
     try {
@@ -337,7 +333,7 @@ Escribenos por mensaje para recibir requisitos, horarios y siguientes pasos.
       audioLanguage: 'es-MX',
     };
 
-    setAgents([...agents, added]);
+    addAgent(added as any).catch(console.error);
     setIsCreateModalOpen(false);
     setNewAgentName('');
     setNewAgentPersonality(DEFAULT_AGENT_PERSONALITY);
@@ -351,7 +347,7 @@ Escribenos por mensaje para recibir requisitos, horarios y siguientes pasos.
   };
 
   const handleUpdateAgent = (agentId: string, patch: Record<string, any>) => {
-    setAgents(current => current.map(agent => agent.id === agentId ? { ...agent, ...patch } : agent));
+    updateAgent(agentId, patch).catch(console.error);
     setAgentToConfig(current => current?.id === agentId ? { ...current, ...patch } : current);
     setActiveChatAgent(current => current?.id === agentId ? { ...current, ...patch } : current);
   };
@@ -392,20 +388,18 @@ Escribenos por mensaje para recibir requisitos, horarios y siguientes pasos.
       conversationSize: event.conversationSize || 1,
     };
 
-    setAgents(current => current.map(agent => {
-      if (agent.id !== agentId) return agent;
-      const previousMemory = Array.isArray(agent.learningMemory) ? agent.learningMemory : [];
-      const nextMemory = [learningEntry, ...previousMemory].slice(0, 50);
-      const nextAgent = {
-        ...agent,
-        learningMemory: nextMemory,
-        memory: `${(Array.isArray(agent.knowledgeBase) ? agent.knowledgeBase.length : 0) + nextMemory.length} memorias`,
-        lastLearningAt: now,
-      };
-      setAgentToConfig(currentConfig => currentConfig?.id === agentId ? nextAgent : currentConfig);
-      setActiveChatAgent(currentChat => currentChat?.id === agentId ? nextAgent : currentChat);
-      return nextAgent;
-    }));
+    const agent = agents.find(a => a.id === agentId);
+    if (!agent) return;
+    const previousMemory = Array.isArray(agent.learningMemory) ? agent.learningMemory : [];
+    const nextMemory = [learningEntry, ...previousMemory].slice(0, 50);
+    const patch = {
+      learningMemory: nextMemory,
+      memory: `${(Array.isArray(agent.knowledgeBase) ? agent.knowledgeBase.length : 0) + nextMemory.length} memorias`,
+      lastLearningAt: now,
+    };
+    updateAgent(agentId, patch).catch(console.error);
+    setAgentToConfig(current => current?.id === agentId ? { ...current, ...patch } : current);
+    setActiveChatAgent(current => current?.id === agentId ? { ...current, ...patch } : current);
   };
 
   const handleAddInterviewSlot = () => {
@@ -563,7 +557,9 @@ Escribenos por mensaje para recibir requisitos, horarios y siguientes pasos.
 
   const toggleAgentStatus = (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    setAgents(agents.map(a => a.id === id ? { ...a, status: a.status === 'Active' ? 'Draft' : 'Active' } : a));
+    const agent = agents.find(a => a.id === id);
+    if (!agent) return;
+    updateAgent(id, { status: agent.status === 'Active' ? 'Draft' : 'Active' }).catch(console.error);
   };
 
   const handleCopyText = (text: string, index: number) => {
@@ -755,9 +751,14 @@ Escribenos por mensaje para recibir requisitos, horarios y siguientes pasos.
         channels: Array.isArray(agent.channels) ? agent.channels : [agent.accountChannel || DEFAULT_ACCOUNT_CHANNEL],
       }));
 
-      const byId = new Map(agents.map(agent => [agent.id, agent]));
-      normalizedAgents.forEach((agent: any) => byId.set(agent.id, { ...(byId.get(agent.id) || {}), ...agent }));
-      setAgents(mergeDefaultAgents(Array.from(byId.values())));
+      const existingIds = new Set(agents.map(agent => agent.id));
+      for (const agent of normalizedAgents) {
+        if (existingIds.has(agent.id)) {
+          updateAgent(agent.id, agent).catch(console.error);
+        } else {
+          addAgent(agent).catch(console.error);
+        }
+      }
       if (importedSlots) setInterviewSlots(importedSlots);
       setActiveTab('agents');
       window.alert(`Importados ${normalizedAgents.length} agentes.`);
@@ -825,13 +826,14 @@ Escribenos por mensaje para recibir requisitos, horarios y siguientes pasos.
             <Download className="w-4 h-4" />
             Exportar datos
           </button>
-          <button
+          <Button
+            variant="primary"
+            size="md"
             onClick={() => setIsCreateModalOpen(true)}
-            className="bg-zinc-500 hover:bg-zinc-600 text-slate-900 font-semibold px-4 py-2 rounded-xl flex items-center justify-center gap-2 transition-all shadow-[0_0_15px_rgba(212,212,212,0.2)] hover:shadow-[0_0_20px_rgba(212,212,212,0.4)]"
           >
             <Plus className="w-4 h-4" />
             Crear Nuevo Agente
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -936,13 +938,13 @@ Escribenos por mensaje para recibir requisitos, horarios y siguientes pasos.
                     </div>
                   </div>
                     <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
-                      <span className={`text-xs font-semibold ${agent.status === 'Active' ? 'text-zinc-400' : 'text-slate-500'}`}>
+                      <span className={`text-xs font-semibold ${agent.status === 'Active' ? 'text-emerald-400' : 'text-slate-500'}`}>
                         {agent.status === 'Active' ? 'Activo' : 'Borrador'}
                       </span>
                       <button
                         type="button"
                         onClick={(e) => toggleAgentStatus(agent.id, e as any)}
-                        className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-500 ${agent.status === 'Active' ? 'bg-zinc-500' : 'bg-slate-700'}`}
+                        className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 ${agent.status === 'Active' ? 'bg-emerald-600' : 'bg-slate-700'}`}
                         role="switch"
                         aria-checked={agent.status === 'Active'}
                       >

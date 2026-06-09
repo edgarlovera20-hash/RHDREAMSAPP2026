@@ -884,6 +884,12 @@ export function Settings() {
                 </div>
 
                 <div className="p-6 space-y-6">
+                  {isApiVaultOwner && (
+                    <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 flex items-start gap-3 text-sm text-amber-200">
+                      <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-amber-400" />
+                      <span>Las claves aquí guardadas se almacenan en <strong>localStorage del navegador</strong>. No compartas este dispositivo ni uses esta función en equipos públicos. Para producción, configura las claves como variables de entorno en el servidor.</span>
+                    </div>
+                  )}
                   {!isApiVaultOwner ? (
                     <div className="rounded-2xl border border-zinc-500/20 bg-zinc-500/10 p-6 text-sm text-zinc-100">
                       <div className="flex items-start gap-3">

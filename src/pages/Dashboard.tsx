@@ -10,11 +10,11 @@ const COLORS = ['#22d3ee', '#38bdf8', '#a78bfa', '#f472b6', '#34d399', '#fbbf24'
 
 const getAlertColors = (type: string) => {
   switch (type) {
-    case 'success': return { bg: 'bg-zinc-500/10', border: 'border-zinc-500/30', text: 'text-zinc-500', icon: CheckCircle2, gradient: 'from-zinc-500/5' };
-    case 'warning': return { bg: 'bg-zinc-500/10', border: 'border-zinc-500/30', text: 'text-zinc-500', icon: AlertTriangle, gradient: 'from-zinc-500/5' };
-    case 'error': return { bg: 'bg-zinc-500/10', border: 'border-zinc-500/30', text: 'text-zinc-500', icon: AlertCircle, gradient: 'from-zinc-500/5' };
+    case 'success': return { bg: 'bg-emerald-500/10', border: 'border-emerald-500/30', text: 'text-emerald-400', icon: CheckCircle2, gradient: 'from-emerald-500/8' };
+    case 'warning': return { bg: 'bg-amber-500/10', border: 'border-amber-500/30', text: 'text-amber-400', icon: AlertTriangle, gradient: 'from-amber-500/8' };
+    case 'error':   return { bg: 'bg-rose-500/10',   border: 'border-rose-500/30',   text: 'text-rose-400',   icon: AlertCircle,  gradient: 'from-rose-500/8' };
     case 'info':
-    default: return { bg: 'bg-zinc-500/10', border: 'border-zinc-500/30', text: 'text-zinc-500', icon: Info, gradient: 'from-zinc-500/5' };
+    default:        return { bg: 'bg-sky-500/10',    border: 'border-sky-500/30',    text: 'text-sky-400',    icon: Info,         gradient: 'from-sky-500/8' };
   }
 };
 

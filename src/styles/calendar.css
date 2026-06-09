@@ -1,0 +1,72 @@
+/* Custom dark-mode styles for react-big-calendar */
+
+.rbc-theme-custom .rbc-header {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 8px;
+  font-weight: 600;
+}
+
+.rbc-theme-custom .rbc-month-view,
+.rbc-theme-custom .rbc-time-view,
+.rbc-theme-custom .rbc-agenda-view {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.5rem;
+  overflow: hidden;
+}
+
+.rbc-theme-custom .rbc-day-bg + .rbc-day-bg,
+.rbc-theme-custom .rbc-month-row + .rbc-month-row,
+.rbc-theme-custom .rbc-header + .rbc-header,
+.rbc-theme-custom .rbc-time-header-content {
+  border-left-color: rgba(255, 255, 255, 0.1);
+  border-top-color: rgba(255, 255, 255, 0.1);
+}
+
+.rbc-theme-custom .rbc-off-range-bg {
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.rbc-theme-custom .rbc-today {
+  background: rgba(6, 170, 177, 0.06);
+}
+
+.rbc-theme-custom .rbc-btn-group button {
+  color: #d4d4d4;
+  border-color: rgba(255, 255, 255, 0.1);
+  background: transparent;
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+.rbc-theme-custom .rbc-btn-group button:hover,
+.rbc-theme-custom .rbc-btn-group button:focus {
+  background: rgba(255, 255, 255, 0.05);
+  color: white;
+}
+
+.rbc-theme-custom .rbc-btn-group button.rbc-active {
+  background: rgba(6, 170, 177, 0.15);
+  color: #01EEEE;
+  border-color: rgba(6, 170, 177, 0.4);
+  box-shadow: none;
+}
+
+.rbc-theme-custom .rbc-toolbar button {
+  transition: all 0.2s;
+}
+
+.rbc-theme-custom .rbc-event {
+  padding: 2px 4px;
+}
+
+.rbc-time-content {
+  border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.rbc-timeslot-group {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+}
+
+.rbc-day-slot .rbc-time-slot {
+  border-top: 1px solid rgba(255, 255, 255, 0.02) !important;
+}

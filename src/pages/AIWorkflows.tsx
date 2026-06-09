@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { Button } from "@/components/ui/Button";
 import {
   Bot,
   BookOpen,
@@ -318,13 +319,13 @@ const INITIAL_WORKFLOWS: AiWorkflow[] = [
 ];
 
 const STEP_META: Record<StepType, { label: string; icon: typeof Bot; color: string }> = {
-  ai: { label: "Agente IA", icon: Bot, color: "text-zinc-300 bg-zinc-500/10 border-zinc-400/30" },
-  condition: { label: "Condición", icon: GitBranch, color: "text-zinc-300 bg-zinc-500/10 border-zinc-400/30" },
-  message: { label: "Mensaje", icon: MessageSquare, color: "text-zinc-300 bg-zinc-500/10 border-zinc-400/30" },
-  calendar: { label: "Calendario", icon: Calendar, color: "text-zinc-300 bg-zinc-500/10 border-zinc-400/30" },
-  task: { label: "Tarea CRM", icon: UserCheck, color: "text-zinc-300 bg-zinc-500/10 border-zinc-400/30" },
-  webhook: { label: "Webhook", icon: Database, color: "text-zinc-300 bg-zinc-500/10 border-zinc-400/30" },
-  handoff: { label: "Escalar", icon: ShieldCheck, color: "text-zinc-300 bg-zinc-500/10 border-zinc-400/30" }
+  ai:        { label: "Agente IA",   icon: Bot,          color: "text-[var(--neon-cyan)] bg-[var(--neon-teal)]/10 border-[var(--neon-teal)]/30" },
+  condition: { label: "Condición",   icon: GitBranch,    color: "text-amber-400 bg-amber-500/10 border-amber-500/30" },
+  message:   { label: "Mensaje",     icon: MessageSquare,color: "text-sky-400 bg-sky-500/10 border-sky-500/30" },
+  calendar:  { label: "Calendario",  icon: Calendar,     color: "text-violet-400 bg-violet-500/10 border-violet-500/30" },
+  task:      { label: "Tarea CRM",   icon: UserCheck,    color: "text-emerald-400 bg-emerald-500/10 border-emerald-500/30" },
+  webhook:   { label: "Webhook",     icon: Database,     color: "text-slate-300 bg-slate-500/10 border-slate-500/20" },
+  handoff:   { label: "Escalar",     icon: ShieldCheck,  color: "text-rose-400 bg-rose-500/10 border-rose-500/30" }
 };
 
 function renderWithVariables(template: string, variables: WorkflowVariable[]) {
@@ -731,14 +732,14 @@ export function AIWorkflows() {
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
-          <button onClick={addWorkflow} className="flex h-10 items-center gap-2 rounded-lg border border-zinc-400/40 bg-zinc-500/15 px-4 text-sm font-semibold text-zinc-100 transition-colors hover:bg-zinc-500/25">
+          <Button variant="secondary" size="md" onClick={addWorkflow}>
             <Plus className="h-4 w-4" />
             Crear flujo
-          </button>
-          <button className="flex h-10 items-center gap-2 rounded-lg bg-zinc-500 px-4 text-sm font-semibold text-slate-950 transition-colors hover:bg-zinc-400">
+          </Button>
+          <Button variant="primary" size="md">
             <Save className="h-4 w-4" />
             Guardar
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -765,14 +766,15 @@ export function AIWorkflows() {
               <p>Disparadores, ramas, reglas, embudo, variables, pasos, aprobaciones, webhooks y payload de prueba.</p>
               <p className="text-zinc-200">{HDRS_PHASES.length} fases HDRS y {HDRS_KPIS.length} KPIs listos para medir.</p>
             </div>
-            <button
+            <Button
+              variant="primary"
+              size="md"
               onClick={generateWorkflowFromPrompt}
               disabled={!flowPrompt.trim()}
-              className="flex h-11 items-center justify-center gap-2 rounded-lg bg-zinc-500 px-4 text-sm font-bold text-slate-950 transition-colors hover:bg-zinc-400 disabled:cursor-not-allowed disabled:opacity-50"
             >
               <Sparkles className="h-4 w-4" />
               Crear flujo con IA
-            </button>
+            </Button>
           </div>
         </div>
       </div>

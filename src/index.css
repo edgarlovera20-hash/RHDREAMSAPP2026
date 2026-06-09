@@ -10,225 +10,6 @@
 @theme {
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "Poppins", "Inter", ui-sans-serif, system-ui, sans-serif;
-
-  --color-cyan-50: #fafafa;
-  --color-cyan-100: #f5f5f5;
-  --color-cyan-200: #e5e5e5;
-  --color-cyan-300: #d4d4d4;
-  --color-cyan-400: #a3a3a3;
-  --color-cyan-500: #737373;
-  --color-cyan-600: #525252;
-  --color-cyan-700: #404040;
-  --color-cyan-800: #262626;
-  --color-cyan-900: #171717;
-  --color-cyan-950: #0a0a0a;
-
-  --color-blue-50: #fafafa;
-  --color-blue-100: #f5f5f5;
-  --color-blue-200: #e5e5e5;
-  --color-blue-300: #d4d4d4;
-  --color-blue-400: #a3a3a3;
-  --color-blue-500: #737373;
-  --color-blue-600: #525252;
-  --color-blue-700: #404040;
-  --color-blue-800: #262626;
-  --color-blue-900: #171717;
-  --color-blue-950: #0a0a0a;
-
-  --color-sky-50: #fafafa;
-  --color-sky-100: #f5f5f5;
-  --color-sky-200: #e5e5e5;
-  --color-sky-300: #d4d4d4;
-  --color-sky-400: #a3a3a3;
-  --color-sky-500: #737373;
-  --color-sky-600: #525252;
-  --color-sky-700: #404040;
-  --color-sky-800: #262626;
-  --color-sky-900: #171717;
-  --color-sky-950: #0a0a0a;
-
-  --color-indigo-50: #fafafa;
-  --color-indigo-100: #f5f5f5;
-  --color-indigo-200: #e5e5e5;
-  --color-indigo-300: #d4d4d4;
-  --color-indigo-400: #a3a3a3;
-  --color-indigo-500: #737373;
-  --color-indigo-600: #525252;
-  --color-indigo-700: #404040;
-  --color-indigo-800: #262626;
-  --color-indigo-900: #171717;
-  --color-indigo-950: #0a0a0a;
-
-  --color-purple-50: #fafafa;
-  --color-purple-100: #f5f5f5;
-  --color-purple-200: #e5e5e5;
-  --color-purple-300: #d4d4d4;
-  --color-purple-400: #a3a3a3;
-  --color-purple-500: #737373;
-  --color-purple-600: #525252;
-  --color-purple-700: #404040;
-  --color-purple-800: #262626;
-  --color-purple-900: #171717;
-  --color-purple-950: #0a0a0a;
-
-  --color-emerald-50: #fafafa;
-  --color-emerald-100: #f5f5f5;
-  --color-emerald-200: #e5e5e5;
-  --color-emerald-300: #d4d4d4;
-  --color-emerald-400: #a3a3a3;
-  --color-emerald-500: #737373;
-  --color-emerald-600: #525252;
-  --color-emerald-700: #404040;
-  --color-emerald-800: #262626;
-  --color-emerald-900: #171717;
-  --color-emerald-950: #0a0a0a;
-
-  --color-amber-50: #fafafa;
-  --color-amber-100: #f5f5f5;
-  --color-amber-200: #e5e5e5;
-  --color-amber-300: #d4d4d4;
-  --color-amber-400: #a3a3a3;
-  --color-amber-500: #737373;
-  --color-amber-600: #525252;
-  --color-amber-700: #404040;
-  --color-amber-800: #262626;
-  --color-amber-900: #171717;
-  --color-amber-950: #0a0a0a;
-
-  --color-rose-50: #fafafa;
-  --color-rose-100: #f5f5f5;
-  --color-rose-200: #e5e5e5;
-  --color-rose-300: #d4d4d4;
-  --color-rose-400: #a3a3a3;
-  --color-rose-500: #737373;
-  --color-rose-600: #525252;
-  --color-rose-700: #404040;
-  --color-rose-800: #262626;
-  --color-rose-900: #171717;
-  --color-rose-950: #0a0a0a;
-
-  --color-red-50: #fafafa;
-  --color-red-100: #f5f5f5;
-  --color-red-200: #e5e5e5;
-  --color-red-300: #d4d4d4;
-  --color-red-400: #a3a3a3;
-  --color-red-500: #737373;
-  --color-red-600: #525252;
-  --color-red-700: #404040;
-  --color-red-800: #262626;
-  --color-red-900: #171717;
-  --color-red-950: #0a0a0a;
-
-  --color-green-50: #fafafa;
-  --color-green-100: #f5f5f5;
-  --color-green-200: #e5e5e5;
-  --color-green-300: #d4d4d4;
-  --color-green-400: #a3a3a3;
-  --color-green-500: #737373;
-  --color-green-600: #525252;
-  --color-green-700: #404040;
-  --color-green-800: #262626;
-  --color-green-900: #171717;
-  --color-green-950: #0a0a0a;
-
-  --color-yellow-50: #fafafa;
-  --color-yellow-100: #f5f5f5;
-  --color-yellow-200: #e5e5e5;
-  --color-yellow-300: #d4d4d4;
-  --color-yellow-400: #a3a3a3;
-  --color-yellow-500: #737373;
-  --color-yellow-600: #525252;
-  --color-yellow-700: #404040;
-  --color-yellow-800: #262626;
-  --color-yellow-900: #171717;
-  --color-yellow-950: #0a0a0a;
-
-  --color-orange-50: #fafafa;
-  --color-orange-100: #f5f5f5;
-  --color-orange-200: #e5e5e5;
-  --color-orange-300: #d4d4d4;
-  --color-orange-400: #a3a3a3;
-  --color-orange-500: #737373;
-  --color-orange-600: #525252;
-  --color-orange-700: #404040;
-  --color-orange-800: #262626;
-  --color-orange-900: #171717;
-  --color-orange-950: #0a0a0a;
-
-  --color-pink-50: #fafafa;
-  --color-pink-100: #f5f5f5;
-  --color-pink-200: #e5e5e5;
-  --color-pink-300: #d4d4d4;
-  --color-pink-400: #a3a3a3;
-  --color-pink-500: #737373;
-  --color-pink-600: #525252;
-  --color-pink-700: #404040;
-  --color-pink-800: #262626;
-  --color-pink-900: #171717;
-  --color-pink-950: #0a0a0a;
-
-  --color-fuchsia-50: #fafafa;
-  --color-fuchsia-100: #f5f5f5;
-  --color-fuchsia-200: #e5e5e5;
-  --color-fuchsia-300: #d4d4d4;
-  --color-fuchsia-400: #a3a3a3;
-  --color-fuchsia-500: #737373;
-  --color-fuchsia-600: #525252;
-  --color-fuchsia-700: #404040;
-  --color-fuchsia-800: #262626;
-  --color-fuchsia-900: #171717;
-  --color-fuchsia-950: #0a0a0a;
-
-  --color-violet-50: #fafafa;
-  --color-violet-100: #f5f5f5;
-  --color-violet-200: #e5e5e5;
-  --color-violet-300: #d4d4d4;
-  --color-violet-400: #a3a3a3;
-  --color-violet-500: #737373;
-  --color-violet-600: #525252;
-  --color-violet-700: #404040;
-  --color-violet-800: #262626;
-  --color-violet-900: #171717;
-  --color-violet-950: #0a0a0a;
-
-  --color-teal-50: #fafafa;
-  --color-teal-100: #f5f5f5;
-  --color-teal-200: #e5e5e5;
-  --color-teal-300: #d4d4d4;
-  --color-teal-400: #a3a3a3;
-  --color-teal-500: #737373;
-  --color-teal-600: #525252;
-  --color-teal-700: #404040;
-  --color-teal-800: #262626;
-  --color-teal-900: #171717;
-  --color-teal-950: #0a0a0a;
-
-  --color-lime-50: #fafafa;
-  --color-lime-100: #f5f5f5;
-  --color-lime-200: #e5e5e5;
-  --color-lime-300: #d4d4d4;
-  --color-lime-400: #a3a3a3;
-  --color-lime-500: #737373;
-  --color-lime-600: #525252;
-  --color-lime-700: #404040;
-  --color-lime-800: #262626;
-  --color-lime-900: #171717;
-  --color-lime-950: #0a0a0a;
-
-  --color-slate-50: #fafafa;
-  --color-slate-100: #f5f5f5;
-  --color-slate-200: #e5e5e5;
-  --color-slate-300: #d4d4d4;
-  --color-slate-400: #a3a3a3;
-  --color-slate-500: #737373;
-  --color-slate-600: #525252;
-  --color-slate-700: #404040;
-  --color-slate-800: #262626;
-  --color-slate-900: #171717;
-  --color-slate-950: #0a0a0a;
-}
-
-@theme {
   --color-cyan-50: #ecfeff;
   --color-cyan-100: #cffafe;
   --color-cyan-200: #a5f3fc;
@@ -363,8 +144,8 @@
 }
 
 body {
-  background-color: #000000;
-  color: #ffffff; 
+  background: linear-gradient(135deg, var(--bg-blue) 0%, var(--bg-blue-dark) 100%);
+  color: #ffffff;
   margin: 0;
   height: 100vh;
   height: 100dvh;
@@ -377,30 +158,48 @@ body {
 }
 
 :root {
-  --neon-soft: rgba(34, 211, 238, 0.13);
-  --neon-mid: rgba(14, 165, 233, 0.18);
-  --neon-bright: rgba(34, 211, 238, 0.66);
-  --neon-panel-shadow: 0 0 0 1px rgba(34, 211, 238, 0.20), 0 18px 44px rgba(0, 0, 0, 0.56), 0 0 32px rgba(14, 165, 233, 0.12);
-  --electric-cyan: #22d3ee;
-  --electric-blue: #38bdf8;
+  /* === RHDreams Brand Palette === */
+  --bg-blue: #0071BC;
+  --bg-blue-dark: #0155A1;
+  --panel-dark: #091623;
+  --panel-navy: #0C1928;
+  --panel-shadow: #07131F;
+  --neon-cyan: #01EEEE;
+  --neon-teal: #06AAB1;
+  --teal-dark: #057C85;
+  --blue-glow: #0067B1;
+
+  /* Neon & glow utilities */
+  --neon-soft: rgba(1, 238, 238, 0.13);
+  --neon-mid: rgba(6, 170, 177, 0.20);
+  --neon-bright: rgba(1, 238, 238, 0.66);
+  --neon-panel-shadow: 0 0 28px rgba(1, 238, 238, 0.35), 0 0 0 1px rgba(6, 170, 177, 0.28);
+
+  /* Electric accent palette (for nth-of-type icon accents — unchanged) */
+  --electric-cyan: #01EEEE;
+  --electric-blue: #0071BC;
   --electric-violet: #a78bfa;
   --electric-pink: #f472b6;
   --electric-lime: #a3e635;
   --electric-amber: #fbbf24;
-  --electric-mint: #34d399;
+  --electric-mint: #06AAB1;
   --electric-rose: #fb7185;
   --electric-orange: #fb923c;
-  --panel-gray: linear-gradient(135deg, rgba(8, 23, 45, 0.78), rgba(14, 18, 40, 0.72) 48%, rgba(20, 8, 38, 0.68));
-  --panel-gray-solid: rgba(10, 24, 43, 0.82);
-  --panel-gray-hover: linear-gradient(135deg, rgba(10, 42, 68, 0.84), rgba(17, 29, 62, 0.82) 52%, rgba(45, 20, 78, 0.74));
-  --panel-border: rgba(56, 189, 248, 0.32);
-  --panel-highlight: rgba(125, 211, 252, 0.42);
-  --surface-polish: inset 0 1px 0 rgba(255,255,255,0.12), 0 18px 42px rgba(0,0,0,0.48), 0 0 34px rgba(34,211,238,0.12), 0 0 58px rgba(167,139,250,0.08);
+
+  /* Panel surfaces */
+  --panel-gray: radial-gradient(circle at 50% 30%, #0C1928 0%, #091623 60%, #07131F 100%);
+  --panel-gray-solid: #091623;
+  --panel-gray-hover: radial-gradient(circle at 50% 30%, #0d2035 0%, #0a1c2a 60%, #08151f 100%);
+  --panel-border: rgba(6, 170, 177, 0.32);
+  --panel-highlight: rgba(1, 238, 238, 0.42);
+  --surface-polish: inset 0 1px 0 rgba(1, 238, 238, 0.09),
+                    0 0 28px rgba(1, 238, 238, 0.28),
+                    0 18px 42px rgba(7, 19, 31, 0.72);
 }
 
 #root {
   height: 100%;
-  background: #000000;
+  background: radial-gradient(ellipse at 50% 0%, var(--panel-navy) 0%, var(--panel-dark) 55%, var(--panel-shadow) 100%);
   filter: none;
   transition: filter 0.3s ease;
 }
@@ -416,21 +215,21 @@ body {
   }
   
   .glass-panel {
-    --panel-accent: var(--electric-cyan);
-    --panel-accent-rgb: 34, 211, 238;
+    --panel-accent: var(--neon-cyan);
+    --panel-accent-rgb: 1, 238, 238;
     position: relative;
     background: var(--panel-gray) !important;
-    backdrop-filter: blur(24px) saturate(108%) contrast(104%);
-    -webkit-backdrop-filter: blur(24px) saturate(108%) contrast(104%);
-    border: 1px solid color-mix(in srgb, var(--panel-accent) 34%, transparent);
+    backdrop-filter: blur(20px) saturate(110%) contrast(102%);
+    -webkit-backdrop-filter: blur(20px) saturate(110%) contrast(102%);
+    border: 1px solid var(--neon-teal);
     box-shadow: var(--surface-polish);
     isolation: isolate;
     overflow: hidden;
     transition: border-color 0.28s ease, box-shadow 0.28s ease, background 0.28s ease, transform 0.28s ease;
   }
 
-  .glass-panel svg.lucide {
-    color: var(--panel-accent) !important;
+  .glass-panel svg.lucide:not([class*="text-"]) {
+    color: var(--panel-accent);
     filter: drop-shadow(0 0 10px color-mix(in srgb, var(--panel-accent) 48%, transparent));
   }
 
@@ -483,8 +282,7 @@ body {
 
   main svg.lucide:is([class*="text-zinc"], [class*="text-slate"], [class*="text-neutral"]),
   aside svg.lucide:is([class*="text-zinc"], [class*="text-slate"], [class*="text-neutral"]) {
-    color: var(--electric-cyan) !important;
-    filter: drop-shadow(0 0 10px rgba(34, 211, 238, 0.42));
+    color: currentColor;
   }
 
   .glass-panel::before,
@@ -505,9 +303,9 @@ body {
   }
   
   .glass-panel-hover:hover {
-    background: var(--panel-gray-hover);
-    border-color: rgba(34, 211, 238, 0.42);
-    box-shadow: 0 20px 46px rgba(0, 0, 0, 0.54), 0 0 28px rgba(34, 211, 238, 0.16), inset 0 1px 0 rgba(255, 255, 255, 0.10);
+    background: var(--panel-gray-hover) !important;
+    border-color: var(--neon-cyan);
+    box-shadow: 0 0 36px rgba(1, 238, 238, 0.45), 0 18px 42px rgba(7, 19, 31, 0.72), inset 0 1px 0 rgba(1, 238, 238, 0.12);
     transform: translateY(-2px);
   }
 

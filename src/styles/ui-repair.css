@@ -28,28 +28,16 @@ a,
   pointer-events: none !important;
 }
 
-/* Stop the old global rule from painting every icon the same cyan. */
-main svg.lucide:not([class*="text-"]),
-aside svg.lucide:not([class*="text-"]),
-.glass-panel svg.lucide:not([class*="text-"]) {
-  color: currentColor !important;
-  filter: none !important;
-}
-
-svg.lucide[class*="text-cyan-300"] { color: #67e8f9 !important; }
-svg.lucide[class*="text-sky-300"] { color: #7dd3fc !important; }
-svg.lucide[class*="text-blue-300"] { color: #93c5fd !important; }
-svg.lucide[class*="text-emerald-300"] { color: #6ee7b7 !important; }
-svg.lucide[class*="text-violet-300"] { color: #c4b5fd !important; }
-svg.lucide[class*="text-fuchsia-300"] { color: #f0abfc !important; }
-svg.lucide[class*="text-amber-300"] { color: #fcd34d !important; }
-svg.lucide[class*="text-rose-300"] { color: #fda4af !important; }
-svg.lucide[class*="text-zinc-200"] { color: #e4e4e7 !important; }
-svg.lucide[class*="text-zinc-300"] { color: #d4d4d8 !important; }
-svg.lucide[class*="text-zinc-400"] { color: #a1a1aa !important; }
-svg.lucide[class*="text-slate-200"] { color: #e2e8f0 !important; }
-svg.lucide[class*="text-slate-300"] { color: #cbd5e1 !important; }
-svg.lucide[class*="text-slate-400"] { color: #94a3b8 !important; }
+/* Icon colors: glass-panel now only accents icons without explicit text-* classes,
+   so no override needed here. These rules are kept as safety fallback. */
+svg.lucide[class*="text-cyan-300"] { color: #67e8f9; }
+svg.lucide[class*="text-sky-300"] { color: #7dd3fc; }
+svg.lucide[class*="text-blue-300"] { color: #93c5fd; }
+svg.lucide[class*="text-emerald-300"] { color: #6ee7b7; }
+svg.lucide[class*="text-violet-300"] { color: #c4b5fd; }
+svg.lucide[class*="text-fuchsia-300"] { color: #f0abfc; }
+svg.lucide[class*="text-amber-300"] { color: #fcd34d; }
+svg.lucide[class*="text-rose-300"] { color: #fda4af; }
 
 /* Restore neutral surfaces that were being recolored by broad .glass-panel rules. */
 main .glass-panel [class*="bg-slate-800"] {
