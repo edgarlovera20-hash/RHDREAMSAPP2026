@@ -1,0 +1,196 @@
+/*
+  RHDreams UI repair layer
+  - Restores individual icon colors after the previous global neon override.
+  - Keeps card buttons clickable and aligned.
+  - Stabilizes agent cards on desktop and touch devices.
+*/
+
+:root {
+  --rh-cyan: #22d3ee;
+  --rh-cyan-soft: rgba(34, 211, 238, 0.18);
+  --rh-panel: rgba(2, 8, 23, 0.82);
+  --rh-panel-strong: rgba(8, 13, 28, 0.94);
+  --rh-border: rgba(148, 163, 184, 0.18);
+  --rh-border-cyan: rgba(34, 211, 238, 0.32);
+}
+
+button,
+a,
+[role="button"],
+[role="switch"] {
+  touch-action: manipulation;
+}
+
+.glass-panel::before,
+.glass-panel::after,
+.neon-selected::before,
+.neon-selected::after {
+  pointer-events: none !important;
+}
+
+/* Stop the old global rule from painting every icon the same cyan. */
+main svg.lucide:not([class*="text-"]),
+aside svg.lucide:not([class*="text-"]),
+.glass-panel svg.lucide:not([class*="text-"]) {
+  color: currentColor !important;
+  filter: none !important;
+}
+
+svg.lucide[class*="text-cyan-300"] { color: #67e8f9 !important; }
+svg.lucide[class*="text-sky-300"] { color: #7dd3fc !important; }
+svg.lucide[class*="text-blue-300"] { color: #93c5fd !important; }
+svg.lucide[class*="text-emerald-300"] { color: #6ee7b7 !important; }
+svg.lucide[class*="text-violet-300"] { color: #c4b5fd !important; }
+svg.lucide[class*="text-fuchsia-300"] { color: #f0abfc !important; }
+svg.lucide[class*="text-amber-300"] { color: #fcd34d !important; }
+svg.lucide[class*="text-rose-300"] { color: #fda4af !important; }
+svg.lucide[class*="text-zinc-200"] { color: #e4e4e7 !important; }
+svg.lucide[class*="text-zinc-300"] { color: #d4d4d8 !important; }
+svg.lucide[class*="text-zinc-400"] { color: #a1a1aa !important; }
+svg.lucide[class*="text-slate-200"] { color: #e2e8f0 !important; }
+svg.lucide[class*="text-slate-300"] { color: #cbd5e1 !important; }
+svg.lucide[class*="text-slate-400"] { color: #94a3b8 !important; }
+
+/* Restore neutral surfaces that were being recolored by broad .glass-panel rules. */
+main .glass-panel [class*="bg-slate-800"] {
+  background-color: rgba(30, 41, 59, 0.76) !important;
+}
+
+main .glass-panel [class*="bg-slate-900"] {
+  background-color: rgba(15, 23, 42, 0.82) !important;
+}
+
+main .glass-panel [class*="bg-black"] {
+  background-color: rgba(0, 0, 0, 0.36) !important;
+}
+
+main .glass-panel [class*="border-slate-700"] {
+  border-color: rgba(51, 65, 85, 0.76) !important;
+}
+
+/* Agents grid: cards stay aligned and the action buttons remain at the bottom. */
+main .grid:has(> .glass-panel [role="switch"]) {
+  align-items: stretch;
+}
+
+@media (min-width: 1024px) {
+  main .grid:has(> .glass-panel [role="switch"]) {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  }
+}
+
+main .grid > .glass-panel:has([role="switch"]) {
+  display: flex !important;
+  flex-direction: column !important;
+  min-height: 620px;
+  overflow: hidden !important;
+  border-color: rgba(34, 211, 238, 0.22) !important;
+  background: linear-gradient(145deg, rgba(3, 7, 18, 0.95), rgba(8, 18, 33, 0.88)) !important;
+}
+
+main .grid > .glass-panel:has([role="switch"]):hover {
+  border-color: rgba(34, 211, 238, 0.46) !important;
+  transform: translateY(-2px);
+}
+
+main .grid > .glass-panel:has([role="switch"]) > * {
+  position: relative;
+  z-index: 1;
+}
+
+main .grid > .glass-panel:has([role="switch"]) button,
+main .grid > .glass-panel:has([role="switch"]) [role="switch"] {
+  position: relative;
+  z-index: 20;
+  pointer-events: auto !important;
+  cursor: pointer;
+}
+
+main .grid > .glass-panel:has([role="switch"]) [role="switch"] {
+  width: 2.75rem !important;
+  height: 1.5rem !important;
+  border: 1px solid rgba(255, 255, 255, 0.18) !important;
+  background-color: rgba(51, 65, 85, 0.9) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16), 0 0 0 1px rgba(0, 0, 0, 0.22) !important;
+}
+
+main .grid > .glass-panel:has([role="switch"]) [role="switch"][aria-checked="true"] {
+  background: linear-gradient(90deg, #06b6d4, #10b981) !important;
+  box-shadow: 0 0 16px rgba(16, 185, 129, 0.38), inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+}
+
+main .grid > .glass-panel:has([role="switch"]) [role="switch"] span:not(.sr-only) {
+  width: 1rem !important;
+  height: 1rem !important;
+  transform: translateX(0.12rem) !important;
+}
+
+main .grid > .glass-panel:has([role="switch"]) [role="switch"][aria-checked="true"] span:not(.sr-only) {
+  transform: translateX(1.35rem) !important;
+}
+
+main .grid > .glass-panel:has([role="switch"]) > .mt-6.flex.gap-2.border-t {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem !important;
+  margin-top: auto !important;
+  padding-top: 1rem !important;
+  border-color: rgba(51, 65, 85, 0.84) !important;
+}
+
+main .grid > .glass-panel:has([role="switch"]) > .mt-6.flex.gap-2.border-t > button {
+  min-height: 44px;
+  width: 100%;
+  border-radius: 0.9rem !important;
+  border: 1px solid rgba(34, 211, 238, 0.18) !important;
+  background: rgba(2, 8, 23, 0.78) !important;
+  color: #dbeafe !important;
+  font-size: 0.82rem;
+  letter-spacing: 0.01em;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 10px 24px rgba(0, 0, 0, 0.28) !important;
+}
+
+main .grid > .glass-panel:has([role="switch"]) > .mt-6.flex.gap-2.border-t > button:first-child {
+  background: linear-gradient(135deg, rgba(34, 211, 238, 0.2), rgba(14, 165, 233, 0.12)) !important;
+  color: #ecfeff !important;
+}
+
+main .grid > .glass-panel:has([role="switch"]) > .mt-6.flex.gap-2.border-t > button:hover {
+  border-color: rgba(34, 211, 238, 0.5) !important;
+  background: rgba(8, 47, 73, 0.72) !important;
+  transform: translateY(-1px);
+}
+
+main .grid > .glass-panel:has([role="switch"]) > .mt-6.flex.gap-2.border-t > button svg {
+  color: currentColor !important;
+  filter: none !important;
+}
+
+/* Badges and metrics: no more accidental neon recolor on every chip. */
+main .grid > .glass-panel:has([role="switch"]) span:has(> svg.lucide),
+main .grid > .glass-panel:has([role="switch"]) [class*="rounded-md"] {
+  white-space: nowrap;
+}
+
+main .grid > .glass-panel:has([role="switch"]) [class*="rounded-md"][class*="bg-slate-800"] {
+  background: rgba(30, 41, 59, 0.72) !important;
+  border-color: rgba(148, 163, 184, 0.16) !important;
+  color: #cbd5e1 !important;
+}
+
+/* Keep mobile/touch interactions stable. */
+@media (hover: none) {
+  main .grid > .glass-panel:has([role="switch"]):hover {
+    transform: none;
+  }
+}
+
+@media (max-width: 767px) {
+  main .grid > .glass-panel:has([role="switch"]) {
+    min-height: auto;
+  }
+
+  main .grid > .glass-panel:has([role="switch"]) > .mt-6.flex.gap-2.border-t {
+    grid-template-columns: 1fr;
+  }
+}
