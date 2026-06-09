@@ -2,11 +2,12 @@ import {StrictMode} from 'react';
 import {createRoot} from 'react-dom/client';
 import App from './App.tsx';
 import './index.css';
+import './styles/ui-repair.css';
 import { registerPushServiceWorker } from './lib/pushNotifications';
 
 const registerPushWhenIdle = () => {
   registerPushServiceWorker().catch((error) => {
-    console.warn('No se pudo registrar el service worker de push:', error);
+    console.warn('Push service worker registration failed:', error);
   });
 };
 
