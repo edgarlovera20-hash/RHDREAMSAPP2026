@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { CRM_STAGES } from "@/data/appDefaults";
 import { Search, Filter, Plus, Calendar as CalendarIcon, Mail, Star, Phone, MessageCircle, MoreVertical, MapPin, Briefcase, Clock, Facebook, Map, Image as ImageIcon, Send, Activity, User, FileText, Settings as SettingsIcon, Trash2, Check, X, XCircle, Linkedin, Globe, ArrowDownAZ, Tag } from "lucide-react";
+import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
 import { CandidateProfileModal } from "@/components/CandidateProfileModal";
 import { useNotifications } from "@/contexts/NotificationContext";
@@ -241,7 +242,9 @@ export function Candidates() {
             <Linkedin className="w-4 h-4" />
             Importar/Sincronizar
           </button>
-          <button
+          <Button
+            variant="secondary"
+            size="sm"
             onClick={() => {
               triggerEvent('info', {
                 title: 'Alta manual pendiente',
@@ -249,10 +252,10 @@ export function Candidates() {
                 type: 'info'
               });
             }}
-            className="bg-slate-200/10 border border-slate-200/35 hover:bg-white/10 hover:border-slate-200/55 text-slate-100 hover:text-white px-4 py-2.5 rounded-lg font-bold text-xs flex items-center gap-2 transition-all shadow-[0_0_15px_rgba(163,163,163,0.2)] hover:shadow-[0_0_24px_rgba(245,245,245,0.16)]">
+          >
             <Plus className="w-4 h-4" />
             Nuevo Lead
-          </button>
+          </Button>
         </div>
       </div>
 

@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useDb } from '@/hooks/useDb';
 import { Bot, Plus, Search, BrainCircuit, Activity, Zap, MessageSquare, Briefcase, FileText, CheckCircle2, XCircle, Settings2, Code, Users, Download, Upload, Filter, Send, Copy, Loader2, Sparkles, Video, Image as ImageIcon, ExternalLink, Mic, Volume2, CalendarClock, Trash2, PlayCircle, ShieldCheck } from 'lucide-react';
+import { Button } from '@/components/ui/Button';
 import { EMPTY_AGENTS, EMPTY_AGENT_LOGS, EMPTY_AGENT_TEMPLATES } from '@/data/appDefaults';
 import { CANVA_TEMPLATE_CATEGORIES, CANVA_TEMPLATE_PACKS, type CanvaTemplatePack } from '@/data/canvaTemplateLibrary';
 import { AgentConfigModal } from '@/components/AgentConfigModal';
@@ -825,13 +826,14 @@ Escribenos por mensaje para recibir requisitos, horarios y siguientes pasos.
             <Download className="w-4 h-4" />
             Exportar datos
           </button>
-          <button
+          <Button
+            variant="primary"
+            size="md"
             onClick={() => setIsCreateModalOpen(true)}
-            className="bg-zinc-500 hover:bg-zinc-600 text-slate-900 font-semibold px-4 py-2 rounded-xl flex items-center justify-center gap-2 transition-all shadow-[0_0_15px_rgba(212,212,212,0.2)] hover:shadow-[0_0_20px_rgba(212,212,212,0.4)]"
           >
             <Plus className="w-4 h-4" />
             Crear Nuevo Agente
-          </button>
+          </Button>
         </div>
       </div>
 

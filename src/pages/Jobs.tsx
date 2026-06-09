@@ -19,6 +19,8 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useDb } from "@/hooks/useDb";
+import { Button } from "@/components/ui/Button";
+import { Badge } from "@/components/ui/Badge";
 
 type JobOffer = {
   id: string;
@@ -152,12 +154,10 @@ export function Jobs() {
           <h1 className="text-2xl font-semibold tracking-tight text-white mt-2">Ofertas de Empleo</h1>
           <p className="text-slate-400">Define vacantes claras para que los agentes sepan a quien buscar, que evaluar y que ofrecer.</p>
         </div>
-        <button
-          onClick={() => setIsModalOpen(true)}
-          className="bg-slate-200/10 border border-slate-200/35 hover:bg-white/10 hover:border-slate-200/55 text-slate-100 hover:text-white px-4 py-2.5 rounded-lg font-bold text-xs flex items-center gap-2 transition-all shadow-[0_0_15px_rgba(163,163,163,0.2)] hover:shadow-[0_0_24px_rgba(245,245,245,0.16)]">
+        <Button variant="secondary" size="sm" onClick={() => setIsModalOpen(true)}>
           <Plus className="w-4 h-4" />
           Nueva Oferta
-        </button>
+        </Button>
       </div>
 
       <div className="glass-panel p-4 rounded-2xl border border-white/5">
@@ -211,14 +211,11 @@ export function Jobs() {
                   </div>
                 </div>
               </div>
-              <span className={cn(
-                "px-2 py-1 rounded-md text-[10px] uppercase font-bold tracking-widest border shrink-0",
-                job.status === "Active" ? "bg-emerald-500/15 text-emerald-400 border-emerald-500/30" :
-                job.status === "Closed" ? "bg-rose-500/15 text-rose-400 border-rose-500/30" :
-                "bg-slate-800/50 text-slate-400 border-slate-700/50"
-              )}>
+              <Badge
+                variant={job.status === "Active" ? "active" : job.status === "Closed" ? "error" : "draft"}
+              >
                 {job.status === "Active" ? "Activa" : job.status === "Closed" ? "Cerrada" : "Borrador"}
-              </span>
+              </Badge>
             </div>
 
             <p className="text-sm text-slate-300 leading-relaxed mb-5">{job.description || job.targetProfile}</p>
@@ -399,14 +396,14 @@ function JobModal({
           <button onClick={onClose} className="px-5 py-2 rounded-xl font-medium text-sm text-slate-300 hover:bg-white/5 transition-colors">
             Cancelar
           </button>
-          <button
+          <Button
+            variant="primary"
             onClick={onSave}
             disabled={!job.title || !job.department || !job.location || isSaving}
-            className="bg-zinc-500 hover:bg-zinc-600 text-slate-900 font-semibold px-6 py-2 rounded-xl text-sm transition-all shadow-[0_0_15px_rgba(212,212,212,0.2)] disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
           >
             {isSaving && <Loader2 className="w-4 h-4 animate-spin" />}
             Crear Oferta
-          </button>
+          </Button>
         </div>
       </div>
     </div>
