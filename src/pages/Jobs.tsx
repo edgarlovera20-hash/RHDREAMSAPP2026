@@ -14,10 +14,11 @@ import {
   Gift,
   Target,
   Copy,
-  CheckCircle2
+  CheckCircle2,
+  Loader2
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { RECRUITMENT_JOB_TEMPLATES } from "@/data/recruitmentKnowledge";
+import { useDb } from "@/hooks/useDb";
 
 type JobOffer = {
   id: string;
@@ -58,13 +59,6 @@ const EMPTY_JOB: Omit<JobOffer, "id" | "applicants" | "platforms"> = {
   agentInstructions: ""
 };
 
-const normalizeJobs = (): JobOffer[] => {
-  return RECRUITMENT_JOB_TEMPLATES.map((job) => ({
-    ...job,
-    status: "Active",
-    applicants: 0,
-  }));
-};
 
 function buildAgentBrief(job: JobOffer) {
   return `VACANTE: ${job.title}
@@ -104,12 +98,14 @@ ${job.agentInstructions}`;
 }
 
 export function Jobs() {
-  const [jobs, setJobs] = useState<JobOffer[]>(normalizeJobs());
+  const { jobs: dbJobs, addJob, loading } = useDb();
+  const jobs = dbJobs as unknown as JobOffer[];
   const [searchFilter, setSearchFilter] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedJob, setSelectedJob] = useState<JobOffer | null>(null);
   const [copiedJobId, setCopiedJobId] = useState<string | null>(null);
   const [newJob, setNewJob] = useState(EMPTY_JOB);
+  const [isSaving, setIsSaving] = useState(false);
 
   const filteredJobs = useMemo(() => jobs.filter((job) => {
     const haystack = [
@@ -128,17 +124,19 @@ export function Jobs() {
     setNewJob((current) => ({ ...current, [field]: value }));
   };
 
-  const handleCreateJob = () => {
-    if (!newJob.title || !newJob.department || !newJob.location) return;
-    const added: JobOffer = {
-      id: `job-${Date.now()}`,
-      ...newJob,
-      applicants: 0,
-      platforms: []
-    };
-    setJobs([added, ...jobs]);
-    setIsModalOpen(false);
-    setNewJob(EMPTY_JOB);
+  const handleCreateJob = async () => {
+    if (!newJob.title || !newJob.department || !newJob.location || isSaving) return;
+    setIsSaving(true);
+    try {
+      await addJob({
+        ...newJob,
+        requirements: [],
+      });
+      setIsModalOpen(false);
+      setNewJob(EMPTY_JOB);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const copyBrief = async (job: JobOffer) => {
@@ -175,6 +173,21 @@ export function Jobs() {
         </div>
       </div>
 
+      {loading && (
+        <div className="flex items-center justify-center py-16 text-slate-400 gap-2">
+          <Loader2 className="w-5 h-5 animate-spin" />
+          <span className="text-sm">Cargando vacantes...</span>
+        </div>
+      )}
+
+      {!loading && jobs.length === 0 && (
+        <div className="glass-panel rounded-2xl p-10 text-center text-slate-400">
+          <Briefcase className="w-10 h-10 mx-auto mb-3 opacity-40" />
+          <p className="font-medium text-slate-300">No hay vacantes registradas</p>
+          <p className="text-sm mt-1">Crea la primera oferta de empleo con el botón "Nueva Oferta".</p>
+        </div>
+      )}
+
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
         {filteredJobs.map((job) => (
           <div key={job.id} className="glass-panel glass-panel-hover rounded-2xl flex flex-col p-6 group border border-white/5 hover:border-neutral-300/40 hover:shadow-[0_0_26px_rgba(245,245,245,0.14),0_0_70px_rgba(163,163,163,0.10)]">
@@ -200,8 +213,8 @@ export function Jobs() {
               </div>
               <span className={cn(
                 "px-2 py-1 rounded-md text-[10px] uppercase font-bold tracking-widest border shrink-0",
-                job.status === "Active" ? "bg-zinc-500/10 text-zinc-400 border-zinc-500/20" :
-                job.status === "Closed" ? "bg-zinc-500/10 text-zinc-400 border-zinc-500/20" :
+                job.status === "Active" ? "bg-emerald-500/15 text-emerald-400 border-emerald-500/30" :
+                job.status === "Closed" ? "bg-rose-500/15 text-rose-400 border-rose-500/30" :
                 "bg-slate-800/50 text-slate-400 border-slate-700/50"
               )}>
                 {job.status === "Active" ? "Activa" : job.status === "Closed" ? "Cerrada" : "Borrador"}
@@ -272,6 +285,7 @@ export function Jobs() {
           onChange={updateNewJob}
           onClose={() => setIsModalOpen(false)}
           onSave={handleCreateJob}
+          isSaving={isSaving}
         />
       )}
 
@@ -316,13 +330,15 @@ function JobModal({
   job,
   onChange,
   onClose,
-  onSave
+  onSave,
+  isSaving = false
 }: {
   title: string;
   job: typeof EMPTY_JOB;
   onChange: (field: keyof typeof EMPTY_JOB, value: string) => void;
   onClose: () => void;
   onSave: () => void;
+  isSaving?: boolean;
 }) {
   return (
     <div className="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
@@ -385,9 +401,10 @@ function JobModal({
           </button>
           <button
             onClick={onSave}
-            disabled={!job.title || !job.department || !job.location}
-            className="bg-zinc-500 hover:bg-zinc-600 text-slate-900 font-semibold px-6 py-2 rounded-xl text-sm transition-all shadow-[0_0_15px_rgba(212,212,212,0.2)] disabled:opacity-50 disabled:cursor-not-allowed"
+            disabled={!job.title || !job.department || !job.location || isSaving}
+            className="bg-zinc-500 hover:bg-zinc-600 text-slate-900 font-semibold px-6 py-2 rounded-xl text-sm transition-all shadow-[0_0_15px_rgba(212,212,212,0.2)] disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
           >
+            {isSaving && <Loader2 className="w-4 h-4 animate-spin" />}
             Crear Oferta
           </button>
         </div>

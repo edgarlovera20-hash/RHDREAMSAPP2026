@@ -60,6 +60,16 @@ export interface Job {
   platforms: string[];
   createdAt: number;
   updatedAt: number;
+  // Rich description fields used in the Jobs form
+  targetProfile?: string;
+  ageRange?: string;
+  experience?: string;
+  education?: string;
+  responsibilities?: string;
+  offer?: string;
+  schedule?: string;
+  benefits?: string;
+  agentInstructions?: string;
 }
 
 export interface Appointment {

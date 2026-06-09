@@ -496,22 +496,22 @@ export function Candidates() {
 
               const colorBase = getStageColor(stage);
               const bgLineMap: Record<string, string> = {
-                slate: "via-slate-500/30",
-                tone1: "via-zinc-500/50",
-                tone2: "via-zinc-500/50",
-                tone3: "via-zinc-500/50",
-                tone4: "via-zinc-500/50",
-                tone5: "via-zinc-500/50",
-                tone6: "via-zinc-500/50"
+                slate:  "via-slate-500/30",
+                tone1:  "via-sky-500/40",
+                tone2:  "via-amber-500/40",
+                tone3:  "via-violet-500/40",
+                tone4:  "via-emerald-500/50",
+                tone5:  "via-rose-500/50",
+                tone6:  "via-cyan-500/40"
               };
               const textMap: Record<string, string> = {
-                slate: "text-slate-400",
-                tone1: "text-zinc-400",
-                tone2: "text-zinc-400",
-                tone3: "text-zinc-400",
-                tone4: "text-zinc-400",
-                tone5: "text-zinc-400",
-                tone6: "text-zinc-400"
+                slate:  "text-slate-400",
+                tone1:  "text-sky-400",
+                tone2:  "text-amber-400",
+                tone3:  "text-violet-400",
+                tone4:  "text-emerald-400",
+                tone5:  "text-rose-400",
+                tone6:  "text-cyan-400"
               };
 
               return (
@@ -876,13 +876,13 @@ export function Candidates() {
               {paginatedCandidates.map(candidate => {
                 const colorBase = getStageColor(candidate.stage);
                 const bgTintMap: Record<string, string> = {
-                  slate: "bg-slate-500/10 text-slate-400 border-slate-500/20",
-                  tone1: "bg-zinc-500/10 text-zinc-400 border-zinc-500/20",
-                  tone2: "bg-zinc-500/10 text-zinc-400 border-zinc-500/20",
-                  tone3: "bg-zinc-500/10 text-zinc-400 border-zinc-500/20",
-                  tone4: "bg-zinc-500/10 text-zinc-400 border-zinc-500/20",
-                  tone5: "bg-zinc-500/10 text-zinc-400 border-zinc-500/20",
-                  tone6: "bg-zinc-500/10 text-zinc-400 border-zinc-500/20",
+                  slate:  "bg-slate-500/10 text-slate-400 border-slate-500/20",
+                  tone1:  "bg-sky-500/10 text-sky-400 border-sky-500/20",
+                  tone2:  "bg-amber-500/10 text-amber-400 border-amber-500/20",
+                  tone3:  "bg-violet-500/10 text-violet-400 border-violet-500/20",
+                  tone4:  "bg-emerald-500/15 text-emerald-400 border-emerald-500/30",
+                  tone5:  "bg-rose-500/15 text-rose-400 border-rose-500/30",
+                  tone6:  "bg-cyan-500/10 text-cyan-400 border-cyan-500/20",
                 };
 
                 return (
