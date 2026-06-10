@@ -3,8 +3,8 @@ module.exports = {
     {
       name: "rhdreams",
       script: "dist/server.cjs",
-      instances: "max",
-      exec_mode: "cluster",
+      instances: 1,
+      exec_mode: "fork",
       watch: false,
       max_memory_restart: "512M",
       env_production: {
