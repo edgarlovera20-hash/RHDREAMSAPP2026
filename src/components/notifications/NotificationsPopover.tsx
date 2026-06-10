@@ -73,12 +73,16 @@ export function NotificationsPopover({
             exit={{ opacity: 0, scale: 0.95, ...getAnimationProps() }}
             transition={{ duration: 0.2, ease: "easeOut" }}
             className={cn(
-              "fixed left-4 right-4 z-[100] sm:absolute sm:left-auto sm:right-auto sm:w-96 glass-panel rounded-2xl shadow-2xl border border-white/10 overflow-hidden",
-              direction === 'up' ? "bottom-[4.5rem] sm:bottom-full sm:mb-4" : 
-              direction === 'right' ? "sm:left-full sm:ml-4 sm:bottom-0 sm:top-auto sm:-translate-y-1/2" :
-              direction === 'left' ? "sm:right-full sm:mr-4 sm:bottom-0 sm:top-auto sm:-translate-y-1/2" :
-              "top-[4.5rem] sm:top-full sm:mt-4",
-              (direction === 'up' || direction === 'down') && (align === 'right' ? "sm:right-0" : align === 'left' ? "sm:-left-[200px] md:sm:-left-24 lg:left-0" : "sm:-translate-x-1/2 sm:left-1/2")
+              "fixed left-4 right-4 z-[200] sm:absolute sm:left-auto sm:right-auto sm:w-96 glass-panel rounded-2xl shadow-2xl border border-white/10 overflow-hidden",
+              direction === 'up' ? "bottom-16 sm:bottom-full sm:mb-3" :
+              direction === 'right' ? "sm:left-full sm:ml-4 sm:top-0" :
+              direction === 'left' ? "sm:right-full sm:mr-4 sm:top-0" :
+              "top-14 sm:top-full sm:mt-3",
+              (direction === 'up' || direction === 'down') && (
+                align === 'right' ? "sm:right-0" :
+                align === 'left' ? "sm:left-0" :
+                "sm:-translate-x-1/2 sm:left-1/2"
+              )
             )}
           >
             {/* Header */}

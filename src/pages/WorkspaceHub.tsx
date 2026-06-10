@@ -801,8 +801,8 @@ export function WorkspaceHub() {
                 </div>
 
                 {/* Importación */}
-                <div className="relative bg-gradient-to-br from-sky-950/40 to-slate-950/60 p-5 rounded-2xl border border-sky-500/20 flex flex-col gap-3 overflow-hidden">
-                  <div className="absolute top-0 right-0 w-24 h-24 bg-sky-500/5 rounded-full -translate-y-8 translate-x-8 pointer-events-none" />
+                <div className="relative bg-gradient-to-br from-sky-950/40 to-slate-950/60 p-5 rounded-2xl border border-sky-500/20 flex flex-col gap-3">
+                  <div className="absolute top-0 right-0 w-24 h-24 bg-sky-500/5 rounded-full -translate-y-8 translate-x-8 pointer-events-none overflow-hidden" />
                   <div className="flex items-center gap-2">
                     <div className="p-1.5 bg-sky-500/15 rounded-lg border border-sky-500/20">
                       <FileSpreadsheet className="w-3.5 h-3.5 text-sky-400" />
@@ -810,10 +810,10 @@ export function WorkspaceHub() {
                     <div className="font-bold text-xs text-sky-400 uppercase tracking-wide">Importación Rápida</div>
                   </div>
                   <p className="text-xs text-slate-400 leading-relaxed">Importa perfiles desde documentos compartidos ingresando el ID de la hoja de cálculo.</p>
-                  <div className="flex gap-2 mt-auto">
+                  <div className="flex gap-2 mt-auto min-w-0">
                     <input
                       type="text"
-                      className="bg-slate-900/80 border border-sky-500/20 rounded-xl px-3 py-2 text-xs text-white placeholder:text-slate-600 outline-none focus:border-sky-400/50 transition-colors flex-1"
+                      className="bg-slate-900/80 border border-sky-500/20 rounded-xl px-3 py-2 text-xs text-white placeholder:text-slate-600 outline-none focus:border-sky-400/50 transition-colors min-w-0 flex-1"
                       placeholder="Pega el ID del Spreadsheet..."
                       value={importSheetId}
                       onChange={(e) => setImportSheetId(e.target.value)}
@@ -821,7 +821,7 @@ export function WorkspaceHub() {
                     <button
                       onClick={handleFetchImportPreview}
                       disabled={isImporting || !importSheetId}
-                      className="bg-sky-500/15 hover:bg-sky-500/25 text-sky-300 border border-sky-500/30 px-3 py-2 rounded-xl text-xs font-bold transition-all disabled:opacity-40 whitespace-nowrap"
+                      className="bg-sky-500/15 hover:bg-sky-500/25 text-sky-300 border border-sky-500/30 px-3 py-2 rounded-xl text-xs font-bold transition-all disabled:opacity-40 whitespace-nowrap shrink-0"
                     >
                       Previsualizar
                     </button>
