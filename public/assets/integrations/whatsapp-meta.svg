@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none">
+  <defs>
+    <filter id="glow-outer" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="3" result="blur1"/>
+      <feGaussianBlur stdDeviation="6" result="blur2"/>
+      <feMerge>
+        <feMergeNode in="blur2"/>
+        <feMergeNode in="blur1"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <filter id="glow-inner" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="1.5" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Chat bubble shape (outer neon yellow-green) -->
+  <path
+    d="M50 8 C26 8 8 24 8 44 C8 57 15 68 27 75 L22 90 L40 80 C43 81 46 81 50 81 C74 81 92 65 92 44 C92 24 74 8 50 8 Z"
+    stroke="#c8ff00"
+    stroke-width="2.5"
+    stroke-linejoin="round"
+    fill="none"
+    filter="url(#glow-outer)"
+  />
+
+  <!-- Inner circle (green neon) -->
+  <circle
+    cx="50"
+    cy="42"
+    r="24"
+    stroke="#00e84a"
+    stroke-width="2"
+    fill="none"
+    filter="url(#glow-inner)"
+  />
+
+  <!-- Gear shape (green neon) -->
+  <g filter="url(#glow-inner)" stroke="#00e84a" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" fill="none">
+    <!-- Gear teeth -->
+    <path d="M50 24 L52 29 L58 28 L61 33 L57 37 C58.5 39 59.5 41 60 43 L66 44 L66 50 L60 51 C59.5 53 58.5 55 57 57 L61 61 L58 66 L52 65 L50 70 L48 65 L42 66 L39 61 L43 57 C41.5 55 40.5 53 40 51 L34 50 L34 44 L40 43 C40.5 41 41.5 39 43 37 L39 33 L42 28 L48 29 Z"/>
+    <!-- Gear center hole -->
+    <circle cx="50" cy="47" r="7"/>
+  </g>
+</svg>

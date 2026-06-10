@@ -24,7 +24,7 @@ const INTEGRATION_ICON_IMAGES: Record<string, string> = {
   indeed: "/assets/integrations/indeed.svg",
   computrabajo: "/assets/integrations/computrabajo.svg",
   whatsapp_personal: "/assets/integrations/whatsapp.svg",
-  whatsapp_meta: "/assets/integrations/whatsapp.svg",
+  whatsapp_meta: "/assets/integrations/whatsapp-meta.svg",
   facebook_ads: "/assets/integrations/facebook.svg",
   facebook: "/assets/integrations/facebook.svg",
   messenger: "/assets/integrations/messenger.svg",
