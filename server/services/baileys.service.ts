@@ -430,6 +430,37 @@ export async function startBaileysSession(options: StartOptions = {}) {
     }
   });
 
+  // Selects agent name + extra prompt based on conversation stage (auto-cascade pipeline)
+  const resolveAgentForStage = (stage: string): { agentName: string; stagePrompt: string } => {
+    const baseAgent = session.agentName || process.env.DEFAULT_AGENT_PERSONAL_NAME || "Gissell Arenas";
+    if (["INTERVIEW_SCHEDULING"].includes(stage)) {
+      return {
+        agentName: baseAgent,
+        stagePrompt: "Eres el agente de AGENDAMIENTO. Tu único objetivo ahora es proponer una fecha y hora de entrevista y confirmarla con el candidato. Ofrece al menos 2 opciones de horario (mañana y tarde) para los próximos 2-3 días hábiles.",
+      };
+    }
+    if (["INTERVIEW_CONFIRMED"].includes(stage)) {
+      return {
+        agentName: baseAgent,
+        stagePrompt: "Eres el agente CONFIRMADOR. La entrevista ya está agendada. Tu objetivo es: 1) Recordar al candidato los documentos que debe traer, 2) Confirmar que asistirá, 3) Resolver dudas de último momento. Sé breve y positivo.",
+      };
+    }
+    if (["FOLLOW_UP", "TALENT_POOL"].includes(stage)) {
+      return {
+        agentName: baseAgent,
+        stagePrompt: "Eres el agente de SEGUIMIENTO. El candidato ya pasó por el proceso. Si no asistió: reagenda con empatía. Si está en talent pool: mantén el contacto cálido y avisa de nuevas vacantes. Si ya fue contratado: felicita y cierra el proceso.",
+      };
+    }
+    if (["REJECTED"].includes(stage)) {
+      return {
+        agentName: baseAgent,
+        stagePrompt: "Eres el agente de CIERRE. El candidato no continuó en el proceso. Agradece su interés con empatía, cierra la conversación de forma profesional y deja la puerta abierta para futuras oportunidades.",
+      };
+    }
+    // Default: main recruiter agent (WELCOME, ASK_NAME, VACANCY_SELECTION, etc.)
+    return { agentName: baseAgent, stagePrompt: "" };
+  };
+
   const sendAutonomousAgentReply = async (messageId: string, to: string, inboundBody: string) => {
     if ((session.autoReplyEnabled ?? true) === false) return;
     if (!session.socket || session.state !== "connected") return;
@@ -438,7 +469,7 @@ export async function startBaileysSession(options: StartOptions = {}) {
 
     session.autoRepliedMessageIds.add(messageId);
 
-    const agentName = session.agentName || process.env.DEFAULT_AGENT_PERSONAL_NAME || "Agente de Heavenly Dreams";
+    const agentName = session.agentName || process.env.DEFAULT_AGENT_PERSONAL_NAME || "Gissell Arenas";
     const companyName = session.companyName || process.env.DEFAULT_COMPANY_NAME || "Heavenly Dreams";
     try {
       const turn = await prepareRecruitmentConversationTurn({
@@ -459,17 +490,20 @@ export async function startBaileysSession(options: StartOptions = {}) {
         reply = "Con gusto te ayudo.\n\n¿Me compartes tu nombre completo?";
       } else {
         const gemini = getGeminiService();
+        const { agentName: cascadeAgent, stagePrompt } = resolveAgentForStage(turn.conversation.stage || "WELCOME");
+        const effectiveAgentName = cascadeAgent;
         let knowledgeBaseContext = "";
         try {
           const { buildKnowledgeBasePrompt } = await import("../../src/data/agentKnowledgeBase.js");
           knowledgeBaseContext = `\n\n${buildKnowledgeBasePrompt()}`;
         } catch { /* skip if unavailable */ }
         const result = await gemini.generateAgentResponse(
-          agentName,
+          effectiveAgentName,
           `
-Eres ${agentName}, agente de IA de ${companyName}.
+Eres ${effectiveAgentName}, agente de IA de ${companyName}.
 Respondes mensajes entrantes de WhatsApp para reclutamiento, atencion y seguimiento.
 ${session.agentPrompt || ""}
+${stagePrompt}
 
 ${turn.systemContext}
 ${knowledgeBaseContext}
@@ -625,7 +659,13 @@ REGLAS DE COMUNICACIÓN:
               const mediaBase64 = buffer.toString("base64");
 
               // Obtener nombre del candidato del historial si existe
-              const turn = await prepareRecruitmentConversationTurn(session.id, from, body || messageType);
+              const turn = await prepareRecruitmentConversationTurn({
+                sessionId: session.id,
+                contactId: from,
+                inboundBody: body || messageType,
+                agentName: session.agentName || process.env.DEFAULT_AGENT_PERSONAL_NAME || "Gissell Arenas",
+                companyName: session.companyName || "Heavenly Dreams",
+              });
               const candidateName = turn.conversation.name;
 
               const result = await processIncomingMedia({

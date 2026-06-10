@@ -28,6 +28,8 @@ module.exports = {
         RHDREAMS_ADMIN_PASSWORD_HASH: process.env.RHDREAMS_ADMIN_PASSWORD_HASH || "",
         RHDREAMS_ADMIN_UID: process.env.RHDREAMS_ADMIN_UID || "admin",
         RHDREAMS_ADMIN_ROLE: process.env.RHDREAMS_ADMIN_ROLE || "Admin",
+        RECRUITER_AGENT_NAME: process.env.RECRUITER_AGENT_NAME || "Gissell Arenas",
+        DEFAULT_AGENT_PERSONAL_NAME: process.env.DEFAULT_AGENT_PERSONAL_NAME || "Gissell Arenas",
       },
       error_file: "logs/pm2-error.log",
       out_file: "logs/pm2-out.log",

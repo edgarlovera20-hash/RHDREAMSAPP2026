@@ -4,7 +4,7 @@
  * Agente: Karla / Sofia (configurable)
  */
 
-export const AGENT_NAME = process.env.RECRUITER_AGENT_NAME || "Karla";
+export const AGENT_NAME = process.env.RECRUITER_AGENT_NAME || "Gissell Arenas";
 export const COMPANY_NAME = "Heavenly Dreams";
 export const LOCATION = "Av. Tláhuac 3632 A301, Col. Culhuacan, Iztapalapa, CDMX";
 export const METRO_REF = "Metro Culhuacán dirección Mixcoac, junto a Farmacias Similares";
