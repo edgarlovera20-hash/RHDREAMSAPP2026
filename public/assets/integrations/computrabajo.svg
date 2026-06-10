@@ -1,5 +1,46 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Computrabajo">
-  <rect width="64" height="64" rx="18" fill="#737373"/>
-  <path fill="#fff" d="M18.8 44.7c-4.2-3.8-6.3-8.7-6.3-14.5 0-5.7 2.1-10.5 6.2-14.4 4.2-3.9 9.3-5.8 15.5-5.8 6.9 0 12.6 2.4 17.1 7.3l-7.1 6.7c-2.6-2.8-5.8-4.2-9.7-4.2-3.5 0-6.3 1-8.5 3-2.1 2-3.2 4.7-3.2 8.2 0 3.4 1.1 6.2 3.2 8.2 2.2 2 5 3 8.5 3 3.8 0 7-1.4 9.7-4.2l7.1 6.7c-4.5 4.9-10.2 7.3-17.1 7.3-6.1 0-11.2-1.9-15.4-5.8z"/>
-  <path fill="#a3a3a3" d="M44.9 10.6h10.7v10.7H44.9z"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none">
+  <defs>
+    <linearGradient id="ct-grad" x1="0" y1="0" x2="100" y2="100" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#ff6600"/>
+      <stop offset="50%" stop-color="#ff3388"/>
+      <stop offset="100%" stop-color="#ff0044"/>
+    </linearGradient>
+    <filter id="ct-glow" x="-35%" y="-35%" width="170%" height="170%">
+      <feGaussianBlur stdDeviation="2.5" result="b1"/>
+      <feGaussianBlur stdDeviation="6" result="b2"/>
+      <feMerge>
+        <feMergeNode in="b2"/>
+        <feMergeNode in="b1"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Rounded square border (orange/red neon) -->
+  <rect
+    x="8" y="8" width="84" height="84" rx="22"
+    stroke="url(#ct-grad)"
+    stroke-width="3.5"
+    fill="none"
+    filter="url(#ct-glow)"
+  />
+
+  <!-- "C" letter (Computrabajo) -->
+  <path
+    d="M66 32 C60 24 52 20 44 22 C32 25 24 36 26 50 C28 64 40 73 54 71 C62 69 68 63 70 56"
+    stroke="url(#ct-grad)"
+    stroke-width="7"
+    stroke-linecap="round"
+    fill="none"
+    filter="url(#ct-glow)"
+  />
+
+  <!-- Small accent square (top-right, Computrabajo brand mark) -->
+  <rect
+    x="66" y="16" width="14" height="14" rx="3"
+    stroke="url(#ct-grad)"
+    stroke-width="2.5"
+    fill="none"
+    filter="url(#ct-glow)"
+  />
 </svg>
