@@ -9,12 +9,12 @@ import { cn } from "@/lib/utils";
 
 type MsTab = "outlook" | "calendar" | "excel" | "onedrive" | "teams";
 
-const MS_MODULES: { id: MsTab; name: string; icon: any; color: string; description: string }[] = [
-  { id: "outlook",   name: "Outlook Mail",   icon: Mail,            color: "text-blue-400",    description: "Envía correos a candidatos desde tu cuenta corporativa de Outlook." },
-  { id: "calendar",  name: "Calendar",        icon: Calendar,        color: "text-cyan-400",    description: "Agenda entrevistas y sincroniza eventos con tu calendario de Microsoft 365." },
-  { id: "excel",     name: "Excel Online",    icon: FileSpreadsheet, color: "text-green-400",   description: "Exporta e importa candidatos desde hojas de cálculo de OneDrive." },
-  { id: "onedrive",  name: "OneDrive",        icon: FolderOpen,      color: "text-sky-400",     description: "Sube y comparte CVs, documentos y archivos del proceso de selección." },
-  { id: "teams",     name: "Teams",           icon: Video,           color: "text-purple-400",  description: "Crea reuniones de Teams para entrevistas virtuales y recibe el link automáticamente." },
+const MS_MODULES: { id: MsTab; name: string; icon: any; color: string; description: string; img: string }[] = [
+  { id: "outlook",   name: "Outlook Mail",   icon: Mail,            color: "text-blue-400",    description: "Envía correos a candidatos desde tu cuenta corporativa de Outlook.",                          img: "/assets/workspace/outlook-mail.svg" },
+  { id: "calendar",  name: "Calendar",        icon: Calendar,        color: "text-cyan-400",    description: "Agenda entrevistas y sincroniza eventos con tu calendario de Microsoft 365.",                  img: "/assets/workspace/outlook-calendar.svg" },
+  { id: "excel",     name: "Excel Online",    icon: FileSpreadsheet, color: "text-green-400",   description: "Exporta e importa candidatos desde hojas de cálculo de OneDrive.",                            img: "/assets/workspace/excel.svg" },
+  { id: "onedrive",  name: "OneDrive",        icon: FolderOpen,      color: "text-sky-400",     description: "Sube y comparte CVs, documentos y archivos del proceso de selección.",                        img: "/assets/workspace/onedrive.svg" },
+  { id: "teams",     name: "Teams",           icon: Video,           color: "text-purple-400",  description: "Crea reuniones de Teams para entrevistas virtuales y recibe el link automáticamente.",         img: "/assets/workspace/teams.svg" },
 ];
 
 function useMicrosoftAuth() {
@@ -220,10 +220,10 @@ export function MicrosoftHub() {
       {!isConnected && (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {MS_MODULES.map((mod) => (
-            <div key={mod.id} className="glass-panel p-5 rounded-xl border border-white/8 opacity-60">
+            <div key={mod.id} className="glass-panel p-5 rounded-xl border border-white/8 opacity-60 group">
               <div className="flex items-center gap-3 mb-3">
-                <div className="p-2 bg-slate-800 rounded-lg border border-white/8">
-                  <mod.icon className={cn("w-4 h-4", mod.color)} />
+                <div className="w-12 h-12 flex items-center justify-center bg-slate-900 rounded-xl border border-white/8 transition-all group-hover:scale-110 group-hover:-translate-y-1">
+                  <img src={mod.img} alt={mod.name} className="w-9 h-9 object-contain drop-shadow-[0_3px_10px_rgba(0,0,0,0.5)]" loading="lazy" />
                 </div>
                 <span className="text-sm font-semibold text-slate-300">{mod.name}</span>
               </div>
@@ -259,7 +259,7 @@ export function MicrosoftHub() {
                     : "text-slate-400 hover:text-white hover:bg-white/5"
                 )}
               >
-                <mod.icon className={cn("w-3.5 h-3.5", activeTab === mod.id ? mod.color : "")} />
+                <img src={mod.img} alt={mod.name} className={cn("w-5 h-5 object-contain transition-all", activeTab === mod.id ? "drop-shadow-[0_0_6px_rgba(255,255,255,0.4)]" : "opacity-60")} loading="lazy" />
                 {mod.name}
               </button>
             ))}

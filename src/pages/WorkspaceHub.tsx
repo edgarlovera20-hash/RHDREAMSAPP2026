@@ -639,13 +639,13 @@ export function WorkspaceHub() {
 
   const neutralToolState = "bg-slate-200/10 border-slate-200/40 text-white shadow-[inset_3px_0_0_rgba(226,232,240,0.55),0_0_18px_rgba(245,245,245,0.10)]";
   const workspaceTools = [
-    { id: "sheets", name: "Google Sheets", desc: "Base de candidatos", icon: FileSpreadsheet, iconClass: "icon-emerald" },
-    { id: "calendar", name: "Google Calendar", desc: "Agendar entrevistas", icon: CalendarIcon, iconClass: "icon-amber" },
-    { id: "gmail", name: "Gmail", desc: "Comunicaciones", icon: Mail, iconClass: "icon-rose" },
-    { id: "forms", name: "Google Forms", desc: "Postulantes nuevos", icon: FormInput, iconClass: "icon-violet" },
-    { id: "picker", name: "Google Drive Picker", desc: "PDFs, imagenes y CVs", icon: FolderOpen, iconClass: "icon-sky" },
-    { id: "photos", name: "Google Photos", desc: "Fotos autorizadas", icon: ImageIcon, iconClass: "icon-orange" },
-    { id: "keep", name: "Google Keep", desc: "Apuntes y notas rápidas", icon: StickyNote, iconClass: "icon-amber" }
+    { id: "sheets",   name: "Google Sheets",       desc: "Base de candidatos",    icon: FileSpreadsheet, iconClass: "icon-emerald", img: "/assets/workspace/sheets.svg" },
+    { id: "calendar", name: "Google Calendar",      desc: "Agendar entrevistas",   icon: CalendarIcon,    iconClass: "icon-amber",   img: "/assets/workspace/calendar.svg" },
+    { id: "gmail",    name: "Gmail",                desc: "Comunicaciones",        icon: Mail,            iconClass: "icon-rose",    img: "/assets/workspace/gmail.svg" },
+    { id: "forms",    name: "Google Forms",         desc: "Postulantes nuevos",    icon: FormInput,       iconClass: "icon-violet",  img: "/assets/workspace/forms.svg" },
+    { id: "picker",   name: "Google Drive Picker",  desc: "PDFs, imagenes y CVs",  icon: FolderOpen,      iconClass: "icon-sky",     img: "/assets/workspace/drive.svg" },
+    { id: "photos",   name: "Google Photos",        desc: "Fotos autorizadas",     icon: ImageIcon,       iconClass: "icon-orange",  img: "/assets/workspace/photos.svg" },
+    { id: "keep",     name: "Google Keep",          desc: "Apuntes y notas rápidas", icon: StickyNote,    iconClass: "icon-amber",   img: "/assets/workspace/keep.svg" }
   ] as const;
 
   const workspaceSummaryCards = [
@@ -732,10 +732,10 @@ export function WorkspaceHub() {
                   )}
                 >
                   <div className={cn(
-                    "p-2 rounded-lg bg-slate-950 border border-white/5 transition-transform group-hover:scale-105",
-                    activeTab === tool.id ? "border-slate-200/25 bg-slate-800/80" : ""
+                    "w-10 h-10 rounded-xl flex items-center justify-center bg-slate-950 border border-white/5 transition-all group-hover:scale-110 group-hover:-translate-y-0.5",
+                    activeTab === tool.id ? "border-slate-200/25 bg-slate-800/80 scale-105 -translate-y-0.5" : ""
                   )}>
-                    <tool.icon className={cn("w-4 h-4", activeTab === tool.id ? tool.iconClass : "text-slate-300")} />
+                    <img src={(tool as any).img} alt={tool.name} className="w-7 h-7 object-contain drop-shadow-[0_2px_8px_rgba(0,0,0,0.4)]" loading="lazy" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="font-bold text-xs tracking-wide uppercase truncate">{tool.name}</div>
