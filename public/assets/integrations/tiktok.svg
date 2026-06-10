@@ -1,67 +1,14 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none">
   <defs>
-    <filter id="glow-white" x="-30%" y="-30%" width="160%" height="160%">
-      <feGaussianBlur stdDeviation="2" result="b1"/>
-      <feGaussianBlur stdDeviation="5" result="b2"/>
-      <feMerge>
-        <feMergeNode in="b2"/>
-        <feMergeNode in="b1"/>
-        <feMergeNode in="SourceGraphic"/>
-      </feMerge>
-    </filter>
-    <filter id="glow-cyan" x="-35%" y="-35%" width="170%" height="170%">
-      <feGaussianBlur stdDeviation="2.5" result="b1"/>
-      <feGaussianBlur stdDeviation="6" result="b2"/>
-      <feMerge>
-        <feMergeNode in="b2"/>
-        <feMergeNode in="b1"/>
-        <feMergeNode in="SourceGraphic"/>
-      </feMerge>
-    </filter>
-    <filter id="glow-red" x="-35%" y="-35%" width="170%" height="170%">
-      <feGaussianBlur stdDeviation="2.5" result="b1"/>
-      <feGaussianBlur stdDeviation="6" result="b2"/>
-      <feMerge>
-        <feMergeNode in="b2"/>
-        <feMergeNode in="b1"/>
-        <feMergeNode in="SourceGraphic"/>
-      </feMerge>
+    <filter id="glow-t">
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
     </filter>
   </defs>
-
-  <!-- TikTok musical note shape -->
-  <!-- Cyan offset (left shadow) -->
-  <path
-    d="M55 12 L55 56 C55 64 48 70 40 68 C32 66 28 58 32 51 C36 44 46 44 50 47 L50 36 C38 32 24 40 22 54 C20 68 30 80 44 80 C58 80 68 70 68 56 L68 28 C72 31 78 33 84 33 L84 20 C76 20 70 16 67 12 Z"
-    stroke="#00e5ff"
-    stroke-width="2"
-    stroke-linejoin="round"
-    stroke-linecap="round"
-    fill="none"
-    filter="url(#glow-cyan)"
-    transform="translate(-4, 0)"
-  />
-
-  <!-- Red offset (right shadow) -->
-  <path
-    d="M55 12 L55 56 C55 64 48 70 40 68 C32 66 28 58 32 51 C36 44 46 44 50 47 L50 36 C38 32 24 40 22 54 C20 68 30 80 44 80 C58 80 68 70 68 56 L68 28 C72 31 78 33 84 33 L84 20 C76 20 70 16 67 12 Z"
-    stroke="#ff2244"
-    stroke-width="2"
-    stroke-linejoin="round"
-    stroke-linecap="round"
-    fill="none"
-    filter="url(#glow-red)"
-    transform="translate(4, 0)"
-  />
-
-  <!-- White center (main shape) -->
-  <path
-    d="M55 12 L55 56 C55 64 48 70 40 68 C32 66 28 58 32 51 C36 44 46 44 50 47 L50 36 C38 32 24 40 22 54 C20 68 30 80 44 80 C58 80 68 70 68 56 L68 28 C72 31 78 33 84 33 L84 20 C76 20 70 16 67 12 Z"
-    stroke="white"
-    stroke-width="2.5"
-    stroke-linejoin="round"
-    stroke-linecap="round"
-    fill="none"
-    filter="url(#glow-white)"
-  />
+  <g filter="url(#glow-t)">
+    <!-- TikTok note shape - cyan outer -->
+    <path d="M62 10 C62 10 68 14 74 14 L74 28 C68 28 62 24 60 18 L60 60 C60 72 50 80 40 76 C30 72 27 60 33 52 C39 44 52 45 56 50 L56 36 C46 32 30 36 22 50 C14 64 18 82 32 88 C46 94 64 88 70 72 C74 62 72 20 72 20" stroke="#00e5cc" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    <!-- Pink shadow offset -->
+    <path d="M58 10 C58 10 64 14 70 14 L70 28 C64 28 58 24 56 18 L56 60 C56 72 46 80 36 76 C26 72 23 60 29 52 C35 44 48 45 52 50 L52 36 C42 32 26 36 18 50 C10 64 14 82 28 88 C42 94 60 88 66 72 C70 62 68 20 68 20" stroke="#e5006e" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.8"/>
+  </g>
 </svg>

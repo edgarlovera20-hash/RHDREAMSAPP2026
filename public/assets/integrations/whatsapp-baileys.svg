@@ -1,48 +1,19 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none">
   <defs>
-    <filter id="glow-b" x="-40%" y="-40%" width="180%" height="180%">
-      <feGaussianBlur stdDeviation="2.5" result="b1"/>
-      <feGaussianBlur stdDeviation="5" result="b2"/>
-      <feMerge>
-        <feMergeNode in="b2"/>
-        <feMergeNode in="b1"/>
-        <feMergeNode in="SourceGraphic"/>
-      </feMerge>
+    <filter id="glow-wb">
+      <feGaussianBlur stdDeviation="3.5" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
     </filter>
   </defs>
-
-  <!-- Chat bubble (WhatsApp shape) -->
-  <path
-    d="M50 10 C27 10 8 27 8 48 C8 57 11 65 17 72 L10 90 L30 82 C36 85 43 87 50 87 C73 87 92 70 92 48 C92 27 73 10 50 10 Z"
-    stroke="#00ff44"
-    stroke-width="3"
-    stroke-linejoin="round"
-    fill="none"
-    filter="url(#glow-b)"
-  />
-
-  <!-- Inner arc (WhatsApp circle arc - top) -->
-  <path
-    d="M28 33 C28 33 34 22 50 22 C62 22 70 29 70 29"
-    stroke="#00ff44"
-    stroke-width="2.5"
-    stroke-linecap="round"
-    fill="none"
-    filter="url(#glow-b)"
-  />
-
-  <!-- Phone handset icon -->
-  <path
-    d="M38 36 C36 38 34 42 35 46 C36 52 40 58 45 63 C50 68 56 72 62 73 C66 74 70 72 72 70 L68 62 C67 61 65 61 64 62 L60 65 C57 63 54 61 52 58 C49 55 47 52 46 49 L49 45 C50 44 50 42 49 41 Z"
-    stroke="#00ff44"
-    stroke-width="2.5"
-    stroke-linejoin="round"
-    stroke-linecap="round"
-    fill="none"
-    filter="url(#glow-b)"
-  />
-
-  <!-- Plus sign (top right) -->
-  <line x1="76" y1="18" x2="76" y2="32" stroke="#00ff44" stroke-width="3" stroke-linecap="round" filter="url(#glow-b)"/>
-  <line x1="69" y1="25" x2="83" y2="25" stroke="#00ff44" stroke-width="3" stroke-linecap="round" filter="url(#glow-b)"/>
+  <g filter="url(#glow-wb)">
+    <!-- Chat bubble circle -->
+    <path d="M50 12 C28 12 12 26 12 44 C12 54 17 63 26 69 L22 88 L42 78 C44 78 47 79 50 79 C72 79 88 65 88 47 C88 29 72 12 50 12 Z" stroke="#00cc44" stroke-width="2.5" fill="#004d1a"/>
+    <!-- Phone handset -->
+    <path d="M35 38 C35 35 38 32 42 32 L44 32 L47 40 L44 43 C46 47 50 51 54 53 L57 50 L65 53 L65 55 C65 59 62 62 59 62 C45 62 35 50 35 38 Z" stroke="#00ff66" stroke-width="2" fill="none"/>
+    <!-- Plus sign -->
+    <line x1="72" y1="22" x2="72" y2="34" stroke="#00ff66" stroke-width="3.5" stroke-linecap="round"/>
+    <line x1="66" y1="28" x2="78" y2="28" stroke="#00ff66" stroke-width="3.5" stroke-linecap="round"/>
+  </g>
+  <!-- Outer glow ring -->
+  <path d="M50 8 C26 8 8 24 8 44 C8 55 14 65 24 72 L19 94 L43 82 C45 83 47 83 50 83 C74 83 92 67 92 47 C92 27 74 8 50 8 Z" stroke="#66ffaa" stroke-width="0.8" fill="none" opacity="0.4"/>
 </svg>

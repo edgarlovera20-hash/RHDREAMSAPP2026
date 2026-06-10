@@ -1,54 +1,22 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none">
   <defs>
-    <linearGradient id="indeed-grad" x1="0" y1="0" x2="100" y2="100" gradientUnits="userSpaceOnUse">
-      <stop offset="0%" stop-color="#00aaff"/>
-      <stop offset="100%" stop-color="#0055ff"/>
-    </linearGradient>
-    <filter id="indeed-glow" x="-35%" y="-35%" width="170%" height="170%">
-      <feGaussianBlur stdDeviation="2.5" result="b1"/>
-      <feGaussianBlur stdDeviation="6" result="b2"/>
-      <feMerge>
-        <feMergeNode in="b2"/>
-        <feMergeNode in="b1"/>
-        <feMergeNode in="SourceGraphic"/>
-      </feMerge>
+    <filter id="glow-b">
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
     </filter>
   </defs>
-
-  <!-- Rounded square border (blue neon) -->
-  <rect
-    x="8" y="8" width="84" height="84" rx="22"
-    stroke="url(#indeed-grad)"
-    stroke-width="3.5"
-    fill="none"
-    filter="url(#indeed-glow)"
-  />
-
-  <!-- "i" dot -->
-  <circle
-    cx="50" cy="25" r="5"
-    stroke="url(#indeed-grad)"
-    stroke-width="2.5"
-    fill="none"
-    filter="url(#indeed-glow)"
-  />
-
-  <!-- "i" stem -->
-  <line
-    x1="50" y1="36" x2="50" y2="72"
-    stroke="url(#indeed-grad)"
-    stroke-width="7"
-    stroke-linecap="round"
-    filter="url(#indeed-glow)"
-  />
-
-  <!-- Indeed arc / swoosh on top-left -->
-  <path
-    d="M22 32 C22 20 32 12 44 12"
-    stroke="url(#indeed-grad)"
-    stroke-width="2.5"
-    stroke-linecap="round"
-    fill="none"
-    filter="url(#indeed-glow)"
-  />
+  <g filter="url(#glow-b)">
+    <!-- Head -->
+    <circle cx="52" cy="20" r="9" stroke="#3399ff" stroke-width="2.5" fill="#1166cc"/>
+    <!-- Body bar -->
+    <rect x="46" y="33" width="13" height="30" rx="6" stroke="#3399ff" stroke-width="2" fill="#1166cc"/>
+    <!-- Arm sweep top-left -->
+    <path d="M46 40 Q30 35 32 22 Q34 12 44 10" stroke="#55bbff" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+    <!-- Legs -->
+    <line x1="49" y1="63" x2="43" y2="82" stroke="#3399ff" stroke-width="3" stroke-linecap="round"/>
+    <line x1="57" y1="63" x2="63" y2="82" stroke="#3399ff" stroke-width="3" stroke-linecap="round"/>
+  </g>
+  <!-- outer soft lines -->
+  <circle cx="52" cy="20" r="11" stroke="#99ddff" stroke-width="0.8" fill="none" opacity="0.5"/>
+  <path d="M45 39 Q27 33 30 20 Q33 10 43 8" stroke="#99ddff" stroke-width="0.8" fill="none" stroke-linecap="round" opacity="0.5"/>
 </svg>

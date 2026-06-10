@@ -1,48 +1,15 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none">
   <defs>
-    <filter id="glow-purple" x="-30%" y="-30%" width="160%" height="160%">
-      <feGaussianBlur stdDeviation="2.5" result="b1"/>
-      <feGaussianBlur stdDeviation="6" result="b2"/>
-      <feMerge>
-        <feMergeNode in="b2"/>
-        <feMergeNode in="b1"/>
-        <feMergeNode in="SourceGraphic"/>
-      </feMerge>
-    </filter>
-    <filter id="glow-blue" x="-30%" y="-30%" width="160%" height="160%">
-      <feGaussianBlur stdDeviation="2" result="b1"/>
-      <feGaussianBlur stdDeviation="5" result="b2"/>
-      <feMerge>
-        <feMergeNode in="b2"/>
-        <feMergeNode in="b1"/>
-        <feMergeNode in="SourceGraphic"/>
-      </feMerge>
+    <filter id="glow-f">
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
     </filter>
   </defs>
-
-  <!-- Rounded square border (purple/pink neon) -->
-  <rect
-    x="6" y="6" width="88" height="88" rx="22"
-    stroke="url(#grad-border)"
-    stroke-width="3"
-    fill="none"
-    filter="url(#glow-purple)"
-  />
-  <defs>
-    <linearGradient id="grad-border" x1="6" y1="6" x2="94" y2="94" gradientUnits="userSpaceOnUse">
-      <stop offset="0%" stop-color="#cc44ff"/>
-      <stop offset="50%" stop-color="#8855ff"/>
-      <stop offset="100%" stop-color="#33aaff"/>
-    </linearGradient>
-  </defs>
-
-  <!-- Facebook "f" letter (cyan/blue neon) -->
-  <path
-    d="M55 22 C55 22 48 22 45 26 C42 30 42 35 42 35 L42 42 L36 42 L36 50 L42 50 L42 78 L51 78 L51 50 L58 50 L59 42 L51 42 L51 36 C51 34 52 33 54 33 L59 33 L59 22 Z"
-    stroke="#33aaff"
-    stroke-width="1.5"
-    stroke-linejoin="round"
-    fill="none"
-    filter="url(#glow-blue)"
-  />
+  <g filter="url(#glow-f)">
+    <!-- Rounded square border - purple neon -->
+    <rect x="10" y="10" width="80" height="80" rx="18" stroke="#cc44ff" stroke-width="3" fill="none"/>
+    <rect x="14" y="14" width="72" height="72" rx="16" stroke="#9900cc" stroke-width="1.5" fill="none" opacity="0.6"/>
+    <!-- F letter - blue neon -->
+    <path d="M56 20 L44 20 C38 20 34 24 34 30 L34 44 L28 44 L28 56 L34 56 L34 82 L46 82 L46 56 L54 56 L56 44 L46 44 L46 34 C46 32 47 31 49 31 L56 31 Z" stroke="#3388ff" stroke-width="2.5" fill="#1155cc"/>
+  </g>
 </svg>
