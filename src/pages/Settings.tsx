@@ -30,6 +30,7 @@ const INTEGRATION_ICON_IMAGES: Record<string, string> = {
   messenger: "/assets/integrations/messenger.svg",
   instagram: "/assets/integrations/instagram.svg",
   tiktok: "/assets/integrations/tiktok.svg",
+  canva: "/assets/integrations/canva.svg",
 };
 
 const INTEGRATIONS = [
