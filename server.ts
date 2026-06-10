@@ -20,6 +20,7 @@ import { initializeGeminiService } from "./server/services/gemini.service";
 import { initializeGroqService } from "./server/services/groq.service";
 import { initializeOpenRouterService } from "./server/services/openrouter.service";
 import { restoreSavedBaileysSessions } from "./server/services/baileys.service";
+import { startInterviewReminderScheduler } from "./server/services/interviewReminder.service";
 
 dotenv.config();
 
@@ -277,6 +278,7 @@ async function startServer() {
       restoreSavedBaileysSessions().catch((error) => {
         logError("Baileys saved sessions restore failed", error);
       });
+      startInterviewReminderScheduler();
     });
   } catch (err) {
     logFatal("Server failed to start", err);
