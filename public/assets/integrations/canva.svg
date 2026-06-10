@@ -1,10 +1,10 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
   <defs>
-    <linearGradient id="cv-bg" x1="0" y1="0" x2="1" y2="1">
+    <linearGradient id="cv" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0%" stop-color="#00C4CC"/>
       <stop offset="100%" stop-color="#7B2FF7"/>
     </linearGradient>
   </defs>
-  <circle cx="50" cy="50" r="50" fill="url(#cv-bg)"/>
-  <text x="50" y="57" font-family="Georgia,serif" font-size="26" font-style="italic" font-weight="bold" fill="#fff" text-anchor="middle">Canva</text>
+  <circle cx="50" cy="50" r="50" fill="url(#cv)"/>
+  <text x="50" y="57" font-family="Georgia,Times New Roman,serif" font-size="24" font-style="italic" font-weight="bold" fill="#fff" text-anchor="middle">Canva</text>
 </svg>
