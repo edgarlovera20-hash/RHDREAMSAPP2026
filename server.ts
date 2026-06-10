@@ -15,6 +15,7 @@ import { createGoogleRoutes } from "./server/routes/google.routes";
 import { createConversationRoutes } from "./server/routes/conversations.routes";
 import { createInterviewRoutes } from "./server/routes/interviews.routes";
 import { createAutomationRulesRoutes } from "./server/routes/automationRules.routes";
+import { metaRouter } from "./server/modules/meta/router";
 import { apiLimiter } from "./server/middleware/rateLimiter";
 import { initializeGeminiService } from "./server/services/gemini.service";
 import { initializeGroqService } from "./server/services/groq.service";
@@ -191,6 +192,9 @@ async function startServer() {
     app.use("/api/google", createGoogleRoutes());
     app.use("/api/interviews", createInterviewRoutes());
     app.use("/api/automation-rules", createAutomationRulesRoutes());
+    app.use("/api/meta", metaRouter);
+    // Backwards-compat alias (old webhook URL)
+    app.use("/api/integrations/meta", metaRouter);
     app.use("/api", (_req, res) => {
       res.status(404).json({
         success: false,
