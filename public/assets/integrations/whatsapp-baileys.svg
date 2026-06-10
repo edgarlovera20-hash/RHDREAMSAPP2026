@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none">
+  <defs>
+    <filter id="glow-b" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="2.5" result="b1"/>
+      <feGaussianBlur stdDeviation="5" result="b2"/>
+      <feMerge>
+        <feMergeNode in="b2"/>
+        <feMergeNode in="b1"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Chat bubble (WhatsApp shape) -->
+  <path
+    d="M50 10 C27 10 8 27 8 48 C8 57 11 65 17 72 L10 90 L30 82 C36 85 43 87 50 87 C73 87 92 70 92 48 C92 27 73 10 50 10 Z"
+    stroke="#00ff44"
+    stroke-width="3"
+    stroke-linejoin="round"
+    fill="none"
+    filter="url(#glow-b)"
+  />
+
+  <!-- Inner arc (WhatsApp circle arc - top) -->
+  <path
+    d="M28 33 C28 33 34 22 50 22 C62 22 70 29 70 29"
+    stroke="#00ff44"
+    stroke-width="2.5"
+    stroke-linecap="round"
+    fill="none"
+    filter="url(#glow-b)"
+  />
+
+  <!-- Phone handset icon -->
+  <path
+    d="M38 36 C36 38 34 42 35 46 C36 52 40 58 45 63 C50 68 56 72 62 73 C66 74 70 72 72 70 L68 62 C67 61 65 61 64 62 L60 65 C57 63 54 61 52 58 C49 55 47 52 46 49 L49 45 C50 44 50 42 49 41 Z"
+    stroke="#00ff44"
+    stroke-width="2.5"
+    stroke-linejoin="round"
+    stroke-linecap="round"
+    fill="none"
+    filter="url(#glow-b)"
+  />
+
+  <!-- Plus sign (top right) -->
+  <line x1="76" y1="18" x2="76" y2="32" stroke="#00ff44" stroke-width="3" stroke-linecap="round" filter="url(#glow-b)"/>
+  <line x1="69" y1="25" x2="83" y2="25" stroke="#00ff44" stroke-width="3" stroke-linecap="round" filter="url(#glow-b)"/>
+</svg>

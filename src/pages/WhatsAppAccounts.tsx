@@ -133,7 +133,7 @@ const CHANNEL_ICON_IMAGES: Partial<Record<ChannelType, string>> = {
   indeed: "/assets/integrations/indeed.svg",
   computrabajo: "/assets/integrations/computrabajo.svg",
   whatsapp_meta: "/assets/integrations/whatsapp-meta.svg",
-  whatsapp_personal: "/assets/integrations/whatsapp.svg",
+  whatsapp_personal: "/assets/integrations/whatsapp-baileys.svg",
   facebook: "/assets/integrations/facebook.svg",
   messenger: "/assets/integrations/messenger.svg",
   instagram: "/assets/integrations/instagram.svg",
