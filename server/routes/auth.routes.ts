@@ -166,5 +166,86 @@ export const createAuthRoutes = (): Router => {
     }
   });
 
+  // ─── Microsoft OAuth ────────────────────────────────────────────────────────
+  const MS_AUTH_BASE = `https://login.microsoftonline.com/${process.env.MICROSOFT_TENANT_ID || "common"}/oauth2/v2.0`;
+  const MS_SCOPES = [
+    "openid", "email", "profile", "offline_access",
+    "User.Read",
+    "Calendars.ReadWrite",
+    "Mail.Send",
+    "Files.ReadWrite",
+    "Teams.ReadBasic.All",
+  ].join(" ");
+
+  // GET /api/auth/microsoft — inicia flujo OAuth de Microsoft
+  router.get("/microsoft", (_req, res) => {
+    const clientId = process.env.MICROSOFT_CLIENT_ID;
+    const redirectUri = process.env.MICROSOFT_REDIRECT_URI || "https://rh.heavenlydreams.com.mx/api/auth/microsoft/callback";
+    if (!clientId) {
+      return res.status(500).json({ success: false, error: "Microsoft OAuth no configurado. Agrega MICROSOFT_CLIENT_ID al entorno." });
+    }
+    const url = new URL(`${MS_AUTH_BASE}/authorize`);
+    url.searchParams.set("client_id", clientId);
+    url.searchParams.set("redirect_uri", redirectUri);
+    url.searchParams.set("response_type", "code");
+    url.searchParams.set("scope", MS_SCOPES);
+    url.searchParams.set("response_mode", "query");
+    url.searchParams.set("prompt", "consent");
+    res.redirect(url.toString());
+  });
+
+  // GET /api/auth/microsoft/callback — recibe código y obtiene tokens
+  router.get("/microsoft/callback", async (req, res) => {
+    try {
+      const { code, error, error_description } = req.query as Record<string, string>;
+      if (error) {
+        logger.warn("Microsoft OAuth denied", { error, error_description });
+        return res.redirect("/?ms_error=" + encodeURIComponent(error_description || error));
+      }
+      if (!code) return res.status(400).json({ success: false, error: "No se recibió código de Microsoft" });
+
+      const clientId = process.env.MICROSOFT_CLIENT_ID!;
+      const clientSecret = process.env.MICROSOFT_CLIENT_SECRET!;
+      const redirectUri = process.env.MICROSOFT_REDIRECT_URI || "https://rh.heavenlydreams.com.mx/api/auth/microsoft/callback";
+
+      const tokenRes = await fetch(`${MS_AUTH_BASE}/token`, {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: new URLSearchParams({
+          code,
+          client_id: clientId,
+          client_secret: clientSecret,
+          redirect_uri: redirectUri,
+          grant_type: "authorization_code",
+          scope: MS_SCOPES,
+        }),
+      });
+      const tokens = await tokenRes.json() as { access_token?: string; refresh_token?: string; error?: string; error_description?: string };
+      if (tokens.error || !tokens.access_token) {
+        logger.error("Microsoft token exchange failed", tokens);
+        return res.redirect("/?ms_error=token_failed");
+      }
+
+      // Obtener info del usuario via Graph API
+      const userRes = await fetch("https://graph.microsoft.com/v1.0/me", {
+        headers: { Authorization: `Bearer ${tokens.access_token}` },
+      });
+      const userInfo = await userRes.json() as { mail?: string; userPrincipalName?: string; displayName?: string };
+
+      logger.info("Microsoft OAuth success", { email: userInfo.mail || userInfo.userPrincipalName });
+
+      const params = new URLSearchParams({
+        ms_access_token: tokens.access_token,
+        ms_refresh_token: tokens.refresh_token || "",
+        ms_email: userInfo.mail || userInfo.userPrincipalName || "",
+        ms_name: userInfo.displayName || "",
+      });
+      res.redirect(`/microsoft?${params.toString()}`);
+    } catch (err) {
+      logger.error("Microsoft OAuth callback error", err);
+      res.redirect("/?ms_error=server_error");
+    }
+  });
+
   return router;
 };

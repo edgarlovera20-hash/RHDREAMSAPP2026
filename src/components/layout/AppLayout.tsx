@@ -38,6 +38,7 @@ const PATH_MAP: Record<string, string> = {
   "/welcome-followup": "Bienvenidas",
   "/whatsapp": "Canales de Chat",
   "/workspace": "Google Workspace",
+  "/microsoft": "Microsoft 365",
   "/reports": "Reportes",
   "/settings": "Configuración",
 };
@@ -52,6 +53,7 @@ const NAV_ITEMS = [
   { name: "Bienvenidas",      path: "/welcome-followup",icon: ClipboardCheck,  glassIcon: "icon-lime",    color: "#a3e635" },
   { name: "Canales de Chat",  path: "/whatsapp",        icon: Smartphone,      glassIcon: "icon-cyan",    color: "#22d3ee" },
   { name: "Google Workspace", path: "/workspace",       icon: Cloud,           glassIcon: "icon-sky",     color: "#38bdf8" },
+  { name: "Microsoft 365",    path: "/microsoft",       icon: Cloud,           glassIcon: "icon-blue",    color: "#00a4ef" },
   { name: "Reportes",         path: "/reports",         icon: PieChart,        glassIcon: "icon-orange",  color: "#fb923c" },
   { name: "Configuración",    path: "/settings",        icon: Settings,        glassIcon: "icon-rose",    color: "#fb7185" },
 ];

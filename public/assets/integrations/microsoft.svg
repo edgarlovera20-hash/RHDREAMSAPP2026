@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none">
+  <defs>
+    <filter id="ms-glow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="2" result="b1"/>
+      <feGaussianBlur stdDeviation="5" result="b2"/>
+      <feMerge>
+        <feMergeNode in="b2"/>
+        <feMergeNode in="b1"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Top-left: Red (Word/Office) -->
+  <rect x="10" y="10" width="36" height="36" rx="4" fill="#f25022" filter="url(#ms-glow)" opacity="0.9"/>
+  <!-- Top-right: Green (Excel) -->
+  <rect x="54" y="10" width="36" height="36" rx="4" fill="#7fba00" filter="url(#ms-glow)" opacity="0.9"/>
+  <!-- Bottom-left: Blue (Teams/Word) -->
+  <rect x="10" y="54" width="36" height="36" rx="4" fill="#00a4ef" filter="url(#ms-glow)" opacity="0.9"/>
+  <!-- Bottom-right: Yellow (PowerPoint) -->
+  <rect x="54" y="54" width="36" height="36" rx="4" fill="#ffb900" filter="url(#ms-glow)" opacity="0.9"/>
+</svg>

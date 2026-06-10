@@ -17,7 +17,7 @@ module.exports = {
         MICROSOFT_CLIENT_ID: process.env.MICROSOFT_CLIENT_ID || "",
         MICROSOFT_TENANT_ID: process.env.MICROSOFT_TENANT_ID || "",
         MICROSOFT_CLIENT_SECRET: process.env.MICROSOFT_CLIENT_SECRET || "",
-        MICROSOFT_REDIRECT_URI: process.env.MICROSOFT_REDIRECT_URI || "",
+        MICROSOFT_REDIRECT_URI: process.env.MICROSOFT_REDIRECT_URI || "https://rh.heavenlydreams.com.mx/api/auth/microsoft/callback",
         JWT_SECRET: process.env.JWT_SECRET || "",
         REDIS_URL: process.env.REDIS_URL || "",
         GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID || "",

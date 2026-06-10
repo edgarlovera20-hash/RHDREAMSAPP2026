@@ -31,10 +31,12 @@ const INTEGRATION_ICON_IMAGES: Record<string, string> = {
   instagram: "/assets/integrations/instagram.svg",
   tiktok: "/assets/integrations/tiktok.svg",
   canva: "/assets/integrations/canva.svg",
+  microsoft_365: "/assets/integrations/microsoft.svg",
 };
 
 const INTEGRATIONS = [
   { id: 'google_workspace', name: 'Google Workspace', category: 'Productividad', description: 'OAuth real para Gmail, Calendar, Sheets, Forms y Drive desde el modulo Google Workspace.', icon: Globe, provider: null, actionPath: '/workspace' },
+  { id: 'microsoft_365', name: 'Microsoft 365', category: 'Productividad', description: 'OAuth real para Outlook, Teams, OneDrive, Calendar y Excel via Microsoft Graph API.', icon: Globe, provider: null, actionPath: '/microsoft' },
   { id: 'indeed', name: 'Indeed CSV / Correo / Webhook', category: 'Bolsa de empleo', description: 'Importa candidatos por CSV, correo parser, feed autorizado, Indeed Apply empresarial o webhook intermedio.', icon: MessageSquare, provider: 'indeed' },
   { id: 'computrabajo', name: 'Computrabajo CSV / Correo / Webhook', category: 'Bolsa de empleo', description: 'Importa candidatos por exportacion CSV, correo parser, feed autorizado o webhook intermedio.', icon: Users, provider: 'computrabajo' },
   { id: 'whatsapp_meta', name: 'WhatsApp Meta Cloud API', category: 'Comunicación oficial', description: 'Conector oficial de Meta: webhooks, Phone Number ID, token Cloud API y agente IA sin QR.', icon: Smartphone, provider: 'whatsapp_meta', actionPath: '/whatsapp' },

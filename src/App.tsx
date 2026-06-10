@@ -16,6 +16,7 @@ const AIWorkflows = lazy(() => import("@/pages/AIWorkflows").then((module) => ({
 const WelcomeTracking = lazy(() => import("@/pages/WelcomeTracking").then((module) => ({ default: module.WelcomeTracking })));
 const WhatsAppAccounts = lazy(() => import("@/pages/WhatsAppAccounts").then((module) => ({ default: module.WhatsAppAccounts })));
 const WorkspaceHub = lazy(() => import("@/pages/WorkspaceHub").then((module) => ({ default: module.WorkspaceHub })));
+const MicrosoftHub = lazy(() => import("@/pages/MicrosoftHub").then((module) => ({ default: module.MicrosoftHub })));
 const Reports = lazy(() => import("@/pages/Reports").then((module) => ({ default: module.Reports })));
 const Settings = lazy(() => import("@/pages/Settings").then((module) => ({ default: module.Settings })));
 
@@ -54,6 +55,7 @@ export default function App() {
                   <Route path="/welcome-followup" element={<WelcomeTracking />} />
                   <Route path="/whatsapp" element={<WhatsAppAccounts />} />
                   <Route path="/workspace" element={<WorkspaceHub />} />
+                  <Route path="/microsoft" element={<MicrosoftHub />} />
                   <Route path="/reports" element={<Reports />} />
                   <Route path="/settings" element={<Settings />} />
                 </Route>
