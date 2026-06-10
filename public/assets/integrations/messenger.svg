@@ -1,12 +1,43 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Messenger">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none">
   <defs>
-    <linearGradient id="msA" x1="10" y1="8" x2="54" y2="56" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#d4d4d4"/>
-      <stop offset=".48" stop-color="#737373"/>
-      <stop offset="1" stop-color="#525252"/>
-    </linearGradient>
+    <filter id="glow-blue" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="2.5" result="b1"/>
+      <feGaussianBlur stdDeviation="6" result="b2"/>
+      <feMerge>
+        <feMergeNode in="b2"/>
+        <feMergeNode in="b1"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <filter id="glow-white" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="2" result="b1"/>
+      <feGaussianBlur stdDeviation="5" result="b2"/>
+      <feMerge>
+        <feMergeNode in="b2"/>
+        <feMergeNode in="b1"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
   </defs>
-  <rect width="64" height="64" rx="18" fill="#171717"/>
-  <path fill="url(#msA)" d="M32 9.5c-12.8 0-23 9.5-23 21.4 0 6.8 3.3 12.9 8.5 16.8v8l7.8-4.3c2.1.6 4.3.9 6.7.9 12.8 0 23-9.5 23-21.4S44.8 9.5 32 9.5z"/>
-  <path fill="#fff" d="m17.8 37.4 11.4-12.1 6.1 6.4 10.8-6.4-11.4 12.1-6.1-6.4-10.8 6.4z"/>
+
+  <!-- Chat bubble (Messenger shape) with tail at bottom-left -->
+  <path
+    d="M50 8 C26 8 8 25 8 46 C8 58 14 69 24 76 L24 90 L37 82 C41 83 45 84 50 84 C74 84 92 67 92 46 C92 25 74 8 50 8 Z"
+    stroke="#3a7fff"
+    stroke-width="3"
+    stroke-linejoin="round"
+    fill="none"
+    filter="url(#glow-blue)"
+  />
+
+  <!-- Messenger zigzag lightning bolt -->
+  <path
+    d="M28 60 L44 41 L54 51 L72 32"
+    stroke="white"
+    stroke-width="4.5"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    fill="none"
+    filter="url(#glow-white)"
+  />
 </svg>
