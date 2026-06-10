@@ -221,10 +221,13 @@ export function MicrosoftHub() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {MS_MODULES.map((mod) => (
             <div key={mod.id} className="glass-panel p-5 rounded-xl border border-white/8 opacity-60 group">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="w-12 h-12 flex items-center justify-center bg-slate-900 rounded-xl border border-white/8 transition-all group-hover:scale-110 group-hover:-translate-y-1">
-                  <img src={mod.img} alt={mod.name} className="w-9 h-9 object-contain drop-shadow-[0_3px_10px_rgba(0,0,0,0.5)]" loading="lazy" />
-                </div>
+              <div className="flex items-center gap-4 mb-3">
+                <img
+                  src={mod.img}
+                  alt={mod.name}
+                  className="w-14 h-14 object-contain transition-all duration-300 drop-shadow-[0_4px_14px_rgba(0,0,0,0.4)] group-hover:scale-125 group-hover:-translate-y-1.5"
+                  loading="lazy"
+                />
                 <span className="text-sm font-semibold text-slate-300">{mod.name}</span>
               </div>
               <p className="text-xs text-slate-500 leading-relaxed">{mod.description}</p>
@@ -259,7 +262,7 @@ export function MicrosoftHub() {
                     : "text-slate-400 hover:text-white hover:bg-white/5"
                 )}
               >
-                <img src={mod.img} alt={mod.name} className={cn("w-5 h-5 object-contain transition-all", activeTab === mod.id ? "drop-shadow-[0_0_6px_rgba(255,255,255,0.4)]" : "opacity-60")} loading="lazy" />
+                <img src={mod.img} alt={mod.name} className={cn("w-6 h-6 object-contain transition-all duration-200 drop-shadow-[0_2px_6px_rgba(0,0,0,0.4)]", activeTab === mod.id ? "scale-110 -translate-y-0.5" : "opacity-70")} loading="lazy" />
                 {mod.name}
               </button>
             ))}

@@ -731,12 +731,16 @@ export function WorkspaceHub() {
                       : "bg-slate-950/45 border-white/5 text-slate-400 hover:text-white hover:bg-white/[0.045] hover:border-slate-200/30 hover:shadow-[0_0_16px_rgba(245,245,245,0.08)]"
                   )}
                 >
-                  <div className={cn(
-                    "w-10 h-10 rounded-xl flex items-center justify-center bg-slate-950 border border-white/5 transition-all group-hover:scale-110 group-hover:-translate-y-0.5",
-                    activeTab === tool.id ? "border-slate-200/25 bg-slate-800/80 scale-105 -translate-y-0.5" : ""
-                  )}>
-                    <img src={(tool as any).img} alt={tool.name} className="w-7 h-7 object-contain drop-shadow-[0_2px_8px_rgba(0,0,0,0.4)]" loading="lazy" />
-                  </div>
+                  <img
+                    src={(tool as any).img}
+                    alt={tool.name}
+                    className={cn(
+                      "w-12 h-12 object-contain transition-all duration-300 drop-shadow-[0_4px_12px_rgba(0,0,0,0.35)]",
+                      "group-hover:scale-125 group-hover:-translate-y-1.5",
+                      activeTab === tool.id ? "scale-115 -translate-y-1" : ""
+                    )}
+                    loading="lazy"
+                  />
                   <div className="flex-1 min-w-0">
                     <div className="font-bold text-xs tracking-wide uppercase truncate">{tool.name}</div>
                     <div className="text-[11px] text-slate-500 truncate">{tool.desc}</div>
