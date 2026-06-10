@@ -396,12 +396,12 @@ export function Settings() {
     return (
       <div key={integration.id} className="glass-panel glass-panel-hover p-5 rounded-xl border border-white/10 group">
         <div className="flex items-start justify-between mb-3">
-          <div className={cn("w-12 h-12 rounded-xl flex items-center justify-center shrink-0 transition-all overflow-hidden", status.ok ? "bg-zinc-500/10 text-zinc-400 border border-zinc-500/30 shadow-[inset_0_0_10px_rgba(163,163,163,0.3)]" : "bg-slate-800 text-slate-500 border border-slate-700")}>
+          <div className={cn("w-16 h-16 rounded-xl flex items-center justify-center shrink-0 transition-all overflow-hidden", status.ok ? "bg-zinc-500/10 text-zinc-400 border border-zinc-500/30 shadow-[inset_0_0_10px_rgba(163,163,163,0.3)]" : "bg-slate-800 text-slate-500 border border-slate-700")}>
             {iconImage ? (
               <img
                 src={iconImage}
                 alt={`${integration.name} icono`}
-                className="h-9 w-9 object-contain"
+                className="h-14 w-14 object-contain"
                 loading="lazy"
               />
             ) : (

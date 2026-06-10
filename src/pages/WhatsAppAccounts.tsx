@@ -798,7 +798,7 @@ export function WhatsAppAccounts() {
         <img
           src={image}
           alt={`${getPlatformLabel(type)} icono`}
-          className="h-5 w-5 object-contain drop-shadow-[0_0_10px_rgba(34,211,238,0.45)]"
+          className="h-7 w-7 object-contain drop-shadow-[0_0_10px_rgba(34,211,238,0.45)]"
           loading="lazy"
         />
       );
@@ -910,7 +910,7 @@ export function WhatsAppAccounts() {
             )}
           >
             {CHANNEL_ICON_IMAGES[tab.id as ChannelType] ? (
-              <img src={CHANNEL_ICON_IMAGES[tab.id as ChannelType]} alt={`${tab.name} icono`} className="h-4 w-4 object-contain" loading="lazy" />
+              <img src={CHANNEL_ICON_IMAGES[tab.id as ChannelType]} alt={`${tab.name} icono`} className="h-6 w-6 object-contain" loading="lazy" />
             ) : (
               <tab.icon className={cn("w-4 h-4", tab.color)} />
             )}
