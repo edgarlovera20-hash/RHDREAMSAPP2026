@@ -458,6 +458,11 @@ export async function startBaileysSession(options: StartOptions = {}) {
         reply = "Con gusto te ayudo.\n\n¿Me compartes tu nombre completo?";
       } else {
         const gemini = getGeminiService();
+        let knowledgeBaseContext = "";
+        try {
+          const { buildKnowledgeBasePrompt } = await import("../../src/data/agentKnowledgeBase.js");
+          knowledgeBaseContext = `\n\n${buildKnowledgeBasePrompt()}`;
+        } catch { /* skip if unavailable */ }
         const result = await gemini.generateAgentResponse(
           agentName,
           `
@@ -466,6 +471,16 @@ Respondes mensajes entrantes de WhatsApp para reclutamiento, atencion y seguimie
 ${session.agentPrompt || ""}
 
 ${turn.systemContext}
+${knowledgeBaseContext}
+
+EMPRESA: ${companyName}
+UBICACION: Av. Tlahuac 3632 A301, Col. Culhuacan, Iztapalapa, CDMX. Metro Culhuacan direccion Mixcoac.
+VACANTES: Ayudante General ($2,000/sem), Asesor Comercial ($2,300/sem), Supervisor ($2,600/sem), Volantero.
+HORARIO ENTREVISTAS: Lunes a viernes, horario de oficina.
+DOCUMENTOS PARA ENTREVISTA: INE, CURP, RFC, comprobante de domicilio, estudios, acta de nacimiento, NSS.
+
+OBJETIVO PRINCIPAL: Conseguir que el candidato confirme asistencia a entrevista presencial.
+FLUJO: 1) Saludo + nombre  2) Vacante de interes  3) Edad y disponibilidad  4) Agendar entrevista  5) Confirmar cita  6) Recordatorio
 
 Reglas:
 - Responde en maximo 2 o 3 lineas.
@@ -473,6 +488,7 @@ Reglas:
 - Haz una sola pregunta por mensaje.
 - No uses frases repetidas ni copies exactamente el ultimo mensaje enviado.
 - No inventes sueldos, horarios, direcciones ni promesas.
+- Siempre guia hacia el siguiente paso: si no tiene vacante, preguntar; si ya tiene vacante, preguntar edad/disponibilidad; si ya califica, ofrecer cita.
         `.trim(),
           turn.history,
           turn.userPrompt

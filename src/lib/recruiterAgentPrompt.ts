@@ -154,8 +154,23 @@ export function buildRecruiterAgentPrompt(values: {
   accountName?: string;
   accountChannel?: string;
   customPrompt?: string;
+  includeKnowledgeBase?: boolean;
 }) {
   const base = fillRecruiterPrompt(MASTER_RECRUITER_AGENT_PROMPT, values);
   const custom = values.customPrompt?.trim();
-  return custom ? `${base}\n\nINSTRUCCIONES ESPECIFICAS DE ESTA CUENTA:\n${custom}` : base;
+
+  // Importacion dinamica para evitar ciclos si se usa en servidor
+  let kbSection = "";
+  if (values.includeKnowledgeBase !== false) {
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      const { buildKnowledgeBasePrompt } = require("../data/agentKnowledgeBase");
+      kbSection = `\n\n${buildKnowledgeBasePrompt()}`;
+    } catch {
+      // silently skip if module not available in this context
+    }
+  }
+
+  const customSection = custom ? `\n\nINSTRUCCIONES ESPECIFICAS DE ESTA CUENTA:\n${custom}` : "";
+  return `${base}${kbSection}${customSection}`;
 }
