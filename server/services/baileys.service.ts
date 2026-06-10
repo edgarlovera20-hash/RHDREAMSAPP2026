@@ -4,6 +4,7 @@ import QRCode from "qrcode";
 import P from "pino";
 import { logger } from "../utils/logger";
 import { getGeminiService } from "./gemini.service";
+import { processIncomingMedia } from "./mediaProcessor.service";
 import {
   getRecruitmentLeadProfile,
   prepareRecruitmentConversationTurn,
@@ -474,21 +475,45 @@ ${turn.systemContext}
 ${knowledgeBaseContext}
 
 EMPRESA: ${companyName}
-UBICACION: Av. Tlahuac 3632 A301, Col. Culhuacan, Iztapalapa, CDMX. Metro Culhuacan direccion Mixcoac.
-VACANTES: Ayudante General ($2,000/sem), Asesor Comercial ($2,300/sem), Supervisor ($2,600/sem), Volantero.
-HORARIO ENTREVISTAS: Lunes a viernes, horario de oficina.
-DOCUMENTOS PARA ENTREVISTA: INE, CURP, RFC, comprobante de domicilio, estudios, acta de nacimiento, NSS.
+NOMBRE DEL AGENTE: ${agentName} (reclutadora con 10+ años de experiencia, profesional, cálida y empática)
+UBICACION: Av. Tláhuac 3632 A301, Col. Culhuacan, C.P. 09800, Iztapalapa, CDMX
+REFERENCIA: A un costado del Metro Culhuacán dirección Mixcoac, junto a Farmacias Similares, arriba de la escuela de belleza.
+HORARIO ENTREVISTAS: Lunes a viernes en horario de oficina.
+DOCUMENTOS PARA ENTREVISTA: INE, CURP, RFC, comprobante de domicilio, comprobante de estudios, acta de nacimiento, NSS.
 
-OBJETIVO PRINCIPAL: Conseguir que el candidato confirme asistencia a entrevista presencial.
-FLUJO: 1) Saludo + nombre  2) Vacante de interes  3) Edad y disponibilidad  4) Agendar entrevista  5) Confirmar cita  6) Recordatorio
+VACANTES DISPONIBLES:
+1. Ayudante General — $2,000 semanales, L-V 9am-6pm, Sáb 9am-5pm. Sin experiencia.
+2. Asesor Comercial — $2,300 semanales + bonos, L-V 8am-6pm, Sáb 8am-5pm.
+3. Supervisor de Área — $2,600 semanales + bono productividad, L-Sáb 8am-6pm. Req. 1 año liderando.
+4. Volantero/Promotor — sueldo por campaña. Sin experiencia, actitud positiva.
+Todas incluyen: IMSS, INFONAVIT, vacaciones, aguinaldo desde el día 1.
 
-Reglas:
-- Responde en maximo 2 o 3 lineas.
-- No envies parrafos largos.
-- Haz una sola pregunta por mensaje.
-- No uses frases repetidas ni copies exactamente el ultimo mensaje enviado.
-- No inventes sueldos, horarios, direcciones ni promesas.
-- Siempre guia hacia el siguiente paso: si no tiene vacante, preguntar; si ya tiene vacante, preguntar edad/disponibilidad; si ya califica, ofrecer cita.
+POLITICA DE EDADES (OBLIGATORIO):
+- Menos de 16 años: NO continuar el proceso. Agradecer con empatía y cerrar la conversación amablemente.
+- 16 o 17 años: Pueden continuar SOLO con permiso del tutor legal. Documentos requeridos: carta responsiva firmada por tutor, INE del tutor, acta de nacimiento del candidato, comprobante de domicilio.
+- 18 años o más: Proceso normal sin restricciones.
+- Si no conoces la edad, PREGUNTAR ANTES de agendar entrevista.
+
+OBJETIVO PRINCIPAL: Lograr que el candidato confirme asistencia a entrevista presencial.
+FLUJO IDEAL:
+1) Saludo cálido + preguntar nombre
+2) Identificar vacante de interés
+3) Preguntar edad (si no está en contexto)
+4) Aplicar política de edad correspondiente
+5) Calificar disponibilidad de horario y zona
+6) Ofrecer y agendar fecha de entrevista
+7) Confirmar cita con datos completos
+8) Dar seguimiento
+
+REGLAS DE COMUNICACIÓN:
+- Máximo 3-4 líneas por respuesta.
+- Una sola pregunta por mensaje.
+- Usar emojis con moderación (1-2 por mensaje).
+- No repetir información ya dada.
+- Usar el nombre del candidato naturalmente (no en cada mensaje).
+- Nunca inventar datos, sueldos, fechas ni promesas.
+- Si hay molestia, ofrecer hablar con alguien del equipo.
+- Responder con calidez y profesionalismo, como reclutadora senior.
         `.trim(),
           turn.history,
           turn.userPrompt
@@ -549,12 +574,17 @@ Reglas:
 
   socket.ev.on("messages.upsert", ({ messages, type }: any) => {
     for (const message of messages || []) {
+      const msgContent = message.message || {};
       const body =
-        message.message?.conversation ||
-        message.message?.extendedTextMessage?.text ||
-        message.message?.imageMessage?.caption ||
+        msgContent.conversation ||
+        msgContent.extendedTextMessage?.text ||
+        msgContent.imageMessage?.caption ||
+        msgContent.documentMessage?.caption ||
         "";
-      if (!body) continue;
+
+      // Detectar tipo de mensaje multimedia
+      const messageType = Object.keys(msgContent)[0] || "conversation";
+      const isMedia = ["audioMessage", "pttMessage", "imageMessage", "documentMessage", "videoMessage", "stickerMessage"].includes(messageType);
 
       const messageId = message.key?.id || `${Date.now()}`;
       const from = message.key?.remoteJid || "";
@@ -562,10 +592,13 @@ Reglas:
       const rawTimestamp = Number(message.messageTimestamp || Date.now());
       const createdAtMs = rawTimestamp < 10000000000 ? rawTimestamp * 1000 : rawTimestamp;
 
+      const displayBody = body || (isMedia ? `[${messageType}]` : "");
+      if (!displayBody) continue;
+
       session.messages.push({
         id: messageId,
         from,
-        body,
+        body: displayBody,
         timestamp: rawTimestamp,
         direction,
       });
@@ -578,7 +611,50 @@ Reglas:
         createdAtMs > Date.now() - 5 * 60 * 1000;
 
       if (isFreshInbound) {
-        void sendAutonomousAgentReply(messageId, from, body);
+        if (isMedia) {
+          // Procesar multimedia: audio, imagen, PDF
+          void (async () => {
+            try {
+              const baileys = await import("@whiskeysockets/baileys");
+              const mediaMsg = msgContent[messageType as keyof typeof msgContent] as any;
+              const mimeType = mediaMsg?.mimetype || "";
+
+              // Descargar el media
+              const stream = await baileys.downloadMediaMessage(message, "buffer", {});
+              const buffer = stream as Buffer;
+              const mediaBase64 = buffer.toString("base64");
+
+              // Obtener nombre del candidato del historial si existe
+              const turn = await prepareRecruitmentConversationTurn(session.id, from, body || messageType);
+              const candidateName = turn.conversation.name;
+
+              const result = await processIncomingMedia({
+                messageType,
+                mediaBase64,
+                mimeType,
+                caption: body,
+                candidateName,
+              });
+
+              if (result.agentResponse && session.socket && session.state === "connected") {
+                const jid = from.includes("@") ? from : `${from}@s.whatsapp.net`;
+                await session.socket.sendMessage(jid, { text: result.agentResponse });
+                session.messages.push({
+                  id: `${Date.now()}-media-reply`,
+                  from: jid,
+                  body: result.agentResponse,
+                  timestamp: Date.now(),
+                  direction: "outbound",
+                });
+              }
+            } catch (err) {
+              logger.warn("Media processing failed, falling back to text reply", { error: String(err) });
+              void sendAutonomousAgentReply(messageId, from, body || `[${messageType}]`);
+            }
+          })();
+        } else {
+          void sendAutonomousAgentReply(messageId, from, body);
+        }
       }
     }
   });
