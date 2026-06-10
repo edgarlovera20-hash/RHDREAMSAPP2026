@@ -1,43 +1,12 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
   <defs>
-    <filter id="glow-blue" x="-40%" y="-40%" width="180%" height="180%">
-      <feGaussianBlur stdDeviation="2.5" result="b1"/>
-      <feGaussianBlur stdDeviation="6" result="b2"/>
-      <feMerge>
-        <feMergeNode in="b2"/>
-        <feMergeNode in="b1"/>
-        <feMergeNode in="SourceGraphic"/>
-      </feMerge>
-    </filter>
-    <filter id="glow-white" x="-30%" y="-30%" width="160%" height="160%">
-      <feGaussianBlur stdDeviation="2" result="b1"/>
-      <feGaussianBlur stdDeviation="5" result="b2"/>
-      <feMerge>
-        <feMergeNode in="b2"/>
-        <feMergeNode in="b1"/>
-        <feMergeNode in="SourceGraphic"/>
-      </feMerge>
-    </filter>
+    <linearGradient id="msg-bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#A334FA"/>
+      <stop offset="100%" stop-color="#0695FF"/>
+    </linearGradient>
   </defs>
-
-  <!-- Chat bubble (Messenger shape) with tail at bottom-left -->
-  <path
-    d="M50 8 C26 8 8 25 8 46 C8 58 14 69 24 76 L24 90 L37 82 C41 83 45 84 50 84 C74 84 92 67 92 46 C92 25 74 8 50 8 Z"
-    stroke="#3a7fff"
-    stroke-width="3"
-    stroke-linejoin="round"
-    fill="none"
-    filter="url(#glow-blue)"
-  />
-
-  <!-- Messenger zigzag lightning bolt -->
-  <path
-    d="M28 60 L44 41 L54 51 L72 32"
-    stroke="white"
-    stroke-width="4.5"
-    stroke-linecap="round"
-    stroke-linejoin="round"
-    fill="none"
-    filter="url(#glow-white)"
-  />
+  <!-- Chat bubble shape -->
+  <path fill="url(#msg-bg)" d="M50 8C26.8 8 8 25.2 8 46.5c0 12 5.8 22.7 14.9 29.8V92l15.6-8.5c3.7 1 7.5 1.5 11.5 1.5 23.2 0 42-17.2 42-38.5S73.2 8 50 8z"/>
+  <!-- Lightning bolt -->
+  <path fill="#fff" d="M56 28L36 52h14l-6 20 20-24H50l6-20z"/>
 </svg>

@@ -1,25 +1,15 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none">
-  <defs>
-    <filter id="glow-wm">
-      <feGaussianBlur stdDeviation="3.5" result="blur"/>
-      <feMerge><feMergeNode in="blur"/><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
-    </filter>
-  </defs>
-  <g filter="url(#glow-wm)">
-    <!-- Chat bubble -->
-    <path d="M50 10 C27 10 10 25 10 43 C10 53 15 62 24 68 L20 88 L41 77 C44 78 47 78 50 78 C73 78 90 63 90 45 C90 27 73 10 50 10 Z" stroke="#00cc44" stroke-width="2.5" fill="#003d15"/>
-    <!-- Gear icon inside -->
-    <circle cx="50" cy="46" r="8" stroke="#00ff66" stroke-width="2" fill="none"/>
-    <circle cx="50" cy="46" r="3" stroke="#00ff66" stroke-width="2" fill="#00aa44"/>
-    <!-- Gear teeth -->
-    <line x1="50" y1="34" x2="50" y2="38" stroke="#00ff66" stroke-width="2.5" stroke-linecap="round"/>
-    <line x1="50" y1="54" x2="50" y2="58" stroke="#00ff66" stroke-width="2.5" stroke-linecap="round"/>
-    <line x1="38" y1="46" x2="42" y2="46" stroke="#00ff66" stroke-width="2.5" stroke-linecap="round"/>
-    <line x1="58" y1="46" x2="62" y2="46" stroke="#00ff66" stroke-width="2.5" stroke-linecap="round"/>
-    <line x1="41.5" y1="37.5" x2="44.3" y2="40.3" stroke="#00ff66" stroke-width="2" stroke-linecap="round"/>
-    <line x1="55.7" y1="51.7" x2="58.5" y2="54.5" stroke="#00ff66" stroke-width="2" stroke-linecap="round"/>
-    <line x1="58.5" y1="37.5" x2="55.7" y2="40.3" stroke="#00ff66" stroke-width="2" stroke-linecap="round"/>
-    <line x1="44.3" y1="51.7" x2="41.5" y2="54.5" stroke="#00ff66" stroke-width="2" stroke-linecap="round"/>
-  </g>
-  <path d="M50 6 C25 6 6 23 6 43 C6 54 12 65 22 72 L17 95 L40 82 C43 83 46 84 50 84 C75 84 94 67 94 47 C94 27 75 6 50 6 Z" stroke="#66ffaa" stroke-width="0.8" fill="none" opacity="0.4"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <circle cx="50" cy="50" r="50" fill="#25D366"/>
+  <path fill="#fff" d="M50 16C31.2 16 16 31.2 16 50c0 6.2 1.7 12 4.6 17L16 84l17.4-4.5C38.2 82.4 44 84 50 84c18.8 0 34-15.2 34-34S68.8 16 50 16zm0 62.4c-5.6 0-10.8-1.6-15.2-4.3l-1.1-.7-11 2.9 2.9-10.6-.7-1.1C22.9 60.2 21.6 55.2 21.6 50 21.6 33.9 34.2 21.6 50 21.6S78.4 33.9 78.4 50 65.8 78.4 50 78.4z"/>
+  <!-- Gear icon -->
+  <circle cx="50" cy="50" r="9" fill="#fff"/>
+  <circle cx="50" cy="50" r="4" fill="#25D366"/>
+  <rect x="48" y="36" width="4" height="7" rx="2" fill="#fff"/>
+  <rect x="48" y="57" width="4" height="7" rx="2" fill="#fff"/>
+  <rect x="36" y="48" width="7" height="4" rx="2" fill="#fff"/>
+  <rect x="57" y="48" width="7" height="4" rx="2" fill="#fff"/>
+  <rect x="40" y="40" width="4" height="7" rx="2" fill="#fff" transform="rotate(45 42 43.5)"/>
+  <rect x="54" y="53" width="4" height="7" rx="2" fill="#fff" transform="rotate(45 56 56.5)"/>
+  <rect x="54" y="40" width="4" height="7" rx="2" fill="#fff" transform="rotate(-45 56 43.5)"/>
+  <rect x="40" y="53" width="4" height="7" rx="2" fill="#fff" transform="rotate(-45 42 56.5)"/>
 </svg>
