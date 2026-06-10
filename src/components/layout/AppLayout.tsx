@@ -269,7 +269,7 @@ export function AppLayout() {
               {isDarkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
             </button>
             <div className={cn(isCollapsed && "flex items-center justify-center w-10 h-10")}>
-              <NotificationsPopover align={isCollapsed ? "center" : "left"} direction={isCollapsed ? "right" : "up"} />
+              <NotificationsPopover align="left" direction="right" />
             </div>
             <button
               onClick={logout}

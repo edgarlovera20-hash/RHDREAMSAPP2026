@@ -75,7 +75,7 @@ export function NotificationsPopover({
             className={cn(
               "fixed left-4 right-4 z-[200] sm:absolute sm:left-auto sm:right-auto sm:w-96 glass-panel rounded-2xl shadow-2xl border border-white/10 overflow-hidden",
               direction === 'up' ? "bottom-16 sm:bottom-full sm:mb-3" :
-              direction === 'right' ? "sm:left-full sm:ml-4 sm:top-0" :
+              direction === 'right' ? "sm:left-full sm:ml-4 sm:-translate-y-1/2 sm:top-1/2" :
               direction === 'left' ? "sm:right-full sm:mr-4 sm:top-0" :
               "top-14 sm:top-full sm:mt-3",
               (direction === 'up' || direction === 'down') && (
