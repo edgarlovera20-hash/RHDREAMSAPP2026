@@ -271,8 +271,8 @@ export function MicrosoftHub() {
           {/* ── OUTLOOK ── */}
           {activeTab === "outlook" && (
             <div className="glass-panel rounded-2xl border border-white/10 p-6 flex flex-col gap-4">
-              <div className="flex items-center gap-2 mb-1">
-                <Mail className="w-5 h-5 text-blue-400" />
+              <div className="flex items-center gap-3 mb-1">
+                <img src="/assets/workspace/outlook-mail.svg" alt="Outlook" className="w-8 h-8 object-contain drop-shadow-[0_2px_8px_rgba(0,120,212,0.5)] animate-[float_3s_ease-in-out_infinite]" />
                 <h2 className="text-base font-bold text-white">Enviar correo por Outlook</h2>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -327,8 +327,8 @@ export function MicrosoftHub() {
           {/* ── CALENDAR ── */}
           {activeTab === "calendar" && (
             <div className="glass-panel rounded-2xl border border-white/10 p-6 flex flex-col gap-4">
-              <div className="flex items-center gap-2 mb-1">
-                <Calendar className="w-5 h-5 text-cyan-400" />
+              <div className="flex items-center gap-3 mb-1">
+                <img src="/assets/workspace/outlook-calendar.svg" alt="Calendar" className="w-8 h-8 object-contain drop-shadow-[0_2px_8px_rgba(0,120,212,0.5)] animate-[float_3s_ease-in-out_infinite]" />
                 <h2 className="text-base font-bold text-white">Agendar entrevista con Teams Meeting</h2>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -386,7 +386,7 @@ export function MicrosoftHub() {
           {/* ── EXCEL (placeholder) ── */}
           {activeTab === "excel" && (
             <div className="glass-panel rounded-2xl border border-white/10 p-6 flex flex-col items-center justify-center gap-4 min-h-[220px] text-center">
-              <FileSpreadsheet className="w-10 h-10 text-green-400 opacity-60" />
+              <img src="/assets/workspace/excel.svg" alt="Excel" className="w-16 h-16 object-contain drop-shadow-[0_4px_16px_rgba(16,124,65,0.5)] animate-[float_3s_ease-in-out_infinite]" />
               <div>
                 <p className="text-sm font-semibold text-slate-300 mb-1">Excel Online — Próximamente</p>
                 <p className="text-xs text-slate-500">Exporta e importa candidatos desde hojas de OneDrive Business. Disponible en la próxima actualización.</p>
@@ -399,7 +399,7 @@ export function MicrosoftHub() {
             <div className="glass-panel rounded-2xl border border-white/10 p-6 flex flex-col gap-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <FolderOpen className="w-5 h-5 text-sky-400" />
+                  <img src="/assets/workspace/onedrive.svg" alt="OneDrive" className="w-8 h-8 object-contain drop-shadow-[0_2px_8px_rgba(0,120,212,0.4)] animate-[float_3.5s_ease-in-out_infinite]" />
                   <h2 className="text-base font-bold text-white">OneDrive — Archivos recientes</h2>
                 </div>
                 <button onClick={fetchDriveFiles} className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-white transition-colors">
@@ -431,7 +431,7 @@ export function MicrosoftHub() {
             <div className="glass-panel rounded-2xl border border-white/10 p-6 flex flex-col gap-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <Users className="w-5 h-5 text-purple-400" />
+                  <img src="/assets/workspace/teams.svg" alt="Teams" className="w-8 h-8 object-contain drop-shadow-[0_2px_8px_rgba(75,83,188,0.5)] animate-[float_4s_ease-in-out_infinite]" />
                   <h2 className="text-base font-bold text-white">Teams — Equipos conectados</h2>
                 </div>
                 <button onClick={fetchTeams} className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-white transition-colors">
