@@ -22,6 +22,61 @@ const getPath = (context: any) => {
   return `/${parts.join("/")}`;
 };
 
+// Lightweight HS256 JWT verification using the Web Crypto API (available in CF Workers).
+const verifyJwt = async (token: string, secret: string): Promise<boolean> => {
+  try {
+    const parts = token.split(".");
+    if (parts.length !== 3) return false;
+    const [headerB64, payloadB64, sigB64] = parts;
+
+    const encoder = new TextEncoder();
+    const key = await crypto.subtle.importKey(
+      "raw",
+      encoder.encode(secret),
+      { name: "HMAC", hash: "SHA-256" },
+      false,
+      ["verify"]
+    );
+
+    const sigBytes = Uint8Array.from(
+      atob(sigB64.replace(/-/g, "+").replace(/_/g, "/")),
+      (c) => c.charCodeAt(0)
+    );
+    const valid = await crypto.subtle.verify(
+      "HMAC",
+      key,
+      sigBytes,
+      encoder.encode(`${headerB64}.${payloadB64}`)
+    );
+    if (!valid) return false;
+
+    const payload = JSON.parse(
+      atob(payloadB64.replace(/-/g, "+").replace(/_/g, "/"))
+    );
+    return !payload.exp || payload.exp > Date.now() / 1000;
+  } catch {
+    return false;
+  }
+};
+
+// Returns an error Response if the request is not authorized, null if OK.
+const requireAuth = async (request: Request, env: any): Promise<Response | null> => {
+  if (!env.JWT_SECRET) {
+    // JWT_SECRET not configured in Cloudflare — skip check (backward compat)
+    return null;
+  }
+  const authHeader = request.headers.get("authorization");
+  if (!authHeader?.startsWith("Bearer ")) {
+    return json({ success: false, error: "No autorizado", code: 401 }, { status: 401 });
+  }
+  const token = authHeader.slice(7);
+  const valid = await verifyJwt(token, env.JWT_SECRET);
+  if (!valid) {
+    return json({ success: false, error: "Token invalido o expirado", code: 401 }, { status: 401 });
+  }
+  return null;
+};
+
 const integrationCatalog = {
   indeed: {
     id: "indeed",
@@ -213,6 +268,8 @@ export const onRequest = async (context: any) => {
   }
 
   if (request.method === "GET" && path === "/integrations/catalog") {
+    const authError = await requireAuth(request, env);
+    if (authError) return authError;
     return json({
       success: true,
       data: integrationCatalog,
@@ -220,6 +277,8 @@ export const onRequest = async (context: any) => {
   }
 
   if (request.method === "POST" && path === "/integrations/test") {
+    const authError = await requireAuth(request, env);
+    if (authError) return authError;
     const body = await readJsonBody(request);
     if (!body?.provider) {
       return json(
@@ -239,10 +298,14 @@ export const onRequest = async (context: any) => {
   }
 
   if (request.method === "POST" && path === "/gemini/agent/reply") {
+    const authError = await requireAuth(request, env);
+    if (authError) return authError;
     return openRouterReply(env, await readJsonBody(request));
   }
 
   if (request.method === "POST" && path === "/gemini/reply") {
+    const authError = await requireAuth(request, env);
+    if (authError) return authError;
     const body = await readJsonBody(request);
     const response = await openRouterReply(env, body);
     const payload = await response.clone().json().catch(() => ({}));
@@ -269,6 +332,8 @@ export const onRequest = async (context: any) => {
   }
 
   if (request.method === "POST" && path === "/integrations/canva/designs") {
+    const authError = await requireAuth(request, env);
+    if (authError) return authError;
     const body = await readJsonBody(request);
     const canvaUrl = body?.templateSearchUrl || "https://www.canva.com/templates";
     return json({

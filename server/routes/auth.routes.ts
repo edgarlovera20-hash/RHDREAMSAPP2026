@@ -4,6 +4,7 @@ import { ZodError } from "zod";
 import { generateToken } from "../middleware/auth";
 import { LoginRequestSchema } from "../validators/schemas";
 import { logger } from "../utils/logger";
+import { authLimiter } from "../middleware/rateLimiter";
 
 const getAdminAccounts = () => {
   const username = process.env.RHDREAMS_ADMIN_USERNAME || "";
@@ -39,7 +40,7 @@ const isPasswordValid = async (plainText: string, account: ReturnType<typeof get
 export const createAuthRoutes = (): Router => {
   const router = Router();
 
-  router.post("/login", async (req, res) => {
+  router.post("/login", authLimiter, async (req, res) => {
     try {
       const { username, password } = LoginRequestSchema.parse(req.body);
       const normalizedUsername = username.trim().toLowerCase();

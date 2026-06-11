@@ -45,7 +45,6 @@ async function startServer() {
     const NODE_ENV = process.env.NODE_ENV || "development";
     app.set("trust proxy", 1);
 
-    // Middleware
     app.use(express.json({
       limit: "10mb",
       verify: (req, _res, buf) => {
@@ -54,6 +53,8 @@ async function startServer() {
     }));
     app.use(express.urlencoded({ limit: "10mb", extended: true }));
     app.disable("x-powered-by");
+
+    // Host enforcement
     app.use((req, res, next) => {
       const host = normalizeHost(req.headers.host);
       const shouldEnforceRhHost = NODE_ENV === "production" && !isLocalOrPlatformHost(host);
@@ -89,25 +90,31 @@ async function startServer() {
         rhDomain: "https://rh.heavenlydreams.com.mx",
       });
     });
+
+    // Security headers
     app.use((_req, res, next) => {
       res.setHeader("X-Content-Type-Options", "nosniff");
       res.setHeader("X-Frame-Options", "DENY");
       res.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");
       res.setHeader("Permissions-Policy", "camera=(), microphone=(), geolocation=()");
+      const csp = [
+        "default-src 'self'",
+        "script-src 'self'",
+        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+        "font-src 'self' https://fonts.gstatic.com",
+        "img-src 'self' data: https:",
+        "connect-src 'self' https://firestore.googleapis.com https://www.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com wss:",
+        "frame-ancestors 'none'",
+      ].join("; ");
+      res.setHeader("Content-Security-Policy", csp);
       next();
     });
 
-    // Request logging middleware
+    // Request logger
     app.use((req, res, next) => {
       const start = Date.now();
       res.on("finish", () => {
         const duration = Date.now() - start;
-        const level =
-          res.statusCode >= 500
-            ? "error"
-            : res.statusCode >= 400
-              ? "warn"
-              : "info";
         logInfo(`${req.method} ${req.path} - ${res.statusCode} - ${duration}ms`, {
           method: req.method,
           path: req.path,
@@ -119,7 +126,7 @@ async function startServer() {
       next();
     });
 
-    // Initialize Gemini Service
+    // Initialize services
     initializeGeminiService({
       freeApiKey: process.env.GEMINI_FREE_API_KEY,
       paidApiKey: process.env.GEMINI_PAID_API_KEY,
@@ -148,10 +155,10 @@ async function startServer() {
       openRouterModel: process.env.OPENROUTER_MODEL || "openrouter/auto",
     });
 
-    // Apply global rate limiter
+    // Apply global rate limiter to all API routes
     app.use("/api/", apiLimiter);
 
-    // Mount API routes
+    // Mount routes
     app.use("/api/auth", createAuthRoutes());
     const geminiRoutes = createGeminiRoutes();
     app.use("/api/gemini", geminiRoutes);
@@ -168,7 +175,7 @@ async function startServer() {
       });
     });
 
-    // Health check endpoint (outside rate limiter for monitoring)
+    // Health check (outside rate limiter)
     app.get("/health", (req, res) => {
       res.json({
         success: true,
@@ -180,7 +187,7 @@ async function startServer() {
       });
     });
 
-    // Setup Vite middleware for development or Static server for production
+    // Vite dev or static production
     if (NODE_ENV !== "production") {
       logInfo("Starting in development mode with Vite middleware");
       const vite = await createViteServer({
@@ -215,7 +222,7 @@ async function startServer() {
       });
     }
 
-    // Error handling middleware
+    // Global error handler
     app.use(
       (
         err: any,
@@ -232,9 +239,8 @@ async function startServer() {
       }
     );
 
-    // Start server
     app.listen(PORT, "0.0.0.0", () => {
-      logInfo(`🚀 Server running on http://localhost:${PORT}`, {
+      logInfo(`Server running on http://localhost:${PORT}`, {
         port: PORT,
         environment: NODE_ENV,
       });
