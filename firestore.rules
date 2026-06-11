@@ -17,11 +17,13 @@ service cloud.firestore {
       return data.keys().hasAll(["companyId"]);
     }
 
+    // Requires a non-null companyId in the token — prevents cross-company access
+    // from users without custom claims (e.g. anonymous or basic Google sign-in).
     function canAccessCompany(data) {
       return signedIn()
+        && companyId() != null
         && (
           !hasCompanyField(data)
-          || companyId() == null
           || role() == "Admin"
           || data.companyId == companyId()
         );
@@ -29,28 +31,25 @@ service cloud.firestore {
 
     function canCreateForCompany(data) {
       return signedIn()
+        && companyId() != null
         && hasCompanyField(data)
         && (
-          companyId() == null
-          || role() == "Admin"
+          role() == "Admin"
           || data.companyId == companyId()
         );
     }
 
+    // Role must be explicitly set — users without a role cannot write.
     function canWriteRole() {
       return signedIn()
-        && (
-          role() == null
-          || role() in ["Admin", "Manager", "Recruiter", "Supervisor"]
-        );
+        && role() != null
+        && role() in ["Admin", "Manager", "Recruiter", "Supervisor"];
     }
 
     function canDeleteRole() {
       return signedIn()
-        && (
-          role() == null
-          || role() in ["Admin", "Manager"]
-        );
+        && role() != null
+        && role() in ["Admin", "Manager"];
     }
 
     function canReadDoc() {
@@ -71,9 +70,6 @@ service cloud.firestore {
       return canDeleteRole() && canAccessCompany(resource.data);
     }
 
-    // Production baseline: recruiting data is no longer public. New documents
-    // must include companyId. Existing legacy documents without companyId stay
-    // readable to authenticated users during the migration window.
     match /candidates/{candidateId} {
       allow read: if canReadDoc();
       allow create: if canCreateDoc();
@@ -135,7 +131,7 @@ service cloud.firestore {
       allow create: if canCreateDoc();
       allow update: if canUpdateDoc();
       allow delete: if canDeleteDoc();
-      
+
       match /knowledge/{knowledgeId} {
         allow read: if canAccessCompany(get(/databases/$(database)/documents/agents/$(agentId)).data);
         allow create, update: if canWriteRole()
