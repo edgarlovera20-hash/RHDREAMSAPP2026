@@ -29,6 +29,7 @@ type BaileysSession = {
   agentPrompt?: string;
   autoReplyEnabled?: boolean;
   autoRepliedMessageIds: Set<string>;
+  reconnectAttempts: number;
   messages: Array<{
     id: string;
     from: string;
@@ -55,10 +56,14 @@ type SendOptions = {
 
 const DEFAULT_SESSION_ID = process.env.BAILEYS_SESSION_ID || "default";
 const MAX_SESSION_MESSAGES = Math.max(100, Number(process.env.BAILEYS_MAX_SESSION_MESSAGES || 1000));
-const QR_TTL_MS = Math.max(30_000, Number(process.env.BAILEYS_QR_TTL_MS || 120_000)); // Aumentado a 120 segundos
+const QR_TTL_MS = Math.max(30_000, Number(process.env.BAILEYS_QR_TTL_MS || 120_000));
 const CONNECTING_STALE_MS = Math.max(15_000, Number(process.env.BAILEYS_CONNECTING_STALE_MS || 35_000));
+const MAX_DEDUP_IDS = 500;
 const SESSION_ROOT = path.join(process.cwd(), ".sessions", "baileys");
 const sessions = new Map<string, BaileysSession>();
+
+// Exponential backoff: 2s, 4s, 8s, 16s, 32s (capped at 32s)
+const reconnectDelayMs = (attempts: number) => Math.min(2000 * Math.pow(2, attempts), 32_000);
 
 const getSession = (sessionId = DEFAULT_SESSION_ID) => {
   const existing = sessions.get(sessionId);
@@ -74,6 +79,7 @@ const getSession = (sessionId = DEFAULT_SESSION_ID) => {
     updatedAt: Date.now(),
     autoReplyEnabled: true,
     autoRepliedMessageIds: new Set(),
+    reconnectAttempts: 0,
     messages: [],
   };
   sessions.set(sessionId, session);
@@ -126,7 +132,6 @@ const refreshSessionLifecycle = (session: BaileysSession) => {
     : "Baileys tardo demasiado en generar QR. Reiniciando la sesion.";
   session.updatedAt = now;
 
-  // Auto-restart cuando QR expira o se vuelve stale
   if (qrExpired || connectingStale) {
     setTimeout(() => {
       startBaileysSession({ sessionId: session.id }).catch((error) => {
@@ -217,7 +222,7 @@ const buildFirstContactGreeting = (agentName: string, companyName: string) =>
 const normalizeForDuplicateCheck = (value: string) =>
   value
     .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[̀-ͯ]/g, "")
     .toLowerCase()
     .replace(/\s+/g, " ")
     .trim();
@@ -284,6 +289,7 @@ export async function startBaileysSession(options: StartOptions = {}) {
     await clearSessionFiles(session);
     session.state = "idle";
     session.lastError = null;
+    session.reconnectAttempts = 0;
   }
 
   if (["connecting", "qr", "connected"].includes(session.state)) {
@@ -308,6 +314,8 @@ export async function startBaileysSession(options: StartOptions = {}) {
     printQRInTerminal: false,
     browser: ["RHDreams", "Chrome", "1.0.0"],
     logger: P({ level: process.env.BAILEYS_LOG_LEVEL || "silent" }),
+    syncFullHistory: false,
+    markOnlineOnConnect: false,
   });
 
   session.socket = socket;
@@ -377,6 +385,7 @@ export async function startBaileysSession(options: StartOptions = {}) {
       session.phone = socket.user?.id || null;
       session.lastError = null;
       session.connectedAt = Date.now();
+      session.reconnectAttempts = 0;
       session.updatedAt = Date.now();
       logger.info("Baileys session connected", { sessionId: session.id, phone: session.phone });
     }
@@ -396,17 +405,20 @@ export async function startBaileysSession(options: StartOptions = {}) {
           .then(() => {
             session.state = "closed";
             session.lastError = "La sesion anterior fue cerrada por WhatsApp. Generando nuevo QR.";
+            session.reconnectAttempts = 0;
             return startBaileysSession({ sessionId: session.id });
           })
           .catch((error) => {
             logger.error("Baileys logged-out reset failed", { sessionId: session.id, error });
           });
       } else {
+        const delay = reconnectDelayMs(session.reconnectAttempts);
+        session.reconnectAttempts += 1;
         setTimeout(() => {
           startBaileysSession({ sessionId: session.id }).catch((error) => {
             logger.error("Baileys reconnect failed", { sessionId: session.id, error });
           });
-        }, 3000);
+        }, delay);
       }
     }
   });
@@ -418,6 +430,11 @@ export async function startBaileysSession(options: StartOptions = {}) {
     if (session.autoRepliedMessageIds.has(messageId)) return;
 
     session.autoRepliedMessageIds.add(messageId);
+    // Prevent unbounded growth of the dedup set
+    if (session.autoRepliedMessageIds.size > MAX_DEDUP_IDS) {
+      const first = session.autoRepliedMessageIds.values().next().value;
+      if (first !== undefined) session.autoRepliedMessageIds.delete(first);
+    }
 
     const agentName = session.agentName || process.env.DEFAULT_AGENT_PERSONAL_NAME || "Agente de Heavenly Dreams";
     const companyName = session.companyName || process.env.DEFAULT_COMPANY_NAME || "Heavenly Dreams";
@@ -515,6 +532,10 @@ Reglas:
 
   socket.ev.on("messages.upsert", ({ messages, type }: any) => {
     for (const message of messages || []) {
+      const from = message.key?.remoteJid || "";
+      // Skip WhatsApp status broadcasts — they are not real conversations
+      if (from === "status@broadcast") continue;
+
       const body =
         message.message?.conversation ||
         message.message?.extendedTextMessage?.text ||
@@ -523,7 +544,6 @@ Reglas:
       if (!body) continue;
 
       const messageId = message.key?.id || `${Date.now()}`;
-      const from = message.key?.remoteJid || "";
       const direction = message.key?.fromMe ? "outbound" : "inbound";
       const rawTimestamp = Number(message.messageTimestamp || Date.now());
       const createdAtMs = rawTimestamp < 10000000000 ? rawTimestamp * 1000 : rawTimestamp;
@@ -615,13 +635,18 @@ export async function sendBaileysMessage(options: SendOptions) {
 export async function logoutBaileysSession(sessionId?: string) {
   const session = getSession(sessionId);
   if (session.socket) {
-    await session.socket.logout();
+    try {
+      await session.socket.logout();
+    } catch {
+      // Session may already be invalid; continue cleanup.
+    }
   }
   session.socket = undefined;
   session.state = "logged_out";
   session.qr = null;
   session.qrDataUrl = null;
   session.phone = null;
+  session.reconnectAttempts = 0;
   session.updatedAt = Date.now();
   return publicSession(session);
 }
