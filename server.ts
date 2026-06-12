@@ -11,6 +11,8 @@ import { createIntegrationRoutes } from "./server/routes/integrations.routes";
 import { createAuthRoutes } from "./server/routes/auth.routes";
 import { createWorkflowRoutes } from "./server/routes/workflows.routes";
 import { createConversationRoutes } from "./server/routes/conversations.routes";
+import { createWebhooksRoutes } from "./server/routes/webhooks.routes";
+import { createAgentRoutes } from "./server/routes/agent.routes";
 import { apiLimiter } from "./server/middleware/rateLimiter";
 import { initializeGeminiService } from "./server/services/gemini.service";
 import { initializeGroqService } from "./server/services/groq.service";
@@ -167,6 +169,8 @@ async function startServer() {
     app.use("/api/integrations", createIntegrationRoutes());
     app.use("/api/conversations", createConversationRoutes());
     app.use("/api/workflows", createWorkflowRoutes());
+    app.use("/api/webhooks/n8n", createWebhooksRoutes());
+    app.use("/api/agent", createAgentRoutes());
     app.use("/api", (_req, res) => {
       res.status(404).json({
         success: false,
