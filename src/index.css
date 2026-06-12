@@ -28,7 +28,7 @@
   --color-blue-300: #93c5fd;
   --color-blue-400: #60a5fa;
   --color-blue-500: #3b82f6;
-  --color-blue-600: #2563eb;
+  --color-blue-600: #0066FF;
   --color-blue-700: #1d4ed8;
   --color-blue-800: #1e40af;
   --color-blue-900: #1e3a8a;
@@ -141,6 +141,24 @@
   --color-rose-800: #9f1239;
   --color-rose-900: #881337;
   --color-rose-950: #4c0519;
+
+  /* === Heavenly Dreams Official Palette === */
+  --color-hd-primary: #0066FF;
+  --color-hd-primary-hover: #0052CC;
+  --color-hd-secondary: #00A3FF;
+  --color-hd-secondary-hover: #0080CC;
+  --color-hd-success: #10B981;
+  --color-hd-warning: #F59E0B;
+  --color-hd-error: #EF4444;
+  --color-hd-bg-base: #0A0F1C;
+  --color-hd-bg-surface: #111827;
+  --color-hd-bg-elevated: #161F33;
+  --color-hd-text-primary: #F9FAFB;
+  --color-hd-text-secondary: #E5E7EB;
+  --color-hd-text-muted: #9CA3AF;
+  --color-hd-border: #1F2937;
+  --color-hd-border-strong: #334155;
+  --font-heading: "Poppins", "Inter", system-ui, sans-serif;
 }
 
 body {
