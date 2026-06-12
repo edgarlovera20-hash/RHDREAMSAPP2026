@@ -4,6 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
+    "postinstall": "prisma generate",
     "dev": "tsx server.ts",
     "build": "npm run build:client && npm run build:server",
     "build:client": "vite build",
@@ -22,6 +23,7 @@
     "simulate:messages": "node scripts/simulate-message-load.mjs"
   },
   "dependencies": {
+    "@prisma/client": "^5.22.0",
     "@google/genai": "^1.29.0",
     "@hd/core-contracts": "file:../HD-CORE/packages/contracts",
     "@hd/core-rbac": "file:../HD-CORE/packages/rbac",
@@ -58,6 +60,7 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
+    "prisma": "^5.22.0",
     "@eslint/js": "^10.0.1",
     "@firebase/eslint-plugin-security-rules": "^0.0.2",
     "@types/express": "^4.17.25",
