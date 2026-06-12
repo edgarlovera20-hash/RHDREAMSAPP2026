@@ -21,6 +21,10 @@
   },
   "dependencies": {
     "@google/genai": "^1.29.0",
+    "@hd/core-contracts": "file:../HD-CORE/packages/contracts",
+    "@hd/core-rbac": "file:../HD-CORE/packages/rbac",
+    "@hd/core-types": "file:../HD-CORE/packages/types",
+    "@hd/core-validation": "file:../HD-CORE/packages/validation",
     "@tailwindcss/vite": "^4.1.14",
     "@types/react-big-calendar": "^1.16.3",
     "@vitejs/plugin-react": "^5.0.4",
