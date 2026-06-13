@@ -27,6 +27,8 @@ jobs:
         with:
           repository: edgarlovera20-hash/HD-CORE
           path: HD-CORE
+          ref: main
+          token: ${{ secrets.CROSS_REPO_TOKEN || github.token }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v4

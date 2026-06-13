@@ -1,0 +1,75 @@
+// prisma/schema.prisma
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum VacancyStatus {
+  draft
+  open
+  closed
+  filled
+}
+
+enum CandidateStatus {
+  new
+  screening
+  interview
+  offer
+  hired
+  rejected
+}
+
+enum InterviewType {
+  phone
+  video
+  onsite
+  technical
+}
+
+model Vacancy {
+  id          String        @id @default(cuid())
+  title       String
+  department  String
+  location    String
+  status      VacancyStatus @default(open)
+  description String?
+  salaryMin   Float?
+  salaryMax   Float?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  candidates  Candidate[]
+}
+
+model Candidate {
+  id            String          @id @default(cuid())
+  name          String
+  email         String          @unique
+  phone         String?
+  vacancyId     String
+  vacancy       Vacancy         @relation(fields: [vacancyId], references: [id])
+  status        CandidateStatus @default(new)
+  cvUrl         String?
+  notes         String?
+  correlationId String
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  interviews    Interview[]
+}
+
+model Interview {
+  id            String        @id @default(cuid())
+  candidateId   String
+  candidate     Candidate     @relation(fields: [candidateId], references: [id])
+  type          InterviewType @default(video)
+  scheduledAt   DateTime
+  durationMin   Int           @default(60)
+  interviewerId String?
+  notes         String?
+  correlationId String
+  createdAt     DateTime      @default(now())
+}
