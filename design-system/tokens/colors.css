@@ -1,20 +1,20 @@
 :root {
   color-scheme: dark;
-  --hd-color-primary: #01EEEE;
-  --hd-color-secondary: #06AAB1;
-  --hd-color-accent: #01EEEE;
-  --hd-color-bg: #091623;
-  --hd-color-bg-secondary: #0C1928;
-  --hd-color-card: #091623;
-  --hd-color-text: #ffffff;
+  --hd-color-primary: #0066FF;
+  --hd-color-secondary: #0052CC;
+  --hd-color-accent: #00A3FF;
+  --hd-color-bg: #0A0F1C;
+  --hd-color-bg-secondary: #111827;
+  --hd-color-card: #161F33;
+  --hd-color-text: #F9FAFB;
   --hd-color-text-secondary: #94a3b8;
-  --hd-color-success: #22c55e;
+  --hd-color-success: #10B981;
   --hd-color-warning: #f59e0b;
   --hd-color-error: #ef4444;
-  --hd-color-border: rgba(6, 170, 177, 0.22);
-  --hd-color-border-strong: rgba(1, 238, 238, 0.38);
-  --hd-color-glass: rgba(9, 22, 35, 0.86);
-  --hd-color-glass-strong: rgba(7, 19, 31, 0.94);
+  --hd-color-border: rgba(255, 255, 255, 0.08);
+  --hd-color-border-strong: rgba(0, 102, 255, 0.3);
+  --hd-color-glass: rgba(10, 15, 28, 0.86);
+  --hd-color-glass-strong: rgba(10, 15, 28, 0.94);
 }
 
 :root[data-theme="light"],

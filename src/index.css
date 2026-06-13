@@ -182,9 +182,9 @@ body {
   --panel-dark: #091623;
   --panel-navy: #0C1928;
   --panel-shadow: #07131F;
-  --neon-cyan: #01EEEE;
-  --neon-teal: #06AAB1;
-  --teal-dark: #057C85;
+  --neon-cyan: #0066FF;
+  --neon-teal: #0052CC;
+  --teal-dark: #004DB3;
   --blue-glow: #0067B1;
 
   /* Neon & glow utilities */
@@ -194,13 +194,13 @@ body {
   --neon-panel-shadow: 0 0 28px rgba(1, 238, 238, 0.35), 0 0 0 1px rgba(6, 170, 177, 0.28);
 
   /* Electric accent palette (for nth-of-type icon accents — unchanged) */
-  --electric-cyan: #01EEEE;
+  --electric-cyan: #0066FF;
   --electric-blue: #0071BC;
   --electric-violet: #a78bfa;
   --electric-pink: #f472b6;
   --electric-lime: #a3e635;
   --electric-amber: #fbbf24;
-  --electric-mint: #06AAB1;
+  --electric-mint: #0052CC;
   --electric-rose: #fb7185;
   --electric-orange: #fb923c;
 

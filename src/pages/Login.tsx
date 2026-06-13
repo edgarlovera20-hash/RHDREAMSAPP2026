@@ -62,7 +62,7 @@ export function Login() {
           className="grid w-full max-w-5xl overflow-hidden rounded-2xl md:grid-cols-[1fr_420px]"
           style={{
             background: 'radial-gradient(circle at 50% 30%, #0C1928 0%, #091623 60%, #07131F 100%)',
-            border: '1px solid #06AAB1',
+            border: '1px solid #0052CC',
             boxShadow: '0 0 48px rgba(1,238,238,0.30), 0 24px 64px rgba(7,19,31,0.80)',
           }}
         >
@@ -72,7 +72,7 @@ export function Login() {
               <img src={BRAND_LOGO_PATH} alt="Heavenly Dreams" className="h-14 w-14 object-contain" />
               <div>
                 <p className="text-2xl font-bold tracking-tight">
-                  RH<span style={{ color: '#01EEEE' }}>Dreams</span>
+                  RH<span style={{ color: '#0066FF' }}>Dreams</span>
                 </p>
                 <p className="text-[10px] font-bold uppercase tracking-[0.24em]" style={{ color: 'rgba(1,238,238,0.75)' }}>
                   Heavenly Dreams
@@ -81,7 +81,7 @@ export function Login() {
             </div>
 
             <div className="max-w-sm">
-              <p className="mb-4 text-xs font-bold uppercase tracking-[0.24em]" style={{ color: '#01EEEE' }}>
+              <p className="mb-4 text-xs font-bold uppercase tracking-[0.24em]" style={{ color: '#0066FF' }}>
                 Acceso seguro
               </p>
               <h1 className="text-4xl font-bold tracking-tight text-white leading-tight">
@@ -99,7 +99,7 @@ export function Login() {
                   className="rounded-xl px-3 py-3 flex items-start gap-2.5"
                   style={{ background: 'rgba(1,238,238,0.05)', border: '1px solid rgba(6,170,177,0.22)' }}
                 >
-                  <Icon className="w-4 h-4 mt-0.5 shrink-0" style={{ color: '#01EEEE' }} />
+                  <Icon className="w-4 h-4 mt-0.5 shrink-0" style={{ color: '#0066FF' }} />
                   <div>
                     <p className="text-xs font-semibold text-white">{label}</p>
                     <p className="text-[11px] text-slate-500 mt-0.5">{desc}</p>
@@ -116,7 +116,7 @@ export function Login() {
               <img src={BRAND_LOGO_PATH} alt="Heavenly Dreams" className="h-12 w-12 object-contain" />
               <div>
                 <p className="text-xl font-bold">
-                  RH<span style={{ color: '#01EEEE' }}>Dreams</span>
+                  RH<span style={{ color: '#0066FF' }}>Dreams</span>
                 </p>
                 <p className="text-[10px] font-bold uppercase tracking-[0.2em]" style={{ color: 'rgba(1,238,238,0.75)' }}>
                   Heavenly Dreams
@@ -125,7 +125,7 @@ export function Login() {
             </div>
 
             <div className="mb-8">
-              <p className="text-xs font-bold uppercase tracking-[0.24em]" style={{ color: '#01EEEE' }}>Bienvenido</p>
+              <p className="text-xs font-bold uppercase tracking-[0.24em]" style={{ color: '#0066FF' }}>Bienvenido</p>
               <h2 className="mt-3 text-3xl font-bold tracking-tight text-white">Iniciar sesion</h2>
               <p className="mt-2 text-sm text-slate-400">Ingresa tus credenciales para continuar.</p>
             </div>
@@ -139,7 +139,7 @@ export function Login() {
                   className="flex items-center gap-3 rounded-xl px-4 py-3 transition-all focus-within:shadow-[0_0_0_2px_rgba(1,238,238,0.45)]"
                   style={{ background: 'rgba(12,25,40,0.8)', border: '1px solid rgba(6,170,177,0.35)' }}
                 >
-                  <User className="h-5 w-5 shrink-0" style={{ color: '#01EEEE' }} />
+                  <User className="h-5 w-5 shrink-0" style={{ color: '#0066FF' }} />
                   <input
                     value={username}
                     onChange={(event) => setUsername(event.target.value)}
@@ -159,7 +159,7 @@ export function Login() {
                   className="flex items-center gap-3 rounded-xl px-4 py-3 transition-all focus-within:shadow-[0_0_0_2px_rgba(1,238,238,0.45)]"
                   style={{ background: 'rgba(12,25,40,0.8)', border: '1px solid rgba(6,170,177,0.35)' }}
                 >
-                  <Lock className="h-5 w-5 shrink-0" style={{ color: '#01EEEE' }} />
+                  <Lock className="h-5 w-5 shrink-0" style={{ color: '#0066FF' }} />
                   <input
                     value={password}
                     onChange={(event) => setPassword(event.target.value)}
@@ -205,12 +205,12 @@ export function Login() {
                 disabled={submitting}
                 className="flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-bold uppercase tracking-[0.16em] transition-all disabled:cursor-not-allowed disabled:opacity-60"
                 style={{
-                  background: submitting ? '#057C85' : '#06AAB1',
+                  background: submitting ? '#004DB3' : '#0052CC',
                   color: '#091623',
                   boxShadow: '0 0 24px rgba(1,238,238,0.35)',
                 }}
-                onMouseEnter={e => { if (!submitting) (e.currentTarget as HTMLButtonElement).style.background = '#01EEEE'; }}
-                onMouseLeave={e => { if (!submitting) (e.currentTarget as HTMLButtonElement).style.background = '#06AAB1'; }}
+                onMouseEnter={e => { if (!submitting) (e.currentTarget as HTMLButtonElement).style.background = '#0066FF'; }}
+                onMouseLeave={e => { if (!submitting) (e.currentTarget as HTMLButtonElement).style.background = '#0052CC'; }}
               >
                 {submitting ? "Validando..." : "Entrar"}
                 <ArrowRight className="h-4 w-4" />
