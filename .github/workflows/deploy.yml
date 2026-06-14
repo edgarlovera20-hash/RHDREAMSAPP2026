@@ -1,0 +1,39 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          script: |
+            set -e
+            if [ ! -d ~/HD-CORE ]; then
+              git clone https://github.com/edgarlovera20-hash/HD-CORE.git ~/HD-CORE
+            else
+              cd ~/HD-CORE && git pull origin main
+            fi
+            if [ ! -d ~/HD-RH ]; then
+              git clone https://github.com/edgarlovera20-hash/HD-RH.git ~/HD-RH
+            fi
+            cd ~/HD-RH
+            git pull origin main
+            npm ci
+            npm run build
+            if ! diff -q nginx/rh.heavenlydreams.com.mx.conf /etc/nginx/sites-available/rh.heavenlydreams.com.mx.conf > /dev/null 2>&1; then
+              sudo cp nginx/rh.heavenlydreams.com.mx.conf /etc/nginx/sites-available/rh.heavenlydreams.com.mx.conf
+              sudo ln -sf /etc/nginx/sites-available/rh.heavenlydreams.com.mx.conf /etc/nginx/sites-enabled/rh.heavenlydreams.com.mx.conf
+              sudo nginx -t && sudo nginx -s reload
+            fi
+            pm2 describe hd-rh > /dev/null 2>&1 \
+              && pm2 restart hd-rh \
+              || PORT=3004 pm2 start dist/server.cjs --name hd-rh
+            pm2 save
